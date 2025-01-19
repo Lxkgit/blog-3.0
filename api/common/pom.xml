@@ -9,6 +9,7 @@
         <module>common-redis</module>
         <module>common-core</module>
         <module>common-mq</module>
+        <module>common-log</module>
     </modules>
 
     <parent>

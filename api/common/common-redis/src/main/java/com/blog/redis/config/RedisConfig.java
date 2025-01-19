@@ -1,4 +1,4 @@
-package com.blog.api.config;
+package com.blog.redis.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;

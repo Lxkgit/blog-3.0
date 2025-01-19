@@ -2,22 +2,15 @@ package com.blog.content.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.blog.api.service.RedisService;
-import com.blog.content.mapper.es.TestEsInfoMapper;
-import com.blog.content.mapper.es.*;
-import com.blog.core.es.AnchorPointInfo;
-import com.blog.core.es.TestESInfo;
+import com.blog.redis.service.RedisService;
 import com.blog.mq.entity.RocketMQMessage;
 import com.blog.mq.service.MQProducerService;
-import org.dromara.easyes.core.conditions.select.LambdaEsQueryWrapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/test")

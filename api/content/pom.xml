@@ -12,20 +12,22 @@
     <artifactId>content</artifactId>
 
     <dependencies>
+        <!-- spring boot web 依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- easy-es 依赖 -->
         <dependency>
             <groupId>org.dromara.easy-es</groupId>
             <artifactId>easy-es-boot-starter</artifactId>
         </dependency>
 
+        <!-- rocket mq 依赖 -->
         <dependency>
-            <groupId>com.blog</groupId>
-            <artifactId>common-redis</artifactId>
-            <version>3.0</version>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
         </dependency>
 
         <dependency>
@@ -36,13 +38,14 @@
 
         <dependency>
             <groupId>com.blog</groupId>
-            <artifactId>common-mq</artifactId>
+            <artifactId>common-log</artifactId>
             <version>3.0</version>
         </dependency>
 
 <!--        <dependency>-->
-<!--            <groupId>org.apache.rocketmq</groupId>-->
-<!--            <artifactId>rocketmq-spring-boot-starter</artifactId>-->
+<!--            <groupId>com.blog</groupId>-->
+<!--            <artifactId>common-mq</artifactId>-->
+<!--            <version>3.0</version>-->
 <!--        </dependency>-->
 
     </dependencies>

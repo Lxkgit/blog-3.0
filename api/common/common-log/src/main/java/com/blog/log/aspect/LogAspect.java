@@ -3,7 +3,6 @@ package com.blog.log.aspect;
 import com.alibaba.fastjson2.JSON;
 import com.blog.core.entity.file.log.SysOperLog;
 import com.blog.core.utils.StringUtils;
-import com.blog.core.utils.ip.IpUtils;
 import com.blog.log.annotation.Log;
 import com.blog.log.enums.BusinessStatus;
 import com.blog.log.filter.PropertyPreExcludeFilter;
@@ -17,10 +16,10 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author lxk
@@ -39,7 +38,7 @@ public class LogAspect {
     /**
      * 计算操作消耗时间
      */
-    private static final ThreadLocal<Long> TIME_THREADLOCAL = new NamedThreadLocal<Long>("Cost Time");
+    private static final ThreadLocal<Long> COST_TIME = new NamedThreadLocal<>("Cost Time");
 
     @Resource
     private AsyncLogService asyncLogService;
@@ -49,7 +48,7 @@ public class LogAspect {
      */
     @Before(value = "@annotation(controllerLog)")
     public void boBefore(JoinPoint joinPoint, Log controllerLog) {
-        TIME_THREADLOCAL.set(System.currentTimeMillis());
+        COST_TIME.set(System.currentTimeMillis());
     }
 
     /**
@@ -75,6 +74,7 @@ public class LogAspect {
 
     protected void handleLog(final JoinPoint joinPoint, Log controllerLog, final Exception e, Object jsonResult) {
         try {
+            System.out.println("日志");
             // *========数据库日志=========*//
             SysOperLog operLog = new SysOperLog();
             operLog.setStatus(BusinessStatus.SUCCESS.ordinal());
@@ -82,6 +82,9 @@ public class LogAspect {
 //            String ip = IpUtils.getIpAddr();
             String ip = "IpUtils.getIpAddr()";
             operLog.setOperIp(ip);
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = requestAttributes.getRequest();
+            System.out.println(request.toString());
 //            operLog.setOperUrl(StringUtils.substring(ServletUtils.getRequest().getRequestURI(), 0, 255));
 //            String username = SecurityUtils.getUsername();
             String username = "";
@@ -102,14 +105,15 @@ public class LogAspect {
             // 处理设置注解上的参数
             getControllerMethodDescription(joinPoint, controllerLog, operLog, jsonResult);
             // 设置消耗时间
-            operLog.setCostTime(System.currentTimeMillis() - TIME_THREADLOCAL.get());
+            operLog.setCostTime(System.currentTimeMillis() - COST_TIME.get());
             // 保存数据库
-            asyncLogService.saveSysLog(operLog);
+            System.out.println(operLog.toString());
+//            asyncLogService.saveSysLog(operLog);
         } catch (Exception exp) {
             // 记录本地异常日志
             exp.printStackTrace();
         } finally {
-            TIME_THREADLOCAL.remove();
+            COST_TIME.remove();
         }
     }
 

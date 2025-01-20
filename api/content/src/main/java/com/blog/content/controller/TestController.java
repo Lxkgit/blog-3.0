@@ -2,9 +2,11 @@ package com.blog.content.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.blog.redis.service.RedisService;
-import com.blog.mq.entity.RocketMQMessage;
-import com.blog.mq.service.MQProducerService;
+//import com.blog.redis.service.RedisService;
+//import com.blog.mq.entity.RocketMQMessage;
+//import com.blog.mq.service.MQProducerService;
+import com.blog.log.annotation.Log;
+import com.blog.log.enums.BusinessType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,14 +18,21 @@ import javax.annotation.Resource;
 @RequestMapping("/test")
 public class TestController {
 
-    @Resource
-    private RedisService redisService;
+//    @Resource
+//    private RedisService redisService;
 
-    @Resource
-    private MQProducerService mqProducerService;
+//    @Resource
+//    private MQProducerService mqProducerService;
 
 //    @Resource
 //    private TestEsInfoMapper testEsInfoMapper;
+
+    @GetMapping("/getTest")
+    @Log(title = "网格分类数据", businessType = BusinessType.GRANT)
+    public String getTest(@RequestParam String key) {
+
+        return key;
+    }
 
 //    @GetMapping("/getTest")
 //    public TestESInfo getKey(@RequestParam String key) {
@@ -33,26 +42,26 @@ public class TestController {
 //        return testESInfo;
 //    }
 
-    @GetMapping("/setTest")
-    public boolean setKey(@RequestParam String key, @RequestParam String value) {
-
-        RocketMQMessage rocketMQMessage = new RocketMQMessage();
-        rocketMQMessage.setTopic("BLOG_SYSTEM_DATA");
-        rocketMQMessage.setTag("CONTENT");
-        rocketMQMessage.setMessage("11111");
-        mqProducerService.send("BLOG_SYSTEM_DATA", "CONTENT", JSONObject.toJSONString(rocketMQMessage));
-//        if (!testEsInfoMapper.existsIndex("test_info")) {
-//            testEsInfoMapper.createIndex();
-//        }
-//        testEsInfoMapper.deleteIndex("test_info");
+//    @GetMapping("/setTest")
+//    public boolean setKey(@RequestParam String key, @RequestParam String value) {
 //
-//        TestESInfo testESInfo = new TestESInfo();
-//        testESInfo.setKey(key);
-//        testESInfo.setValue(value);
-//        testEsInfoMapper.insert(testESInfo);
-
-        return redisService.setString(key, value, 10000);
-    }
+//        RocketMQMessage rocketMQMessage = new RocketMQMessage();
+//        rocketMQMessage.setTopic("BLOG_SYSTEM_DATA");
+//        rocketMQMessage.setTag("CONTENT");
+//        rocketMQMessage.setMessage("11111");
+//        mqProducerService.send("BLOG_SYSTEM_DATA", "CONTENT", JSONObject.toJSONString(rocketMQMessage));
+////        if (!testEsInfoMapper.existsIndex("test_info")) {
+////            testEsInfoMapper.createIndex();
+////        }
+////        testEsInfoMapper.deleteIndex("test_info");
+////
+////        TestESInfo testESInfo = new TestESInfo();
+////        testESInfo.setKey(key);
+////        testESInfo.setValue(value);
+////        testEsInfoMapper.insert(testESInfo);
+//
+//        return redisService.setString(key, value, 10000);
+//    }
 
 //    @GetMapping("/delTest")
 //    public boolean delKey(@RequestParam String key) {

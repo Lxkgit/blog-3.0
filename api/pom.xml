@@ -11,18 +11,27 @@
     <modules>
         <module>common</module>
         <module>content</module>
+        <module>file</module>
+        <module>gateway</module>
+        <module>auth</module>
     </modules>
 
     <properties>
-        <java.version>1.8</java.version>
         <spring-boot.version>2.7.18</spring-boot.version>
-        <redis.version>2.7.18</redis.version>
         <spring-cloud.version>2021.0.8</spring-cloud.version>
+
+        <java.version>1.8</java.version>
+        <redis.version>2.7.18</redis.version>
         <fastjson.version>2.0.43</fastjson.version>
+        <easyes.version>2.0.0</easyes.version>
+        <elasticsearch.version>7.14.1</elasticsearch.version>
+        <rocketmq.version>2.2.3</rocketmq.version>
+        <lombok.version>1.18.34</lombok.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+
             <!-- SpringCloud 微服务 -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -51,6 +60,8 @@
                 </exclusions>
             </dependency>
 
+
+
             <!-- JSON 解析器和生成器 -->
             <dependency>
                 <groupId>com.alibaba.fastjson2</groupId>
@@ -62,33 +73,33 @@
             <dependency>
                 <groupId>org.dromara.easy-es</groupId>
                 <artifactId>easy-es-boot-starter</artifactId>
-                <!--这里Latest Version是指最新版本的依赖,比如2.0.0,可以通过下面的图片获取-->
-                <version>2.0.0</version>
+                <version>${easyes.version}</version>
             </dependency>
 
             <!-- es -->
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>7.14.1</version>
+                <version>${elasticsearch.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.elasticsearch</groupId>
                 <artifactId>elasticsearch</artifactId>
-                <version>7.14.1</version>
+                <version>${elasticsearch.version}</version>
             </dependency>
 
             <!-- mq -->
             <dependency>
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-spring-boot-starter</artifactId>
-                <version>2.1.0</version>
+                <version>${rocketmq.version}</version>
             </dependency>
 
+            <!-- lombok -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.34</version>
+                <version>${lombok.version}</version>
             </dependency>
 
         </dependencies>

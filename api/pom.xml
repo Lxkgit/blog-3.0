@@ -20,6 +20,10 @@
         <spring-boot.version>2.7.18</spring-boot.version>
         <spring-cloud.version>2021.0.8</spring-cloud.version>
 
+        <oauth2.version>2.2.5.RELEASE</oauth2.version>
+        <nacos.version>2.4.3</nacos.version>
+        <xxlJob.version>2.5.0</xxlJob.version>
+
         <java.version>1.8</java.version>
         <redis.version>2.7.18</redis.version>
         <fastjson.version>2.0.43</fastjson.version>
@@ -27,6 +31,8 @@
         <elasticsearch.version>7.14.1</elasticsearch.version>
         <rocketmq.version>2.2.3</rocketmq.version>
         <lombok.version>1.18.34</lombok.version>
+
+        <netty.version>5.0.0.Alpha2</netty.version>
     </properties>
 
     <dependencyManagement>
@@ -60,6 +66,26 @@
                 </exclusions>
             </dependency>
 
+
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-client</artifactId>
+                <version>${nacos.version}</version>
+            </dependency>
+
+            <!--oauth2-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-oauth2</artifactId>
+                <version>${oauth2.version}</version>
+            </dependency>
+
+            <!-- xxl-job -->
+            <dependency>
+                <groupId>com.xuxueli</groupId>
+                <artifactId>xxl-job-core</artifactId>
+                <version>${xxlJob.version}</version>
+            </dependency>
 
 
             <!-- JSON 解析器和生成器 -->
@@ -100,6 +126,12 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${netty.version}</version>
             </dependency>
 
         </dependencies>

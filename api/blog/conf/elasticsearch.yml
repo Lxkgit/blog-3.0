@@ -1,0 +1,10 @@
+#可访问IP
+http.host: 0.0.0.0
+# 跨域
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+# 启用加密
+xpack.security.enabled: true
+## 加密方式
+xpack.license.self_generated.type: basic
+xpack.security.transport.ssl.enabled: true

@@ -1,8 +1,9 @@
-devServiceIp: @devServiceIp@
+devServiceIp: 123.207.202.131
 
 spring:
   profiles:
-    active: @env@ # 开发环境
+#    active: @env@ # 开发环境
+    active: test # 开发环境
   cloud:
     nacos:
       discovery:

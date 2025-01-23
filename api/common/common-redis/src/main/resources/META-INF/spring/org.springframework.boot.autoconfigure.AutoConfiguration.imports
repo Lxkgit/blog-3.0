@@ -1,2 +1,2 @@
-com.blog.api.config.RedisConfig
-com.blog.api.service.RedisService
+com.blog.redis.config.RedisConfig
+com.blog.redis.service.RedisService

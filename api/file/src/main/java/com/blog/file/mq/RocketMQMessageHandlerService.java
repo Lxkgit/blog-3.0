@@ -1,4 +1,4 @@
-package com.blog.content.mq;
+package com.blog.file.mq;
 
 import com.blog.mq.entity.RocketMQMessage;
 import com.blog.mq.listener.RocketMQMessageHandler;

@@ -11,6 +11,7 @@
         <module>common-mq</module>
         <module>common-log</module>
         <module>common-job</module>
+        <module>common-jasypt</module>
     </modules>
 
     <parent>

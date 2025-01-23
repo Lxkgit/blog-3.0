@@ -19,10 +19,16 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- 使用 bootstrap 配置文件 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
+
         <!-- nacos 注册发现 -->
         <dependency>
-            <groupId>com.alibaba.boot</groupId>
-            <artifactId>nacos-discovery-spring-boot-starter</artifactId>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
         <!-- mysql -->
@@ -37,10 +43,48 @@
             <artifactId>mybatis-plus-boot-starter</artifactId>
         </dependency>
 
+        <!-- 实体类数据包 -->
         <dependency>
-            <groupId>com.xuxueli</groupId>
-            <artifactId>xxl-job-core</artifactId>
+            <groupId>com.blog</groupId>
+            <artifactId>common-core</artifactId>
+            <version>3.0</version>
         </dependency>
+
+        <!-- jasypt(密码加密) 依赖包 -->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-jasypt</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <!-- xxl-job 依赖包 -->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-job</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <!-- 日志记录包 -->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-log</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <!-- redis 依赖包 -->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-redis</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <!-- mq消息队列 依赖包 -->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-mq</artifactId>
+            <version>3.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

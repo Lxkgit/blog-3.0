@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: @env@ # 开发环境
+  application:
+    name: blog-auth
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${devServiceIp}:8848
+        namespace: ${spring.profiles.active}

@@ -9,34 +9,40 @@
     <version>3.0</version>
 
     <modules>
-        <module>common</module>
-        <module>content</module>
-        <module>file</module>
-        <module>gateway</module>
-        <module>auth</module>
+        <module>blog-common</module>
+        <module>blog-gateway</module>
+        <module>blog-auth</module>
+        <module>blog-content</module>
+        <module>blog-file</module>
     </modules>
 
     <properties>
+        <!-- 指定maven编译时读取文件使用的编码 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Java 版本 -->
+        <java.version>1.8</java.version>
+
+        <!-- spring 框架版本 -->
         <spring-boot.version>2.7.18</spring-boot.version>
         <spring-cloud.version>2021.0.8</spring-cloud.version>
 
+        <!-- 中间件依赖版本 -->
         <oauth2.version>2.2.5.RELEASE</oauth2.version>
         <nacos.version>2021.1</nacos.version>
         <xxlJob.version>2.5.0</xxlJob.version>
-
         <mybatis-plus.version>3.5.10.1</mybatis-plus.version>
         <mysql.version>8.0.20</mysql.version>
-
-        <java.version>1.8</java.version>
         <redis.version>2.7.18</redis.version>
-        <fastjson.version>2.0.43</fastjson.version>
         <easyes.version>2.0.0</easyes.version>
         <elasticsearch.version>7.14.1</elasticsearch.version>
         <rocketmq.version>2.2.3</rocketmq.version>
-
-        <lombok.version>1.18.34</lombok.version>
         <jasypt.version>3.0.5</jasypt.version>
         <netty.version>5.0.0.Alpha2</netty.version>
+
+        <!-- 工具类版本 -->
+        <fastjson.version>2.0.43</fastjson.version>
+        <lombok.version>1.18.34</lombok.version>
     </properties>
 
     <dependencyManagement>
@@ -58,6 +64,7 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+                <!-- 由于 elasticsearch 和 easyes 的兼容性问题需要排除高版本依赖，单独引入低版本 -->
                 <exclusions>
                     <exclusion>
                         <groupId>org.elasticsearch.client</groupId>
@@ -206,6 +213,7 @@
                 <configuration>
                     <source>1.8</source>  <!--language level-->
                     <target>1.8</target>  <!--java compiler version-->
+                    <encoding>utf-8</encoding>
                 </configuration>
             </plugin>
         </plugins>

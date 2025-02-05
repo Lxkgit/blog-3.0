@@ -50,19 +50,22 @@ rocketmq:
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
 
-#security:
-#  oauth2:
-#    resource:
-#      id: blog-file
-#      user-info-uri: http://${devServiceIp}:9200/auth/user-me
-#      prefer-token-info: false
-#
-#file:
-#  system: win
-#  basePath: D:/files
-#  baseUri: /files
-#  serviceIp: http://${devServiceIp}
-#
-#netty:
-#  host: 127.0.0.1
-#  port: 9092
+easy-es:
+  enable: true
+  address : ${devServiceIp}:9200
+  schema: http
+  username: elastic
+  password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
+
+xxl:
+  job:
+    admin:
+      addresses: http://${devServiceIp}:8080/xxl-job-admin
+    accessToken: default_token
+    executor:
+      appname: ${spring.application.name}
+      address:
+      ip:
+      port: 60024
+      logpath: /opt/docker/xxlJob/logs
+      logretentiondays: 10

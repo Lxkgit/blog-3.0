@@ -1,8 +1,6 @@
 spring:
   profiles:
     active: @env@ # 开发环境
-  application:
-    name: blog-gateway
   cloud:
     nacos:
       discovery:

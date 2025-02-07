@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: @env@
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${devServiceIp}:8848
+        namespace: ${spring.profiles.active}

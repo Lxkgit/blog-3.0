@@ -1,0 +1,48 @@
+server:
+  port: 60002
+  servlet:
+    context-path: /content
+
+spring:
+  application:
+    name: content
+  redis:
+    database: 0
+    host: ${devServiceIp}
+    port: 6379
+    password: redis-960
+    jedis:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${devServiceIp}:3306/blog_content?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
+    username: root
+    password: root
+
+rocketmq:
+  name-server: ${devServiceIp}:9876 # 访问地址
+  producer:
+    group: content # 必须指定group
+    send-message-timeout: 3000 # 消息发送超时时长，默认3s
+    retry-times-when-send-failed: 3 # 同步发送消息失败重试次数，默认2
+    retry-times-when-send-async-failed: 3 # 异步发送消息失败重试次数，默认2
+  consumer:
+    groupName: content
+    namesrvAddr: ${devServiceIp}:9876 # mq的nameserver地址
+    #该消费者订阅的主题和tags("*"号表示订阅该主题下所有的tags),格式：topic~tag1||tag2||tag3;topic2~*;
+    topics: BLOG_USER_DATA~*;BLOG_SYSTEM_DATA~*;
+    consumeThreadMin: 20
+    consumeThreadMax: 64
+
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+
+security:
+  oauth2:
+    resource:
+      id: blog-content
+      user-info-uri: http://${devServiceIp}:60001/auth/user-me
+      prefer-token-info: false

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/blog-auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-auth/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-jasypt/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-jasypt/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-job/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-job/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-log/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-log/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-mq/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-mq/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-redis/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/common-redis/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-content/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-content/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-file/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-file/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/blog-gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

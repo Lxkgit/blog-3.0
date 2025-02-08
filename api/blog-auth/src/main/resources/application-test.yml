@@ -1,7 +1,7 @@
 server:
-  port: 60002
-  servlet:
-    context-path: /auth
+  port: 9000
+#  servlet:
+#    context-path: /auth
 
 jasypt:
   encryptor:

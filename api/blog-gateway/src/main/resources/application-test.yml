@@ -8,16 +8,12 @@ jasypt:
 spring:
   application:
     name: blog-gateway
-  redis:
-    database: 0
-    host: ${devServiceIp}
-    port: 6379
-    password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
-    jedis:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
+  data:
+    redis:
+      database: 0
+      host: ${devServiceIp}
+      port: 6379
+      password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${devServiceIp}:3306/blog_gateway?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8

@@ -87,14 +87,14 @@ public class LogAspect {
 //            operLog.setOperUrl(StringUtils.substring(ServletUtils.getRequest().getRequestURI(), 0, 255));
 //            String username = SecurityUtils.getUsername();
             String username = "";
-            if (StringUtils.isNotBlank(username)) {
-                sysLog.setOperName(username);
-            }
-
-            if (e != null) {
-                sysLog.setStatus(BusinessStatus.FAIL.ordinal());
-                sysLog.setErrorMsg(StringUtils.substring(e.getMessage(), 0, 2000));
-            }
+//            if (StringUtils.isNotBlank(username)) {
+//                sysLog.setOperName(username);
+//            }
+//
+//            if (e != null) {
+//                sysLog.setStatus(BusinessStatus.FAIL.ordinal());
+//                sysLog.setErrorMsg(StringUtils.substring(e.getMessage(), 0, 2000));
+//            }
             // 设置方法名称
             String className = joinPoint.getTarget().getClass().getName();
             String methodName = joinPoint.getSignature().getName();
@@ -136,9 +136,9 @@ public class LogAspect {
             setRequestValue(joinPoint, operLog, log.excludeParamNames());
         }
         // 是否需要保存response，参数和值
-        if (log.isSaveResponseData() && StringUtils.isNotNull(jsonResult)) {
-            operLog.setJsonResult(StringUtils.substring(JSON.toJSONString(jsonResult), 0, 2000));
-        }
+//        if (log.isSaveResponseData() && StringUtils.isNotNull(jsonResult)) {
+//            operLog.setJsonResult(StringUtils.substring(JSON.toJSONString(jsonResult), 0, 2000));
+//        }
     }
 
     /**
@@ -164,17 +164,17 @@ public class LogAspect {
      */
     private String argsArrayToString(Object[] paramsArray, String[] excludeParamNames) {
         String params = "";
-        if (paramsArray != null && paramsArray.length > 0) {
-            for (Object o : paramsArray) {
-                if (StringUtils.isNotNull(o) && !isFilterObject(o)) {
-                    try {
-                        String jsonObj = JSON.toJSONString(o, excludePropertyPreFilter(excludeParamNames));
-                        params += jsonObj.toString() + " ";
-                    } catch (Exception e) {
-                    }
-                }
-            }
-        }
+//        if (paramsArray != null && paramsArray.length > 0) {
+//            for (Object o : paramsArray) {
+//                if (StringUtils.isNotNull(o) && !isFilterObject(o)) {
+//                    try {
+//                        String jsonObj = JSON.toJSONString(o, excludePropertyPreFilter(excludeParamNames));
+//                        params += jsonObj.toString() + " ";
+//                    } catch (Exception e) {
+//                    }
+//                }
+//            }
+//        }
         return params.trim();
     }
 

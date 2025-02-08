@@ -23,6 +23,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
+            <version>4.1.6</version>
         </dependency>
 
         <!-- 使用 bootstrap 配置文件 -->
@@ -65,7 +66,6 @@
             <artifactId>elasticsearch</artifactId>
         </dependency>
 
-
         <!-- 实体类数据包 -->
         <dependency>
             <groupId>com.blog</groupId>
@@ -102,18 +102,22 @@
         </dependency>
 
         <!-- mq消息队列 依赖包 -->
-        <!--        <dependency>-->
-        <!--            <groupId>com.blog</groupId>-->
-        <!--            <artifactId>common-mq</artifactId>-->
-        <!--            <version>3.0</version>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-mq</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
 
     </dependencies>
 
     <build>
         <finalName>gateway</finalName>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

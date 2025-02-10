@@ -1,5 +1,5 @@
 server:
-  port: 9000
+  port: 8080
 #  servlet:
 #    context-path: /auth
 
@@ -38,9 +38,6 @@ rocketmq:
     consumeThreadMax: 64
     #设置一次消费消息的条数，默认为1条
     consumeMessageBatchMaxSize: 1
-
-mybatis:
-  mapper-locations: classpath:/mapper/*.xml
 
 easy-es:
   enable: true

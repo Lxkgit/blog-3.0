@@ -1,0 +1,57 @@
+package com.blog.auth.config;
+
+import com.blog.auth.utils.SecurityUtils;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
+public class ResourceServerConfig {
+
+    @Bean
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authorize -> {
+                    // 下边一行是放行接口的配置，被放行的接口上不能有权限注解，e.g. @PreAuthorize，否则无效
+                    // .requestMatchers("/test02").permitAll()
+                    authorize.anyRequest().authenticated();
+                })
+                .oauth2ResourceServer(oauth2 -> {
+                    oauth2
+                            // 可在此处添加自定义解析设置
+                            .jwt(Customizer.withDefaults())
+                            // 添加未携带token和权限不足异常处理
+                            .accessDeniedHandler(SecurityUtils::exceptionHandler)
+                            .authenticationEntryPoint(SecurityUtils::exceptionHandler);
+                });
+        return http.build();
+    }
+
+    /**
+     * 自定义jwt解析器，设置解析出来的权限信息的前缀与在jwt中的key
+     * 添加自定义解析token配置，注入一个JwtAuthenticationConverter
+     *
+     * @return jwt解析器 JwtAuthenticationConverter
+     */
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        // 设置解析权限信息的前缀，设置为空是去掉前缀
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+        // 设置权限信息在jwt claims中的key
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+
+}

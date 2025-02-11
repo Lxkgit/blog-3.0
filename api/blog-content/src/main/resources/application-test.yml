@@ -9,7 +9,7 @@ jasypt:
 
 spring:
   application:
-    name: blog-content
+    name: auth-client
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${devServiceIp}:3306/blog_content?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
@@ -28,7 +28,7 @@ spring:
           #认证服务器信息，下面这个string可以自定义，但是要和下方messaging-client-oidc.provider的对应上
           auth-server:
             #授权地址
-            issuer-uri: http://127.0.0.1:6100
+            issuer-uri: http://localhost:6100
 #            authorizationUri: ${spring.security.oauth2.client.provider.oauth-server.issuer-uri}/oauth2/authorize
 #            #令牌获取地址
 #            tokenUri: ${spring.security.oauth2.client.provider.oauth-server.issuer-uri}/oauth2/token
@@ -38,7 +38,7 @@ spring:
             #认证提供者，标识由哪个认证服务器进行认证，和上面的oauth-server进行关联
             provider: auth-server
             #客户端名称
-            client-name: web平台
+            client-name: 认证服务器
             #客户端id，从认证平台申请的客户端id
             client-id: auth-client
             #客户端秘钥
@@ -55,7 +55,7 @@ spring:
             # 也可以使用自定义的接口，只不过需要我们自己拿到code之后再去调用资源服务器获取token
             redirect-uri: http://127.0.0.1:6200/login/oauth2/code/auth-client
             scope:
-              - "openid"
+              - openid
 
 rocketmq:
   name-server: ${devServiceIp}:9876 # 访问地址

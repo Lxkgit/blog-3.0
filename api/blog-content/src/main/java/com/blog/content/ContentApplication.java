@@ -16,15 +16,11 @@ import java.util.List;
 @SpringBootApplication
 @EsMapperScan("com.blog.content.mapper.es")
 @Import(RocketMQAutoConfiguration.class)
-@RequestMapping("/")
 public class ContentApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ContentApplication.class, args);
     }
 
-    @GetMapping
-    public Object home(@AuthenticationPrincipal Object principal) {
-        return principal;
-    }
+
 }

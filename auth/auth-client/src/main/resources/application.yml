@@ -9,6 +9,9 @@ spring:
           auth-server:
             #授权地址
             issuer-uri: http://localhost:6100
+            authorizationUri: ${spring.security.oauth2.client.provider.auth-server.issuer-uri}/oauth2/authorize
+            #令牌获取地址
+            tokenUri: ${spring.security.oauth2.client.provider.auth-server.issuer-uri}/oauth2/token
         registration:
           # 下面这个string可以自定义，这里自定义的要和最下面redirect-uri的最后一个请求地址对应上
           auth-client:

@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
  * @CreateTime 2025-02-12
  */
 
-@RestController("/")
+@RestController
 public class TokenController {
 
-    @GetMapping
+    @GetMapping("/token")
     public Object home(@AuthenticationPrincipal Object principal) {
         return principal;
     }

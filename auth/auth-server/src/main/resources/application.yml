@@ -19,7 +19,7 @@ spring:
                 - authorization_code
                 - refresh_token
               redirect-uris:
-                - http://127.0.0.1:6200/login/oauth2/code/auth-client
+                - http://localhost:6200/login/oauth2/code/auth-client
               scopes:
                 - openid
 

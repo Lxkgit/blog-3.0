@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -10,10 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
  * @CreateTime 2025-02-12
  */
 
-@RestController("/")
+@RestController
+@RequestMapping("/")
 public class TokenController {
 
-    @GetMapping
+    @GetMapping("/token")
     public Object home(@AuthenticationPrincipal Object principal) {
         return principal;
     }

@@ -48,8 +48,8 @@ spring:
             #使用授权码模式获取令牌（token）
             authorization-grant-type: authorization_code
             # 回调地址，接收认证服务器回传code的接口地址，之前我们是使用http://www.baidu.com代替
-            # /login/oauth2/code/messaging-client-oidc 这个接口是使用的oauth2-client依赖默认提供的接口
-            # 这里最后的messaging-client-oidc 需要和上方我们自定义是string对应上
+            # /login/oauth2/code/auth-client 这个接口是使用的 oauth2-client 依赖默认提供的接口
+            # 这里最后的 auth-client  需要和上方我们自定义是string对应上
             # 该接口会收到code授权码之后，会去调用授权服务器获取token，
             # 也就是我们上方配置的${spring.security.oauth2.client.provider.oauth-server.tokenUri}
             # 也可以使用自定义的接口，只不过需要我们自己拿到code之后再去调用资源服务器获取token

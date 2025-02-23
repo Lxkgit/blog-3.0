@@ -1,0 +1,33 @@
+server:
+  port: 8086
+spring:
+  application:
+    name: dianshang
+  security:
+    oauth2:
+      client:
+        #注册客户端
+        registration:
+          #注册名称 随便起
+          dianshang-oauth2:
+            #客户端id 在授权服务器注册好的客户端
+            client-id: dianshang
+            #客户端秘钥
+            client-secret: 123456
+            #供应商 要对应下面的供应商一致的名字
+            provider: dianshang-provider
+            #授权类型 为授权码模式
+            authorization-grant-type: authorization_code
+            #回调地址 这个路径不用自己开发 默认的,  dianshang-oauth2 可以换成你的注册名称 要和上面的registration下面的 dianshang-oauth2一致
+            #在访问的时候会自动把 dianshang-oauth2忽略掉,他去找 dianshang-oauth2注册名称 这一套配置
+            # 访问下面的回调路径 会自动带着登录之后的授权码
+            redirect_uri: http://localhost:3001/callback
+            #作用域 授权 复选框那个
+            scope:
+              - openid
+        #供应商
+        provider:
+          #供应商的名称 要和注册哪里的供应商名称一致
+          dianshang-provider:
+            #访问授权服务器 在OIDC中是一个非常重要的标识符，有助于标识身份提供者和验证ID Token
+            issuer-uri: http://auth-server:8084

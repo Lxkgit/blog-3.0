@@ -37,7 +37,7 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //获取token信息
         String header=request.getHeader("Authorization");
-        log.info("header:{}",header);
+        log.info("filter header:{}",header);
         //注意Bearer后面还有一个空格
         if(StringUtils.isEmpty(header) || !StringUtils.startsWithIgnoreCase(header,"Bearer ")){
             //如果请求头是空的 或者 前置没有以Bearer 开头 那么进入下一个过滤器链

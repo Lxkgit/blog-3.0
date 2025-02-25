@@ -27,8 +27,8 @@ public class CorsConfig implements WebMvcConfigurer {
 				//跨域允许时间
 				.maxAge(3600)
 				//设置允许跨域的域名
-//				.allowedOrigins("http://localhost:3001","http://localhost:3000","http://auth-server:8084",
-//						"http://res-server:8085","http://dianshang:8086","http://localhost:3002","http://localhost")
+				.allowedOrigins("http://localhost:3001","http://localhost:3000","http://auth-server:8084",
+						"http://res-server:8085","http://dianshang:8086","http://localhost:3002","http://localhost")
 		;
 	}
 }

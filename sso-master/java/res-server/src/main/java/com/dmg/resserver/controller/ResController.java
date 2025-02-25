@@ -53,7 +53,7 @@ public class ResController {
     public String getAuth(Authentication authentication){
         String name=authentication.getName();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        log.info("权限信息:"+authorities);
+        log.info("权限信息:{}", authorities);
         return name;
     }
 
@@ -66,6 +66,7 @@ public class ResController {
     @PostMapping("/getAuthentication")
     public Authentication getAuthentication(HttpServletRequest request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("接口调用 ... ");
         return authentication;
     }
 }

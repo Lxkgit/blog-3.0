@@ -37,40 +37,38 @@ public class RsServiceImpl implements RsService {
     private RestTemplate restTemplate;
 
 
-
     /**
      * 获取资源服务器的认证授权信息
+     *
      * @param token 令牌
      * @return
      * @throws Exception
      */
-    public Authentication getAuthentication(String token){
-        HttpHeaders headers=new HttpHeaders();
+    public Authentication getAuthentication(String token) {
+        HttpHeaders headers = new HttpHeaders();
         //把token 放入请求头中 ,token类型为Bearer
         //在源码里面this.set("Authorization", "Bearer " + token) 自动拼接Bearer空格
         headers.setBearerAuth(token);
-        HttpEntity<String>request=new HttpEntity<>("",headers);
+        HttpEntity<String> request = new HttpEntity<>("", headers);
 
         try {
             //拿着令牌去获取资源服务器的接口
-            ResponseEntity<String> responseEntity=restTemplate
-                    .exchange("http://res-server:8085/getAuthentication",
-                            HttpMethod.POST,request,String.class);
-            log.info("============",responseEntity);
-            String body=responseEntity.getBody();
+            ResponseEntity<String> responseEntity = restTemplate.exchange("http://res-server:8085/getAuthentication", HttpMethod.POST, request, String.class);
+            log.info("============", responseEntity);
+            String body = responseEntity.getBody();
             //解析成认证对象
-            JSONObject jsonObject =JSONObject.parseObject(body);
+            JSONObject jsonObject = JSONObject.parseObject(body);
             //获取登陆人账号
             String username = jsonObject.getString("name");
             //权限集合
-            List<GrantedAuthority>authorities=new ArrayList<>();
+            List<GrantedAuthority> authorities = new ArrayList<>();
             //获取权限
             JSONArray jsonArray = jsonObject.getJSONArray("authorities");
-            for (int i = 0; i <jsonArray.size() ; i++) {
-                JSONObject obj=jsonArray.getJSONObject(i);
-                String str=obj.getString("authority");
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject obj = jsonArray.getJSONObject(i);
+                String str = obj.getString("authority");
                 //把权限放入对象
-                SimpleGrantedAuthority sga=new SimpleGrantedAuthority(str);
+                SimpleGrantedAuthority sga = new SimpleGrantedAuthority(str);
                 //把对象放入权限集合
                 authorities.add(sga);
             }
@@ -78,7 +76,7 @@ public class RsServiceImpl implements RsService {
             Authentication authentication = new UsernamePasswordAuthenticationToken(username
                     , null, authorities);
             return authentication;
-        }catch (HttpClientErrorException e){
+        } catch (HttpClientErrorException e) {
             e.printStackTrace();
         }
         return null;

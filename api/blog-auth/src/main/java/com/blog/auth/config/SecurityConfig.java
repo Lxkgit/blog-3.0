@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.auth.config.filter.MyAuthenticationFilter;
 import com.blog.auth.config.point.MyLoginUrlAuthenticationEntryPoint;
 import com.blog.auth.config.repository.RedisSecurityContextRepository;
+import com.blog.auth.dao.UserMapper;
+import com.blog.auth.entity.MyUserDetails;
+import com.blog.core.entity.auth.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -71,8 +74,8 @@ public class SecurityConfig {
     @Resource
     private JdbcTemplate jdbcTemplate;
 
-//    @Autowired
-//    private UserMapper userMapper;
+    @Resource
+    private UserMapper userMapper;
 
     @Resource
     private RedisSecurityContextRepository redisSecurityContextRepository;
@@ -262,7 +265,7 @@ public class SecurityConfig {
         objectMapper.registerModules(securityModules);
         objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
         //放入自定义的user类
-//        objectMapper.addMixIn(MyUserDetails.class, MyUserMixin.class);
+        objectMapper.addMixIn(MyUserDetails.class, MyUserMixin.class);
         authorizationRowMapper.setObjectMapper(objectMapper);
 
         service.setAuthorizationRowMapper(authorizationRowMapper);
@@ -299,10 +302,10 @@ public class SecurityConfig {
             log.info("==========={}",map);
             //获取账号
             String sub=map.get("sub").toString();
-//            QueryWrapper<User> queryWrapper=new QueryWrapper();
-//            queryWrapper.eq("account",sub);
-//            //根据账号获取用户信息
-//            User user=userMapper.selectOne(queryWrapper);
+            QueryWrapper<User> queryWrapper=new QueryWrapper();
+            queryWrapper.eq("account",sub);
+            //根据账号获取用户信息
+            User user=userMapper.selectOne(queryWrapper);
 
             //获得认证对象,当前用户信息
             Authentication principal = context.getPrincipal();
@@ -315,7 +318,7 @@ public class SecurityConfig {
                 }
                 //写入jwt
                 context.getClaims().claim("auths",auths);
-//                context.getClaims().claim("name",user.getName());
+                context.getClaims().claim("name",user.getName());
                 context.getClaims().claim("email","aaa@qq.com");
                 context.getClaims().claim("phone","12345678901");
             }
@@ -328,7 +331,7 @@ public class SecurityConfig {
                 }
                 //写入jwt
                 context.getClaims().claim("auths",auths);
-//                context.getClaims().claim("name",user.getName());
+                context.getClaims().claim("name",user.getName());
                 context.getClaims().claim("email","abc@qq.com");
                 context.getClaims().claim("phone","12345678902");
             }

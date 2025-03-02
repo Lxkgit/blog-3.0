@@ -10,6 +10,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
@@ -34,13 +35,13 @@ public class HttpUtils {
      */
     public static JSONObject doPost(String url, Map params, Oauth2Vo vo){
         JSONObject json = new JSONObject();
-        BufferedReader in = null;
+        BufferedReader in;
         try {
-            HttpClient client = new DefaultHttpClient();
-            HttpPost request = new HttpPost();
-            request.setURI(new URI(url));
+            HttpClient client = HttpClients.createDefault();
+            HttpPost request = new HttpPost(url);
+
             //设置参数
-            List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+            List<NameValuePair> nvps = new ArrayList<>();
             for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
                 String name = (String) iter.next();
                 String value = String.valueOf(params.get(name));
@@ -49,10 +50,15 @@ public class HttpUtils {
             // 使用base64进行加密，将加密的字节信息转化为string类型，encoding--->token
             String str=vo.getClientId()+":"+vo.getClientSecret();
             String encoding = DatatypeConverter.printBase64Binary(str.getBytes(StandardCharsets.UTF_8));
+
             //这里必须是Basic 认证客户端 否则会302重定向到登陆
             request.setHeader("Authorization", "Basic " + encoding);
-            request.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
+            request.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
+
+//            request.setHeader("Content-Type", "application/form-data");
+
             HttpResponse response = client.execute(request);
+            log.info(response.toString());
             int statusCode = response.getStatusLine().getStatusCode();
             if(statusCode == 200){   //请求成功
                 in = new BufferedReader(new InputStreamReader(response.getEntity()

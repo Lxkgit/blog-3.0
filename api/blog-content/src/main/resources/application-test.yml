@@ -1,5 +1,5 @@
 server:
-  port: 6200
+  port: 8085
 #  servlet:
 #    context-path: /content
 
@@ -15,85 +15,56 @@ spring:
     url: jdbc:mysql://${devServiceIp}:3306/blog_content?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
     username: root
     password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)
-  data:
-    redis:
-      database: 0
-      host: ${devServiceIp}
-      port: 6379
-      password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
+#  data:
+#    redis:
+#      database: 0
+#      host: ${devServiceIp}
+#      port: 6379
+#      password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
   security:
     oauth2:
-      client:
-        provider:
-          #认证服务器信息，下面这个string可以自定义，但是要和下方messaging-client-oidc.provider的对应上
-          auth-server:
-            #授权地址
-            issuer-uri: http://localhost:6100
-#            authorizationUri: ${spring.security.oauth2.client.provider.oauth-server.issuer-uri}/oauth2/authorize
-#            #令牌获取地址
-#            tokenUri: ${spring.security.oauth2.client.provider.oauth-server.issuer-uri}/oauth2/token
-        registration:
-          # 下面这个string可以自定义，这里自定义的要和最下面redirect-uri的最后一个请求地址对应上
-          auth-client:
-            #认证提供者，标识由哪个认证服务器进行认证，和上面的oauth-server进行关联
-            provider: auth-server
-            #客户端名称
-            client-name: 认证服务器
-            #客户端id，从认证平台申请的客户端id
-            client-id: auth-client
-            #客户端秘钥
-            client-secret: "123456"
-            #客户端认证方式
-            client-authentication-method: client_secret_basic
-            #使用授权码模式获取令牌（token）
-            authorization-grant-type: authorization_code
-            # 回调地址，接收认证服务器回传code的接口地址，之前我们是使用http://www.baidu.com代替
-            # /login/oauth2/code/auth-client 这个接口是使用的 oauth2-client 依赖默认提供的接口
-            # 这里最后的 auth-client  需要和上方我们自定义是string对应上
-            # 该接口会收到code授权码之后，会去调用授权服务器获取token，
-            # 也就是我们上方配置的${spring.security.oauth2.client.provider.oauth-server.tokenUri}
-            # 也可以使用自定义的接口，只不过需要我们自己拿到code之后再去调用资源服务器获取token
-            redirect-uri: http://127.0.0.1:6200/login/oauth2/code/auth-client
-            scope:
-              - openid
+      resourceserver:
+        jwt:
+          #访问授权服务器 在OIDC中是一个非常重要的标识符，有助于标识身份提供者和验证ID Token
+          issuer-uri: http://auth-server:8084
 
-rocketmq:
-  name-server: ${devServiceIp}:9876 # 访问地址
-  producer:
-    group: blog # 必须指定group
-    send-message-timeout: 3000 # 消息发送超时时长，默认3s
-    retry-times-when-send-failed: 3 # 同步发送消息失败重试次数，默认2
-    retry-times-when-send-async-failed: 3 # 异步发送消息失败重试次数，默认2
-  consumer:
-    groupName: blog
-    namesrvAddr: ${devServiceIp}:9876 # mq的nameserver地址
-    #该消费者订阅的主题和tags("*"号表示订阅该主题下所有的tags),格式：topic~tag1||tag2||tag3;topic2~*;
-    topics: BLOG_USER_DATA~*;BLOG_SYSTEM_DATA~*;
-    consumeThreadMin: 20
-    consumeThreadMax: 64
-    #设置一次消费消息的条数，默认为1条
-    consumeMessageBatchMaxSize: 1
-
-mybatis:
-  mapper-locations: classpath:/mapper/*.xml
-
-
-easy-es:
-  enable: true
-  address : ${devServiceIp}:9200
-  schema: http
-  username: elastic
-  password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
-
-xxl:
-  job:
-    admin:
-      addresses: http://${devServiceIp}:8080/xxl-job-admin
-    accessToken: default_token
-    executor:
-      appname: ${spring.application.name}
-      address:
-      ip:
-      port: 60023
-      logpath: /opt/docker/xxlJob/logs
-      logretentiondays: 10
+#rocketmq:
+#  name-server: ${devServiceIp}:9876 # 访问地址
+#  producer:
+#    group: blog # 必须指定group
+#    send-message-timeout: 3000 # 消息发送超时时长，默认3s
+#    retry-times-when-send-failed: 3 # 同步发送消息失败重试次数，默认2
+#    retry-times-when-send-async-failed: 3 # 异步发送消息失败重试次数，默认2
+#  consumer:
+#    groupName: blog
+#    namesrvAddr: ${devServiceIp}:9876 # mq的nameserver地址
+#    #该消费者订阅的主题和tags("*"号表示订阅该主题下所有的tags),格式：topic~tag1||tag2||tag3;topic2~*;
+#    topics: BLOG_USER_DATA~*;BLOG_SYSTEM_DATA~*;
+#    consumeThreadMin: 20
+#    consumeThreadMax: 64
+#    #设置一次消费消息的条数，默认为1条
+#    consumeMessageBatchMaxSize: 1
+#
+#mybatis:
+#  mapper-locations: classpath:/mapper/*.xml
+#
+#
+#easy-es:
+#  enable: true
+#  address : ${devServiceIp}:9200
+#  schema: http
+#  username: elastic
+#  password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
+#
+#xxl:
+#  job:
+#    admin:
+#      addresses: http://${devServiceIp}:8080/xxl-job-admin
+#    accessToken: default_token
+#    executor:
+#      appname: ${spring.application.name}
+#      address:
+#      ip:
+#      port: 60023
+#      logpath: /opt/docker/xxlJob/logs
+#      logretentiondays: 10

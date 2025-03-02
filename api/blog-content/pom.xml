@@ -97,11 +97,11 @@
         </dependency>
 
         <!-- xxl-job 依赖包 -->
-        <dependency>
-            <groupId>com.blog</groupId>
-            <artifactId>common-job</artifactId>
-            <version>3.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.blog</groupId>-->
+<!--            <artifactId>common-job</artifactId>-->
+<!--            <version>3.0</version>-->
+<!--        </dependency>-->
 
         <!-- 日志记录包 -->
         <dependency>
@@ -118,11 +118,11 @@
         </dependency>
 
         <!-- mq消息队列 依赖包 -->
-        <dependency>
-            <groupId>com.blog</groupId>
-            <artifactId>common-mq</artifactId>
-            <version>3.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.blog</groupId>-->
+<!--            <artifactId>common-mq</artifactId>-->
+<!--            <version>3.0</version>-->
+<!--        </dependency>-->
 
     </dependencies>
 

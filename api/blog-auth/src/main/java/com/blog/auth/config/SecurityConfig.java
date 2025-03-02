@@ -71,16 +71,16 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 @Configuration
 public class SecurityConfig {
 
-    @Resource
+    @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @Resource
+    @Autowired
     private UserMapper userMapper;
 
-    @Resource
-    private RedisSecurityContextRepository redisSecurityContextRepository;
 
-    @Resource
+
+    @Autowired
+    private RedisSecurityContextRepository redisSecurityContextRepository;
+    @Autowired
     private MyAuthenticationFilter myAuthenticationFilter;
 
 
@@ -120,7 +120,7 @@ public class SecurityConfig {
         //异常处理
         http.exceptionHandling(x->x.defaultAuthenticationEntryPointFor(
                 //自定义未登录地址,地址为前端vue的地址，当没有登陆的时候，自动跳转到前端登陆界面
-                new MyLoginUrlAuthenticationEntryPoint("http://localhost:3000"),
+                new MyLoginUrlAuthenticationEntryPoint("http://localhost:3001/denglu"),
                 //只有带有 "text/html" 媒体类型的请求需要进行身份验证
                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
         ));

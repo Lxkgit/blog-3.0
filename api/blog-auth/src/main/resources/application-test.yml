@@ -1,5 +1,5 @@
 server:
-  port: 6100
+  port: 8084
 #  servlet:
 #    context-path: /auth
 
@@ -21,27 +21,27 @@ spring:
       host: ${devServiceIp}
       port: 6379
       password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
-  security:
-    user:
-      name: admin
-      password: 123456
-    oauth2:
-      authorizationserver:
-        client:
-          auth-client:
-            registration:
-              client-id: auth-client
-              client-name: 认证服务器
-              client-secret: "{noop}123456"
-              client-authentication-methods:
-                - client_secret_basic
-              authorization-grant-types:
-                - authorization_code
-                - refresh_token
-              redirect-uris:
-                - http://127.0.0.1:6200/login/oauth2/code/auth-client
-              scopes:
-                - openid
+#  security:
+#    user:
+#      name: admin
+#      password: 123456
+#    oauth2:
+#      authorizationserver:
+#        client:
+#          auth-client:
+#            registration:
+#              client-id: auth-client
+#              client-name: 认证服务器
+#              client-secret: "{noop}123456"
+#              client-authentication-methods:
+#                - client_secret_basic
+#              authorization-grant-types:
+#                - authorization_code
+#                - refresh_token
+#              redirect-uris:
+#                - http://127.0.0.1:6200/login/oauth2/code/auth-client
+#              scopes:
+#                - openid
 
 
 

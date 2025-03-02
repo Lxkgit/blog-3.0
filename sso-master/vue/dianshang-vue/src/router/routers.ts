@@ -49,6 +49,18 @@ export const luYou=[
         }
     },
     {
+        //根页面
+        path:'/denglu',
+        component:()=> import('@/views/login/renzheng.vue'),
+        name:'denglu',
+        meta:{
+            hidden:true,
+            title:'denglu',
+            icon:'Plus',
+            auth:''
+        }
+    },
+    {
         //匹配到不存在的路径就跳转404
         path:'/:pathMatch(.*)*',
         //重定向到404

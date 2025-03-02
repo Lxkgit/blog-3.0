@@ -31,9 +31,11 @@ let getToken=()=>{
         .then(function (response) {
             //console.log('aa:',response);
             let res=response.data;
-            let data=res.data;
+            let data=res.result;
             let code=res.code;  
+            // alert("认证回调：" + JSON.stringify(res));
             if(code=='200'){
+        
                 let accessToken=data.access_token;
                 //把token放入本地缓存中
                 //localStorage.setItem('TOKEN',accessToken);

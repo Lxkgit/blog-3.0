@@ -21,6 +21,7 @@ public class MyLoginUrlAuthenticationEntryPoint extends LoginUrlAuthenticationEn
 
     //重定向策略
     private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
     /**
      * loginFormUrl可以在其中找到登录页面的URL。应该是
      *相对于web应用程序上下文路径（包括前导｛@code/｝）或绝对

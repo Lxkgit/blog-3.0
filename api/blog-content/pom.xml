@@ -37,6 +37,7 @@
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
 
+        <!-- spring-security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -72,11 +73,11 @@
             <artifactId>easy-es-boot-starter</artifactId>
         </dependency>
 
+        <!-- es -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
@@ -97,11 +98,11 @@
         </dependency>
 
         <!-- xxl-job 依赖包 -->
-<!--        <dependency>-->
-<!--            <groupId>com.blog</groupId>-->
-<!--            <artifactId>common-job</artifactId>-->
-<!--            <version>3.0</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-job</artifactId>
+            <version>3.0</version>
+        </dependency>
 
         <!-- 日志记录包 -->
         <dependency>
@@ -118,11 +119,11 @@
         </dependency>
 
         <!-- mq消息队列 依赖包 -->
-<!--        <dependency>-->
-<!--            <groupId>com.blog</groupId>-->
-<!--            <artifactId>common-mq</artifactId>-->
-<!--            <version>3.0</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-mq</artifactId>
+            <version>3.0</version>
+        </dependency>
 
     </dependencies>
 

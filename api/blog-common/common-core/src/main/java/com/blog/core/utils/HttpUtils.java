@@ -3,86 +3,66 @@ package com.blog.core.utils;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.entity.auth.vo.Oauth2Vo;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 
-import javax.xml.bind.DatatypeConverter;
+
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class HttpUtils {
 
     /**
-     * post请求
-     * @param url
+     * 调用认证中心获取token专用
+     *
+     * @param url 认证服务器地址
      * @param params key-value格式
      * @return
      */
-    public static JSONObject doPost(String url, Map params, Oauth2Vo vo){
-        JSONObject json = new JSONObject();
-        BufferedReader in;
+    public static Result doPost(String url, Map<String, String> params, Oauth2Vo vo) {
         try {
-            HttpClient client = HttpClients.createDefault();
-            HttpPost request = new HttpPost(url);
+            CloseableHttpClient httpClient = HttpClients.createDefault();
 
+            HttpPost httpPost = new HttpPost(url);
             //设置参数
-            List<NameValuePair> nvps = new ArrayList<>();
-            for (Iterator iter = params.keySet().iterator(); iter.hasNext();) {
-                String name = (String) iter.next();
-                String value = String.valueOf(params.get(name));
-                nvps.add(new BasicNameValuePair(name, value));
+            List<NameValuePair> nvs = new ArrayList<>();
+            for (String name : params.keySet()) {
+                String value = params.get(name);
+                nvs.add(new BasicNameValuePair(name, value));
             }
             // 使用base64进行加密，将加密的字节信息转化为string类型，encoding--->token
-            String str=vo.getClientId()+":"+vo.getClientSecret();
-            String encoding = DatatypeConverter.printBase64Binary(str.getBytes(StandardCharsets.UTF_8));
-
+            String str = vo.getClientId() + ":" + vo.getClientSecret();
+            String encoding = new String(Base64.getEncoder().encode(str.getBytes()));
             //这里必须是Basic 认证客户端 否则会302重定向到登陆
-            request.setHeader("Authorization", "Basic " + encoding);
-            request.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
+            httpPost.setHeader("Authorization", "Basic " + encoding);
+            httpPost.setEntity(new UrlEncodedFormEntity(nvs));
 
-//            request.setHeader("Content-Type", "application/form-data");
-
-            HttpResponse response = client.execute(request);
-            log.info(response.toString());
-            int statusCode = response.getStatusLine().getStatusCode();
-            if(statusCode == 200){   //请求成功
-                in = new BufferedReader(new InputStreamReader(response.getEntity()
-                        .getContent(), StandardCharsets.UTF_8));
-                StringBuffer sb = new StringBuffer();
-                String line = "";
-                String NL = System.getProperty("line.separator");
-                while ((line = in.readLine()) != null) {
-                    sb.append(line + NL);
+            String result = httpClient.execute(httpPost, classicHttpResponse -> {
+                if (classicHttpResponse.getCode() != 200) {
+                    return null;
+                } else {
+                    return EntityUtils.toString(classicHttpResponse.getEntity());
                 }
-                in.close();
-                json = JSON.parseObject(sb.toString());
-                json.put("statusCode",statusCode);
-                return json;
-            } else{
-                json.put("statusCode",statusCode);
-                json.put("msg","参数错误,请重新获取授权码,授权码只能使用一次,请检查客户端和回调地址是否输入正确");
-                log.info("post请求出错了,错误码:{}",statusCode);
+            });
+            if (result != null) {
+                return ResultFactory.buildSuccessResult(JSONObject.parseObject(result));
+            } else {
+                return ResultFactory.buildFailResult("接口请求失败");
             }
-        } catch(Exception e){
-            log.error("post请求异常:{}",e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("post请求异常:{}", e.getMessage(), e);
             return null;
         }
-        return json;
+
     }
 
 }

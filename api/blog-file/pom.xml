@@ -55,11 +55,11 @@
             <artifactId>easy-es-boot-starter</artifactId>
         </dependency>
 
+        <!-- es -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>

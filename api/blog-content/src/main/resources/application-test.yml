@@ -15,12 +15,12 @@ spring:
     url: jdbc:mysql://${devServiceIp}:3306/blog_content?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
     username: root
     password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)
-#  data:
-#    redis:
-#      database: 0
-#      host: ${devServiceIp}
-#      port: 6379
-#      password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
+  data:
+    redis:
+      database: 0
+      host: ${devServiceIp}
+      port: 6379
+      password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
   security:
     oauth2:
       resourceserver:
@@ -28,43 +28,43 @@ spring:
           #访问授权服务器 在OIDC中是一个非常重要的标识符，有助于标识身份提供者和验证ID Token
           issuer-uri: http://auth-server:8084
 
-#rocketmq:
-#  name-server: ${devServiceIp}:9876 # 访问地址
-#  producer:
-#    group: blog # 必须指定group
-#    send-message-timeout: 3000 # 消息发送超时时长，默认3s
-#    retry-times-when-send-failed: 3 # 同步发送消息失败重试次数，默认2
-#    retry-times-when-send-async-failed: 3 # 异步发送消息失败重试次数，默认2
-#  consumer:
-#    groupName: blog
-#    namesrvAddr: ${devServiceIp}:9876 # mq的nameserver地址
-#    #该消费者订阅的主题和tags("*"号表示订阅该主题下所有的tags),格式：topic~tag1||tag2||tag3;topic2~*;
-#    topics: BLOG_USER_DATA~*;BLOG_SYSTEM_DATA~*;
-#    consumeThreadMin: 20
-#    consumeThreadMax: 64
-#    #设置一次消费消息的条数，默认为1条
-#    consumeMessageBatchMaxSize: 1
-#
-#mybatis:
-#  mapper-locations: classpath:/mapper/*.xml
-#
-#
-#easy-es:
-#  enable: true
-#  address : ${devServiceIp}:9200
-#  schema: http
-#  username: elastic
-#  password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
-#
-#xxl:
-#  job:
-#    admin:
-#      addresses: http://${devServiceIp}:8080/xxl-job-admin
-#    accessToken: default_token
-#    executor:
-#      appname: ${spring.application.name}
-#      address:
-#      ip:
-#      port: 60023
-#      logpath: /opt/docker/xxlJob/logs
-#      logretentiondays: 10
+rocketmq:
+  name-server: ${devServiceIp}:9876 # 访问地址
+  producer:
+    group: blog # 必须指定group
+    send-message-timeout: 3000 # 消息发送超时时长，默认3s
+    retry-times-when-send-failed: 3 # 同步发送消息失败重试次数，默认2
+    retry-times-when-send-async-failed: 3 # 异步发送消息失败重试次数，默认2
+  consumer:
+    groupName: blog
+    namesrvAddr: ${devServiceIp}:9876 # mq的nameserver地址
+    #该消费者订阅的主题和tags("*"号表示订阅该主题下所有的tags),格式：topic~tag1||tag2||tag3;topic2~*;
+    topics: BLOG_USER_DATA~*;BLOG_SYSTEM_DATA~*;
+    consumeThreadMin: 20
+    consumeThreadMax: 64
+    #设置一次消费消息的条数，默认为1条
+    consumeMessageBatchMaxSize: 1
+
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+
+
+easy-es:
+  enable: true
+  address : ${devServiceIp}:9200
+  schema: http
+  username: elastic
+  password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
+
+xxl:
+  job:
+    admin:
+      addresses: http://${devServiceIp}:8080/xxl-job-admin
+    accessToken: default_token
+    executor:
+      appname: ${spring.application.name}
+      address:
+      ip:
+      port: 60023
+      logpath: /opt/docker/xxlJob/logs
+      logretentiondays: 10

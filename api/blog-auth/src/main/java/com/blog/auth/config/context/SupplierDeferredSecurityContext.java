@@ -12,9 +12,9 @@ import java.util.function.Supplier;
 public class SupplierDeferredSecurityContext implements DeferredSecurityContext {
 
     //提供者上下文
-    private  Supplier<SecurityContext>  supplier;
+    private final Supplier<SecurityContext>  supplier;
     //安全上下文持有者策略
-    private SecurityContextHolderStrategy securityContextHolderStrategy;
+    private final SecurityContextHolderStrategy securityContextHolderStrategy;
 
     //安全上下文
     private SecurityContext securityContext;

@@ -1,4 +1,4 @@
-package com.blog.content.config;
+package com.blog.file.config;
 
 import com.blog.core.constant.PermitUrl;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +40,7 @@ public class SecurityConfig {
         //禁止csrf
         http.csrf(AbstractHttpConfigurer::disable);
         //拦截所有请求
-        http.authorizeHttpRequests(x->x
-                        .requestMatchers(PermitUrl.permitAllUrl("content")).permitAll()
+        http.authorizeHttpRequests(x->x.requestMatchers(PermitUrl.permitAllUrl("file")).permitAll()
                         .anyRequest().authenticated())
                     //oauth2资源服务器 使用jwt 带着jwt的token访问资源服务器
                     //使用JWT解码器来验证JWT令牌的签名和内容

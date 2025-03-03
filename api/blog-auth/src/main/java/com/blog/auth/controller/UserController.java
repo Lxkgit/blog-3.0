@@ -34,7 +34,7 @@ public class UserController {
 
     @GetMapping("/hello")
     public String test() {
-        return "test";
+        return "auth - test";
     }
 
 

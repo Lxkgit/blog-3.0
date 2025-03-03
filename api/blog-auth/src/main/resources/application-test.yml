@@ -1,5 +1,5 @@
 server:
-  port: 8084
+  port: 60002
   servlet:
     context-path: /auth
 
@@ -9,7 +9,7 @@ jasypt:
 
 spring:
   application:
-    name: auth-server
+    name: blog-auth
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${devServiceIp}:3306/blog_auth?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8

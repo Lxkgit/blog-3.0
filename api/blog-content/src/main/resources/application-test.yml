@@ -1,5 +1,5 @@
 server:
-  port: 8085
+  port: 60003
   servlet:
     context-path: /content
 
@@ -9,7 +9,7 @@ jasypt:
 
 spring:
   application:
-    name: auth-client
+    name: blog-content
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${devServiceIp}:3306/blog_content?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
@@ -26,7 +26,7 @@ spring:
       resourceserver:
         jwt:
           #访问授权服务器 在OIDC中是一个非常重要的标识符，有助于标识身份提供者和验证ID Token
-          issuer-uri: http://auth-server:8084
+          issuer-uri: http://auth-server:60002/auth
 
 rocketmq:
   name-server: ${devServiceIp}:9876 # 访问地址

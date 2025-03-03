@@ -23,7 +23,12 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
-            <version>4.1.6</version>
+        </dependency>
+
+        <!-- 负载均衡 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-loadbalancer</artifactId>
         </dependency>
 
         <!-- 使用 bootstrap 配置文件 -->
@@ -56,14 +61,20 @@
             <artifactId>easy-es-boot-starter</artifactId>
         </dependency>
 
+        <!-- es -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
+        </dependency>
+
+        <!-- 解决mq与gateway依赖冲突 -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
         </dependency>
 
         <!-- 实体类数据包 -->
@@ -106,11 +117,6 @@
             <groupId>com.blog</groupId>
             <artifactId>common-mq</artifactId>
             <version>3.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
         </dependency>
 
     </dependencies>

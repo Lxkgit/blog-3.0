@@ -1,5 +1,6 @@
 package com.blog.auth.controller;
  
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,21 +20,8 @@ import java.util.UUID;
 @RestController
 public class TestController {
 
-    @Autowired
+    @Resource
     private RegisteredClientRepository registeredClientRepository;
- 
-//    /**
-//     *
-//     * 获取授权码
-//     * @param
-//     * @return
-//     * @throws Exception
-//     */
-//    @GetMapping("/authorized")
-//    public String authorized(String code){
-//        log.info("授权码是:{}",code);
-//        return code;
-//    }
 
     /**
      *

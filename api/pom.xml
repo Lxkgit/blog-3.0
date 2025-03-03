@@ -41,6 +41,9 @@
         <lombok.version>1.18.36</lombok.version>
         <httpclient5.version>5.4.2</httpclient5.version>
         <jasypt.version>3.0.5</jasypt.version>
+
+        <!-- 解决依赖冲突 - mq与gateway -->
+        <grpc-netty.version>1.53.0</grpc-netty.version>
     </properties>
 
     <dependencyManagement>
@@ -162,6 +165,13 @@
                 <groupId>com.github.ulisesbocchio</groupId>
                 <artifactId>jasypt-spring-boot-starter</artifactId>
                 <version>${jasypt.version}</version>
+            </dependency>
+
+            <!-- 解决mq与gateway冲突问题 -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${grpc-netty.version}</version>
             </dependency>
 
         </dependencies>

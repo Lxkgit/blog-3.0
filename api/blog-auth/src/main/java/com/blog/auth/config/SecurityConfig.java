@@ -7,6 +7,7 @@ import com.blog.auth.config.point.MyLoginUrlAuthenticationEntryPoint;
 import com.blog.auth.config.repository.RedisSecurityContextRepository;
 import com.blog.auth.dao.UserMapper;
 import com.blog.auth.entity.MyUserDetails;
+import com.blog.core.constant.PermitUrl;
 import com.blog.core.entity.auth.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -132,7 +133,7 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         //放行登录接口 这样才能登录成功
-        return x -> x.ignoring().requestMatchers("/doLogin", "/getToken", "/login", "/content/hello1");
+        return x -> x.ignoring().requestMatchers("/doLogin", "/getToken", "/login");
     }
 
     /**
@@ -154,7 +155,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         //放行资源
                         .requestMatchers("/doLogin", "/login").permitAll()
-                        .requestMatchers("/content/hello1", "/hello").permitAll()
+                        .requestMatchers(PermitUrl.permitAllUrl("auth")).permitAll()
                         .anyRequest().authenticated()
                 )
                 //禁用表单登陆 前后分离不在使用

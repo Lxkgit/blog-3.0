@@ -1,16 +1,15 @@
 package com.blog.auth.service.impl;
 
 
-import com.blog.auth.constant.RedisConstant;
+import com.blog.core.constant.RedisConstant;
 import com.blog.auth.service.LoginService;
 import com.blog.core.entity.auth.vo.LoginVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
+import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -31,7 +29,7 @@ public class LoginServiceImpl implements LoginService {
     private AuthenticationManager authenticationManager;
 
     @Resource
-    private RedisTemplate redisTemplate;
+    private RedisService redisService;
 
     /**
      * 登陆
@@ -60,7 +58,7 @@ public class LoginServiceImpl implements LoginService {
         SecurityContextHolder.setContext(securityContext);
 
         // 保存认证信息 过期时间1个小时 保持和access_token的过期时间一致
-        redisTemplate.opsForValue().set(key, securityContext, 1, TimeUnit.HOURS);
+        redisService.setString(key, securityContext, 3600);
         return ResultFactory.buildSuccessResult(rzId);
     }
 
@@ -75,6 +73,6 @@ public class LoginServiceImpl implements LoginService {
         //清空上下文
         SecurityContextHolder.clearContext();
         //删除缓存
-        redisTemplate.delete(key);
+        redisService.delKey(key);
     }
 }

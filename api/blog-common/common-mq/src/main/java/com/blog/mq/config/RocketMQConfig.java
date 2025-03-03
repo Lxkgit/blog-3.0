@@ -49,7 +49,7 @@ public class RocketMQConfig {
     @Bean("myGetRocketMQConsumer")
     public DefaultMQPushConsumer getRocketMQConsumer() {
 
-        log.info("groupName " + groupName + " nameSrvAddr " + nameSrvAddr + " topic " + topic);
+        log.info("groupName {} nameSrvAddr {} topic {}", groupName, nameSrvAddr, topic);
 
         if (StringUtils.isEmpty(groupName)) {
             throw new RuntimeException("rocketMq consumer groupName is null !");

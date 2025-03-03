@@ -2,12 +2,11 @@ package com.blog.auth.config.repository;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.blog.auth.config.context.SupplierDeferredSecurityContext;
-import com.blog.auth.constant.RedisConstant;
+import com.blog.core.constant.RedisConstant;
+import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +16,6 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -27,7 +25,7 @@ import java.util.function.Supplier;
 public class RedisSecurityContextRepository implements SecurityContextRepository {
 
     @Resource
-    private RedisTemplate redisTemplate;
+    private RedisService redisService;
 
 
     /**
@@ -60,10 +58,10 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
         // 如果当前的context是空的，则移除
         SecurityContext emptyContext = this.securityContextHolderStrategy.createEmptyContext();
         if (emptyContext.equals(context)) {
-            redisTemplate.delete(key);
+            redisService.delKey(key);
         } else {
             // 保存认证信息 过期时间1个小时 保持和access_token的过期时间一致
-            redisTemplate.opsForValue().set(key, context, 1, TimeUnit.HOURS);
+            redisService.setString(key, context, 3600);
         }
     }
 
@@ -80,7 +78,7 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
             return false;
         }
         String key = RedisConstant.RZ_ID + ":" + rzId;
-        return redisTemplate.opsForValue().get(key) != null;
+        return redisService.getString(key) != null;
     }
 
     /**
@@ -113,7 +111,7 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
         }
         String key = RedisConstant.RZ_ID + ":" + rzId;
         // 根据缓存 获取认证信息
-        Object o = redisTemplate.opsForValue().get(key);
+        Object o = redisService.getString(key);
         //直接返回上下文 就不需要再登陆了 否则会跳转到登陆界面
         return (SecurityContext) o;
     }

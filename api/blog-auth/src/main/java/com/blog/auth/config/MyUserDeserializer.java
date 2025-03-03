@@ -22,7 +22,7 @@ public class MyUserDeserializer extends JsonDeserializer<User> {
 
 
 	@Override
-	public User deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+	public User deserialize(JsonParser jp, DeserializationContext text) throws IOException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
 		List<? extends GrantedAuthority> authorities = mapper.convertValue(jsonNode.get("authorities"),

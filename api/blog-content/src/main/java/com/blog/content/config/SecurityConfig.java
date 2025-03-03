@@ -39,7 +39,8 @@ public class SecurityConfig {
         //禁止csrf
         http.csrf(AbstractHttpConfigurer::disable);
         //拦截所有请求
-        http.authorizeHttpRequests(x->x.anyRequest().authenticated())
+        http.authorizeHttpRequests(x->x.requestMatchers("/hello1").permitAll()
+                        .anyRequest().authenticated())
                     //oauth2资源服务器 使用jwt 带着jwt的token访问资源服务器
                     //使用JWT解码器来验证JWT令牌的签名和内容
                     .oauth2ResourceServer(x->x.jwt(jwt->jwt.decoder(JwtDecoders.fromIssuerLocation(issuerUri))));

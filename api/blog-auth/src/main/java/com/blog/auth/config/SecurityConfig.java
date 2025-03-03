@@ -1,5 +1,6 @@
 package com.blog.auth.config;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.auth.config.filter.MyAuthenticationFilter;
 import com.blog.auth.config.point.MyLoginUrlAuthenticationEntryPoint;
@@ -15,7 +16,6 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -71,31 +71,28 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
+    @Resource
     private JdbcTemplate jdbcTemplate;
-    @Autowired
+
+    @Resource
     private UserMapper userMapper;
 
-
-
-    @Autowired
+    @Resource
     private RedisSecurityContextRepository redisSecurityContextRepository;
-    @Autowired
-    private MyAuthenticationFilter myAuthenticationFilter;
 
+    @Resource
+    private MyAuthenticationFilter myAuthenticationFilter;
 
     //密码加密
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-
-
     /**
-     *
      * 授权服务安全过滤器链
      * 第一个进来
+     *
      * @param
      * @return
      * @throws Exception
@@ -108,24 +105,23 @@ public class SecurityConfig {
         //授权服务配置 应用默认安全性 简化配置,在源码给你都配置好了
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         //禁用session,前后端分离不需要, cookie中就不会显示JSESSIONID
-//        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         //配置上下文 从redis中读取
-        http.securityContext(x->x.securityContextRepository(redisSecurityContextRepository));
+        http.securityContext(x -> x.securityContextRepository(redisSecurityContextRepository));
         //配置OpenID Connect（OIDC）登录,是一种在OAuth 2.0基础上实现身份验证和授权的协议。
         //与传统的OAuth 2.0授权不同的是，OIDC需要在OAuth 2.0授权服务器和OAuth客户端之间建立信任关系，
         // 并使用JWT（JSON Web Tokens）来安全地传输信息
         //生成oidc授权码和令牌 在客户端使用scope:openid 的时候就会生效 返回对应的授权码
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
         //异常处理
-        http.exceptionHandling(x->x.defaultAuthenticationEntryPointFor(
+        http.exceptionHandling(x -> x.defaultAuthenticationEntryPointFor(
                 //自定义未登录地址,地址为前端vue的地址，当没有登陆的时候，自动跳转到前端登陆界面
                 new MyLoginUrlAuthenticationEntryPoint("http://localhost:3001/denglu"),
                 //只有带有 "text/html" 媒体类型的请求需要进行身份验证
                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
         ));
         //资源服务器通过jwt令牌 去访问
-        http.oauth2ResourceServer(x->x.jwt(Customizer.withDefaults()));
+        http.oauth2ResourceServer(x -> x.jwt(Customizer.withDefaults()));
         //禁用csrf
         http.csrf(AbstractHttpConfigurer::disable);
         //建造对象
@@ -134,15 +130,16 @@ public class SecurityConfig {
 
     //忽略路径 放行路径
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer(){
+    public WebSecurityCustomizer webSecurityCustomizer() {
         //放行登录接口 这样才能登录成功
-        return x->x.ignoring().requestMatchers("/doLogin","/getToken","/login");
+        return x -> x.ignoring().requestMatchers("/doLogin", "/getToken", "/login", "/content/hello1");
     }
 
     /**
      * 默认安全过滤器链
      * 用于身份认证
      * 第二个进入
+     *
      * @param
      * @return
      * @throws Exception
@@ -156,30 +153,29 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         //放行资源
-                        .requestMatchers("/doLogin","/login").permitAll()
+                        .requestMatchers("/doLogin", "/login").permitAll()
+                        .requestMatchers("/content/hello1", "/hello").permitAll()
                         .anyRequest().authenticated()
                 )
                 //禁用表单登陆 前后分离不在使用
                 .formLogin(AbstractHttpConfigurer::disable);
-//                .formLogin().disable();
         //禁用csrf
         http.csrf(AbstractHttpConfigurer::disable);
-//        http.csrf().disable();
 
         return http.build();
     }
 
     /**
+     * 用于第三方认证
+     * 主要管理第三方的客户端
+     * 已注册客户端存储库
      *
-     *  用于第三方认证
-     *  主要管理第三方的客户端
-     *  已注册客户端存储库
      * @param
      * @return
      * @throws Exception
      */
     @Bean
-    public RegisteredClientRepository registeredClientRepository(){
+    public RegisteredClientRepository registeredClientRepository() {
         //从数据库读取注册的客户端信息
         return new JdbcRegisteredClientRepository(jdbcTemplate);
     }
@@ -187,23 +183,24 @@ public class SecurityConfig {
     /**
      * 解码JWT，并验证其签名
      * 在别的客户端会通过issuerUri这个路径来进行认证(登录)
+     *
      * @param jwkSource
      * @return
      */
     @Bean
-    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource){
+    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
     }
 
     /**
-     *
      * 通过非对称加密生成access_token(jwt)的签名部分
+     *
      * @param
      * @return
      * @throws Exception
      */
     @Bean
-    public JWKSource<SecurityContext> jwkSource(){
+    public JWKSource<SecurityContext> jwkSource() {
         KeyPair keyPair = generateRsaKey();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
@@ -216,7 +213,7 @@ public class SecurityConfig {
     }
 
     /**
-     * ⽣成秘钥对,为jwkSource提供服务,私钥服务器⾃身持有,公钥对外开放。
+     * 生成秘钥对,为jwkSource提供服务,私钥服务器自身持有,公钥对外开放。
      *
      * @return
      */
@@ -235,22 +232,23 @@ public class SecurityConfig {
 
     /**
      * 授权服务设置
+     *
      * @return
      */
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings(){
+    public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
     }
 
     /**
-     *
      * 对应 oauth2_authorization表 授权服务
+     *
      * @param
      * @return
      * @throws Exception
      */
     @Bean
-    public OAuth2AuthorizationService auth2AuthorizationService(){
+    public OAuth2AuthorizationService auth2AuthorizationService() {
         //解决自定义user 登录报错
         JdbcOAuth2AuthorizationService service = new JdbcOAuth2AuthorizationService(jdbcTemplate,
                 registeredClientRepository());
@@ -275,65 +273,66 @@ public class SecurityConfig {
     /**
      * 对应oauth2_authorization_consent表
      * 用户确认授权同意书
+     *
      * @param
      * @return
      * @throws Exception
      */
     @Bean
-    public OAuth2AuthorizationConsentService auth2AuthorizationConsentService(){
-        return new JdbcOAuth2AuthorizationConsentService(jdbcTemplate,registeredClientRepository());
+    public OAuth2AuthorizationConsentService auth2AuthorizationConsentService() {
+        return new JdbcOAuth2AuthorizationConsentService(jdbcTemplate, registeredClientRepository());
     }
 
 
     /**
-     *
      * jwt编码上下文oauth2令牌自定义程序
      * 给jwt 添加一些自定义的参数
+     *
      * @param
      * @return
      * @throws Exception
      */
     @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer(){
+    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
         return context -> {
             JwtClaimsSet.Builder claims = context.getClaims();
             //获取原有的jwt 参数
             Map<String, Object> map = claims.build().getClaims();
-            log.info("==========={}",map);
+            log.info("==========={}", map);
             //获取账号
-            String sub=map.get("sub").toString();
-            QueryWrapper<User> queryWrapper=new QueryWrapper();
-            queryWrapper.eq("account",sub);
+            String sub = map.get("sub").toString();
+            LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(User::getAccount, sub);
             //根据账号获取用户信息
-            User user=userMapper.selectOne(queryWrapper);
+            User user = userMapper.selectOne(wrapper);
 
             //获得认证对象,当前用户信息
             Authentication principal = context.getPrincipal();
-            if(context.getTokenType()== OAuth2TokenType.ACCESS_TOKEN){
+            if (context.getTokenType() == OAuth2TokenType.ACCESS_TOKEN) {
                 //如果jwt的类型是access_token
-                List<String>auths=new ArrayList<>();
+                List<String> auths = new ArrayList<>();
                 //得到该用户的权限信息 放入集合
                 for (GrantedAuthority authority : principal.getAuthorities()) {
                     auths.add(authority.getAuthority());
                 }
                 //写入jwt
-                context.getClaims().claim("auths",auths);
-                context.getClaims().claim("name",user.getName());
-                context.getClaims().claim("email","aaa@qq.com");
-                context.getClaims().claim("phone","12345678901");
+                context.getClaims().claim("auths", auths);
+                context.getClaims().claim("name", user.getName());
+                context.getClaims().claim("email", "aaa@qq.com");
+                context.getClaims().claim("phone", "12345678901");
             }
-            if(context.getTokenType().getValue().equals(OidcParameterNames.ID_TOKEN)){
+            if (context.getTokenType().getValue().equals(OidcParameterNames.ID_TOKEN)) {
                 //如果jwt的类型是id_token
-                List<String>auths=new ArrayList<>();
+                List<String> auths = new ArrayList<>();
                 //得到该用户的权限信息 放入集合
                 for (GrantedAuthority authority : principal.getAuthorities()) {
                     auths.add(authority.getAuthority());
                 }
                 //写入jwt
-                context.getClaims().claim("auths",auths);
-                context.getClaims().claim("name",user.getName());
-                context.getClaims().claim("email","abc@qq.com");
-                context.getClaims().claim("phone","12345678902");
+                context.getClaims().claim("auths", auths);
+                context.getClaims().claim("name", user.getName());
+                context.getClaims().claim("email", "abc@qq.com");
+                context.getClaims().claim("phone", "12345678902");
             }
         };
     }
@@ -342,6 +341,7 @@ public class SecurityConfig {
     /**
      * 把认证管理器注入到容器
      * LoginServiceImpl类中 才能使用这个认证接口
+     *
      * @param config
      * @return
      * @throws Exception

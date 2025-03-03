@@ -1,4 +1,4 @@
-package com.blog.auth.constant;
+package com.blog.core.constant;
 
 /**
  * 常量类

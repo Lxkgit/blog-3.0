@@ -1,6 +1,7 @@
 package com.blog.auth.config.filter;
 
-import com.blog.auth.constant.RedisConstant;
+import com.blog.core.constant.RedisConstant;
+import com.blog.redis.service.RedisService;
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
@@ -8,8 +9,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ import java.io.IOException;
 public class MyAuthenticationFilter extends OncePerRequestFilter {
 
     @Resource
-    private RedisTemplate redisTemplate;
+    private RedisService redisService;
 
     /**
      * 所有请求的过滤器
@@ -48,7 +47,7 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
             //去redis中获取上下文
             String key = RedisConstant.RZ_ID + ":" + rzId;
             // 根据缓存 获取认证信息
-            Object o = redisTemplate.opsForValue().get(key);
+            Object o = redisService.getString(key);
             if (o == null) {
                 //如果缓存没有 那么放行
                 filterChain.doFilter(request, response);

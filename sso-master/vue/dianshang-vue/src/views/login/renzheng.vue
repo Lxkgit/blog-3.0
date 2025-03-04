@@ -30,14 +30,14 @@
     let target = router.currentRoute.value.query.target;
     //调用认证授权服务器的登陆接口
     //http://auth-server:8084/doLogin  
-    let url = "/auth/doLogin";
+    let url = "/res/auth/doLogin";
     axios.post(url,
       {
         username: username.value,
         password: password.value
       }
     ).then(function (response) {
-    //   alert("统一认证： " + JSON.stringify(response.data));
+      // alert("统一认证： " + JSON.stringify(response.data));
       // console.log('login:',response)
     //   alert('target: ' +  target)
       let code = response.data.code;

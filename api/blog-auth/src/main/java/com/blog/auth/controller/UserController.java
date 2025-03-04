@@ -37,5 +37,9 @@ public class UserController {
         return "auth - test";
     }
 
+    @GetMapping("/hello1")
+    public String test1() {
+        return "有权限 auth - test";
+    }
 
 }

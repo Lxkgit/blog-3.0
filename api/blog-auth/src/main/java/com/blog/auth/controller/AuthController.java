@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/getToken")
     public Result getToken(@RequestBody Oauth2Vo vo) {
         //拼接获取token的路径
-        String url = "http://auth-server:8084/oauth2/token";
+        String url = "http://auth-server:60001/auth/oauth2/token";
         Map<String, String> map = new HashMap<>();
         map.put("redirect_uri", vo.getRedirectUri());
         map.put("grant_type", "authorization_code");

@@ -36,17 +36,4 @@ public class PermitUrl {
         }
         return set.toArray(new String[0]);
     }
-
-
-//    public static String[] permitAllUrl(String... urls) {
-//        if (urls == null || urls.length == 0) {
-//            return basePermitUrl;
-//        }
-//
-//        Set<String> set = new HashSet<>();
-//        Collections.addAll(set, basePermitUrl);
-//        Collections.addAll(set, urls);
-//
-//        return set.toArray(new String[0]);
-//    }
 }

@@ -16,7 +16,7 @@ let getToken=()=>{
     let code = router.currentRoute.value.query.code;
     if(code){
         //获取token，auth是前缀，在vite.config.ts中会去掉这个前缀，为了解决跨域
-        let url="/auth/getToken";
+        let url="/res/auth/getToken";
         axios.post(url,
         {
             //授权码

@@ -152,17 +152,19 @@ public class SecurityConfig {
         //先进行自定义的过滤器,在进行账号密码验证
         http.addFilterBefore(myAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http
+                .securityMatcher("/auth/**")
                 .authorizeHttpRequests((authorize) -> authorize
                         //放行资源
-                        .requestMatchers("/doLogin", "/login").permitAll()
+                        .requestMatchers("/auth/doLogin", "/auth/login", "/auth/getToken").permitAll()
+                        .requestMatchers("/auth/oauth2/authorize").authenticated()
                         .requestMatchers(PermitUrl.permitAllUrl("auth")).permitAll()
                         .anyRequest().authenticated()
                 )
                 //禁用表单登陆 前后分离不在使用
                 .formLogin(AbstractHttpConfigurer::disable);
         //禁用csrf
-        http.csrf(AbstractHttpConfigurer::disable);
-
+//        http.csrf(AbstractHttpConfigurer::disable);
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/auth/oauth2/token"));
         return http.build();
     }
 
@@ -238,7 +240,18 @@ public class SecurityConfig {
      */
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
+        return AuthorizationServerSettings.builder()
+                // 关键：设置 issuer 包含上下文路径
+                .issuer("http://auth-server:60002/auth")
+                // 端点路径不需要包含 /auth，Spring 会自动附加 context-path
+                .authorizationEndpoint("/oauth2/authorize")
+                .tokenEndpoint("/oauth2/token")
+                .tokenIntrospectionEndpoint("/oauth2/introspect")
+                .tokenRevocationEndpoint("/oauth2/revoke")
+                .jwkSetEndpoint("/oauth2/jwks")
+                .oidcUserInfoEndpoint("/userinfo")
+                .oidcClientRegistrationEndpoint("/connect/register")
+                .build();
     }
 
     /**

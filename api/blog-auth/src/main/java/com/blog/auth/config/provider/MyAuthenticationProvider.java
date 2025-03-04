@@ -13,8 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- *
  * 实现身份验证提供程序
+ *
  * @param
  * @return
  * @throws Exception
@@ -30,10 +30,10 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
     private PasswordEncoder passwordEncoder;
 
 
-
     /**
      * LoginServiceImpl的登录方法点击认证的时候 直接跳转到这里
      * 登陆认证
+     *
      * @param
      * @return
      * @throws Exception
@@ -41,17 +41,17 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         //从authentication获取用户名和凭证(密码)信息
-        String username=authentication.getName();
-        String password=authentication.getCredentials().toString();
-        log.info("密码=========================={}",password);
+        String username = authentication.getName();
+        String password = authentication.getCredentials().toString();
+        log.info("密码=========================={}", password);
         //查询用户是否存在
         UserDetails userDetails = userService.loadUserByUsername(username);
         //比较和数据库的密码是否一样
-        if(passwordEncoder.matches(password,userDetails.getPassword())){
+        if (passwordEncoder.matches(password, userDetails.getPassword())) {
             //返回用户名密码认证令牌
             //因为UsernamePasswordAuthenticationToken的上级父类的父类是Authentication 所以可以直接返回
-            return new UsernamePasswordAuthenticationToken(username,password,userDetails.getAuthorities());
-        }else {
+            return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
+        } else {
             throw new BadCredentialsException("用户名或者密码错误了");
         }
     }

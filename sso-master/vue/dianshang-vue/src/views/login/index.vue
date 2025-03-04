@@ -23,7 +23,7 @@ let router = useRouter();
 let ssoLogin = () => {
   //获取cookie的值
   let rzId = Cookies.get('rzId');
-  let target = 'http://auth-server:8084/oauth2/authorize?response_type=code&client_id=dianshang&scope=openid&redirect_uri=http://localhost:3001/callback'
+  let target = 'http://auth-server:60001/auth/oauth2/authorize?response_type=code&client_id=dianshang&scope=openid&redirect_uri=http://localhost:3001/callback'
   if (rzId) {
     //如果认证id不为空 带着认证id 
     target = target + '&rzId=' + rzId;

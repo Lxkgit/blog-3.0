@@ -15,7 +15,7 @@
     <!--删除用户关联的角色-->
     <delete id="deleteRole">
         DELETE from sys_user_role
-        WHERE user_id=#{id}
+        WHERE user_id = #{id}
     </delete>
 
     <!--查看用户对应的角色id-->

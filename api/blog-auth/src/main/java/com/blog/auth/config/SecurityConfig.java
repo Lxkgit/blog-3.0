@@ -1,7 +1,6 @@
 package com.blog.auth.config;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.auth.config.filter.MyAuthenticationFilter;
 import com.blog.auth.config.point.MyLoginUrlAuthenticationEntryPoint;
 import com.blog.auth.config.repository.RedisSecurityContextRepository;
@@ -316,7 +315,7 @@ public class SecurityConfig {
             //获取账号
             String sub = map.get("sub").toString();
             LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(User::getAccount, sub);
+            wrapper.eq(User::getUsername, sub);
             //根据账号获取用户信息
             User user = userMapper.selectOne(wrapper);
 
@@ -331,7 +330,7 @@ public class SecurityConfig {
                 }
                 //写入jwt
                 context.getClaims().claim("auths", auths);
-                context.getClaims().claim("name", user.getName());
+                context.getClaims().claim("name", user.getNickname());
                 context.getClaims().claim("email", "aaa@qq.com");
                 context.getClaims().claim("phone", "12345678901");
             }
@@ -344,7 +343,7 @@ public class SecurityConfig {
                 }
                 //写入jwt
                 context.getClaims().claim("auths", auths);
-                context.getClaims().claim("name", user.getName());
+                context.getClaims().claim("name", user.getNickname());
                 context.getClaims().claim("email", "abc@qq.com");
                 context.getClaims().claim("phone", "12345678902");
             }

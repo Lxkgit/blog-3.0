@@ -12,6 +12,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     /**
      * 删除用户关联的角色
+     *
      * @param id
      * @return
      */
@@ -19,6 +20,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     /**
      * 为用户分配角色
+     *
      * @return
      */
     Integer addUserRole(@Param("userId") Integer userId,
@@ -26,7 +28,8 @@ public interface UserMapper extends BaseMapper<User> {
 
     /**
      * 查看用户对应的角色id
+     *
      * @return
      */
-    List<Integer>getUserRoleIds(@Param("userId") Integer userId);
+    List<Integer> getUserRoleIds(@Param("userId") Integer userId);
 }

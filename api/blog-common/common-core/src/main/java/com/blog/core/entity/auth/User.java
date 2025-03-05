@@ -19,13 +19,13 @@ public class User {
     private Integer id;
  
     //账号
-    private String account;
+    private String username;
  
     //密码
     private String password;
  
     //姓名
-    private String name;
+    private String nickname;
 
     //创建日期
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

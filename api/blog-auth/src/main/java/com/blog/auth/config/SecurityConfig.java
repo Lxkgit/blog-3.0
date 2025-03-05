@@ -156,15 +156,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         //放行资源
                         .requestMatchers("/auth/doLogin", "/auth/login", "/auth/getToken").permitAll()
-                        .requestMatchers("/auth/oauth2/authorize").authenticated()
                         .requestMatchers(PermitUrl.permitAllUrl("auth")).permitAll()
                         .anyRequest().authenticated()
                 )
                 //禁用表单登陆 前后分离不在使用
                 .formLogin(AbstractHttpConfigurer::disable);
         //禁用csrf
-//        http.csrf(AbstractHttpConfigurer::disable);
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/auth/oauth2/token"));
+        http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 

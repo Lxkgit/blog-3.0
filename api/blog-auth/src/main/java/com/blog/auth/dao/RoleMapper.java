@@ -30,7 +30,7 @@ public interface RoleMapper  extends BaseMapper<Role> {
      * @param userId
      * @return
      */
-    public List<Role> getUserRole(@Param("userId") Integer userId);
+    List<Role> getUserRole(@Param("userId") Integer userId);
 
     /**
      * 为角色分配权限

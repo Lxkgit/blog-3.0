@@ -1,6 +1,6 @@
 package com.blog.auth.config.provider;
 
-import com.blog.auth.service.UserService;
+import com.blog.auth.service.impl.UserService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;

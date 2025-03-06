@@ -1,45 +1,102 @@
 package com.blog.auth.controller;
 
-import com.blog.auth.service.UserService;
-import com.blog.core.result.Result;
-import com.blog.core.result.ResultFactory;
+
+import com.blog.auth.service.impl.UserService;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.util.Collection;
-import java.util.UUID;
+/**
+ * @Author: lxk
+ * @date 2022/6/6 16:32
+ * @description:
+ */
 
 @Slf4j
 @RestController
+@RequestMapping("/user")
 public class UserController {
 
     @Resource
     private UserService userService;
 
-    @GetMapping("/hello")
-    public String test() {
-        return "auth - test";
+
+    @GetMapping(value = "/select/id")
+    public BlogUser selectUserById(@RequestParam(value = "userId") Integer userId){
+        return userService.selectUserById(userId);
     }
 
-    @GetMapping("/hello1")
-    public String test1() {
-        return "有权限 auth - test";
+    @GetMapping(value = "/select/username", params = "username")
+    public BlogUser selectUserByUsername(String username) {
+        return userService.selectUserByUsername(username);
+    }
+
+    @GetMapping("/username")
+    public Result getUserByUsername(@RequestParam(value = "username") String username) {
+        return ResultFactory.buildSuccessResult(userService.selectUserByUsername(username));
+    }
+
+    @GetMapping("/id")
+    public Result getUserById(@RequestParam(value = "id") Integer id) {
+        return ResultFactory.buildSuccessResult(userService.selectUserById(id));
+    }
+
+    @GetMapping("/code")
+    public Result getUserVerifyCode(@RequestParam(value = "email") String email) {
+        return ResultFactory.buildFailResult(userService.getUserVerifyCode(email));
+    }
+
+    @PutMapping("/register")
+    public Result registerUser(@RequestBody BlogUserVo blogUserVo){
+        String msg = userService.registerUser(blogUserVo);
+        return ResultFactory.buildSuccessResult(msg);
+    }
+
+    @GetMapping(value = "/select/user/id")
+    public Result selectUserMsgById(@RequestParam(value = "userId") Integer userId){
+        return ResultFactory.buildSuccessResult(userService.selectUserById(userId));
+    }
+
+    @GetMapping("/list")
+    @PreAuthorize("hasAnyAuthority('sys:user:list')")
+    public Result selectUserList(@RequestParam(value = "page") Integer page, @RequestParam(value = "size") Integer size) {
+        if (page==0 || size==0){
+            return ResultFactory.buildFailResult("请输入正确的查询页 ... ");
+        }
+        return ResultFactory.buildSuccessResult(userService.selectUserByPage(page, size));
+    }
+
+    /**
+     * 用户修改个人信息
+     * @return
+     */
+    @PostMapping("/update")
+    public Result updateUserMsg(@RequestBody SysUserVo sysUserVo) {
+        userService.updateUser(sysUserVo, 0);
+        return ResultFactory.buildSuccessResult();
+    }
+
+    /**
+     * 管理员修改角色信息
+     * @return
+     */
+    @PostMapping("/permission/update")
+    @PreAuthorize("hasAnyAuthority('sys:user:role:update')")
+    public Result updateUserPer(@RequestBody SysUserVo sysUserVo) {
+        userService.updateUser(sysUserVo, 1);
+        return ResultFactory.buildSuccessResult();
+    }
+
+    /**
+     *
+     * @return
+     */
+    @GetMapping("/doc/user")
+    public Result selectDocUserList() {
+        return ResultFactory.buildSuccessResult(userService.selectUserByPage(1, 50));
     }
 
 }

@@ -159,66 +159,66 @@
 </template>
 
 <script setup lang="ts">
-// import { computed, onMounted, reactive, ref, onActivated } from "vue";
+import { computed, onMounted, reactive, ref, onActivated } from "vue";
 // // import icon from "@/utils/icon";
 // import { ArrowDown, ArrowUp } from "@element-plus/icons-vue";
-// import { useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 // import user from "@/utils/user";
-// import { systemStore } from "@/store/system";
+import { systemStore } from "@/store/system";
 // import { tagsStore } from "@/store/tag";
-// import dark from "@/utils/dark";
-// import color from "@/utils/color";
-// import theme from "@/utils/theme";
+import dark from "@/utils/dark";
+import color from "@/utils/color";
+import theme from "@/utils/theme";
 // import navigation from "@/utils/navigation";
 
-// const store = systemStore();
+const store = systemStore();
 // const tagStore = tagsStore();
-// let { isDark, setDark } = dark();
-// let { setTheme } = theme();
+const { isDark, setDark } = dark();
+const { setTheme } = theme();
 // let { navigationList, setNavigation, navigationType } = navigation();
-// const router = useRouter();
+const router = useRouter();
 
 // let { MyIcon } = icon();
 // // 引入用户信息模块
 // let { isLogin, userName, logout } = user();
-// let { themeList } = color();
-// const props = defineProps({
-//   // 导航栏类型(前台后台)
-//   kind: {
-//     type: String,
-//     required: false,
-//     default: "front",
-//   },
-// });
-// //导航菜单-logo和name
-// const siteConfig = reactive({
-//   logo: "/logo.png",
-//   name: "",
-// });
+const { themeList } = color();
+const props = defineProps({
+  // 导航栏类型(前台后台)
+  kind: {
+    type: String,
+    required: false,
+    default: "front",
+  },
+});
+//导航菜单-logo和name
+const siteConfig = reactive({
+  logo: "/logo.png",
+  name: "",
+});
 
 // const selfPage = () => {
 //   tagStore.activeTag("/admin/index");
 //   router.push("/admin/index");
 // };
 
-// // 跳转至登录页
-// const toLogin = () => {
-//   router.push({ path: "/loginRegister", query: { component: "Login" } });
-// };
-// // 跳转至注册页
-// const toRegister = () => {
-//   router.push({ path: "/loginRegister", query: { component: "Register" } });
-// };
-// // 个人中心-是否下拉状态
-// const isDropdown = ref(false);
+// 跳转至登录页
+const toLogin = () => {
+  router.push({ path: "/loginRegister", query: { component: "Login" } });
+};
+// 跳转至注册页
+const toRegister = () => {
+  router.push({ path: "/loginRegister", query: { component: "Register" } });
+};
+// 个人中心-是否下拉状态
+const isDropdown = ref(false);
 
-// // 个人中心-下拉事件
-// const dropdownChange = (value: any) => {
-//   isDropdown.value = value;
-// };
+// 个人中心-下拉事件
+const dropdownChange = (value: any) => {
+  isDropdown.value = value;
+};
 
-// // 个人中心-用户头像
-// const photo = ref();
+// 个人中心-用户头像
+const photo = ref();
 
 // // 个人中心-获取用户头像
 // async function getPhotoData() {
@@ -226,44 +226,44 @@
 //   // photo.value = data.photo
 // }
 
-// //设置-菜单默认关闭
-// let drawer = ref(false);
-// //设置-菜单关闭事件
-// const handleClose = () => {
-//   drawer.value = false;
-// };
-// // 设置-显示模式默认值
+//设置-菜单默认关闭
+let drawer = ref(false);
+//设置-菜单关闭事件
+const handleClose = () => {
+  drawer.value = false;
+};
+// 设置-显示模式默认值
 
-// const isDarkSwitch = ref(false);
-// // // 设置-切换是否设置暗黑模式
-// const setDarkMode = () => {
-//   setDark(isDarkSwitch.value);
-// };
-// // 设置-侧边菜单显示是否折叠
-// const asideMenuFold = ref(false);
-// // 设置-侧边菜单显示折叠切换事件
-// const asideMenuFoldChange = () => {
-//   store.setAsideMenuFold(asideMenuFold.value);
-// };
+const isDarkSwitch = ref(false);
+// // 设置-切换是否设置暗黑模式
+const setDarkMode = () => {
+  setDark(isDarkSwitch.value);
+};
+// 设置-侧边菜单显示是否折叠
+const asideMenuFold = ref(false);
+// 设置-侧边菜单显示折叠切换事件
+const asideMenuFoldChange = () => {
+  store.setAsideMenuFold(asideMenuFold.value);
+};
 
-// // 设置-默认主题色
-// const colorValue = ref("");
-// // 设置-切换主题色事件
-// const colorChoose = (value: any) => {
-//   colorValue.value = value;
-//   setTheme(colorValue.value);
-// };
-// // 设置-默认导航菜单样式
-// const navValue = ref("");
+// 设置-默认主题色
+const colorValue = ref("");
+// 设置-切换主题色事件
+const colorChoose = (value: any) => {
+  colorValue.value = value;
+  setTheme(colorValue.value);
+};
+// 设置-默认导航菜单样式
+const navValue = ref("");
 
 // // 设置-导航菜单样式切换事件
 // const navChange = (value: any) => {
 //   setNavigation(value);
 // };
 
-// onActivated(() => {
-//   asideMenuFold.value = store.asideMenuFold;
-// });
+onActivated(() => {
+  asideMenuFold.value = store.asideMenuFold;
+});
 
 // onMounted(() => {
 //   asideMenuFold.value = store.asideMenuFold;

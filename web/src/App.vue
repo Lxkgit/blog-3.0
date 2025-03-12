@@ -15,7 +15,7 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 // import { systemStore } from "@/store/system"
-// import dark from "@/utils/dark";
+import dark from "@/utils/dark";
 // import socketAll from '@/utils/socketAll';
 // import socketUser from '@/utils/socketUser'
 // import user from "@/utils/user";

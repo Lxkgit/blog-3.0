@@ -1,7 +1,7 @@
 //单独暴露路由
 export const luYou=[
     {
-        path:'/login',
+        path:'/home',
         component:()=> import('@/views/login/index.vue'),
         name:'login',
         meta:{
@@ -50,7 +50,7 @@ export const luYou=[
     },
     {
         //根页面
-        path:'/denglu',
+        path:'/login',
         component:()=> import('@/views/login/renzheng.vue'),
         name:'denglu',
         meta:{

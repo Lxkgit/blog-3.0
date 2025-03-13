@@ -1,6 +1,6 @@
 package com.blog.core.entity.auth.vo;
 
-import com.blog.common.entity.user.BlogUser;
+import com.blog.core.entity.auth.BlogUser;
 import lombok.Getter;
 import lombok.Setter;
 

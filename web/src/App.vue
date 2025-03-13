@@ -14,7 +14,7 @@
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-// import { systemStore } from "@/store/system"
+import { systemStore } from "@/store/system"
 import dark from "@/utils/dark";
 // import socketAll from '@/utils/socketAll';
 // import socketUser from '@/utils/socketUser'
@@ -24,8 +24,8 @@ import dark from "@/utils/dark";
 // import SettingEnum from "@/enums/blogSettingEnum"
 
 // let { isLogin, userId } = user();
-// const store = systemStore()
-// let { setDark } = dark()
+const store = systemStore()
+let { setDark } = dark()
 // let { openSocketAll } = socketAll()
 // let { openSocketUser, closeWebSocketUser } = socketUser()
 const locale = zhCn
@@ -51,9 +51,9 @@ onMounted(() => {
   // selectBlogSettingByIdFun()
   const is_dark = window.matchMedia('(prefers-color-scheme: dark)').matches
   if (is_dark) {
-    // setDark(is_dark)
+    setDark(is_dark)
   } else {
-    // setDark(store.isDark)
+    setDark(store.isDark)
   }
   try {
     document.body.removeChild(document.getElementById('Loading'))

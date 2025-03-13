@@ -7,11 +7,11 @@ jasypt:
   encryptor:
     password: gszero
 
-logging:
-  level:
-    org:
-      springframework:
-        security: trace
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        security: trace
 
 spring:
   application:

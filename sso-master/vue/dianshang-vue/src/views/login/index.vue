@@ -28,6 +28,7 @@ let ssoLogin = () => {
     //如果认证id不为空 带着认证id 
     target = target + '&rzId=' + rzId;
   }
+  // alert("target: " + target)
   //先登陆 在跳转到回调界面 获取授权码 
   window.location.href = target
 }

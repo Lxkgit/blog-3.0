@@ -1,0 +1,74 @@
+.el-image__error {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+.el-image img {
+  border-radius: 8px;
+  transition: all 0.8s;
+}
+
+.cover img:hover, .recommend img:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+.el-divider__text {
+  color: var(--el-text-color-regular) !important;
+}
+
+.el-menu--horizontal > .el-sub-menu .el-sub-menu__title:hover {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+.el-dropdown-menu {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+.el-menu {
+  --el-menu-border-color:var(--el-border-color)!important;
+}
+
+.el-button--primary {
+  --el-button-background-color:var(--el-color-primary)!important;
+  --el-button-border-color:var(--el-color-primary)!important;
+}
+
+.el-descriptions__label {
+  background-color: var(--el-bg-color) !important;
+}
+
+.el-descriptions__content {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+.el-input-group__append, .el-input-group__prepend {
+  border: 1px solid var(--el-border-color) !important;
+}
+
+.el-autocomplete__popper.el-popper[role=tooltip] {
+  background-color: var(--el-bg-color) !important;
+}
+
+.el-loading-mask {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+.el-date-picker {
+  background-color: var(--el-bg-color) !important;
+}
+
+.el-steps--simple {
+  background-color: var(--el-bg-color) !important;
+}
+
+.el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
+  color: var(--el-color-primary) !important;
+}
+
+.el-collapse {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+.el-input {
+  height: 40px;
+}

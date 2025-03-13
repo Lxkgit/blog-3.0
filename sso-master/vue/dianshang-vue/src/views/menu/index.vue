@@ -76,7 +76,7 @@ let getUserInfo = () => {
 
   } else {
     //如果没有token 跳转到登陆界面
-    router.push('/login')
+    router.push('/home')
   }
 }
 
@@ -104,7 +104,7 @@ let getauth = () => {
 
   } else {
     //如果没有token 跳转到登陆界面
-    router.push('/login')
+    router.push('/home')
   }
 }
 
@@ -132,7 +132,7 @@ let getCc0 = () => {
 
   } else {
     //如果没有token 跳转到登陆界面
-    router.push('/login')
+    router.push('/home')
   }
 }
 
@@ -166,7 +166,7 @@ let getCc1 = () => {
 
   } else {
     //如果没有token 跳转到登陆界面
-    router.push('/login')
+    router.push('/home')
   }
 }
 
@@ -174,7 +174,7 @@ let getCc1 = () => {
 //生命周期挂载
 onMounted(() => {
   //获取用户信息
-  // getUserInfo();
+  getUserInfo();
   //获取电商cc接口
   getauth();
   getCc0();
@@ -207,7 +207,7 @@ let logout = () => {
           Cookies.remove('rzId');
 
           //跳转登陆界面
-          router.push('/login')
+          router.push('/home')
         } else {
           alert(response.data.msg);
         }
@@ -216,12 +216,12 @@ let logout = () => {
       .catch(function (error) {
         //console.log('bb',error);
         //获取异常跳转到登陆界面
-        router.push('/login')
+        router.push('/home')
       });
 
   } else {
     //如果没有token 跳转到登陆界面
-    router.push('/login')
+    router.push('/home')
   }
 }
 

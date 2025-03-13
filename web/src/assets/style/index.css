@@ -1,0 +1,104 @@
+@import "@/assets/style/element-ui.css";
+@import "@/assets/style/transition.css";
+@import "@/assets/style/hover.css";
+
+
+body {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	min-width: 1200px;
+}
+body, ol, ul, li, h1, h2, h3, p, form {
+	margin: 0;
+	padding: 0;
+}
+#nprogress .bar {
+	background: var(--el-color-primary) !important;
+	height: 3px !important;
+	border-radius: 3px;
+}
+.no-choose {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.page {
+	padding-top: 15px;
+	padding-bottom: 20px;
+	width: 1200px;
+	margin: 0 auto;
+	min-height: calc(100vh - 170px);
+}
+.page article {
+	display: inline-block;
+	width: 900px;
+	margin-right: 20px;
+}
+.page aside {
+	display: inline-block;
+	width: 280px;
+	float: right;
+}
+ul li:last-child .el-divider--horizontal {
+	display: none !important;
+}
+.card-title {
+	color: var(--el-color-primary);
+	font-size: 25px;
+}
+.tag-box .el-card__body {
+	padding: 10px 0;
+}
+.current-position {
+	background-color: var(--el-bg-color-overlay);
+	padding: 20px;
+	display: flex;
+	align-items: center;
+}
+.current-position span:nth-child(1) {
+	color: var(--el-text-color-regular);
+}
+.tag {
+	border-radius: 5px;
+	color: white;
+	font-size: 10px;
+	padding: 5px;
+}
+.pointer {
+	cursor: pointer;
+}
+.w-e-text-container {
+	background-color: var(--el-bg-color-overlay) !important;
+}
+.w-e-toolbar {
+	background-color: var(--el-border-color-extra-light) !important;
+}
+.w-e-toolbar .w-e-menu:hover {
+	background-color: var(--el-color-primary-light-9) !important;
+}
+.w-e-panel-container {
+	background-color: var(--el-bg-color) !important;
+}
+.w-e-panel-container .w-e-active {
+	background-color: var(--el-color-primary) !important;
+}
+.github-markdown-body table thead tr {
+	background-color: var(--el-bg-color) !important;
+}
+.github-markdown-body table tbody tr {
+	background-color: var(--el-bg-color-overlay) !important;
+}
+.github-markdown-body table tbody tr:nth-child(2n) {
+	background-color: var(--el-bg-color) !important;
+}
+.github-markdown-body div[class*=v-md-pre-wrapper-] {
+	background-color: var(--el-bg-color-page) !important;
+}
+.github-markdown-body div[class*=v-md-pre-wrapper-].line-numbers-mode:after {
+	background-color: var(--el-border-color) !important;
+}
+.github-markdown-body div[class*=v-md-pre-wrapper-] .hljs-params {
+	color: red;
+}

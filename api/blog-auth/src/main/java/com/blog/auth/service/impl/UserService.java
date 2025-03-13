@@ -47,7 +47,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("根据账号查询用户信息==========================================================");
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("account", username);
+        queryWrapper.eq("username", username);
         User user = userMapper.selectOne(queryWrapper);
         if (user == null) {
             log.info("用户不存在");

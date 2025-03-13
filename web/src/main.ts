@@ -4,13 +4,13 @@ import ElementPlus from 'element-plus'
 import store from '@/store'
 import router from '@/router'
 // import "animate.css";
-// import 'element-plus/dist/index.css'
-// import 'element-plus/theme-chalk/dark/css-vars.css'
+import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
 // import 'nprogress/nprogress.css'
-// import '@/assets/style/index.scss'
-// import '@/assets/style/css-vars.css'
-// import "@/assets/style/normalize.css"
-// import "@/assets/style/hover-min.css"
+import '@/assets/style/index.css'
+import '@/assets/style/css-vars.css'
+import "@/assets/style/normalize.css"
+import "@/assets/style/hover-min.css"
 
 
 const app = createApp(App)

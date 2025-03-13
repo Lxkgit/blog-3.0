@@ -5,32 +5,32 @@
     mode="in-out"
   >
     <header class="navigation-show" >
-      <!-- <span v-show="props.kind === 'front'" class="left">
+      <span v-show="props.kind === 'front'" class="left">
         <el-image
           style="width: 40px; height: 40px"
           :src="siteConfig.logo"
           :fit="'fill'"
         ></el-image>
         <span>{{ siteConfig.name }}</span>
-      </span> -->
+      </span>
       <span class="middle">
         <el-menu :default-active="menuIndex" mode="horizontal">
           <el-menu-item index="1" @click="router.push('/')">
-            <!-- <MyIcon type="icon-home3" /> -->
+            <MyIcon type="icon-home3" />
             <span class="menu-title">首页</span>
           </el-menu-item>
 
           <el-menu-item index="2" @click="router.push('/category')">
-            <!-- <MyIcon type="icon-article" /> -->
+            <MyIcon type="icon-article" />
             <span class="menu-title">文章</span>
           </el-menu-item>
 
           <el-menu-item index="3" @click="router.push('/document')">
-            <!-- <MyIcon type="icon-book" /> -->
+            <MyIcon type="icon-book" />
             <span class="menu-title">文档</span>
           </el-menu-item>
           <el-menu-item index="4" @click="router.push('/classify')">
-            <!-- <MyIcon type="icon-shijianzhou" /> -->
+            <MyIcon type="icon-shijianzhou" />
             <span class="menu-title">归档</span>
           </el-menu-item>
         </el-menu>
@@ -74,7 +74,6 @@
           </el-dropdown>
           <div v-else class="toLoginRegister">
             <span @click="toLogin">登录</span>
-            <span @click="toRegister">注册</span>
           </div>
         </span>
       </span>
@@ -155,12 +154,12 @@
       </el-drawer>
     </header>
   </transition>
-  <!-- <div class="placeholder"></div> -->
+  <div class="placeholder"></div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, onActivated } from "vue";
-// // import icon from "@/utils/icon";
+import icon from "@/utils/icon";
 // import { ArrowDown, ArrowUp } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 // import user from "@/utils/user";
@@ -169,16 +168,17 @@ import { systemStore } from "@/store/system";
 import dark from "@/utils/dark";
 import color from "@/utils/color";
 import theme from "@/utils/theme";
-// import navigation from "@/utils/navigation";
+import navigation from "@/utils/navigation";
+import Cookies from 'js-cookie';
 
 const store = systemStore();
 // const tagStore = tagsStore();
 const { isDark, setDark } = dark();
 const { setTheme } = theme();
-// let { navigationList, setNavigation, navigationType } = navigation();
+let { navigationList, setNavigation, navigationType } = navigation();
 const router = useRouter();
 
-// let { MyIcon } = icon();
+let { MyIcon } = icon();
 // // 引入用户信息模块
 // let { isLogin, userName, logout } = user();
 const { themeList } = color();
@@ -192,18 +192,27 @@ const props = defineProps({
 });
 //导航菜单-logo和name
 const siteConfig = reactive({
-  logo: "/logo.png",
-  name: "",
+  logo: "https://img2.baidu.com/it/u=2241198009,1203637343&fm=253&fmt=auto",
+  name: "GSZero",
 });
 
-// const selfPage = () => {
-//   tagStore.activeTag("/admin/index");
-//   router.push("/admin/index");
-// };
+const selfPage = () => {
+  // tagStore.activeTag("/admin/index");
+  // router.push("/admin/index");
+};
 
 // 跳转至登录页
 const toLogin = () => {
-  router.push({ path: "/loginRegister", query: { component: "Login" } });
+  //获取cookie的值
+  let rzId = Cookies.get('rzId');
+  let target = 'http://auth-server:60001/auth/oauth2/authorize?response_type=code&client_id=dianshang&scope=openid&redirect_uri=http://localhost:3001/callback'
+  if (rzId) {
+    //如果认证id不为空 带着认证id 
+    target = target + '&rzId=' + rzId;
+  }
+  //先登陆 在跳转到回调界面 获取授权码 
+  window.location.href = target
+  // router.push({ path: "/loginRegister", query: { component: "Login" } });
 };
 // 跳转至注册页
 const toRegister = () => {
@@ -220,11 +229,11 @@ const dropdownChange = (value: any) => {
 // 个人中心-用户头像
 const photo = ref();
 
-// // 个人中心-获取用户头像
-// async function getPhotoData() {
-//   // let data = await getUserinfoId(userId.value)
-//   // photo.value = data.photo
-// }
+// 个人中心-获取用户头像
+async function getPhotoData() {
+  // let data = await getUserinfoId(userId.value)
+  // photo.value = data.photo
+}
 
 //设置-菜单默认关闭
 let drawer = ref(false);
@@ -256,26 +265,26 @@ const colorChoose = (value: any) => {
 // 设置-默认导航菜单样式
 const navValue = ref("");
 
-// // 设置-导航菜单样式切换事件
-// const navChange = (value: any) => {
-//   setNavigation(value);
-// };
+// 设置-导航菜单样式切换事件
+const navChange = (value: any) => {
+  setNavigation(value);
+};
 
 onActivated(() => {
   asideMenuFold.value = store.asideMenuFold;
 });
 
-// onMounted(() => {
-//   asideMenuFold.value = store.asideMenuFold;
-//   if (isLogin.value === true) {
-//     getPhotoData();
-//   }
-//   colorValue.value = store.theme;
-//   navValue.value = store.navigation;
-//   isDarkSwitch.value = store.isDark;
-// });
-// // 当前激活的菜单id
-// const menuIndex = computed(() => store.menuIndex);
+onMounted(() => {
+  asideMenuFold.value = store.asideMenuFold;
+  // if (isLogin.value === true) {
+  //   getPhotoData();
+  // }
+  colorValue.value = store.theme;
+  navValue.value = store.navigation;
+  isDarkSwitch.value = store.isDark;
+});
+// 当前激活的菜单id
+const menuIndex = computed(() => store.menuIndex);
 </script>
 
 <style scoped lang="scss">

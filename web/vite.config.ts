@@ -25,4 +25,19 @@ export default defineConfig({
       "@": resolve(__dirname, "src")
     },
   },
+  server: {
+    // https: {
+    //   // cert
+    // },
+    proxy: {
+      '/api': {
+        // target: 'http://' + ip + ':9527',	//实际请求地址
+        target: 'http://localhost:60001',	//实际请求地址
+        changeOrigin: true,
+        secure: false,
+        // protocolRewrite: "https",
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      }
+    },
+  }
 })

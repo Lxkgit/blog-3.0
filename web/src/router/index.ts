@@ -6,12 +6,37 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import("@/views/home/HomePage.vue"),
+      component: () => import('@/views/home/HomePage.vue'),
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import("@/views/login/LoginRegister.vue"),
+      component: () => import('@/views/login/LoginRegister.vue'),
+    },
+    {
+      path: '/callback',
+      name: 'callback',
+      component: () => import('@/components/login/Callback.vue'),
+    },
+    {
+      path: '/category',
+      name: 'Category',
+      component: () => import('@/views/home/article/Category.vue'),
+      meta: {
+        title: '文章分类',
+        keepAlive: true,
+        isAuth: false,
+      },
+    },
+    {
+      path: '/detail/article/:id',
+      name: 'ArticleDetail',
+      component: () => import('@/views/home/article/ArticleDetail.vue'),
+      meta: {
+        title: '文章正文',
+        keepAlive: false,
+        isAuth: false,
+      },
     },
     // {
     //   path: '/about',

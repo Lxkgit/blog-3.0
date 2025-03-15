@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
   <transition
     enter-active-class="animate__animated animate__fadeInDown"
@@ -205,12 +206,12 @@ const selfPage = () => {
 const toLogin = () => {
   //获取cookie的值
   let rzId = Cookies.get('rzId');
-  let target = 'http://auth-server:60001/auth/oauth2/authorize?response_type=code&client_id=dianshang&scope=openid&redirect_uri=http://localhost:3001/callback'
+  let target = 'http://auth-server:60001/auth/oauth2/authorize?response_type=code&client_id=dianshang&scope=openid&redirect_uri=http://localhost:5173/callback'
   if (rzId) {
-    //如果认证id不为空 带着认证id 
+    //如果认证id不为空 带着认证id
     target = target + '&rzId=' + rzId;
   }
-  //先登陆 在跳转到回调界面 获取授权码 
+  //先登陆 在跳转到回调界面 获取授权码
   window.location.href = target
   // router.push({ path: "/loginRegister", query: { component: "Login" } });
 };

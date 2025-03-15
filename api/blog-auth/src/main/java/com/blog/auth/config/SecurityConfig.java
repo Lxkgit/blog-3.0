@@ -116,7 +116,7 @@ public class SecurityConfig {
         //异常处理
         http.exceptionHandling(x -> x.defaultAuthenticationEntryPointFor(
                 //自定义未登录地址,地址为前端vue的地址，当没有登陆的时候，自动跳转到前端登陆界面
-                new MyLoginUrlAuthenticationEntryPoint("http://localhost:3001/login"),
+                new MyLoginUrlAuthenticationEntryPoint("http://localhost:5173/login"),
                 //只有带有 "text/html" 媒体类型的请求需要进行身份验证
                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
         ));

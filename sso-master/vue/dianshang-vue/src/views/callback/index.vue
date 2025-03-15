@@ -22,19 +22,19 @@ let getToken=()=>{
             //授权码
             "code":code,
             //回调地址
-            "redirectUri":"http://localhost:3001/callback",
+            "redirectUri":"http://localhost:5173/callback",
             //客户端id
             "clientId":"dianshang",
             //客户端密码
             "clientSecret":"123456"
         })
         .then(function (response) {
-            //console.log('aa:',response);
+            console.log('aa:',response);
             let res=response.data;
 
             let data=res.result;
             let code=res.code;  
-            // alert("认证回调：" + JSON.stringify(res));
+            alert("认证回调：" + JSON.stringify(res));
             if(code=='200'){
         
                 let accessToken=data.access_token;

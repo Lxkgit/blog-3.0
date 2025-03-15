@@ -1,10 +1,21 @@
 <template>
   <div class="login-register">
-    <div :class="(component === 'Login' ? '' : 'right-panel-active') + ' container animate__animated animate__zoomIn'">
+    <div
+      :class="
+        (component === 'Login' ? '' : 'right-panel-active') +
+        ' container animate__animated animate__zoomIn'
+      "
+    >
       <div class="form-container sign-up-container">
         <div>
           <h1>用户注册</h1>
-          <el-form class="registerForm" ref="registerRef" :model="registerForm" label-width="0" :rules="registerRules">
+          <el-form
+            class="registerForm"
+            ref="registerRef"
+            :model="registerForm"
+            label-width="0"
+            :rules="registerRules"
+          >
             <el-form-item prop="username">
               <el-input v-model="registerForm.username" placeholder="请输入用户名">
                 <template #prefix>
@@ -13,14 +24,24 @@
               </el-input>
             </el-form-item>
             <el-form-item prop="password1">
-              <el-input v-model="registerForm.password1" type="password" placeholder="请输入密码" show-password>
+              <el-input
+                v-model="registerForm.password1"
+                type="password"
+                placeholder="请输入密码"
+                show-password
+              >
                 <template #prefix>
                   <MyIcon type="icon-password" />
                 </template>
               </el-input>
             </el-form-item>
             <el-form-item prop="password2">
-              <el-input v-model="registerForm.password2" type="password" placeholder="请再次输入密码" show-password>
+              <el-input
+                v-model="registerForm.password2"
+                type="password"
+                placeholder="请再次输入密码"
+                show-password
+              >
                 <template #prefix>
                   <MyIcon type="icon-password" />
                 </template>
@@ -39,13 +60,18 @@
                   <MyIcon type="icon-code" />
                 </template>
                 <template #suffix>
-                  <VerifyCodeBtn :btnDisabled="codeBtnDisabled" @pass="registerPass"></VerifyCodeBtn>
+                  <VerifyCodeBtn
+                    :btnDisabled="codeBtnDisabled"
+                    @pass="registerPass"
+                  ></VerifyCodeBtn>
                 </template>
               </el-input>
             </el-form-item>
 
             <el-form-item>
-              <el-button class="register-btn" type="primary" @click="registerUserFun" round>立即注册</el-button>
+              <el-button class="register-btn" type="primary" @click="registerUserFun" round
+                >立即注册</el-button
+              >
             </el-form-item>
           </el-form>
         </div>
@@ -53,7 +79,13 @@
       <div class="form-container sign-in-container">
         <div>
           <h1>用户登录</h1>
-          <el-form class="loginForm" :model="loginForm" ref="loginRef" label-width="0" :rules="loginRules">
+          <el-form
+            class="loginForm"
+            :model="loginForm"
+            ref="loginRef"
+            label-width="0"
+            :rules="loginRules"
+          >
             <el-form-item prop="username">
               <el-input v-model="loginForm.username" placeholder="请输入用户名">
                 <template #prefix>
@@ -62,7 +94,12 @@
               </el-input>
             </el-form-item>
             <el-form-item prop="password">
-              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password>
+              <el-input
+                v-model="loginForm.password"
+                type="password"
+                placeholder="请输入密码"
+                show-password
+              >
                 <template #prefix>
                   <MyIcon type="icon-password" />
                 </template>
@@ -72,7 +109,9 @@
               <VerifyImgBtn :isPassing="isPassing" @verifyPass="verifyPass" :btnType="btnType"></VerifyImgBtn>
             </el-form-item> -->
             <el-form-item class="login-setting">
-              <span class="remember"><el-checkbox v-model="remember" label="保持登录"></el-checkbox></span>
+              <span class="remember"
+                ><el-checkbox v-model="remember" label="保持登录"></el-checkbox
+              ></span>
               <span class="forget pointer" @click="router.push('/setPassword')">忘记密码</span>
             </el-form-item>
             <el-form-item class="login-btn">
@@ -96,14 +135,14 @@
           <div class="overlay-panel overlay-left">
             <div class="point">
               <h1>欢迎回来</h1>
-              <p>欢迎注册{{ sitename }}<br>若您已有账号，请切换登录</p>
+              <p>欢迎注册{{ sitename }}<br />若您已有账号，请切换登录</p>
               <el-button @click="switchLogin" type="danger">切换登录</el-button>
             </div>
           </div>
           <div class="overlay-panel overlay-right">
             <div class="point">
               <h1>欢迎光临</h1>
-              <p>欢迎访问{{ sitename }}<br>若您还没有账号，请切换注册</p>
+              <p>欢迎访问{{ sitename }}<br />若您还没有账号，请切换注册</p>
               <el-button @click="switchRegister" type="danger">切换注册</el-button>
             </div>
           </div>
@@ -115,20 +154,21 @@
 
 <script setup name="LoginRegister" lang="ts">
 import icon from '@/utils/icon'
-import { onBeforeMount, onMounted, reactive, ref, onActivated } from "vue";
-import { useRouter } from "vue-router";
+import { onBeforeMount, onMounted, reactive, ref, onActivated } from 'vue'
+import { useRouter } from 'vue-router'
 // import VerifyImgBtn from "@/components/verify/VerifyImgBtn.vue";
 // import VerifyCodeBtn from "@/components/verify/VerifyCodeBtn.vue"
 import { ElMessage } from 'element-plus'
-import { systemStore } from "@/store/system";
-// import { userLoginApi } from "@/api/auth"
+import { systemStore } from '@/store/system'
+import { userLoginApi, userTokenApi } from '@/api/auth'
+
 // import { getUserVerifyCodeApi, registerUserApi } from "@/api/user"
 // import mitter from "@/utils/mitt";
 // import user from "@/utils/user"
 
 // const { userId } = user();
-// const store = systemStore()
-// const router = useRouter();
+const store = systemStore()
+const router = useRouter()
 let { MyIcon } = icon()
 // 引入公共模块
 let { switchLogin, switchRegister, bgiURL, component, sitename } = publicFn()
@@ -139,52 +179,66 @@ let { registerForm, registerRules, codeBtnDisabled, registerPass, registerUserFu
 // onActivated(() => {
 
 // })
-// // 登录表单对象
-// const loginRef: any = ref(null)
-// // 登录表单提交事件
-// const loginSubmit = () => {
-//   if (loginRef.value !== null) {
-//     loginRef.value.validate((valid: any) => {
-//       if (valid && isPassing.value) {
-//         userLoginApi(loginForm.username, loginForm.password).then((res: any) => {
-//           console.log(res)
-//           ElMessage({
-//             message: '登录成功！',
-//             type: 'success',
-//           })
-//           if (remember.value) {
-//             console.log('记住了')
-//             store.setKeepLogin(true)
-//             store.setUserLocal(res.result)
-//             userId.value = store.userLocal.access_token.split(":")[0]
-//           } else {
-//             console.log('记不住')
-//             store.setKeepLogin(false)
-//             store.setUserSession(res.result)
-//             userId.value = store.userSession.access_token.split(":")[0]
-//           }
-//           mitter.emit("login", JSON.stringify({"state":true, "userId": userId.value}));
-//           router.push("/admin/index")
-//         }).catch(res => {
-//           //发生错误时执行的代码
-//           console.log(res)
-//           ElMessage.error('账号或密码错误！')
-//           loginForm.username = ''
-//           loginForm.password = ''
-//           isPassing.value = false
-//         });
-//       } else {
-//         console.log("滑块验证了吗")
-//         btnType.value = 'danger'
-//         ElMessage.error('请检查表单内容后再登录')
-//         return false
-//       }
-//     })
-//   }
-// }
+// 登录表单对象
+const loginRef: any = ref(null)
+// 登录表单提交事件
+const loginSubmit = () => {
+  if (loginRef.value !== null) {
+    loginRef.value.validate((valid: any) => {
+      if (valid && isPassing.value) {
+        userLoginApi({
+          username: loginForm.username,
+          password: loginForm.password,
+        })
+          .then((res: any) => {
+            ElMessage({
+              message: '登录成功！',
+              type: 'success',
+            })
+
+            store.setUserLocal({ rz_id: res.result })
+            //然后跳转到首页
+            // router.push('/callback')
+            //从路由拿到参数
+            let target = router.currentRoute.value.query.target;
+            alert("+++ " + target + "&rzId=" + res.result)
+            window.location.href = target + "&rzId=" + res.result;
+            // if (remember.value) {
+            //   console.log('记住了')
+            //   store.setKeepLogin(true)
+            //   store.setUserLocal(res.result)
+            //   userId.value = store.userLocal.access_token.split(":")[0]
+            // } else {
+            //   console.log('记不住')
+            //   store.setKeepLogin(false)
+            //   store.setUserSession(res.result)
+            //   userId.value = store.userSession.access_token.split(":")[0]
+            // }
+            // mitter.emit("login", JSON.stringify({"state":true, "userId": userId.value}));
+            // router.push("/admin/index")
+          })
+          .catch((res) => {
+            //发生错误时执行的代码
+            console.log(res)
+            ElMessage.error('账号或密码错误！')
+            loginForm.username = ''
+            loginForm.password = ''
+            isPassing.value = false
+          })
+      } else {
+        console.log('滑块验证了吗')
+        btnType.value = 'danger'
+        ElMessage.error('请检查表单内容后再登录')
+        return false
+      }
+    })
+  }
+}
+
+
+
 // // 注册表单对象
 // const registerRef = ref(null)
-
 
 // 公共模块
 function publicFn() {
@@ -234,20 +288,24 @@ function loginFn(): any {
   // 登录表单
   const loginForm = reactive({
     username: '',
-    password: ''
+    password: '',
   })
   // 登录表单验证规则
   const loginRules = {
-    username: [{
-      required: true,
-      message: '请输入用户名/邮箱号/手机号',
-      trigger: 'blur',
-    }],
-    password: [{
-      required: true,
-      message: '请输入密码',
-      trigger: 'blur',
-    }]
+    username: [
+      {
+        required: true,
+        message: '请输入用户名/邮箱号/手机号',
+        trigger: 'blur',
+      },
+    ],
+    password: [
+      {
+        required: true,
+        message: '请输入密码',
+        trigger: 'blur',
+      },
+    ],
   }
   // 是否记住密码
   const remember = ref(false)
@@ -257,12 +315,11 @@ function loginFn(): any {
   const btnType = ref('default')
   // 滑块验证通过事件
   const verifyPass = () => {
-    console.log("验证通过了")
+    console.log('验证通过了')
     isPassing.value = true
   }
   // 第三方登录
-  const otherLogin = (kind: any) => {
-  }
+  const otherLogin = (kind: any) => {}
   return { loginForm, remember, isPassing, verifyPass, btnType, otherLogin, loginRules }
 }
 
@@ -275,7 +332,7 @@ function registerFn() {
     code: '',
     password: '',
     password1: '',
-    password2: ''
+    password2: '',
   })
   // 用户名验证
   const checkUsername = (rule: any, value: any, callback: any) => {
@@ -283,9 +340,7 @@ function registerFn() {
     if (!value) {
       return callback(new Error('请输入用户名'))
     }
-    setTimeout(() => {
-
-    }, 500)
+    setTimeout(() => {}, 500)
   }
   // 联系方式验证
   const checkEmail = (rule: any, value: any, callback: any) => {
@@ -294,7 +349,7 @@ function registerFn() {
     }
     setTimeout(() => {
       registerForm.email = value
-      const pattern = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+      const pattern = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
       if (!pattern.test(value)) {
         codeBtnDisabled.value = true
         callback(new Error('请输入正确的邮箱'))
@@ -311,7 +366,7 @@ function registerFn() {
     }
     setTimeout(() => {
       registerForm.password1 = value
-      const pattern = /^[0-9A-Za-z]{5,16}$/;
+      const pattern = /^[0-9A-Za-z]{5,16}$/
       if (!pattern.test(value)) {
         callback(new Error('密码必须是数字或字母，5-16位长度！'))
       } else {
@@ -326,7 +381,7 @@ function registerFn() {
     }
     setTimeout(() => {
       registerForm.password2 = value
-      const pattern = /^[0-9A-Za-z]{5,16}$/;
+      const pattern = /^[0-9A-Za-z]{5,16}$/
       if (!pattern.test(value)) {
         callback(new Error('密码必须是数字或字母，5-16位长度！'))
       } else {
@@ -342,9 +397,9 @@ function registerFn() {
   const registerRules = {
     username: [{ validator: checkUsername, trigger: 'blur' }],
     email: [{ validator: checkEmail, trigger: 'blur' }],
-    code: [{ required: true, message: '请输入验证码', trigger: 'blur', }],
+    code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
     password1: [{ validator: checkPassword1, trigger: 'blur' }],
-    password2: [{ validator: checkPassword2, trigger: 'blur' }]
+    password2: [{ validator: checkPassword2, trigger: 'blur' }],
   }
   // 获取验证码表单
   const codeForm = reactive({
@@ -386,9 +441,8 @@ function registerFn() {
 </script>
 
 <style scoped lang="scss">
-
 .login-register {
-  background-image: v-bind("bgiURL");
+  background-image: v-bind('bgiURL');
   width: 100vw;
   height: 100vh;
   background-size: 100% 100%;
@@ -399,7 +453,9 @@ function registerFn() {
 
 .login-register .container {
   border-radius: 10px;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.25),
+    0 10px 10px rgba(0, 0, 0, 0.22);
   position: absolute;
   overflow: hidden;
   width: 768px;
@@ -517,7 +573,7 @@ function registerFn() {
 }
 
 .login-register::after {
-  content: "";
+  content: '';
   opacity: 0.9;
   top: 0;
   left: 0;
@@ -596,5 +652,4 @@ function registerFn() {
 .register-btn {
   margin: 20px auto;
 }
-
 </style>

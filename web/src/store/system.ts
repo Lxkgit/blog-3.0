@@ -13,11 +13,13 @@ export const systemStore = defineStore('system', {
     keepLogin: false,
     // 保持登录用户信息(localStorage)
     userLocal: {
+      rz_id: "",
       user_id: "",
       access_token: ""
     },
     // 临时登录用户信息(sessionStorage)
     userSession: {
+      rz_id: "",
       user_id: "",
       access_token: ""
     },

@@ -37,7 +37,7 @@
         password: password.value
       }
     ).then(function (response) {
-      // alert("统一认证： " + JSON.stringify(response.data));
+      alert("统一认证： " + JSON.stringify(response.data));
       // console.log('login:',response)
     //   alert('target: ' +  target)
       let code = response.data.code;
@@ -49,6 +49,9 @@
   
         //把rzId放入cookie 多个客户端共享
         Cookies.set('rzId', rzId);
+
+        alert("跳转： " + target + "&rzId=" + rzId)
+
         //跳转授权地址
         window.location.href = target + "&rzId=" + rzId;
       } else {

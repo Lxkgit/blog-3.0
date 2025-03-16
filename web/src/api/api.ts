@@ -1,10 +1,11 @@
 import { request } from "@/api/request";
 
 const api = {
-  get(url: any, params?: any) {
+  get(url: any, params?: any, headers?: any) {
     const config: any = {
       method: 'get',
-      url: url
+      url: url,
+      headers: headers
     }
     if (params) config.params = params
     return request(config)
@@ -18,10 +19,11 @@ const api = {
     if (params) config.params = params
     return request(config)
   },
-  post(url: any, params?: any) {
+  post(url: any, params?: any, headers?: any) {
     const config: any = {
       method: 'post',
-      url: url
+      url: url,
+      headers: headers
     }
     if (params) config.data = params
     return request(config)

@@ -215,10 +215,7 @@ const toLogin = () => {
   window.location.href = target
   // router.push({ path: "/loginRegister", query: { component: "Login" } });
 };
-// 跳转至注册页
-const toRegister = () => {
-  router.push({ path: "/loginRegister", query: { component: "Register" } });
-};
+
 // 个人中心-是否下拉状态
 const isDropdown = ref(false);
 
@@ -288,131 +285,131 @@ onMounted(() => {
 const menuIndex = computed(() => store.menuIndex);
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 header {
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: var(--el-bg-color-overlay);
+}
 
-  .left {
-    padding-left: 20px;
-    width: 20%;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--el-border-color);
-    height: 60px;
+header .left {
+  padding-left: 20px;
+  width: 20%;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--el-border-color);
+  height: 60px;
+}
 
-    span {
-      margin-left: 20px;
-    }
-  }
+header .left span {
+  margin-left: 20px;
+}
 
-  .middle {
-    flex: 1;
+header .middle {
+  flex: 1;
+}
 
-    .menu-title {
-      margin-left: 4px;
-    }
-  }
+header .middle .menu-title {
+  margin-left: 4px;
+}
 
-  .right {
-    padding-right: 20px;
-    width: 23%;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--el-border-color);
-    height: 58px;
-    flex-direction: row-reverse;
+header .right {
+  padding-right: 20px;
+  width: 23%;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--el-border-color);
+  height: 58px;
+  flex-direction: row-reverse;
+}
 
-    .user {
-      display: flex;
-      align-items: center;
+header .right .user {
+  display: flex;
+  align-items: center;
+}
 
-      .toLoginRegister {
-        cursor: pointer;
+header .right .user .toLoginRegister {
+  cursor: pointer;
+}
 
-        span {
-          margin: 0 10px;
-        }
-      }
+header .right .user .toLoginRegister span {
+  margin: 0 10px;
+}
 
-      span {
-        color: var(--el-text-color-regular);
-        font-size: 14px;
+header .right .user span {
+  color: var(--el-text-color-regular);
+  font-size: 14px;
+}
 
-        p {
-          display: inline;
-          vertical-align: 14px;
-          margin-left: 6px;
-        }
-      }
-    }
+header .right .user span p {
+  display: inline;
+  vertical-align: 14px;
+  margin-left: 6px;
+}
 
-    .search,
-    .setting {
-      font-size: 25px;
-      color: var(--el-text-color-regular);
-      margin-left: 35px;
-    }
-  }
+header .right .search,
+header .right .setting {
+  font-size: 25px;
+  color: var(--el-text-color-regular);
+  margin-left: 35px;
+}
 
-  h4 {
-    font-weight: normal;
-    color: var(--el-text-color-primary);
-    margin-top: 40px;
-  }
+header h4 {
+  font-weight: normal;
+  color: var(--el-text-color-primary);
+  margin-top: 40px;
+}
 
-  .display {
-    color: var(--el-text-color-primary);
+header .display {
+  color: var(--el-text-color-primary);
+}
 
-    img {
-      width: 75px;
-      height: 75px;
-      margin: 0 20px 10px 20px;
-      box-shadow: 0 2px 12px 0 gray;
-      border-radius: 6px;
-    }
+header .display img {
+  width: 75px;
+  height: 75px;
+  margin: 0 20px 10px 20px;
+  box-shadow: 0 2px 12px 0 gray;
+  border-radius: 6px;
+}
 
-    .img-active {
-      box-shadow: 0 2px 12px 0 #409eff;
-    }
-  }
+header .display .img-active {
+  box-shadow: 0 2px 12px 0 #409eff;
+}
 
-  .color {
-    color: var(--el-text-color-primary);
+header .color {
+  color: var(--el-text-color-primary);
+}
 
-    span {
-      display: inline-block;
-      width: 30px;
-      height: 30px;
-      margin: 0 10px;
-      border-radius: 5px;
-      transition: all 0.5s;
-      box-shadow: none;
-      background-image: none;
-    }
+header .color span {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  margin: 0 10px;
+  border-radius: 5px;
+  transition: all 0.5s;
+  box-shadow: none;
+  background-image: none;
+}
 
-    span:hover {
-      text-decoration: underline;
-      cursor: pointer;
-    }
+header .color span:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
 
-    .color-active {
-      box-shadow: 0 2px 13px 2px grey;
-      background-image: url("/src/assets/images/yes.png");
-      background-repeat: no-repeat;
-    }
-  }
+header .color .color-active {
+  box-shadow: 0 2px 13px 2px grey;
+  background-image: url("/src/assets/images/yes.png");
+  background-repeat: no-repeat;
+}
 
-  .nav-style {
-    color: var(--el-text-color-primary);
+header .nav-style {
+  color: var(--el-text-color-primary);
+}
 
-    .el-select {
-      width: 120px;
-    }
-  }
+header .nav-style .el-select {
+  width: 120px;
 }
 
 .placeholder {
@@ -426,4 +423,5 @@ header {
   width: 100%;
   z-index: 5;
 }
+
 </style>

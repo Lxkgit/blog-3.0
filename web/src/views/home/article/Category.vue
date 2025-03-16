@@ -131,26 +131,19 @@ onActivated(() => {
 });
 </script>
 
-<style scoped lang="scss">
-.category {
-  .article_type {
-    margin-top: 15px;
-  }
-
-  .article-list {
-    margin-top: 15px;
-
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-
-      li {
-      }
-    }
-
-    .paging {
-    }
-  }
+<style scoped>
+.category .article_type {
+  margin-top: 15px;
 }
+
+.category .article-list {
+  margin-top: 15px;
+}
+
+.category .article-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
 </style>

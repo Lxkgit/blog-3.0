@@ -329,8 +329,6 @@ public class SecurityConfig {
                 //写入jwt
                 context.getClaims().claim("auths", auths);
                 context.getClaims().claim("name", user.getNickname());
-                context.getClaims().claim("email", "aaa@qq.com");
-                context.getClaims().claim("phone", "12345678901");
             }
             if (context.getTokenType().getValue().equals(OidcParameterNames.ID_TOKEN)) {
                 //如果jwt的类型是id_token
@@ -342,8 +340,6 @@ public class SecurityConfig {
                 //写入jwt
                 context.getClaims().claim("auths", auths);
                 context.getClaims().claim("name", user.getNickname());
-                context.getClaims().claim("email", "abc@qq.com");
-                context.getClaims().claim("phone", "12345678902");
             }
         };
     }

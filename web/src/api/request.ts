@@ -5,6 +5,7 @@ import { systemStore } from "@/store/system"
 export function request(config: any) {
   const store = systemStore()
   const token = store.userLocal.access_token || store.userSession.access_token
+  const rz_id = store.userLocal.rz_id
   // 创建axios的实例
   const instance = axios.create({
     baseURL: "/api",
@@ -14,11 +15,11 @@ export function request(config: any) {
   instance.interceptors.request.use(config => {
     if (token) {
       config.headers.Authorization = 'Bearer ' + token
+      config.headers.rzId = rz_id
     }
     return config
   }, error => {
     console.log(error)
-    // return Promise.error(error)
     return Promise.reject(new Error(error))
   })
 

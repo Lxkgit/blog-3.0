@@ -232,129 +232,121 @@ onMounted(() => {
 })
 </script>
 
-<style scoped lang="scss">
-.aside {
-  .recommend {
-    display: flex;
-    flex-wrap: wrap;
-    transition: all 0.5s;
+<style scoped>
+.aside .recommend {
+  display: flex;
+  flex-wrap: wrap;
+  transition: all 0.5s;
+}
 
-    &:hover {
-      span {
-        opacity: 0.5;
-      }
-    }
+.aside .recommend:hover span {
+  opacity: 0.5;
+}
 
-    span {
-      width: 113px;
+.aside .recommend span {
+  width: 113px;
+}
 
-      &:hover {
-        opacity: 1;
-      }
+.aside .recommend span:hover {
+  opacity: 1;
+}
 
-      p {
-        text-align: center;
-        color: var(--el-text-color-regular);
-        margin: 7px 0;
-        line-height: 20px;
-        font-size: 14px;
-      }
-    }
+.aside .recommend span p {
+  text-align: center;
+  color: var(--el-text-color-regular);
+  margin: 7px 0;
+  line-height: 20px;
+  font-size: 14px;
+}
 
-    span:nth-child(odd) {
-      margin-right: 12px;
-    }
-  }
+.aside .recommend span:nth-child(odd) {
+  margin-right: 12px;
+}
 
-  .ranking {
-    padding-left: 25px;
-    line-height: 28px;
+.aside .ranking {
+  padding-left: 25px;
+  line-height: 28px;
+}
 
-    li {
-      p {
-        color: var(--el-text-color-regular);
-      }
-    }
+.aside .ranking li p {
+  color: var(--el-text-color-regular);
+}
 
-    li:nth-child(1) {
-      color: #ff2c00;
-    }
+.aside .ranking li:nth-child(1) {
+  color: #ff2c00;
+}
 
-    li:nth-child(2) {
-      color: #ff5a00;
-    }
+.aside .ranking li:nth-child(2) {
+  color: #ff5a00;
+}
 
-    li:nth-child(3) {
-      color: #ff8105;
-    }
+.aside .ranking li:nth-child(3) {
+  color: #ff8105;
+}
 
-    li:nth-child(4) {
-      color: #fd9a15;
-    }
+.aside .ranking li:nth-child(4) {
+  color: #fd9a15;
+}
 
-    li:nth-child(5) {
-      color: #dfad1c;
-    }
+.aside .ranking li:nth-child(5) {
+  color: #dfad1c;
+}
 
-    li:nth-child(6) {
-      color: #6bc211;
-    }
+.aside .ranking li:nth-child(6) {
+  color: #6bc211;
+}
 
-    li:nth-child(7) {
-      color: #3cc71e;
-    }
+.aside .ranking li:nth-child(7) {
+  color: #3cc71e;
+}
 
-    li:nth-child(8) {
-      color: #3cbe85;
-    }
+.aside .ranking li:nth-child(8) {
+  color: #3cbe85;
+}
 
-    li:nth-child(9) {
-      color: #51b2ef;
-    }
+.aside .ranking li:nth-child(9) {
+  color: #51b2ef;
+}
 
-    li:nth-child(10) {
-      color: #3498db;
-    }
-  }
+.aside .ranking li:nth-child(10) {
+  color: #3498db;
+}
 
-  .info {
-    line-height: 30px;
-    color: var(--el-text-color-regular);
+.aside .info {
+  line-height: 30px;
+  color: var(--el-text-color-regular);
+}
 
-    .anticon {
-      margin-right: 5px;
-      font-size: 20px;
-    }
+.aside .info .anticon {
+  margin-right: 5px;
+  font-size: 20px;
+}
 
-    .contact {
-      display: flex;
-      justify-content: center;
+.aside .info .contact {
+  display: flex;
+  justify-content: center;
+}
 
-      span {
-        margin: 10px 3px 0 3px;
+.aside .info .contact span {
+  margin: 10px 3px 0 3px;
+}
 
-        .anticon {
-          font-size: 30px !important;
-        }
-      }
+.aside .info .contact span .anticon {
+  font-size: 30px !important;
+}
 
-      span:hover {
-        cursor: pointer;
-      }
-    }
-  }
+.aside .info .contact span:hover {
+  cursor: pointer;
+}
 
-  .statistics {
-    div {
-      font-size: 16px;
-      line-height: 30px;
-      color: var(--el-text-color-regular);
+.aside .statistics div {
+  font-size: 16px;
+  line-height: 30px;
+  color: var(--el-text-color-regular);
+}
 
-      .anticon {
-        margin-right: 5px;
-      }
-    }
-  }
+.aside .statistics div .anticon {
+  margin-right: 5px;
 }
 
 .loading {
@@ -366,5 +358,6 @@ onMounted(() => {
 .el-card {
   margin-bottom: 15px;
 }
+
 </style>
 

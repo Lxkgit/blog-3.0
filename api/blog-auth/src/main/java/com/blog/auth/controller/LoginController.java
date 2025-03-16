@@ -35,7 +35,8 @@ public class LoginController {
     @GetMapping("/getUser")
     public Result getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return ResultFactory.buildSuccessResult(authentication.getName());
+
+        return ResultFactory.buildSuccessResult(authentication);
     }
 
     /**

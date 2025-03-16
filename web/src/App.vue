@@ -104,7 +104,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss">
+<style>
 .router-view {
   color: var(--el-text-color-primary);
   background-color: var(--el-background-color-base);
@@ -119,10 +119,6 @@ onMounted(() => {
   -webkit-overflow-scrolling: touch;
   animation-timing-function: linear;
 }
-
-// 全局设置滚动条样式
-
-* {}
 
 ::-webkit-scrollbar {
   width: 10px;
@@ -145,4 +141,5 @@ onMounted(() => {
   background: #ededed;
   border-radius: 5px;
 }
+
 </style>

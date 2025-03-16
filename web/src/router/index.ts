@@ -38,6 +38,23 @@ const router = createRouter({
         isAuth: false,
       },
     },
+    {
+      path: '/admin',
+      name: 'AdminPage',
+      component: () => import('@/views/admin/AdminPage.vue'),
+      children: [
+        {
+          path: 'index',
+          name: 'AdminIndex',
+          component: () => import('@/views/admin/MyIndex.vue'),
+          meta: {
+            title: '个人中心',
+            keepAlive: false,
+            isAuth: true,
+          },
+        },
+      ],
+    },
     // {
     //   path: '/about',
     //   name: 'about',

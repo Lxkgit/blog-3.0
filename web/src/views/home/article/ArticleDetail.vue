@@ -290,160 +290,149 @@ function action(articleID: any, articleData: any) {
 }
 </script>
 
-<style scoped lang="scss">
-.detail {
-  .detail-page {
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-
-    .detail-left {
-      width: 15%;
-    }
-
-    .detail-center {
-      width: 70%;
-
-      .main {
-        h1 {
-          text-align: center;
-          margin: 20px 0;
-        }
-
-        .info {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: var(--el-text-color-regular);
-          background-color: var(--el-border-color);
-          padding: 5px 0px;
-          margin: 10px 30px;
-          border-radius: 20px;
-
-          .type {
-            span:nth-child(3) {
-              margin-left: 10px;
-            }
-          }
-
-          >span {
-            margin: 0 2%;
-
-            .anticon {
-              margin-right: 10px;
-            }
-          }
-
-          span:nth-child(2) {
-            span:nth-child(2) {
-              margin-right: 10px;
-            }
-          }
-        }
-
-        .context {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--el-text-color-regular);
-          background-color: var(--el-border-color);
-          margin: 10px 30px;
-          padding: 10px 10px;
-          border-radius: 10px;
-
-          span {
-            flex: 1;
-
-            p {
-              margin: 15px 0;
-
-              span:not(:first-child) {
-                margin-left: 10px;
-              }
-            }
-          }
-        }
-      }
-
-      .guess {
-        >div {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          margin: 10px;
-
-          &:hover {
-            span {
-              opacity: 0.3;
-            }
-          }
-
-          span {
-            text-align: center;
-            flex: 1;
-
-            &:hover {
-              opacity: 1;
-            }
-
-            p {
-              font-size: 14px;
-              color: var(--el-text-color-secondary);
-              margin: 10px 0px;
-            }
-          }
-        }
-      }
-
-      .comments {
-        margin-bottom: 15px;
-
-        .input-field {
-          display: flex;
-          justify-content: center;
-
-          >span:nth-child(1) {
-            width: 10%;
-            padding-top: 10px;
-            text-align: center;
-          }
-
-          >span:nth-child(2) {
-            width: 80%;
-          }
-
-          >span:nth-child(3) {
-            width: 10%;
-            padding-top: 85px;
-            text-align: center;
-          }
-
-          .editor {
-            margin: 10px 0 30px 0 !important;
-          }
-        }
-
-        .comment-list {
-          padding: 0px 15px 0px 5px;
-        }
-      }
-
-      h2 {
-        border-bottom: 1px solid var(--el-border-color);
-        padding: 10px 0;
-        font-weight: normal;
-      }
-    }
-
-    .detail-right {
-      width: 15%;
-    }
-  }
-
-  .detail-card {
-    margin-top: 15px;
-    padding: 20px 0px;
-    background-color: var(--el-bg-color-overlay);
-  }
+<style scoped>
+.detail .detail-page {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
 }
+
+.detail .detail-page .detail-left {
+  width: 15%;
+}
+
+.detail .detail-page .detail-center {
+  width: 70%;
+}
+
+.detail .detail-page .detail-center .main h1 {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.detail .detail-page .detail-center .main .info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--el-text-color-regular);
+  background-color: var(--el-border-color);
+  padding: 5px 0px;
+  margin: 10px 30px;
+  border-radius: 20px;
+}
+
+.detail .detail-page .detail-center .main .info .type span:nth-child(3) {
+  margin-left: 10px;
+}
+
+.detail .detail-page .detail-center .main .info > span {
+  margin: 0 2%;
+}
+
+.detail .detail-page .detail-center .main .info > span .anticon {
+  margin-right: 10px;
+}
+
+.detail .detail-page .detail-center .main .info span:nth-child(2) span:nth-child(2) {
+  margin-right: 10px;
+}
+
+.detail .detail-page .detail-center .main .context {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--el-text-color-regular);
+  background-color: var(--el-border-color);
+  margin: 10px 30px;
+  padding: 10px 10px;
+  border-radius: 10px;
+}
+
+.detail .detail-page .detail-center .main .context span {
+  flex: 1;
+}
+
+.detail .detail-page .detail-center .main .context span p {
+  margin: 15px 0;
+}
+
+.detail .detail-page .detail-center .main .context span p span:not(:first-child) {
+  margin-left: 10px;
+}
+
+.detail .detail-page .detail-center .guess > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+}
+
+.detail .detail-page .detail-center .guess > div:hover span {
+  opacity: 0.3;
+}
+
+.detail .detail-page .detail-center .guess > div span {
+  text-align: center;
+  flex: 1;
+}
+
+.detail .detail-page .detail-center .guess > div span:hover {
+  opacity: 1;
+}
+
+.detail .detail-page .detail-center .guess > div span p {
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
+  margin: 10px 0px;
+}
+
+.detail .detail-page .detail-center .comments {
+  margin-bottom: 15px;
+}
+
+.detail .detail-page .detail-center .comments .input-field {
+  display: flex;
+  justify-content: center;
+}
+
+.detail .detail-page .detail-center .comments .input-field > span:nth-child(1) {
+  width: 10%;
+  padding-top: 10px;
+  text-align: center;
+}
+
+.detail .detail-page .detail-center .comments .input-field > span:nth-child(2) {
+  width: 80%;
+}
+
+.detail .detail-page .detail-center .comments .input-field > span:nth-child(3) {
+  width: 10%;
+  padding-top: 85px;
+  text-align: center;
+}
+
+.detail .detail-page .detail-center .comments .input-field .editor {
+  margin: 10px 0 30px 0 !important;
+}
+
+.detail .detail-page .detail-center .comments .comment-list {
+  padding: 0px 15px 0px 5px;
+}
+
+.detail .detail-page .detail-center h2 {
+  border-bottom: 1px solid var(--el-border-color);
+  padding: 10px 0;
+  font-weight: normal;
+}
+
+.detail .detail-page .detail-right {
+  width: 15%;
+}
+
+.detail .detail-card {
+  margin-top: 15px;
+  padding: 20px 0px;
+  background-color: var(--el-bg-color-overlay);
+}
+
 </style>

@@ -15,7 +15,7 @@ import icon from "@/utils/icon";
 let { MyIcon } = icon()
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .el-backtop {
   color: var(--el-text-color-regular);
   transition: all 0.5s;
@@ -25,4 +25,5 @@ let { MyIcon } = icon()
   opacity: 1;
   color: var(--el-color-primary);
 }
+
 </style>

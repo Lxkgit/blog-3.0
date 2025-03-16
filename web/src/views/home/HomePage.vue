@@ -90,7 +90,7 @@ async function CarouselData() {
 }
 
 // 点击轮播图跳转
-const toCarousel = (url: any) => {
+const toCarousel = (url: string) => {
   window.open(url);
 };
 // 轮播图加载动画是否开启
@@ -469,24 +469,21 @@ onActivated(() => {
 });
 </script>
 
-<style scoped lang="scss">
-article {
-  .carousel {
-    margin-bottom: 15px;
-    background-color: var(--el-bg-color-overlay);
-  }
-
-  .new {
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
-  }
-
-  .isLoading {
-    padding: 30px;
-    font-size: 30px;
-  }
+<style scoped>
+article .carousel {
+  margin-bottom: 15px;
+  background-color: var(--el-bg-color-overlay);
 }
+
+article .new ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+article .isLoading {
+  padding: 30px;
+  font-size: 30px;
+}
+
 </style>

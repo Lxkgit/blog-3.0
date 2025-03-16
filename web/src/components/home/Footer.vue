@@ -55,12 +55,7 @@ onMounted(() => {
 })
 </script>
 
-<style scoped lang="scss">
-//.fixed{
-//  position: fixed;
-//  width: 100%;
-//  bottom: 0;
-//}
+<style scoped>
 footer {
   border-top: 1px solid var(--el-border-color);
   width: 100%;
@@ -70,4 +65,5 @@ footer {
   justify-content: center;
   align-items: center;
 }
+
 </style>

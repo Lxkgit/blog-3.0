@@ -15,9 +15,5 @@ import java.util.Set;
 
 public interface MenuService {
 
-    Set<SysPermission> selectPermissionByRoleIds(Set<Integer> roleIds, Integer menuType);
 
-//    List<SysPermissionVo> selectPermissionListByUserId(Integer userId, Integer menuType);
-//
-//    List<SysPermissionVo> selectPermissionList(Integer menuType);
 }

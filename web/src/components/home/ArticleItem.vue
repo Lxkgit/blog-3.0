@@ -67,7 +67,7 @@ const props = defineProps({
 })
 
 onMounted(() => {
-  
+
 })
 let { MyIcon } = icon()
 // let { timeAgo } = timeFormat()
@@ -78,55 +78,56 @@ const toDetail = (detailID: any) => {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .article-item {
   display: flex;
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 10px;
+}
 
-  .describe {
-    margin-left: 10px;
-    min-width: 555px;
+.article-item .describe {
+  margin-left: 10px;
+  min-width: 555px;
+}
 
-    h2 {
-      color: var(--el-text-color-primary);
-      margin: 0;
-    }
+.article-item .describe h2 {
+  color: var(--el-text-color-primary);
+  margin: 0;
+}
 
-    p {
-      margin: 15px 0;
-      color: var(--el-text-color-secondary);
-      line-height: 28px;
-      height: 108px;
-      overflow: hidden;
-      -webkit-line-clamp: 4;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-    }
+.article-item .describe p {
+  margin: 15px 0;
+  color: var(--el-text-color-secondary);
+  line-height: 28px;
+  height: 108px;
+  overflow: hidden;
+  -webkit-line-clamp: 4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
 
-    .info {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: var(--el-text-color-placeholder);
+.article-item .describe .info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--el-text-color-placeholder);
+}
 
-      span {
-        margin: 0 5px 0 15px;
-      }
-    }
-  }
+.article-item .describe .info span {
+  margin: 0 5px 0 15px;
+}
 
-  .cover {
-    width: 270px;
-    padding: 3px;
-    display: inline-block;
-    border: 1px solid var(--el-bg-color);
-    border-radius: 8px;
-  }
+.article-item .cover {
+  width: 270px;
+  padding: 3px;
+  display: inline-block;
+  border: 1px solid var(--el-bg-color);
+  border-radius: 8px;
 }
 
 .el-divider--horizontal {
   margin: 5px 0 !important;
 }
+
 </style>

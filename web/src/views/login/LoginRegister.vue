@@ -156,17 +156,14 @@
 import icon from '@/utils/icon'
 import { onBeforeMount, onMounted, reactive, ref, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
-// import VerifyImgBtn from "@/components/verify/VerifyImgBtn.vue";
-// import VerifyCodeBtn from "@/components/verify/VerifyCodeBtn.vue"
 import { ElMessage } from 'element-plus'
 import { systemStore } from '@/store/system'
-import { userLoginApi, userTokenApi } from '@/api/auth'
 
 // import { getUserVerifyCodeApi, registerUserApi } from "@/api/user"
 // import mitter from "@/utils/mitt";
-// import user from "@/utils/user"
+import user from "@/utils/user"
 
-// const { userId } = user();
+const { userLoginFun } = user();
 const store = systemStore()
 const router = useRouter()
 let { MyIcon } = icon()
@@ -186,45 +183,10 @@ const loginSubmit = () => {
   if (loginRef.value !== null) {
     loginRef.value.validate((valid: any) => {
       if (valid && isPassing.value) {
-        userLoginApi({
+        userLoginFun({
           username: loginForm.username,
           password: loginForm.password,
         })
-          .then((res: any) => {
-            ElMessage({
-              message: '登录成功！',
-              type: 'success',
-            })
-
-            store.setUserLocal({ rz_id: res.result })
-            //然后跳转到首页
-            // router.push('/callback')
-            //从路由拿到参数
-            let target = router.currentRoute.value.query.target;
-            alert("+++ " + target + "&rzId=" + res.result)
-            window.location.href = target + "&rzId=" + res.result;
-            // if (remember.value) {
-            //   console.log('记住了')
-            //   store.setKeepLogin(true)
-            //   store.setUserLocal(res.result)
-            //   userId.value = store.userLocal.access_token.split(":")[0]
-            // } else {
-            //   console.log('记不住')
-            //   store.setKeepLogin(false)
-            //   store.setUserSession(res.result)
-            //   userId.value = store.userSession.access_token.split(":")[0]
-            // }
-            // mitter.emit("login", JSON.stringify({"state":true, "userId": userId.value}));
-            // router.push("/admin/index")
-          })
-          .catch((res) => {
-            //发生错误时执行的代码
-            console.log(res)
-            ElMessage.error('账号或密码错误！')
-            loginForm.username = ''
-            loginForm.password = ''
-            isPassing.value = false
-          })
       } else {
         console.log('滑块验证了吗')
         btnType.value = 'danger'
@@ -336,7 +298,6 @@ function registerFn() {
   })
   // 用户名验证
   const checkUsername = (rule: any, value: any, callback: any) => {
-    console.log(value)
     if (!value) {
       return callback(new Error('请输入用户名'))
     }
@@ -411,14 +372,14 @@ function registerFn() {
   const codeBtnDisabled = ref(true)
   // 获取注册验证码通过事件
   const registerPass = () => {
-    getUserVerifyCodeApi(registerForm.email).then((res: any) => {
-      if (res.code === 200) {
-        ElMessage({
-          message: '验证码发送成功！',
-          type: 'success',
-        })
-      }
-    })
+    // getUserVerifyCodeApi(registerForm.email).then((res: any) => {
+    //   if (res.code === 200) {
+    //     ElMessage({
+    //       message: '验证码发送成功！',
+    //       type: 'success',
+    //     })
+    //   }
+    // })
   }
   // 注册表单提交事件
   const registerUserFun = () => {
@@ -440,9 +401,9 @@ function registerFn() {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .login-register {
-  background-image: v-bind('bgiURL');
+  background-image: v-bind("bgiURL");
   width: 100vw;
   height: 100vh;
   background-size: 100% 100%;
@@ -453,9 +414,7 @@ function registerFn() {
 
 .login-register .container {
   border-radius: 10px;
-  box-shadow:
-    0 14px 28px rgba(0, 0, 0, 0.25),
-    0 10px 10px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   position: absolute;
   overflow: hidden;
   width: 768px;
@@ -652,4 +611,5 @@ function registerFn() {
 .register-btn {
   margin: 20px auto;
 }
+
 </style>

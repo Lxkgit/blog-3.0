@@ -17,6 +17,7 @@ export const systemStore = defineStore('system', {
       user_id: "",
       access_token: ""
     },
+    userInfo: {},
     // 临时登录用户信息(sessionStorage)
     userSession: {
       rz_id: "",
@@ -110,60 +111,10 @@ export const systemStore = defineStore('system', {
 
   },
 
-
-  // persist: {
-  //   enabled: true,
-  //   strategies: [
-  //     {
-  //       key: 'theme',
-  //       storage: localStorage,
-  //       paths: ['theme']
-  //     },
-  //     {
-  //       key: 'isDark',
-  //       storage: localStorage,
-  //       paths: ['isDark']
-  //     },
-  //     {
-  //       key: 'navigation',
-  //       storage: localStorage,
-  //       paths: ['navigation']
-  //     },
-  //     {
-  //       key: 'keepLogin',
-  //       storage: localStorage,
-  //       paths: ['keepLogin']
-  //     },
-  //     {
-  //       key: 'userLocal',
-  //       storage: localStorage,
-  //       paths: ['userLocal']
-  //     },
-  //     {
-  //       key: 'userSession',
-  //       storage: sessionStorage,
-  //       paths: ['userSession']
-  //     },
-  //     {
-  //       key: 'socketFlag',
-  //       storage: sessionStorage,
-  //       paths: ['socketFlag']
-  //     },
-  //     {
-  //       key: 'globalSocket',
-  //       storage: sessionStorage,
-  //       paths: ['globalSocket']
-  //     },
-  //     {
-  //       key: 'userSocket',
-  //       storage: sessionStorage,
-  //       paths: ['userSocket']
-  //     },
-  //     {
-  //       key: 'serviceIP',
-  //       storage: sessionStorage,
-  //       paths: ['serviceIP']
-  //     },
-  //   ]
-  // }
+  persist: {
+    enabled: true,               // 启用持久化
+    storage: localStorage,       // 存储方式: localStorage 或 sessionStorage
+    paths: ['userLocal', 'userInfo', 'isLogin'],            // 只持久化 count 状态
+    // key: 'custom-counter-store', // 自定义存储的 key
+  }
 })

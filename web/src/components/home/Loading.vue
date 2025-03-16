@@ -24,7 +24,7 @@ const props = defineProps({
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .image-loading {
   height: 100%;
   display: flex;
@@ -37,9 +37,10 @@ const props = defineProps({
   display: flex;
   justify-content: center;
   align-items: center;
-
-  p {
-    color: var(--el-text-color-primary);
-  }
 }
+
+.tips-loading p {
+  color: var(--el-text-color-primary);
+}
+
 </style>

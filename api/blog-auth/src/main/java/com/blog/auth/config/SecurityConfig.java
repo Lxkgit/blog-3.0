@@ -1,13 +1,15 @@
 package com.blog.auth.config;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.auth.config.filter.MyAuthenticationFilter;
+import com.blog.auth.filter.MyAuthenticationFilter;
 import com.blog.auth.config.point.MyLoginUrlAuthenticationEntryPoint;
 import com.blog.auth.config.repository.RedisSecurityContextRepository;
 import com.blog.auth.dao.UserMapper;
 import com.blog.auth.entity.MyUserDetails;
 import com.blog.core.constant.PermitUrl;
 import com.blog.core.entity.auth.User;
+import com.blog.redis.constant.AuthRedisConstant;
+import com.blog.redis.service.RedisService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -54,10 +56,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.Module;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -82,6 +81,9 @@ public class SecurityConfig {
 
     @Resource
     private MyAuthenticationFilter myAuthenticationFilter;
+
+    @Resource
+    private RedisService redisService;
 
     //密码加密
     @Bean
@@ -204,6 +206,8 @@ public class SecurityConfig {
         KeyPair keyPair = generateRsaKey();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        redisService.setString(AuthRedisConstant.PUBLIC_KEY, Base64.getEncoder().encodeToString(publicKey.getEncoded()));
+        redisService.setString(AuthRedisConstant.PRIVATE_KEY, Base64.getEncoder().encodeToString(privateKey.getEncoded()));
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
                 .keyID(UUID.randomUUID().toString())

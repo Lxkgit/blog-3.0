@@ -61,6 +61,12 @@
             <artifactId>httpclient5</artifactId>
         </dependency>
 
+        <!-- hutool 工具 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

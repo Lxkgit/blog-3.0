@@ -1,11 +1,12 @@
 package com.blog.auth.service;
 
 
-import com.blog.core.entity.auth.SysPermission;
 //import com.blog.core.entity.auth.vo.SysPermissionVo;
 
+
+import com.blog.core.domain.auth.vo.MenuVo;
+
 import java.util.List;
-import java.util.Set;
 
 /**
  * @Author: lxk
@@ -15,5 +16,6 @@ import java.util.Set;
 
 public interface MenuService {
 
+    List<MenuVo> selectMenuList();
 
 }

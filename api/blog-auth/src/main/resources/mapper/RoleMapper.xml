@@ -26,12 +26,9 @@
     </delete>
 
     <!--查看用户对应的角色-->
-    <select id="getUserRole" resultType="com.blog.core.entity.auth.Role">
+    <select id="selectUserRole" resultType="com.blog.core.domain.auth.entity.Role">
         SELECT * from sys_role
-        WHERE id in(
-            SELECT role_id from sys_user_role
-            WHERE user_id=#{userId}
-        )
+        WHERE id in ( SELECT role_id from sys_user_role WHERE user_id = #{userId} )
     </select>
 
 

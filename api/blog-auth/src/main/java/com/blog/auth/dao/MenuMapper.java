@@ -2,7 +2,7 @@ package com.blog.auth.dao;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.blog.core.entity.auth.Menu;
+import com.blog.core.domain.auth.entity.Menu;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -11,6 +11,8 @@ import java.util.List;
 @Mapper
 public interface MenuMapper extends BaseMapper<Menu> {
 
+
+    List<Menu> selectUserRole(@Param("roleIds") List<Integer> roleIds);
 
     /**
      * 根据菜单id集合 获取对应的权限

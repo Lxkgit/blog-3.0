@@ -1,15 +1,13 @@
 package com.blog.auth.controller;
 
-import com.blog.core.entity.auth.vo.Oauth2Vo;
+import com.blog.core.domain.auth.vo.Oauth2Vo;
 import com.blog.core.result.Result;
-import com.blog.core.result.ResultFactory;
 import com.blog.core.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import com.alibaba.fastjson2.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;

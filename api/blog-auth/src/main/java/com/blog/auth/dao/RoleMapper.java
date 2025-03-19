@@ -2,7 +2,7 @@ package com.blog.auth.dao;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.blog.core.entity.auth.Role;
+import com.blog.core.domain.auth.entity.Role;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,7 +30,7 @@ public interface RoleMapper  extends BaseMapper<Role> {
      * @param userId
      * @return
      */
-    List<Role> getUserRole(@Param("userId") Integer userId);
+    List<Role> selectUserRole(@Param("userId") Integer userId);
 
     /**
      * 为角色分配权限

@@ -2,7 +2,7 @@ package com.blog.auth.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.blog.auth.service.LoginService;
-import com.blog.core.entity.auth.vo.LoginVo;
+import com.blog.core.domain.auth.vo.LoginVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import jakarta.annotation.Resource;

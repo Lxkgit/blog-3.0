@@ -1,6 +1,6 @@
 package com.blog.auth.entity;
 
-import com.blog.core.entity.auth.User;
+import com.blog.core.domain.auth.entity.User;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

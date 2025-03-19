@@ -95,9 +95,9 @@ import NavMenu from "@/components/home/NavMenu.vue";
 import Loading from "@/components/home/Loading.vue"
 import Footer from "@/components/home/Footer.vue"
 import BackTop from "@/components/home/BackTop.vue"
-import MarkDown from "@/components/detail/MarkDown.vue"
-import Action from "@/components/detail/Action.vue"
-import Outline from "@/components/detail/Outline.vue"
+// import MarkDown from "@/components/detail/MarkDown.vue"
+// import Action from "@/components/detail/Action.vue"
+// import Outline from "@/components/detail/Outline.vue"
 import { ElLoading, ElMessage } from 'element-plus'
 
 import { onMounted, reactive, ref, onBeforeUnmount, nextTick, getCurrentInstance } from "vue";

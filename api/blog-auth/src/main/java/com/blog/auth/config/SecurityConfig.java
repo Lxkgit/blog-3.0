@@ -7,7 +7,7 @@ import com.blog.auth.config.repository.RedisSecurityContextRepository;
 import com.blog.auth.dao.UserMapper;
 import com.blog.auth.entity.MyUserDetails;
 import com.blog.core.constant.PermitUrl;
-import com.blog.core.entity.auth.User;
+import com.blog.core.domain.auth.entity.User;
 import com.blog.redis.constant.AuthRedisConstant;
 import com.blog.redis.service.RedisService;
 import com.fasterxml.jackson.databind.ObjectMapper;

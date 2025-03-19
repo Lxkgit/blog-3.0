@@ -1,7 +1,7 @@
 package com.blog.auth.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.blog.core.entity.auth.User;
+import com.blog.core.domain.auth.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

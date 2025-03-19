@@ -3,33 +3,26 @@
 <mapper namespace="com.blog.auth.dao.MenuMapper">
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <!--查看角色下的菜单-->
+    <select id="selectUserRole" resultType="com.blog.core.domain.auth.entity.Menu">
+        SELECT * from sys_menu
+        WHERE id in ( SELECT distinct menu_id from sys_menu_role WHERE role_id in
+        <foreach item="item" collection="roleIds" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>)
+    </select>
 
 
     <!--删除菜单关联的角色-->
     <delete id="deleteRole">
-        DELETE from sys_menu_role
+        DELETE
+        from sys_menu_role
         WHERE menu_id = #{id}
     </delete>
 
 
     <!--根据菜单id集合 获取对应的权限-->
-    <select id="getAuthList" resultType="com.blog.core.entity.auth.Menu">
+    <select id="getAuthList" resultType="com.blog.core.domain.auth.entity.Menu">
         SELECT id, auth, menu_path from sys_menu
         WHERE id in
         <foreach item="item" collection="ids" index="index" open="("
@@ -40,23 +33,26 @@
 
 
     <!--获取所有菜单-->
-    <select id="getMenuList" resultType="com.blog.core.entity.auth.Menu">
-        SELECT * from sys_menu
+    <select id="getMenuList" resultType="com.blog.core.domain.auth.entity.Menu">
+        SELECT *
+        from sys_menu
         ORDER BY sort
     </select>
 
 
     <!--查看角色对应的权限-->
     <select id="getRoleAuth" resultType="java.lang.String">
-        SELECT auth FROM sys_menu
-        WHERE id IN ( SELECT menu_id FROM sys_menu_role WHERE role_id = #{roleId} )
+        SELECT auth
+        FROM sys_menu
+        WHERE id IN (SELECT menu_id FROM sys_menu_role WHERE role_id = #{roleId})
         ORDER BY sort
     </select>
 
     <!--查询用户关联的菜单id-->
     <select id="getMenuIdsByUserId" resultType="Integer">
-        SELECT menu_id FROM sys_menu_role
-        WHERE role_id IN ( SELECT role_id FROM sys_user_role WHERE user_id = #{userId} )
+        SELECT menu_id
+        FROM sys_menu_role
+        WHERE role_id IN (SELECT role_id FROM sys_user_role WHERE user_id = #{userId})
     </select>
 
     <!--根据菜单id集合查询父级id -->

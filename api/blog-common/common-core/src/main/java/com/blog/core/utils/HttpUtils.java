@@ -1,8 +1,7 @@
 package com.blog.core.utils;
 
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.blog.core.entity.auth.vo.Oauth2Vo;
+import com.blog.core.domain.auth.vo.Oauth2Vo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 
-import java.io.BufferedReader;
 import java.util.*;
 
 @Slf4j

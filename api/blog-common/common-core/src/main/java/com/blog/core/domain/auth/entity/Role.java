@@ -1,4 +1,4 @@
-package com.blog.core.entity.auth;
+package com.blog.core.domain.auth.entity;
 
 
 import com.baomidou.mybatisplus.annotation.IdType;

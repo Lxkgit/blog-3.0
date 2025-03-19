@@ -1,37 +1,40 @@
-package com.blog.core.entity.auth;
- 
+package com.blog.core.domain.auth.entity;
+
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
-import java.util.List;
-
 
 @Data
-@TableName("sys_user")
-public class User {
- 
+@TableName("sys_menu")
+public class Menu {
+
     @TableId(type = IdType.AUTO)
     private Integer id;
- 
-    //账号
-    private String username;
- 
-    //密码
-    private String password;
- 
-    //姓名
-    private String nickname;
+
+    //父级id
+    private Integer parentId;
+
+    //菜单名称/按钮名称
+    private String menuName;
+
+    // 前端vue 跳转路径
+    private String menuPath;
+
+    //权限名称
+    private String auth;
+
+    //类型  1:菜单 , 2:按钮
+    private String isType;
+
+    //排序序号
+    private Integer sort;
 
     //创建日期
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
-    @TableField(exist = false)
-    private List<Menu> menu;
 
 }

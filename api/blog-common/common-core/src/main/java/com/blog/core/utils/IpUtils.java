@@ -1,11 +1,4 @@
-package com.blog.core.utils.ip;
-
-import com.blog.core.utils.StringUtils;
-import jakarta.servlet.http.HttpServletRequest;
-
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+package com.blog.core.utils;
 
 /**
  * 获取IP方法

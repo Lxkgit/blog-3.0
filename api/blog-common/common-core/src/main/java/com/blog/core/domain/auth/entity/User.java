@@ -1,5 +1,5 @@
-package com.blog.core.entity.auth;
-
+package com.blog.core.domain.auth.entity;
+ 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -10,32 +10,32 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 import java.util.List;
 
-@Data
-@TableName("sys_menu")
-public class Menu {
 
+@Data
+@TableName("sys_user")
+public class User {
+ 
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    //父级id
-    private Integer parentId;
+    /**
+     * 账号
+     */
+    private String username;
 
-    //菜单名称/按钮名称
-    private String menuName;
+    /**
+     * 密码
+     */
+    private String password;
 
-    // 前端vue 跳转路径
-    private String menuPath;
+    /**
+     * 姓名
+     */
+    private String nickname;
 
-    //权限名称
-    private String auth;
-
-    //类型  1:菜单 , 2:按钮
-    private String isType;
-
-    //排序序号
-    private Integer sort;
-
-    //创建日期
+    /**
+     * 创建日期
+     */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 

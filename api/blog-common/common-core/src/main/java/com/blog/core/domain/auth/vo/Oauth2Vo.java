@@ -1,4 +1,4 @@
-package com.blog.core.entity.auth.vo;
+package com.blog.core.domain.auth.vo;
 
 import lombok.Data;
 

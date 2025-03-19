@@ -1,17 +1,10 @@
 package com.blog.auth.filter;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.jwt.JWTUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.RedisConstant;
-import com.blog.redis.constant.AuthRedisConstant;
+import com.blog.core.utils.JwtUtil;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.redis.service.RedisService;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,17 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.Cipher;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 /**
@@ -64,23 +51,11 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = request.getHeader("Authorization");
             if(StringUtils.isNotEmpty(token)) {
-                String jwt = token.substring(7);
 
-                String[] parts = jwt.split("\\.");
-                if (parts.length != 3) {
-                    throw new IllegalArgumentException("Invalid JWT");
-                }
+                JSONObject jwt = JwtUtil.decodeJwt(token.substring(7));
+                SecurityUtil.setLoginUserBo(jwt);
 
-                String header = parts[0];
-                String payload = parts[1];
-                String signature = parts[2];
 
-                // Base64Url 解码
-                byte[] payloadBytes = Base64.getDecoder().decode(payload);
-                String payloadJson = new String(payloadBytes, StandardCharsets.UTF_8);
-                JSONObject jsonObject = JSONObject.parseObject(payloadJson);
-
-                System.out.println(jsonObject.get("name"));
 
 //                byte[] decoded =
 //                // 使用KeyFactory生成RSAPrivateKey

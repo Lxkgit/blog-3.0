@@ -1,6 +1,6 @@
-package com.blog.core.entity.auth.vo;
+package com.blog.core.domain.auth.vo;
 
-import com.blog.core.entity.auth.Menu;
+import com.blog.core.domain.auth.entity.Menu;
 import lombok.Getter;
 import lombok.Setter;
 

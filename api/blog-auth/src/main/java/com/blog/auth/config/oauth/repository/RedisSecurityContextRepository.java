@@ -1,7 +1,7 @@
-package com.blog.auth.config.repository;
+package com.blog.auth.config.oauth.repository;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.blog.auth.config.context.SupplierDeferredSecurityContext;
+import com.blog.auth.config.oauth.context.SupplierDeferredSecurityContext;
 import com.blog.core.constant.RedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;

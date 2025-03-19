@@ -13,7 +13,11 @@ import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -34,13 +38,24 @@ public class MenuServiceImpl implements MenuService {
 
 
     @Override
-    public List<MenuVo> selectMenuList() {
+    public List<MenuVo> selectMenuList(MenuVo menuVo) {
         Integer userId = SecurityUtil.getLoginUserBo().getId();
         // 查询用户对应角色
         List<Role> roleList = roleMapper.selectUserRole(userId);
 
-        List<Menu> menuList = menuDao.selectUserRole(roleList.stream().map(Role::getId).toList());
+        List<Menu> menuList = menuDao.selectUserRole(roleList.stream().map(Role::getId).toList(), menuVo.getMenuType());
         List<MenuVo> menuVoList = BeanUtil.copyToList(menuList, MenuVo.class);
-        return menuVoList;
+        menuVoList.forEach(item -> item.setChildren(new ArrayList<>()));
+
+        Map<Integer, MenuVo> map = menuVoList.stream().collect(Collectors.toMap(MenuVo::getId, Function.identity(), (m1, m2) -> m1, LinkedHashMap::new));
+        List<MenuVo> resultList = new ArrayList<>();
+        map.forEach((key, value) -> {
+            if (value.getParentId() != 0) {
+                map.get(value.getParentId()).getChildren().add(value);
+            } else {
+                resultList.add(value);
+            }
+        });
+        return resultList;
     }
 }

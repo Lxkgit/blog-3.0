@@ -1,9 +1,9 @@
-package com.blog.auth.config;
+package com.blog.auth.config.oauth;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.auth.filter.MyAuthenticationFilter;
-import com.blog.auth.config.point.MyLoginUrlAuthenticationEntryPoint;
-import com.blog.auth.config.repository.RedisSecurityContextRepository;
+import com.blog.auth.config.oauth.point.MyLoginUrlAuthenticationEntryPoint;
+import com.blog.auth.config.oauth.repository.RedisSecurityContextRepository;
 import com.blog.auth.dao.UserMapper;
 import com.blog.auth.entity.MyUserDetails;
 import com.blog.core.constant.PermitUrl;
@@ -331,6 +331,8 @@ public class SecurityConfig {
                     auths.add(authority.getAuthority());
                 }
                 //写入jwt
+                context.getClaims().claim("id", user.getId());
+                context.getClaims().claim("username", user.getUsername());
                 context.getClaims().claim("auths", auths);
                 context.getClaims().claim("name", user.getNickname());
             }
@@ -342,6 +344,8 @@ public class SecurityConfig {
                     auths.add(authority.getAuthority());
                 }
                 //写入jwt
+                context.getClaims().claim("id", user.getId());
+                context.getClaims().claim("username", user.getUsername());
                 context.getClaims().claim("auths", auths);
                 context.getClaims().claim("name", user.getNickname());
             }

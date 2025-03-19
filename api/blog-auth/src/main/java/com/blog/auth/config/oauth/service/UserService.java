@@ -1,9 +1,11 @@
-package com.blog.auth.service.impl;
+package com.blog.auth.config.oauth.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.blog.auth.dao.MenuMapper;
 import com.blog.auth.dao.UserMapper;
+import com.blog.core.domain.auth.bo.LoginUserBo;
 import com.blog.core.domain.auth.entity.Menu;
 import com.blog.auth.entity.MyUserDetails;
 import com.blog.core.domain.auth.entity.User;
@@ -49,6 +51,8 @@ public class UserService implements UserDetailsService {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
         User user = userMapper.selectOne(queryWrapper);
+        LoginUserBo loginUserBo = new LoginUserBo();
+        BeanUtil.copyProperties(user, loginUserBo);
         if (user == null) {
             log.info("用户不存在");
             throw new UsernameNotFoundException("用户不存在");
@@ -58,9 +62,9 @@ public class UserService implements UserDetailsService {
         //组装权限信息 放入 SimpleGrantedAuthority
         List<SimpleGrantedAuthority> simpleGrantedAuthorityList = getGrantedAuthority(auths);
         //把权限放入用户对象中
-        user.setMenu(auths);
+        loginUserBo.setMenu(auths);
         //最后返回UserDetails对象
-        return new MyUserDetails(user, simpleGrantedAuthorityList);
+        return new MyUserDetails(loginUserBo, simpleGrantedAuthorityList);
     }
 
 

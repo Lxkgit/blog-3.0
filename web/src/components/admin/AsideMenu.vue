@@ -28,12 +28,13 @@ import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import icon from "@/utils/icon";
 import { systemStore } from "@/store/system";
-import { userMenuApi } from "@/api/user"
+import { userMenuApi } from "@/api/auth"
 
 let adminMenus: any = reactive({ data: [] })
 const getMenuFun = () => {
   userMenuApi(2).then((res: any) => {
     if(res.code === 200) {
+      console.log(res.result)
       adminMenus.data = res.result
     }
   })

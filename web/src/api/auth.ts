@@ -24,7 +24,7 @@ export const userLogoutApi = (param?: any, headers?: any) => {
 }
 
 // 获取用户菜单
-export const userMenuApi = (param: any) => {
-  const uri = "/auth/menu/user"
-  return api.post(uri, param)
+export const userMenuApi = (menuType: any) => {
+  const uri = "/auth/menu/list/user?menuType=" + menuType
+  return api.get(uri)
 }

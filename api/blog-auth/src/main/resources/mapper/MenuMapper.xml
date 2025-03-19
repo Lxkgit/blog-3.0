@@ -2,14 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.blog.auth.dao.MenuMapper">
 
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.auth.entity.Menu">
+        <id property="id" column="id" />
+        <result property="parentId" column="parent_id"/>
+        <result property="menuName" column="menu_name"/>
+        <result property="menuIcon" column="menu_icon"/>
+        <result property="menuPath" column="menu_path"/>
+        <result property="auth" column="auth"/>
+        <result property="menuType" column="menu_type"/>
+        <result property="sort" column="sort"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="BaseResultSql">
+        id, parent_id, menu_name, menu_icon, menu_path, auth, menu_type, sort, create_time
+    </sql>
 
     <!--查看角色下的菜单-->
-    <select id="selectUserRole" resultType="com.blog.core.domain.auth.entity.Menu">
-        SELECT * from sys_menu
-        WHERE id in ( SELECT distinct menu_id from sys_menu_role WHERE role_id in
+    <select id="selectUserRole" resultMap="BaseResultMap">
+        SELECT <include refid="BaseResultSql"/> from sys_menu
+        WHERE id in ( SELECT distinct menu_id from sys_menu_role WHERE menu_type &lt;= #{menuType} and role_id in
         <foreach item="item" collection="roleIds" index="index" open="(" separator="," close=")">
             #{item}
         </foreach>)
+        order by sort
     </select>
 
 

@@ -1,4 +1,4 @@
-package com.blog.auth.config.context;
+package com.blog.auth.config.oauth.context;
 
 import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContext;

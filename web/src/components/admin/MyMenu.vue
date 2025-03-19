@@ -1,5 +1,5 @@
 <template>
-  <el-sub-menu v-if="item.list !== null" :index="indexKey.toString()">
+  <el-sub-menu v-if="item.children !== null" :index="indexKey.toString()">
     <template #title>
       <el-icon>
         <MyIcon :type="item.menuIcon" />
@@ -7,7 +7,7 @@
       <span>{{ item.menuName }}</span>
     </template>
     <el-menu-item
-      v-for="(item2, index2) in item.list"
+      v-for="(item2, index2) in item.children"
       :key="index2"
       :index="`${indexKey.toString()}-${index2.toString()}`"
       @click="gotoSite(item2)"

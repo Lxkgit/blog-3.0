@@ -1,4 +1,4 @@
-package com.blog.auth.config.point;
+package com.blog.auth.config.oauth.point;
 
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;

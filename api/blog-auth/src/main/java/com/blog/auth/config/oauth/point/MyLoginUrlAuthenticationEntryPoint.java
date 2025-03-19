@@ -1,4 +1,4 @@
-package com.blog.auth.config.point;
+package com.blog.auth.config.oauth.point;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

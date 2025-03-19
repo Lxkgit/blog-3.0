@@ -12,7 +12,7 @@ import java.util.List;
 public interface MenuMapper extends BaseMapper<Menu> {
 
 
-    List<Menu> selectUserRole(@Param("roleIds") List<Integer> roleIds);
+    List<Menu> selectUserRole(@Param("roleIds") List<Integer> roleIds, @Param("menuType") Integer menuType);
 
     /**
      * 根据菜单id集合 获取对应的权限

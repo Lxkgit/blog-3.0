@@ -16,6 +16,14 @@ import java.util.List;
 @Setter
 public class MenuVo extends Menu {
 
-    //子集菜单
-    private List<Menu> children;
+
+    /**
+     * 类型  1:菜单 , 2:按钮
+     */
+    private Integer menuType;
+
+    /**
+     * 子集菜单
+     */
+    private List<MenuVo> children;
 }

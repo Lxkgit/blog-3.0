@@ -6,17 +6,13 @@ import com.blog.core.domain.auth.vo.MenuVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Author: lxk
@@ -41,7 +37,7 @@ public class MenuController {
      */
     @GetMapping("/list/user")
     public Result getSysMenuList(MenuVo menuVo){
-        List<MenuVo> list = menuService.selectMenuList(menuVo);
+        List<MenuVo> list = menuService.selectMenuListByUser(menuVo);
         return ResultFactory.buildSuccessResult(list);
     }
 
@@ -49,16 +45,12 @@ public class MenuController {
      * 获取全部菜单
      * type = 1 获取到目录
      * type = 2 获取到操作
-     * @param menuType
+     * @param menuVo
      * @return
      */
     @GetMapping("/list/all")
-    public Result getSysMenuAllList(@RequestParam(value = "type") Integer menuType){
-        try {
-//            return ResultFactory.buildSuccessResult(menuService.selectPermissionList(menuType));
-        } catch (Exception e) {
-            log.warn("" + e);
-        }
-        return null;
+    public Result getSysMenuAllList(MenuVo menuVo){
+        List<MenuVo> list = menuService.selectAllMenu(menuVo);
+        return ResultFactory.buildSuccessResult(list);
     }
 }

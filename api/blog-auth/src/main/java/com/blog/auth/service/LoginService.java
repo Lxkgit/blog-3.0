@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public interface LoginService {
 
-    public Result login(LoginVo vo, HttpServletRequest request);
+    Result login(LoginVo vo, HttpServletRequest request);
 
-    public void tuiChu(String rzId);
+    void tuiChu(String rzId);
 }

@@ -29,12 +29,7 @@ public interface MenuMapper extends BaseMapper<Menu> {
      */
     List<Menu> getMenuList();
 
-    /**
-     * 删除菜单关联的角色
-     *
-     * @return
-     */
-    Integer deleteRole(Integer id);
+
 
 
     /**

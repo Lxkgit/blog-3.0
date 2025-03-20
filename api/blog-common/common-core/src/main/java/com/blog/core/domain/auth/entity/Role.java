@@ -6,16 +6,42 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @TableName("sys_role")
-public class Role {
+public class Role  {
 
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    //角色编码
+    /**
+     * 角色编码
+     */
     private String roleCode;
 
-    //角色名称
+    /**
+     * 角色名称
+     */
     private String roleName;
+
+    /**
+     * 创建用户
+     */
+    private String createBy;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 修改用户
+     */
+    private String updateBy;
+
+    /**
+     * 修改时间
+     */
+    private Date updateTime;
 }

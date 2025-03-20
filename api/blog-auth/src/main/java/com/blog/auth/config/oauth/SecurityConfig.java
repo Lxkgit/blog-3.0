@@ -1,7 +1,7 @@
 package com.blog.auth.config.oauth;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.auth.filter.MyAuthenticationFilter;
+import com.blog.auth.config.filter.MyAuthenticationFilter;
 import com.blog.auth.config.oauth.point.MyLoginUrlAuthenticationEntryPoint;
 import com.blog.auth.config.oauth.repository.RedisSecurityContextRepository;
 import com.blog.auth.dao.UserMapper;

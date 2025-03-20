@@ -29,13 +29,6 @@
     </select>
 
 
-    <!--删除菜单关联的角色-->
-    <delete id="deleteRole">
-        DELETE
-        from sys_menu_role
-        WHERE menu_id = #{id}
-    </delete>
-
 
     <!--根据菜单id集合 获取对应的权限-->
     <select id="getAuthList" resultType="com.blog.core.domain.auth.entity.Menu">

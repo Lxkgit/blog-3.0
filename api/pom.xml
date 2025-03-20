@@ -29,19 +29,21 @@
         <oauth2.version>2.2.5.RELEASE</oauth2.version>
         <nacos.version>2023.0.3.2</nacos.version>
         <xxlJob.version>2.5.0</xxlJob.version>
-        <mybatis-plus.version>3.5.10.1</mybatis-plus.version>
         <mysql.version>8.0.28</mysql.version>
-        <easyes.version>2.0.0</easyes.version>
         <elasticsearch.version>7.14.1</elasticsearch.version>
         <rocketmq.version>2.3.1</rocketmq.version>
         <netty.version>4.1.117.Final</netty.version>
 
         <!-- 工具类版本 -->
+        <mybatis-plus.version>3.5.10.1</mybatis-plus.version>
+        <pagehelper.version>6.1.0</pagehelper.version>
+        <easyes.version>2.0.0</easyes.version>
         <fastjson.version>2.0.43</fastjson.version>
         <lombok.version>1.18.36</lombok.version>
         <httpclient5.version>5.4.2</httpclient5.version>
         <jasypt.version>3.0.5</jasypt.version>
         <hutool.version>5.8.36</hutool.version>
+
 
         <!-- 解决依赖冲突 - mq与gateway -->
         <grpc-netty.version>1.53.0</grpc-netty.version>
@@ -107,20 +109,6 @@
                 <version>${mysql.version}</version>
             </dependency>
 
-            <!-- mybatis-plus -->
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-                <version>${mybatis-plus.version}</version>
-            </dependency>
-
-            <!-- easy-es -->
-            <dependency>
-                <groupId>org.dromara.easy-es</groupId>
-                <artifactId>easy-es-boot-starter</artifactId>
-                <version>${easyes.version}</version>
-            </dependency>
-
             <!-- es -->
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
@@ -145,6 +133,27 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>${netty.version}</version>
+            </dependency>
+
+            <!-- mybatis-plus -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- pagehelper 分页插件 -->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper</artifactId>
+                <version>${pagehelper.version}</version>
+            </dependency>
+
+            <!-- easy-es -->
+            <dependency>
+                <groupId>org.dromara.easy-es</groupId>
+                <artifactId>easy-es-boot-starter</artifactId>
+                <version>${easyes.version}</version>
             </dependency>
 
             <!-- JSON 解析器和生成器 -->

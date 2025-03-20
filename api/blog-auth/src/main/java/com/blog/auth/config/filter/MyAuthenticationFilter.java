@@ -1,4 +1,4 @@
-package com.blog.auth.filter;
+package com.blog.auth.config.filter;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.RedisConstant;
@@ -18,8 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 /**
  * 认证过滤器 校验通过 就不需要再登陆

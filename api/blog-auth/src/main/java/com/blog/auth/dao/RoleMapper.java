@@ -9,33 +9,30 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @Mapper
-public interface RoleMapper  extends BaseMapper<Role> {
+public interface RoleMapper extends BaseMapper<Role> {
 
-    /**
-     * 删除角色关联的用户
-     * @param id
-     * @return
-     */
-    Integer deleteUser(@Param("id") Integer id);
-
-    /**
-     * 删除角色关联的权限
-     * @param id
-     * @return
-     */
-    Integer deleteAuth(@Param("id") Integer id);
 
     /**
      * 查看用户对应的角色
-     * @param userId
-     * @return
+     *
+     * @param userId 用户id
+     * @return 角色权限列表
      */
     List<Role> selectUserRole(@Param("userId") Integer userId);
 
     /**
-     * 为角色分配权限
-     * @return
+     * 删除角色关联的用户
+     *
+     * @param roleId 角色id
      */
-    public Integer addRoleAuth(@Param("roleId") Integer roleId,
-                               @Param("menuIds") List<Integer> menuIds);
+    void deleteRoleUser(@Param("roleId") Integer roleId);
+
+    /**
+     * 删除角色关联的菜单
+     *
+     * @param roleId 角色id
+     */
+    void deleteRoleMenu(@Param("roleId") Integer roleId);
+
+
 }

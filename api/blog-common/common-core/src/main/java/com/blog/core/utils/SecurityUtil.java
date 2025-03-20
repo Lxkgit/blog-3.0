@@ -7,7 +7,7 @@ import lombok.Getter;
 public class SecurityUtil {
 
     @Getter
-    public static LoginUserBo loginUserBo;
+    private static LoginUserBo loginUserBo;
 
     public static void setLoginUserBo(JSONObject jwt) {
         LoginUserBo loginUserBo = new LoginUserBo();

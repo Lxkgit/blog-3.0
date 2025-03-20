@@ -16,6 +16,7 @@ import java.util.List;
 
 public interface MenuService {
 
-    List<MenuVo> selectMenuList(MenuVo menuVo);
+    List<MenuVo> selectMenuListByUser(MenuVo menuVo);
 
+    List<MenuVo> selectAllMenu(MenuVo menuVo);
 }

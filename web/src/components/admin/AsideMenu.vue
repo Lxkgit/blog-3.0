@@ -34,7 +34,6 @@ let adminMenus: any = reactive({ data: [] })
 const getMenuFun = () => {
   userMenuApi(2).then((res: any) => {
     if(res.code === 200) {
-      console.log(res.result)
       adminMenus.data = res.result
     }
   })

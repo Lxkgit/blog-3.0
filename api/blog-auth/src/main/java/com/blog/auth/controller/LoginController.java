@@ -3,11 +3,14 @@ package com.blog.auth.controller;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.blog.auth.service.LoginService;
 import com.blog.core.domain.auth.vo.LoginVo;
+import com.blog.core.domain.auth.vo.Oauth2Vo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
+import com.blog.core.utils.HttpUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,10 +20,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-@Slf4j
 @RestController
 public class LoginController {
+
+
+    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
     @Resource
     private LoginService loginService;
@@ -91,5 +98,23 @@ public class LoginController {
         }
         loginService.tuiChu(rzId);
         return ResultFactory.buildSuccessResult("退出成功");
+    }
+
+    /**
+     * 拿着授权码,手动获取token
+     *
+     * @param vo
+     * @return
+     */
+    @PostMapping("/getToken")
+    public Result getToken(@RequestBody Oauth2Vo vo) {
+        //拼接获取token的路径
+        String url = "http://auth-server:60001/auth/oauth2/token";
+        Map<String, String> map = new HashMap<>();
+        map.put("redirect_uri", vo.getRedirectUri());
+        map.put("grant_type", "authorization_code");
+        map.put("code", vo.getCode());
+        map.put("client_id", vo.getClientId());
+        return HttpUtils.doPost(url, map, vo);
     }
 }

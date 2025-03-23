@@ -153,7 +153,7 @@ public class SecurityConfig {
         //先进行自定义的过滤器,在进行账号密码验证
         http.addFilterBefore(myAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http
-                .securityMatcher("/auth/**")
+//                .securityMatcher("/auth/**")
                 .authorizeHttpRequests((authorize) -> authorize
                         //放行资源
                         .requestMatchers("/auth/doLogin", "/auth/login", "/auth/getToken").permitAll()

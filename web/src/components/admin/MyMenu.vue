@@ -23,13 +23,13 @@
 </template>
 
 <script setup lang="ts">
-// import { useRouter } from "vue-router";
-// import { tagsStore } from "@/store/tag";
+import { useRouter } from "vue-router";
+import { tagsStore } from "@/store/tag";
 import icon from "@/utils/icon";
 
 const { MyIcon } = icon();
-// const store = tagsStore();
-// const router = useRouter();
+const store = tagsStore();
+const router = useRouter();
 
 defineProps({
   indexKey: { type: Number, default: 0 },
@@ -42,10 +42,10 @@ defineProps({
 });
 
 const gotoSite = (item: any) => {
-//   // 跳转路由
-//   router.push(item.menuPath);
-//   store.addTag(item.menuName, item.menuPath);
-//   store.selectedTag = store.tags.length;
+  // 跳转路由
+  router.push(item.menuPath);
+  store.addTag(item.menuName, item.menuPath);
+  store.selectedTag = store.tags.length;
 };
 </script>
 

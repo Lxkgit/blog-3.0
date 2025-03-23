@@ -10,7 +10,7 @@ import java.util.List;
 
 public class MyPageUtils {
 
-    public static <T> MyPage<T> pageUtil(List<T> list, int page, int size, int total) {
+    public static <T> MyPage<T> pageUtil(List<T> list, int page, int size, long total) {
         return new MyPage<>(list, page, size, total);
     }
 }

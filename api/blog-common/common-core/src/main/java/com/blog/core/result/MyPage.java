@@ -17,11 +17,11 @@ public class MyPage<T> {
 
     private int size;
 
-    private int total;
+    private long total;
 
     private List<T> list;
 
-    public MyPage(List<T> list, int page, int size, int total) {
+    public MyPage(List<T> list, int page, int size, long total) {
         this.page = page;
         this.size = size;
         this.total = total;

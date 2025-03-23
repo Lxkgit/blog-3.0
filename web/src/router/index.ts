@@ -53,6 +53,26 @@ const router = createRouter({
             isAuth: true,
           },
         },
+        {
+          path: 'role',
+          name: 'Role',
+          component: () => import('@/views/admin/auth/AdminRole.vue'),
+          meta: {
+              title: '角色管理',
+              keepAlive: false,
+              isAuth: true,
+          },
+      },
+      {
+          path: 'user',
+          name: 'User',
+          component: () => import('@/views/admin/auth/AdminUser.vue'),
+          meta: {
+              title: '用户管理',
+              keepAlive: false,
+              isAuth: true,
+          },
+      },
       ],
     },
     // {

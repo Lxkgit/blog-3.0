@@ -2,8 +2,8 @@ import api from "@/api/api"
 
 // --------------角色-------------
 // 角色列表接口
-export const roleListApi = (page: any, size: any) => {
-  const uri = "/user/role/list?page=" + page + "&size=" + size
+export const roleListApi = (pageNum: any, pageSize: any) => {
+  const uri = "/auth/role/list?pageNum=" + pageNum + "&pageSize=" + pageSize
   return api.get(uri)
 }
 

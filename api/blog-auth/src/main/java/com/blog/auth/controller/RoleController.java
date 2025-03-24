@@ -80,7 +80,7 @@ public class RoleController {
     @GetMapping("/permission/select")
     @PreAuthorize("hasAnyAuthority('sys:role:permission:select')")
     public Result selectRolePermission(RoleVo roleVo) {
-        return ResultFactory.buildSuccessResult();
+        return ResultFactory.buildSuccessResult(roleService.selectRolePermission(roleVo));
 
     }
 

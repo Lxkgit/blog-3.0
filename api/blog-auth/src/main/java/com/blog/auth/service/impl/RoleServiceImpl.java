@@ -1,8 +1,10 @@
 package com.blog.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.auth.dao.MenuMapper;
 import com.blog.auth.dao.RoleMapper;
 import com.blog.auth.service.RoleService;
+import com.blog.core.domain.auth.entity.Menu;
 import com.blog.core.domain.auth.entity.Role;
 import com.blog.core.domain.auth.vo.RoleVo;
 import com.blog.core.result.MyPage;
@@ -15,7 +17,10 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Description 角色服务实现类
@@ -28,6 +33,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Resource
     private RoleMapper roleMapper;
+
+    @Resource
+    private MenuMapper menuMapper;
 
     @Override
     public RoleVo selectRoleById(Integer id) {
@@ -64,5 +72,13 @@ public class RoleServiceImpl implements RoleService {
         roleMapper.deleteRoleMenu(roleId);
         roleMapper.deleteRoleUser(roleId);
         return roleMapper.deleteById(roleId);
+    }
+
+    @Override
+    public Map<String, List<Integer>> selectRolePermission(RoleVo roleVo) {
+        List<Menu> menuList = menuMapper.selectRoleMenuByRoleId(roleVo.getId());
+        Map<String, List<Integer>> resultMap = new HashMap<>();
+        resultMap.put("perIds", menuList.stream().map(Menu::getId).toList());
+        return resultMap;
     }
 }

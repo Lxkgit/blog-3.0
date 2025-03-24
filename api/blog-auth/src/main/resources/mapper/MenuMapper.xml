@@ -19,7 +19,7 @@
     </sql>
 
     <!--查看角色下的菜单-->
-    <select id="selectUserRole" resultMap="BaseResultMap">
+    <select id="selectRoleMenuByRoleIds" resultMap="BaseResultMap">
         SELECT <include refid="BaseResultSql"/> from sys_menu
         WHERE id in ( SELECT distinct menu_id from sys_menu_role WHERE menu_type &lt;= #{menuType} and role_id in
         <foreach item="item" collection="roleIds" index="index" open="(" separator="," close=")">
@@ -28,6 +28,14 @@
         order by sort
     </select>
 
+    <!--查看角色下的菜单-->
+    <select id="selectRoleMenuByRoleId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseResultSql"/>
+        from sys_menu
+        WHERE id in ( SELECT distinct menu_id from sys_menu_role WHERE role_id = #{roleId})
+        order by sort
+    </select>
 
 
     <!--根据菜单id集合 获取对应的权限-->

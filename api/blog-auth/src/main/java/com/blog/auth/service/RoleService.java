@@ -5,6 +5,7 @@ import com.blog.core.domain.auth.vo.RoleVo;
 import com.blog.core.result.MyPage;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author lxk
@@ -48,4 +49,11 @@ public interface RoleService {
      * @return
      */
     int deleteRole(Integer roleId);
+
+    /**
+     * 查询当前角色所有权限菜单id
+     * @param roleVo
+     * @return
+     */
+    Map<String, List<Integer>> selectRolePermission(RoleVo roleVo);
 }

@@ -28,3 +28,23 @@ export const userMenuApi = (menuType: any) => {
   const uri = "/auth/menu/list/user?menuType=" + menuType
   return api.get(uri)
 }
+
+// 查询角色权限列表接口
+export const selectRolePerListApi = (roleId: any) => {
+  const uri = "/auth/role/permission/select?id=" + roleId
+  return api.get(uri)
+}
+
+/**
+ * 获取全部菜单
+ * menuType = 1 获取到目录
+ * menuType = 2 获取到操作
+ * @param menuType
+ * @returns
+ */
+export const allMenuApi = (menuType: any) => {
+  const uri = "/auth/menu/list/all?menuType=" + menuType
+  return api.get(uri)
+}
+
+

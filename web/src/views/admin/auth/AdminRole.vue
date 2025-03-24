@@ -62,7 +62,7 @@
       <el-dialog v-model="updateRolePerDialog" title="角色权限修改" width="30%">
         <div style="height: 300px; overflow: auto">
           <el-tree :data="menuList.data" node-key="id" :default-checked-keys="roleMenu" show-checkbox
-            @check="handleCheckChange" />
+            @check="handleCheckChange"  :props="roleAuthProps"/>
         </div>
         <template #footer>
           <span class="dialog-footer">
@@ -97,18 +97,17 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
 import { ElMessage } from "element-plus";
+import { allMenuApi, selectRolePerListApi } from "@/api/auth"
 import {
   roleListApi,
   createRoleApi,
   updateRoleApi,
   deleteRoleApi,
-  selectRolePerListApi,
-  updateRolePerApi,
-  allMenuApi,
+  updateRolePerApi
 } from "@/api/user";
 import icon from "@/utils/icon";
 
-let {
+const {
   roleCreateDialog,
   createRoleFormRef,
   roleDate,
@@ -116,7 +115,9 @@ let {
   createRoleFun,
 } = createRoleFn();
 
-let {
+const {
+  roleAuthProps,
+
   ids,
   page,
   size,
@@ -142,7 +143,7 @@ let {
 } = roleFn();
 
 // 界面icon
-let { MyIcon } = icon();
+const { MyIcon } = icon();
 let selectRow = ref(0);
 /**
  * 页面初始化
@@ -150,6 +151,8 @@ let selectRow = ref(0);
 onMounted(() => {
   pageChange(1);
 });
+
+
 
 /**
  * 创建角色方法合集
@@ -248,6 +251,11 @@ function roleFn(): any {
   let deleteBtnPopoverByIds = ref(false);
   // 单选删除角色Popover弹窗展示
   let deleteBtnPopoverById = ref(false);
+
+  const roleAuthProps = {
+  children: 'children',
+  label: 'menuName',
+}
 
   // 获取勾选角色id
   const selected = (val: any[]) => {
@@ -382,6 +390,7 @@ function roleFn(): any {
     rolePer,
     deleteBtnPopoverByIds,
     deleteBtnPopoverById,
+    roleAuthProps,
     selected,
     deleteRoleFun,
     updateRolePerFun,

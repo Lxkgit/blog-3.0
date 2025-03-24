@@ -25,11 +25,7 @@ export const deleteRoleApi = (ids: any) => {
   return api.delete(uri)
 }
 
-// 查询角色权限列表接口
-export const selectRolePerListApi = (roleId: any, menuType: any) => {
-  const uri = "/user/role/permission/select?roleId=" + roleId + "&menuType=" + menuType
-  return api.get(uri)
-}
+
 
 // 修改角色权限接口
 export const updateRolePerApi = (rolePer: any) => {
@@ -70,17 +66,6 @@ export const getUserVerifyCodeApi = (email: any) => {
 
 
 // --------------菜单-------------
-/**
- * 获取全部菜单
- * menuType = 1 获取到目录
- * menuType = 2 获取到操作
- * @param menuType
- * @returns
- */
-export const allMenuApi = (menuType: any) => {
-  const uri = "/user/menu/all/list?type=" + menuType
-  return api.get(uri)
-}
 
 /**
  * 获取用户菜单

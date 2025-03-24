@@ -12,7 +12,20 @@ import java.util.List;
 public interface MenuMapper extends BaseMapper<Menu> {
 
 
-    List<Menu> selectUserRole(@Param("roleIds") List<Integer> roleIds, @Param("menuType") Integer menuType);
+    /**
+     * 查看查看角色下的菜单
+     * @param roleIds 角色id列表
+     * @param menuType 查找菜单最深层级 1目录 2菜单 3按钮
+     * @return
+     */
+    List<Menu> selectRoleMenuByRoleIds(@Param("roleIds") List<Integer> roleIds, @Param("menuType") Integer menuType);
+
+    /**
+     * 查看查看角色下的菜单
+     * @param roleId 角色id
+     * @return
+     */
+    List<Menu> selectRoleMenuByRoleId(@Param("roleId") Integer roleId);
 
     /**
      * 根据菜单id集合 获取对应的权限
@@ -22,22 +35,11 @@ public interface MenuMapper extends BaseMapper<Menu> {
      */
     List<Menu> getAuthList(@Param("ids") List<Integer> ids);
 
-    /**
-     * 获取所有菜单
-     *
-     * @return
-     */
-    List<Menu> getMenuList();
 
 
 
 
-    /**
-     * 查看角色对应的权限
-     *
-     * @return
-     */
-    List<String> getRoleAuth(@Param("roleId") Integer roleId);
+
 
     /**
      * 查询用户关联的菜单id

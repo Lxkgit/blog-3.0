@@ -49,9 +49,8 @@ public class MenuServiceImpl implements MenuService {
         List<Role> roleList = roleMapper.selectUserRole(userId);
 
         // 查询角色的全部菜单
-        List<Menu> menuList = menuMapper.selectUserRole(roleList.stream().map(Role::getId).toList(), menuVo.getMenuType());
+        List<Menu> menuList = menuMapper.selectRoleMenuByRoleIds(roleList.stream().map(Role::getId).toList(), menuVo.getMenuType());
         List<MenuVo> menuVoList = BeanUtil.copyToList(menuList, MenuVo.class);
-        menuVoList.forEach(item -> item.setChildren(new ArrayList<>()));
 
         return setMenuTree(menuVoList);
     }
@@ -64,10 +63,11 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public List<MenuVo> selectAllMenu(MenuVo menuVo) {
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.ge(Menu::getMenuType, menuVo.getMenuType());
+        queryWrapper.le(Menu::getMenuType, menuVo.getMenuType());
         queryWrapper.orderByAsc(Menu::getSort);
         List<Menu> menuList = menuMapper.selectList(queryWrapper);
         List<MenuVo> menuVoList = BeanUtil.copyToList(menuList, MenuVo.class);
+
         return setMenuTree(menuVoList);
     }
 
@@ -77,6 +77,7 @@ public class MenuServiceImpl implements MenuService {
      * @return 树结构菜单
      */
     private List<MenuVo> setMenuTree(List<MenuVo> menuVoList) {
+        menuVoList.forEach(item -> item.setChildren(new ArrayList<>()));
         // 使用有序map防止组装过程中顺序错乱
         Map<Integer, MenuVo> map = menuVoList.stream().collect(Collectors.toMap(MenuVo::getId, Function.identity(), (m1, m2) -> m1, LinkedHashMap::new));
         List<MenuVo> resultList = new ArrayList<>();

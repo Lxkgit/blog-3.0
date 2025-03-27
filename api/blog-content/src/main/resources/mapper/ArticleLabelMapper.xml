@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.content.dao.ArticleLabelDAO">
+    <resultMap id="BaseResultMap" type="com.blog.common.entity.content.article.ArticleLabel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <id column="label_type" property="labelType" jdbcType="INTEGER"/>
+        <id column="label_name" property="labelName" jdbcType="VARCHAR"/>
+        <id column="article_num" property="articleNum" jdbcType="INTEGER"/>
+        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id,label_type, label_name, article_num, create_time, update_time
+    </sql>
+
+    <select id="selectArticleLabelCount" resultType="java.lang.Integer">
+        select count(1)
+        from article_label
+    </select>
+
+    <!--根据标签分类查询标签，标签分类为0查询全部标签-->
+    <select id="selectArticleLabelList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from article_label
+        <if test="labelType != 0">
+            where label_type = #{labelType}
+        </if>
+    </select>
+
+    <select id="selectArticleLabelByArray" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from article_label
+        where id in
+        <foreach item="label" collection="array" open="(" separator="," close=")">
+            #{label}
+        </foreach>
+    </select>
+
+    <update id="updateArticleLabel" parameterType="com.blog.common.entity.content.article.ArticleLabel">
+        update article_label
+        <set>
+            <if test="labelType !=null">
+                label_type = #{labelType},
+            </if>
+            <if test="labelName !=null and labelName !=''">
+                label_name = #{labelName},
+            </if>
+        </set>
+        <where>
+            id = #{id} and user_id = #{userId};
+        </where>
+    </update>
+
+    <update id="updateArticleLabelNumById">
+        update article_label set article_num = article_num + #{articleNum} where id = #{id}
+    </update>
+
+    <delete id="deleteArticleLabelByIds">
+        delete from article_label
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and article_num = 0 and user_id = #{userId};
+    </delete>
+
+
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.content.dao.DocContentDAO">
+    <resultMap id="BaseResultMap" type="com.blog.common.entity.content.doc.DocContent">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <id column="catalog_id" property="catalogId" jdbcType="INTEGER"/>
+        <id column="doc_content_md" property="docContentMd" jdbcType="VARCHAR"/>
+        <id column="browse_count" property="browseCount" jdbcType="INTEGER"/>
+        <id column="like_count" property="likeCount" jdbcType="INTEGER"/>
+        <id column="doc_status" property="docStatus" jdbcType="INTEGER"/>
+        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, catalog_id, doc_content_md, browse_count, like_count, doc_status, create_time, update_time
+    </sql>
+
+    <select id="selectDocContentCount" resultType="java.lang.Integer">
+        select count(1)
+        from doc_content
+        where doc_status != 3
+    </select>
+
+    <select id="selectDocCountGroupByUserId" resultType="map">
+        select user_id as userId, count(1) as count
+        from doc_content
+        where doc_status != 3
+        group by user_id
+    </select>
+</mapper>

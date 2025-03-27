@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.content.dao.ArticleDAO">
+    <resultMap id="BaseResultMap" type="com.blog.common.entity.content.article.Article">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <id column="title" property="title" jdbcType="VARCHAR"/>
+        <id column="content_md" property="contentMd" jdbcType="VARCHAR"/>
+        <id column="content_img" property="contentImg" jdbcType="VARCHAR"/>
+        <id column="content_memo" property="contentMemo" jdbcType="VARCHAR"/>
+        <id column="article_type" property="articleType" jdbcType="VARCHAR"/>
+        <id column="article_label" property="articleLabel" jdbcType="VARCHAR"/>
+        <id column="article_status" property="articleStatus" jdbcType="INTEGER"/>
+        <id column="browse_count" property="browseCount" jdbcType="INTEGER"/>
+        <id column="like_count" property="likeCount" jdbcType="INTEGER"/>
+        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, title, content_md, content_img, content_memo, article_type, article_label,
+         article_status, browse_count, like_count, create_time, update_time
+    </sql>
+
+    <select id="selectArticleCount" resultType="java.lang.Integer">
+        select count(1)
+        from article
+        where article_status != 3
+    </select>
+
+    <select id="selectArticleCountGroupByUserId" resultType="map">
+        select user_id as userId, count(1) as count
+        from article
+        where article_status != 3
+        group by user_id
+    </select>
+
+    <select id="selectArticleListByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from article
+        <where>
+            <if test="userId != 0 ">
+                AND user_id = #{userId}
+            </if>
+            <if test="title != null and title != ''">
+                AND title like CONCAT(CONCAT('%',#{title}),'%')
+            </if>
+            <if test="articleLabel != null and articleLabel != ''">
+                AND
+                <foreach item="label" collection="articleLabelList" open="(" separator="or" close=")">
+                    article_label like CONCAT(CONCAT('%',#{label}),'%')
+                </foreach>
+            </if>
+            <if test="articleType != null and articleType != ''">
+                AND
+                <foreach item="type" collection="articleTypeList" open="(" separator="or" close=")">
+                    article_type like CONCAT(CONCAT('%',#{type}),'%')
+                </foreach>
+            </if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <update id="updateArticle" parameterType="com.blog.common.entity.content.article.bo.ArticleBo">
+        update article
+        <set>
+            <if test="title !=null">
+                title = #{title},
+            </if>
+            <if test="contentMd !=null">
+                content_md = #{contentMd},
+            </if>
+            <if test="contentImg !=null">
+                content_img = #{contentImg},
+            </if>
+            <if test="contentMemo !=null">
+                content_memo = #{contentMemo},
+            </if>
+            <if test="articleType !=null">
+                article_type = #{articleType},
+            </if>
+            <if test="articleLabel !=null">
+                article_label = #{articleLabel},
+            </if>
+            <if test="articleStatus !=null">
+                article_status = #{articleStatus},
+            </if>
+            <if test="updateTime !=null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        <where>
+            id = #{id} and user_id = #{updateUserId}
+        </where>
+    </update>
+
+    <update id="updateArticleStatus" parameterType="com.blog.common.entity.content.article.bo.ArticleBo">
+        update article
+        set article_status = #{articleStatus}
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and user_id = #{userId};
+    </update>
+
+</mapper>

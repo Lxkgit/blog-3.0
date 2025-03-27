@@ -1,0 +1,10 @@
+package com.blog.core.valication.group;
+
+/**
+ * @description: 数据删除注解类
+ * @Author: lxk
+ * @date 2024/1/18 15:07
+ */
+
+public interface DeleteGroup {
+}

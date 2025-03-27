@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.content.dao.DiaryDAO">
+    <resultMap id="BaseResultMap" type="com.blog.common.entity.content.diary.Diary">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <id column="diary_md" property="diaryMd" jdbcType="VARCHAR"/>
+        <id column="diary_date" property="diaryDate" jdbcType="TIMESTAMP"/>
+        <id column="diary_status" property="diaryStatus" jdbcType="INTEGER"/>
+        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, diary_md, diary_date, diary_status, create_time, update_time
+    </sql>
+
+    <select id="selectDiaryCount" resultType="java.lang.Integer">
+        select count(1)
+        from blog_diary
+        where diary_status != 3
+    </select>
+
+    <select id="selectDiaryCountGroupByUserId" resultType="map">
+        select user_id as userId, count(1) as count
+        from blog_diary
+        where diary_status != 3
+        group by user_id
+    </select>
+
+    <select id="selectDiaryByDate" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from blog_diary
+        where diary_date like CONCAT('%',#{date},'%')
+        and user_id = #{userId}
+    </select>
+
+    <select id="selectDiaryList" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from blog_diary
+        where user_id = #{userId} and diary_status != 3
+        order by diary_date desc
+    </select>
+
+    <insert id="insertDiary" parameterType="com.blog.common.entity.content.diary.Diary">
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into blog_diary
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="userId != null" >
+                user_id,
+            </if>
+            <if test="diaryMd != null" >
+                diary_md,
+            </if>
+            <if test="diaryDate != null" >
+                diary_date,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+            <if test="updateTime != null" >
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="userId != null" >
+                #{userId},
+            </if>
+            <if test="diaryMd != null" >
+                #{diaryMd},
+            </if>
+            <if test="diaryDate != null" >
+                #{diaryDate},
+            </if>
+            <if test="createTime != null" >
+                #{createTime},
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateDiary" parameterType="com.blog.common.entity.content.diary.Diary">
+        update blog_diary
+        <set>
+            <if test="diaryMd !=null">
+                diary_md = #{diaryMd},
+            </if>
+            <if test="diaryDate !=null">
+                diary_date = #{diaryDate},
+            </if>
+            <if test="updateTime !=null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        <where>
+            id = #{id} and user_id = #{userId}
+        </where>
+    </update>
+
+    <update id="updateDiaryStatusByIds">
+        update blog_diary
+        set diary_status = #{diaryStatus}
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and user_id = #{userId};
+    </update>
+
+    <delete id="deleteDiaryByIds">
+        delete from blog_diary
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and user_id = #{userId};
+    </delete>
+
+</mapper>

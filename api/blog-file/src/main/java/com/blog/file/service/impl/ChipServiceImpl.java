@@ -1,0 +1,177 @@
+package com.blog.file.service.impl;
+
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blog.core.constant.Constant;
+import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.file.entity.Chip;
+import com.blog.core.domain.file.entity.Device;
+import com.blog.core.domain.file.entity.Sensor;
+import com.blog.core.domain.file.vo.ChipVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.MyPage;
+import com.blog.core.result.MyPageUtils;
+import com.blog.core.utils.MyStringUtils;
+import com.blog.file.dao.ChipDAO;
+import com.blog.file.dao.DeviceDAO;
+import com.blog.file.dao.SensorDAO;
+import com.blog.file.service.ChipService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * @description: 单片机服务层方法
+ * @Author: lxk
+ * @date 2024/1/30 19:58
+ */
+
+@Slf4j
+@Service
+public class ChipServiceImpl implements ChipService {
+
+    @Resource
+    private ChipDAO chipDAO;
+
+    @Resource
+    private SensorDAO sensorDAO;
+
+    @Resource
+    private DeviceDAO deviceDAO;
+
+    /**
+     * 新增单片机
+     *
+     * @param userId
+     * @param chipVo
+     * @return
+     * @throws ValidException
+     */
+    @Override
+    public Integer addChip(Integer userId, ChipVo chipVo) throws ValidException {
+        QueryWrapper<Chip> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        wrapper.eq("chip_code", chipVo.getChipCode());
+        Chip chip = chipDAO.selectOne(wrapper);
+        if (chip != null) {
+            throw new ValidException(ErrorMessage.CHIP_CODE_EXISTS);
+        }
+//        chipVo.setUserId(userId);
+        chipVo.setChipStatus(Constant.DEVICE_OFFLINE);
+        chipVo.setCreateTime(new Date());
+        chipVo.setUpdateTime(new Date());
+        chipDAO.insert(chipVo);
+        return chipVo.getId();
+    }
+
+    /**
+     * 批量删除单片机
+     *
+     * @param userId
+     * @param ids
+     * @return
+     */
+    @Override
+    public Integer deleteChips(Integer userId, String ids) {
+        Set<String> idSet = MyStringUtils.splitString(ids, ",");
+        chipDAO.updateChipStatus(idSet, userId, Constant.DEVICE_DELETE);
+        return idSet.size();
+    }
+
+    /**
+     * 修改单片机信息
+     *
+     * @param userId
+     * @param chipVo
+     * @return
+     * @throws ValidException
+     */
+    @Override
+    public Integer updateChip(Integer userId, ChipVo chipVo) throws ValidException {
+        QueryWrapper<Chip> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        wrapper.eq("chip_code", chipVo.getChipCode());
+        wrapper.ne("id", chipVo.getId());
+        Chip chip = chipDAO.selectOne(wrapper);
+        if (chip != null) {
+            throw new ValidException(ErrorMessage.CHIP_CODE_EXISTS);
+        }
+//        chipVo.setUserId(userId);
+        chipVo.setChipStatus(Constant.DEVICE_OFFLINE);
+        chipVo.setUpdateTime(new Date());
+        chipDAO.updateById(chipVo);
+        return chipVo.getId();
+    }
+
+    /**
+     * 分页查询单片机
+     *
+     * @param userId
+     * @param chipVoParam
+     * @return
+     */
+    @Override
+    public MyPage<ChipVo> selectChipList(Integer userId, ChipVo chipVoParam) {
+        Device device = deviceDAO.selectById(chipVoParam.getDeviceId());
+
+        LambdaQueryWrapper<Chip> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Chip::getUserId, userId);
+        wrapper.eq(Chip::getDeviceCode, device.getDeviceCode());
+        wrapper.ne(Chip::getChipStatus, Constant.DEVICE_DELETE);
+
+        PageHelper.startPage(chipVoParam.getPageNum(), chipVoParam.getPageSize());
+        Page<Chip> chipPage = (Page<Chip>) chipDAO.selectList(wrapper);
+
+        List<ChipVo> chipVoList = new ArrayList<>();
+        for (Chip chip : chipPage) {
+            ChipVo chipVo = new ChipVo();
+            BeanUtils.copyProperties(chip, chipVo);
+            chipVoList.add(chipVo);
+        }
+
+        return MyPageUtils.pageUtil(chipVoList, chipPage.getPageNum(), chipPage.getPageSize(), (int) chipPage.getTotal());
+    }
+
+    /**
+     * 查询指定单片机信息
+     *
+     * @param userId
+     * @param id
+     * @return
+     */
+    @Override
+    public ChipVo selectChipId(Integer userId, Integer id) throws ValidException {
+
+        LambdaQueryWrapper<Chip> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Chip::getId, id);
+        wrapper.eq(Chip::getUserId, 1);
+        Chip chip = chipDAO.selectOne(wrapper);
+
+        ChipVo chipVo = new ChipVo();
+        BeanUtils.copyProperties(chip, chipVo);
+
+        LambdaQueryWrapper<Sensor> sensorLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        sensorLambdaQueryWrapper.eq(Sensor::getDeviceCode, chip.getDeviceCode());
+        sensorLambdaQueryWrapper.eq(Sensor::getChipCode, chip.getChipCode());
+        List<Sensor> sensorList = sensorDAO.selectList(sensorLambdaQueryWrapper);
+
+        chipVo.setSensorList(sensorList);
+        return chipVo;
+    }
+
+    @Override
+    public ChipVo selectChipInfo(Integer userId, ChipVo chipVo) {
+        
+
+        return null;
+    }
+}

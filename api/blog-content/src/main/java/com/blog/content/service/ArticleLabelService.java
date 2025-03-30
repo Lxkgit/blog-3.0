@@ -2,7 +2,7 @@ package com.blog.content.service;
 
 
 
-import com.blog.core.domain.content.article.ArticleLabel;
+import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.domain.content.article.vo.ArticleLabelVo;
 import com.blog.core.exception.ValidException;
 

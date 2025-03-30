@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.file.dao.BlogDataDAO">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.entity.BlogData">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="deployment_time" property="deploymentTime" jdbcType="TIMESTAMP"/>
+        <id column="visits" property="visits" jdbcType="INTEGER"/>
+        <id column="user_count" property="userCount" jdbcType="INTEGER"/>
+        <id column="ip_count" property="ipCount" jdbcType="INTEGER"/>
+        <id column="article_count" property="articleCount" jdbcType="INTEGER"/>
+        <id column="article_type_count" property="articleTypeCount" jdbcType="INTEGER"/>
+        <id column="article_label_count" property="articleLabelCount" jdbcType="INTEGER"/>
+        <id column="doc_count" property="docCount" jdbcType="INTEGER"/>
+        <id column="doc_type_count" property="docTypeCount" jdbcType="INTEGER"/>
+        <id column="diary_count" property="diaryCount" jdbcType="INTEGER"/>
+        <id column="img_count" property="imgCount" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, deployment_time, visits, user_count, ip_count, article_count, article_type_count, article_label_count, doc_count, doc_type_count, diary_count, img_count
+    </sql>
+
+    <update id="updateBlogDataById" parameterType="com.blog.common.entity.file.BlogData">
+        update blog_data
+        <set>
+            <if test="deploymentTime !=null and deploymentTime!=''">
+                deployment_time = #{deploymentTime},
+            </if>
+            <if test="visits != null">
+                visits = visits + #{visits},
+            </if>
+            <if test="userCount != null">
+                user_count = user_count + #{userCount},
+            </if>
+            <if test="ipCount != null">
+                ip_count = ip_count + #{ipCount},
+            </if>
+            <if test="articleCount != null">
+                article_count = article_count + #{articleCount},
+            </if>
+            <if test="articleTypeCount != null">
+                article_type_count = article_type_count + #{articleTypeCount},
+            </if>
+            <if test="articleLabelCount != null">
+                article_label_count = article_label_count + #{articleLabelCount},
+            </if>
+            <if test="docCount != null">
+                doc_count = doc_count + #{docCount},
+            </if>
+            <if test="docTypeCount != null">
+                doc_type_count = doc_type_count + #{docTypeCount},
+            </if>
+            <if test="diaryCount != null">
+                diary_count = diary_count + #{diaryCount},
+            </if>
+            <if test="imgCount != null">
+                img_count = img_count + #{imgCount},
+            </if>
+        </set>
+        <where>
+            id = 1
+        </where>
+    </update>
+</mapper>

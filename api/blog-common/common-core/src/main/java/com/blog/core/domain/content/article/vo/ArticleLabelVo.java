@@ -1,6 +1,6 @@
 package com.blog.core.domain.content.article.vo;
 
-import com.blog.core.domain.content.article.ArticleLabel;
+import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.valication.group.AddGroup;
 import com.blog.core.valication.group.DeleteGroup;
 import com.blog.core.valication.group.SelectListGroup;

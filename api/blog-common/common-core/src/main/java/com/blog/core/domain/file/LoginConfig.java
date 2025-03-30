@@ -1,0 +1,21 @@
+package com.blog.core.domain.file;
+
+import lombok.Data;
+
+/**
+ * @description: 登录第三方中间件实体类
+ * @Author: lxk
+ * @date 2023/8/8 14:33
+ */
+
+@Data
+public class LoginConfig {
+
+    private String ip;
+
+    private Integer port;
+
+    private String userName;
+
+    private String password;
+}

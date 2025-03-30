@@ -2,9 +2,9 @@ package com.blog.core.domain.content.article.vo;
 
 
 
-import com.blog.core.domain.content.article.Article;
-import com.blog.core.domain.content.article.ArticleLabel;
-import com.blog.core.domain.content.article.ArticleType;
+import com.blog.core.domain.content.article.entity.Article;
+import com.blog.core.domain.content.article.entity.ArticleLabel;
+import com.blog.core.domain.content.article.entity.ArticleType;
 import com.blog.core.valication.annotation.Equal;
 import com.blog.core.valication.group.*;
 import jakarta.validation.constraints.*;

@@ -3,8 +3,8 @@ package com.blog.auth.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.auth.dao.MenuMapper;
-import com.blog.auth.dao.RoleMapper;
+import com.blog.auth.mapper.MenuMapper;
+import com.blog.auth.mapper.RoleMapper;
 import com.blog.auth.service.MenuService;
 import com.blog.core.domain.auth.entity.Menu;
 import com.blog.core.domain.auth.entity.Role;
@@ -44,7 +44,7 @@ public class MenuServiceImpl implements MenuService {
      */
     @Override
     public List<MenuVo> selectMenuListByUser(MenuVo menuVo) {
-        Integer userId = SecurityUtil.getLoginUserBo().getId();
+        Integer userId = SecurityUtil.getLoginUser().getId();
         // 查询用户对应角色
         List<Role> roleList = roleMapper.selectUserRole(userId);
 

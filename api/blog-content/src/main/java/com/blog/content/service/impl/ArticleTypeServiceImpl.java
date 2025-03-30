@@ -1,19 +1,17 @@
 package com.blog.content.service.impl;
 
-import com.blog.common.constant.ErrorMessage;
-import com.blog.common.entity.content.article.ArticleType;
-import com.blog.common.entity.content.article.vo.ArticleTypeVo;
-import com.blog.common.entity.user.BlogUser;
-import com.blog.common.exception.ValidException;
-import com.blog.common.util.MyStringUtils;
-import com.blog.content.dao.ArticleTypeDAO;
-import com.blog.content.feign.UserClient;
-import com.blog.content.mq.send.SendSystemData;
+
+
+import com.blog.content.mapper.mybatis.ArticleTypeMapper;
 import com.blog.content.service.ArticleTypeService;
-import org.springframework.beans.BeanUtils;
+import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.content.article.entity.ArticleType;
+import com.blog.core.domain.content.article.vo.ArticleTypeVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.utils.MyStringUtils;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -26,13 +24,13 @@ import java.util.*;
 public class ArticleTypeServiceImpl implements ArticleTypeService {
 
     @Resource
-    private ArticleTypeDAO articleTypeDAO;
+    private ArticleTypeMapper articleTypeDAO;
 
-    @Resource
-    private UserClient userClient;
-
-    @Resource
-    private SendSystemData sendSystemData;
+//    @Resource
+//    private UserClient userClient;
+//
+//    @Resource
+//    private SendSystemData sendSystemData;
 
     /**
      * 创建文章分类
@@ -49,7 +47,7 @@ public class ArticleTypeServiceImpl implements ArticleTypeService {
         articleTypeDAO.insert(articleTypeVo);
 
         // 发送博客系统新增文章分类mq消息
-        sendSystemData.sendSystemData(SendSystemData.articleType, 1);
+//        sendSystemData.sendSystemData(SendSystemData.articleType, 1);
         return articleTypeVo.getId();
     }
 
@@ -74,7 +72,7 @@ public class ArticleTypeServiceImpl implements ArticleTypeService {
         }
         articleTypeDAO.deleteArticleTypeByIds(idSet);
         // 发送博客系统删除文章分类mq消息
-        sendSystemData.sendSystemData(SendSystemData.articleType, -idSet.size());
+//        sendSystemData.sendSystemData(SendSystemData.articleType, -idSet.size());
         return idSet.size();
     }
 
@@ -151,35 +149,36 @@ public class ArticleTypeServiceImpl implements ArticleTypeService {
      */
     @Override
     public List<ArticleTypeVo> selectArticleTypeTree() {
-        Map<Integer, BlogUser> blogUserMap = new HashMap<>();
-        List<ArticleType> articleTypeList = articleTypeDAO.selectList(null);
+//        Map<Integer, BlogUser> blogUserMap = new HashMap<>();
+//        List<ArticleType> articleTypeList = articleTypeDAO.selectList(null);
+//
+//        for (ArticleType articleType : articleTypeList) {
+//            ArticleTypeVo articleTypeVo = new ArticleTypeVo();
+//            BlogUser blogUser = blogUserMap.get(articleType.getCreateUser());
+//            if (blogUser == null) {
+//                blogUser = userClient.selectUserById(articleType.getCreateUser());
+//                blogUserMap.put(articleType.getCreateUser(), blogUser);
+//            }
+//            articleTypeVo.setBlogUser(blogUser);
+//            BeanUtils.copyProperties(articleType, articleTypeVo);
+//            articleTypeVo.setValue(String.valueOf(articleType.getId()));
+//            articleTypeVo.setLabel(articleType.getTypeName());
+//            articleTypeVoList.add(articleTypeVo);
+//        }
+//        for (ArticleTypeVo articleTypeVo : articleTypeVoList) {
+//            if (articleTypeVo.getParentId() != 0) {
+//                articleTypeVoList.forEach(a -> {
+//                    if (a.getId().equals(articleTypeVo.getParentId())) {
+//                        if (a.getChildren() == null) {
+//                            a.setChildren(new ArrayList<>());
+//                        }
+//                        a.getChildren().add(articleTypeVo);
+//                    }
+//                });
+//            }
+//        }
+//        articleTypeVoList.removeIf(articleTypeVo -> articleTypeVo.getParentId() != 0);
         List<ArticleTypeVo> articleTypeVoList = new ArrayList<>();
-        for (ArticleType articleType : articleTypeList) {
-            ArticleTypeVo articleTypeVo = new ArticleTypeVo();
-            BlogUser blogUser = blogUserMap.get(articleType.getCreateUser());
-            if (blogUser == null) {
-                blogUser = userClient.selectUserById(articleType.getCreateUser());
-                blogUserMap.put(articleType.getCreateUser(), blogUser);
-            }
-            articleTypeVo.setBlogUser(blogUser);
-            BeanUtils.copyProperties(articleType, articleTypeVo);
-            articleTypeVo.setValue(String.valueOf(articleType.getId()));
-            articleTypeVo.setLabel(articleType.getTypeName());
-            articleTypeVoList.add(articleTypeVo);
-        }
-        for (ArticleTypeVo articleTypeVo : articleTypeVoList) {
-            if (articleTypeVo.getParentId() != 0) {
-                articleTypeVoList.forEach(a -> {
-                    if (a.getId().equals(articleTypeVo.getParentId())) {
-                        if (a.getChildren() == null) {
-                            a.setChildren(new ArrayList<>());
-                        }
-                        a.getChildren().add(articleTypeVo);
-                    }
-                });
-            }
-        }
-        articleTypeVoList.removeIf(articleTypeVo -> articleTypeVo.getParentId() != 0);
         return articleTypeVoList;
     }
 }

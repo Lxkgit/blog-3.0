@@ -7,12 +7,12 @@ import lombok.Getter;
 public class SecurityUtil {
 
     @Getter
-    private static LoginUserBo loginUserBo;
+    private static LoginUserBo loginUser;
 
-    public static void setLoginUserBo(JSONObject jwt) {
+    public static void setLoginUser(JSONObject jwt) {
         LoginUserBo loginUserBo = new LoginUserBo();
         loginUserBo.setId(jwt.getInteger("id"));
         loginUserBo.setUsername(jwt.getString("username"));
-        SecurityUtil.loginUserBo = loginUserBo;
+        SecurityUtil.loginUser = loginUserBo;
     }
 }

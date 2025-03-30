@@ -1,8 +1,8 @@
 package com.blog.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.auth.dao.MenuMapper;
-import com.blog.auth.dao.RoleMapper;
+import com.blog.auth.mapper.MenuMapper;
+import com.blog.auth.mapper.RoleMapper;
 import com.blog.auth.service.RoleService;
 import com.blog.core.domain.auth.entity.Menu;
 import com.blog.core.domain.auth.entity.Role;
@@ -10,9 +10,7 @@ import com.blog.core.domain.auth.vo.RoleVo;
 import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.SecurityUtil;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @Description 角色服务实现类
@@ -53,7 +50,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public int insertRole(RoleVo role) {
-        role.setCreateBy(SecurityUtil.getLoginUserBo().getUsername());
+        role.setCreateBy(SecurityUtil.getLoginUser().getUsername());
         role.setCreateTime(new Date());
         roleMapper.insert(role);
         return role.getId();
@@ -61,7 +58,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public int updateRole(RoleVo role) {
-        role.setUpdateBy(SecurityUtil.getLoginUserBo().getUsername());
+        role.setUpdateBy(SecurityUtil.getLoginUser().getUsername());
         role.setUpdateTime(new Date());
         roleMapper.updateById(role);
         return role.getId();

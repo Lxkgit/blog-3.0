@@ -1,18 +1,18 @@
 package com.blog.content.controller;
 
-import com.blog.common.entity.content.article.vo.ArticleTypeVo;
-import com.blog.common.exception.ValidException;
-import com.blog.common.result.Result;
-import com.blog.common.result.ResultFactory;
-import com.blog.common.valication.group.*;
+
 import com.blog.content.service.ArticleTypeService;
+import com.blog.core.domain.content.article.vo.ArticleTypeVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
+import com.blog.core.valication.group.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Author: lxk
@@ -31,14 +31,12 @@ public class ArticleTypeController extends BaseController {
     /**
      * 创建文章分类
      *
-     * @param request
      * @param articleTypeVo
      * @return
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:article:type:insert')")
-    public Result saveArticleType(HttpServletRequest request, @RequestBody @Validated(value = {AddGroup.class}) ArticleTypeVo articleTypeVo) {
-        articleTypeVo.setCreateUser(getBlogUser(request).getId());
+    public Result saveArticleType(@RequestBody @Validated(value = {AddGroup.class}) ArticleTypeVo articleTypeVo) {
         return ResultFactory.buildSuccessResult(articleTypeService.saveArticleType(articleTypeVo));
     }
 
@@ -57,14 +55,12 @@ public class ArticleTypeController extends BaseController {
     /**
      * 修改文章分类
      *
-     * @param request
      * @param articleTypeVo
      * @return
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:article:type:update')")
-    public Result updateArticleType(HttpServletRequest request, @RequestBody @Validated(value = {UpdateGroup.class}) ArticleTypeVo articleTypeVo) throws ValidException {
-        articleTypeVo.setCreateUser(getBlogUser(request).getId());
+    public Result updateArticleType(@RequestBody @Validated(value = {UpdateGroup.class}) ArticleTypeVo articleTypeVo) throws ValidException {
         return ResultFactory.buildSuccessResult(articleTypeService.updateArticleType(articleTypeVo));
     }
 

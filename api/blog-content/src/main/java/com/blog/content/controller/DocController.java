@@ -1,16 +1,13 @@
 package com.blog.content.controller;
 
-import com.blog.common.entity.content.doc.DocCatalog;
-import com.blog.common.entity.content.doc.DocContent;
-import com.blog.common.entity.content.doc.vo.DocCatalogVo;
-import com.blog.common.entity.user.BlogUser;
-import com.blog.common.result.Result;
-import com.blog.common.result.ResultFactory;
-import com.blog.common.util.TokenUtil;
 import com.blog.content.service.DocService;
+import com.blog.core.domain.content.doc.entity.DocCatalog;
+import com.blog.core.domain.content.doc.entity.DocContent;
+import com.blog.core.domain.content.doc.vo.DocCatalogVo;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,44 +27,34 @@ public class DocController {
 
     @PutMapping("/content/insert")
     @PreAuthorize("hasAnyAuthority('sys:doc:insert')")
-    public Result insertDocCatalog(@RequestHeader HttpHeaders headers, @RequestBody DocCatalog docCatalog) {
-        String token = String.valueOf(headers.get("Authorization"));
-        BlogUser blogUser = TokenUtil.getUserInfo(token);
-        return ResultFactory.buildSuccessResult(docService.insertDocCatalog(blogUser, docCatalog));
+    public Result insertDocCatalog(@RequestBody DocCatalog docCatalog) {
+
+
+        return ResultFactory.buildSuccessResult(docService.insertDocCatalog(docCatalog));
     }
 
     @DeleteMapping("/content/delete")
     @PreAuthorize("hasAnyAuthority('sys:doc:delete')")
-    public Result deleteDocContent(@RequestHeader HttpHeaders headers, @RequestParam(value = "id") Integer id) {
-        String token = String.valueOf(headers.get("Authorization"));
-        BlogUser blogUser = TokenUtil.getUserInfo(token);
-        return ResultFactory.buildSuccessResult(docService.deleteDocCatalog(blogUser, id));
+    public Result deleteDocContent(@RequestParam(value = "id") Integer id) {
+        return ResultFactory.buildSuccessResult(docService.deleteDocCatalog(id));
     }
 
     @PostMapping("/content/update")
     @PreAuthorize("hasAnyAuthority('sys:doc:update')")
-    public Result updateDocContent(@RequestHeader HttpHeaders headers, @RequestBody DocContent docContent) {
-        String token = String.valueOf(headers.get("Authorization"));
-        BlogUser blogUser = TokenUtil.getUserInfo(token);
-        return ResultFactory.buildSuccessResult(docService.updateDocContent(blogUser, docContent));
+    public Result updateDocContent(@RequestBody DocContent docContent) {
+        return ResultFactory.buildSuccessResult(docService.updateDocContent(docContent));
     }
 
     @PostMapping("/catalog/update")
     @PreAuthorize("hasAnyAuthority('sys:doc:catalog:update')")
-    public Result updateDocCatalog(@RequestHeader HttpHeaders headers, @RequestBody DocCatalog docCatalog) {
-        String token = String.valueOf(headers.get("Authorization"));
-        BlogUser blogUser = TokenUtil.getUserInfo(token);
-        return ResultFactory.buildSuccessResult(docService.updateDocCatalog(blogUser, docCatalog));
+    public Result updateDocCatalog(@RequestBody DocCatalog docCatalog) {
+        return ResultFactory.buildSuccessResult(docService.updateDocCatalog(docCatalog));
     }
 
     @GetMapping("/catalog/tree")
-    public Result selectDocCatalogTree(@RequestHeader HttpHeaders headers, DocCatalogVo docCatalogVo) {
-        String token = String.valueOf(headers.get("Authorization"));
-        BlogUser blogUser = null;
-        if (token != null && !token.equals("") && !token.equals("null")) {
-            blogUser = TokenUtil.getUserInfo(token);
-        }
-        return ResultFactory.buildSuccessResult(docService.selectDocCatalogTree(blogUser, docCatalogVo));
+    public Result selectDocCatalogTree(DocCatalogVo docCatalogVo) {
+
+        return ResultFactory.buildSuccessResult(docService.selectDocCatalogTree(docCatalogVo));
     }
 
     @GetMapping("/content/id")
@@ -82,7 +69,8 @@ public class DocController {
 
     @GetMapping("/content/user")
     public Result selectDocUserList() {
-        return ResultFactory.buildSuccessResult(docService.selectDocUserList());
+//        docService.selectDocUserList()
+        return ResultFactory.buildSuccessResult();
     }
 
 }

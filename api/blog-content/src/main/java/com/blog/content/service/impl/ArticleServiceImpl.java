@@ -1,34 +1,23 @@
 package com.blog.content.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.blog.common.constant.Constant;
-import com.blog.common.constant.ErrorMessage;
-import com.blog.common.entity.content.article.Article;
-import com.blog.common.entity.content.article.ArticleLabel;
-import com.blog.common.entity.content.article.ArticleType;
-import com.blog.common.entity.content.article.bo.ArticleBo;
-import com.blog.common.entity.content.article.vo.ArticleVo;
-import com.blog.common.entity.user.BlogUser;
-import com.blog.common.exception.ValidException;
-import com.blog.common.util.MyPage;
-import com.blog.common.util.MyPageUtils;
-import com.blog.common.util.MyStringUtils;
-import com.blog.content.dao.ArticleDAO;
-import com.blog.content.dao.ArticleLabelDAO;
-import com.blog.content.dao.ArticleTypeDAO;
-import com.blog.content.feign.UserClient;
-import com.blog.content.mq.send.SendSystemData;
-import com.blog.content.mq.send.SendUserData;
+import com.blog.content.mapper.mybatis.ArticleMapper;
+import com.blog.content.mapper.mybatis.ArticleLabelMapper;
+import com.blog.content.mapper.mybatis.ArticleTypeMapper;
 import com.blog.content.service.ArticleService;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.content.article.entity.Article;
+import com.blog.core.domain.content.article.entity.ArticleLabel;
+import com.blog.core.domain.content.article.entity.ArticleType;
+import com.blog.core.domain.content.article.vo.ArticleVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.MyPage;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,23 +30,23 @@ import java.util.stream.Collectors;
 @Service
 public class ArticleServiceImpl implements ArticleService {
 
-    @Resource
-    private UserClient userClient;
+//    @Resource
+//    private UserClient userClient;
 
     @Resource
-    private ArticleDAO articleDAO;
+    private ArticleMapper articleDAO;
 
     @Resource
-    private ArticleTypeDAO articleTypeDAO;
+    private ArticleTypeMapper articleTypeDAO;
 
     @Resource
-    private ArticleLabelDAO articleLabelDAO;
+    private ArticleLabelMapper articleLabelDAO;
 
-    @Resource
-    private SendSystemData sendSystemData;
+//    @Resource
+//    private SendSystemData sendSystemData;
 
-    @Resource
-    private SendUserData sendUserData;
+//    @Resource
+//    private SendUserData sendUserData;
 
     /**
      * 创建文章
@@ -68,6 +57,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int saveArticle(ArticleVo articleVo) throws ValidException {
+//        SecurityUtil.getLoginUser().ge
+
         // 初始化对象，防止页面携带数据
         articleVo.setId(null);
         articleVo.setCreateTime(new Date());
@@ -81,78 +72,76 @@ public class ArticleServiceImpl implements ArticleService {
 
         articleDAO.insert(articleVo);
 
-        // 发送博客用户新增文章mq消息
-        sendUserData.sendUserData(SendUserData.article, articleVo.getUserId(), 1);
-        // 发送博客系统新增文章mq消息
-        sendSystemData.sendSystemData(SendSystemData.article, 1);
+//        // 发送博客用户新增文章mq消息
+//        sendUserData.sendUserData(SendUserData.article, articleVo.getUserId(), 1);
+//        // 发送博客系统新增文章mq消息
+//        sendSystemData.sendSystemData(SendSystemData.article, 1);
         return articleVo.getId();
     }
 
     /**
      * 删除文章, 并非真正删除，修改文章状态为删除
      *
-     * @param blogUser
      * @param articleIds
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer deleteArticle(BlogUser blogUser, String articleIds) throws ValidException {
+    public Integer deleteArticle(String articleIds) throws ValidException {
 
-        ArticleBo articleBo = new ArticleBo();
-        articleBo.setUserId(blogUser.getId());
-        articleBo.setArticleStatus(Constant.DELETE);
-        Set<String> idSet = MyStringUtils.splitString(articleIds, ",");
-        articleBo.setIds(idSet);
-        // 假删除 修改文章状态为删除状态 3
-        Integer deleteArticleNum = articleDAO.updateArticleStatus(articleBo);
+//        ArticleBo articleBo = new ArticleBo();
+//        articleBo.setUserId(blogUser.getId());
+//        articleBo.setArticleStatus(Constant.DELETE);
+//        Set<String> idSet = MyStringUtils.splitString(articleIds, ",");
+//        articleBo.setIds(idSet);
+//        // 假删除 修改文章状态为删除状态 3
+//        Integer deleteArticleNum = articleDAO.updateArticleStatus(articleBo);
+//
+//        for (String id : articleBo.getIds()) {
+//            Article article = articleDAO.selectById(Integer.parseInt(id));
+//            updateArticleType(article.getArticleType(), -1);
+//            updateArticleLabel(article.getArticleLabel(), -1);
+//        }
+//
+//        // 发送博客用户删除文章mq消息
+//        sendUserData.sendUserData(SendUserData.article, blogUser.getId(), -deleteArticleNum);
+//        // 发送博客系统删除文章mq消息
+//        sendSystemData.sendSystemData(SendSystemData.article, -deleteArticleNum);
 
-        for (String id : articleBo.getIds()) {
-            Article article = articleDAO.selectById(Integer.parseInt(id));
-            updateArticleType(article.getArticleType(), -1);
-            updateArticleLabel(article.getArticleLabel(), -1);
-        }
-
-        // 发送博客用户删除文章mq消息
-        sendUserData.sendUserData(SendUserData.article, blogUser.getId(), -deleteArticleNum);
-        // 发送博客系统删除文章mq消息
-        sendSystemData.sendSystemData(SendSystemData.article, -deleteArticleNum);
-
-        return deleteArticleNum;
+        return null;
 
     }
 
     /**
      * 更新文章接口
      *
-     * @param blogUser 操作用户
      * @param article  文章数据
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int updateArticle(BlogUser blogUser, Article article) throws ValidException {
-        ArticleBo articleBo = new ArticleBo();
-        Article oldArticle = articleDAO.selectById(article.getId());
-        if (oldArticle == null) {
-            throw new ValidException(ErrorMessage.ARTICLE_NULL);
-        }
-
-        // 修改前文章分类-1
-        updateArticleType(oldArticle.getArticleType(), -1);
-        // 修改前文章标签对应文章-1
-        updateArticleLabel(oldArticle.getArticleLabel(), -1);
-
-        // 修改后文章分类+1
-        article.setArticleType(updateArticleType(article.getArticleType(), 1));
-        // 修改后文章标签对应文章+1
-        updateArticleLabel(article.getArticleLabel(), 1);
-
-        BeanUtils.copyProperties(article, articleBo);
-        articleBo.setUpdateUserId(blogUser.getId());
-        articleBo.setUpdateTime(new Date());
-        articleDAO.updateArticle(articleBo);
-        return article.getId();
+    public int updateArticle(Article article) throws ValidException {
+//        ArticleBo articleBo = new ArticleBo();
+//        Article oldArticle = articleDAO.selectById(article.getId());
+//        if (oldArticle == null) {
+//            throw new ValidException(ErrorMessage.ARTICLE_NULL);
+//        }
+//
+//        // 修改前文章分类-1
+//        updateArticleType(oldArticle.getArticleType(), -1);
+//        // 修改前文章标签对应文章-1
+//        updateArticleLabel(oldArticle.getArticleLabel(), -1);
+//
+//        // 修改后文章分类+1
+//        article.setArticleType(updateArticleType(article.getArticleType(), 1));
+//        // 修改后文章标签对应文章+1
+//        updateArticleLabel(article.getArticleLabel(), 1);
+//
+//        BeanUtils.copyProperties(article, articleBo);
+//        articleBo.setUpdateUserId(blogUser.getId());
+//        articleBo.setUpdateTime(new Date());
+//        articleDAO.updateArticle(articleBo);
+        return 0;
     }
 
     /**
@@ -164,78 +153,79 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo articleVoParam) throws ValidException {
 
-        QueryWrapper<Article> articleQueryWrapper = new QueryWrapper<>();
-
-        // 管理页面只查询当前用户文章，首页查询全部和指定用户文章
-        if (articleVoParam.getType() == 1) {
-            articleQueryWrapper.eq("user_id", articleVoParam.getBlogUser().getId());
-        } else {
-            if (articleVoParam.getSelectUser() != null && articleVoParam.getSelectUser() != 0) {
-                articleQueryWrapper.eq("user_id", articleVoParam.getSelectUser());
-            }
-        }
-
-        // 按照文章分类查询
-        if (articleVoParam.getArticleType() != null && !articleVoParam.getArticleType().equals("")) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(articleVoParam.getArticleType());
-            ArticleType articleType = articleTypeDAO.selectById(Integer.parseInt(articleVoParam.getArticleType()));
-            if (articleType == null) {
-                throw new ValidException(ErrorMessage.ARTICLE_TYPE_ERROR);
-            }
-            while (articleType.getParentId() != 0) {
-                articleType = articleTypeDAO.selectById(articleType.getParentId());
-                stringBuilder.insert(0, articleType.getId() + ",");
-            }
-            articleQueryWrapper.likeRight("article_type", stringBuilder.toString());
-        }
-
-        // 指定文章状态
-        if (articleVoParam.getSelectStatus() != null && !articleVoParam.getSelectStatus().equals("")) {
-            Set<String> statusSet = MyStringUtils.splitString(articleVoParam.getSelectStatus(), ",");
-            articleQueryWrapper.and((wrapper) -> {
-                Iterator<String> set = statusSet.iterator();
-                int i=0;
-                while (set.hasNext()) {
-                    if (i == 0) {
-                        wrapper.eq("article_status", set.next());
-                    } else {
-                        wrapper.or().eq("article_status", set.next());
-                    }
-                    set.remove();
-                    i++;
-                }
-            });
-        }
-
-        // 排序
-        if (articleVoParam.getSortType() != null && !articleVoParam.getSortType().equals("")) {
-            List<String> sortList = Arrays.asList(articleVoParam.getSortType().split(","));
-            if (sortList.contains("0")) {
-                articleQueryWrapper.orderByDesc("article_status");
-            }
-            if (sortList.contains("1")) {
-                articleQueryWrapper.orderByDesc("update_time");
-            }
-        }
-        PageHelper.startPage(articleVoParam.getPageNum(), articleVoParam.getPageSize());
-        Page<Article> articlePage = (Page<Article>) articleDAO.selectList(articleQueryWrapper);
-        List<ArticleVo> articleVoList = new ArrayList<>();
-        Map<Integer, BlogUser> userMap = new HashMap<>();
-        for (Article article : articlePage) {
-            ArticleVo articleVo = new ArticleVo();
-            BeanUtils.copyProperties(article, articleVo);
-            if (userMap.containsKey(article.getUserId())) {
-                articleVo.setBlogUser(userMap.get(article.getUserId()));
-            } else {
-                BlogUser blogUser = userClient.selectUserById(article.getUserId());
-                userMap.put(article.getUserId(), blogUser);
-                articleVo.setBlogUser(blogUser);
-            }
-            setArticleTypeAndLabel(article, articleVo);
-            articleVoList.add(articleVo);
-        }
-        return MyPageUtils.pageUtil(articleVoList, articlePage.getPageNum(), articlePage.getPageSize(), (int) articlePage.getTotal());
+//        QueryWrapper<Article> articleQueryWrapper = new QueryWrapper<>();
+//
+//        // 管理页面只查询当前用户文章，首页查询全部和指定用户文章
+//        if (articleVoParam.getType() == 1) {
+//            articleQueryWrapper.eq("user_id", 1);
+//        } else {
+//            if (articleVoParam.getSelectUser() != null && articleVoParam.getSelectUser() != 0) {
+//                articleQueryWrapper.eq("user_id", articleVoParam.getSelectUser());
+//            }
+//        }
+//
+//        // 按照文章分类查询
+//        if (articleVoParam.getArticleType() != null && !articleVoParam.getArticleType().equals("")) {
+//            StringBuilder stringBuilder = new StringBuilder();
+//            stringBuilder.append(articleVoParam.getArticleType());
+//            ArticleType articleType = articleTypeDAO.selectById(Integer.parseInt(articleVoParam.getArticleType()));
+//            if (articleType == null) {
+//                throw new ValidException(ErrorMessage.ARTICLE_TYPE_ERROR);
+//            }
+//            while (articleType.getParentId() != 0) {
+//                articleType = articleTypeDAO.selectById(articleType.getParentId());
+//                stringBuilder.insert(0, articleType.getId() + ",");
+//            }
+//            articleQueryWrapper.likeRight("article_type", stringBuilder.toString());
+//        }
+//
+//        // 指定文章状态
+//        if (articleVoParam.getSelectStatus() != null && !articleVoParam.getSelectStatus().equals("")) {
+//            Set<String> statusSet = MyStringUtils.splitString(articleVoParam.getSelectStatus(), ",");
+//            articleQueryWrapper.and((wrapper) -> {
+//                Iterator<String> set = statusSet.iterator();
+//                int i=0;
+//                while (set.hasNext()) {
+//                    if (i == 0) {
+//                        wrapper.eq("article_status", set.next());
+//                    } else {
+//                        wrapper.or().eq("article_status", set.next());
+//                    }
+//                    set.remove();
+//                    i++;
+//                }
+//            });
+//        }
+//
+//        // 排序
+//        if (articleVoParam.getSortType() != null && !articleVoParam.getSortType().equals("")) {
+//            List<String> sortList = Arrays.asList(articleVoParam.getSortType().split(","));
+//            if (sortList.contains("0")) {
+//                articleQueryWrapper.orderByDesc("article_status");
+//            }
+//            if (sortList.contains("1")) {
+//                articleQueryWrapper.orderByDesc("update_time");
+//            }
+//        }
+//        PageHelper.startPage(articleVoParam.getPageNum(), articleVoParam.getPageSize());
+//        Page<Article> articlePage = (Page<Article>) articleDAO.selectList(articleQueryWrapper);
+//        List<ArticleVo> articleVoList = new ArrayList<>();
+//        Map<Integer, BlogUser> userMap = new HashMap<>();
+//        for (Article article : articlePage) {
+//            ArticleVo articleVo = new ArticleVo();
+//            BeanUtils.copyProperties(article, articleVo);
+//            if (userMap.containsKey(article.getUserId())) {
+//                articleVo.setBlogUser(userMap.get(article.getUserId()));
+//            } else {
+//                BlogUser blogUser = userClient.selectUserById(article.getUserId());
+//                userMap.put(article.getUserId(), blogUser);
+//                articleVo.setBlogUser(blogUser);
+//            }
+//            setArticleTypeAndLabel(article, articleVo);
+//            articleVoList.add(articleVo);
+//        }
+//        return MyPageUtils.pageUtil(articleVoList, articlePage.getPageNum(), articlePage.getPageSize(), (int) articlePage.getTotal());
+        return null;
     }
 
     /**
@@ -268,8 +258,8 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleDAO.selectById(articleId);
         ArticleVo articleVo = new ArticleVo();
         BeanUtils.copyProperties(article, articleVo);
-        BlogUser blogUser = userClient.selectUserById(article.getUserId());
-        articleVo.setBlogUser(blogUser);
+//        BlogUser blogUser = userClient.selectUserById(article.getUserId());
+//        articleVo.setBlogUser(blogUser);
         setArticleTypeAndLabel(article, articleVo);
         return articleVo;
     }

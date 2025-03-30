@@ -7,15 +7,18 @@ jasypt:
   encryptor:
     password: gszero
 
-logging:
-  level:
-    org:
-      springframework:
-        security: trace
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        security: trace
 
 spring:
   application:
     name: blog-content
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${devServiceIp}:3306/blog_content?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
@@ -51,10 +54,6 @@ rocketmq:
     consumeThreadMax: 64
     #设置一次消费消息的条数，默认为1条
     consumeMessageBatchMaxSize: 1
-
-mybatis:
-  mapper-locations: classpath:/mapper/*.xml
-
 
 easy-es:
   enable: true

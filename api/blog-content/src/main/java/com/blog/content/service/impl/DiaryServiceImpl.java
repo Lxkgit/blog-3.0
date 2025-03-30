@@ -1,25 +1,23 @@
 package com.blog.content.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.blog.common.constant.Constant;
-import com.blog.common.constant.ErrorMessage;
-import com.blog.common.entity.content.diary.Diary;
-import com.blog.common.entity.content.diary.vo.DiaryVo;
-import com.blog.common.exception.ValidException;
-import com.blog.common.util.DateUtil;
-import com.blog.common.util.MyPage;
-import com.blog.common.util.MyPageUtils;
-import com.blog.common.util.MyStringUtils;
-import com.blog.content.dao.DiaryDAO;
-import com.blog.content.mq.send.SendSystemData;
-import com.blog.content.mq.send.SendUserData;
+import com.blog.content.mapper.mybatis.DiaryMapper;
 import com.blog.content.service.DiaryService;
+import com.blog.core.constant.Constant;
+import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.content.diary.entity.Diary;
+import com.blog.core.domain.content.diary.vo.DiaryVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.MyPage;
+import com.blog.core.result.MyPageUtils;
+import com.blog.core.utils.MyStringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -35,13 +33,13 @@ import java.util.regex.Pattern;
 public class DiaryServiceImpl implements DiaryService {
 
     @Resource
-    private DiaryDAO diaryDAO;
+    private DiaryMapper diaryDAO;
 
-    @Resource
-    private SendSystemData sendSystemData;
-
-    @Resource
-    private SendUserData sendUserData;
+//    @Resource
+//    private SendSystemData sendSystemData;
+//
+//    @Resource
+//    private SendUserData sendUserData;
 
     /**
      * 新增日记
@@ -56,11 +54,11 @@ public class DiaryServiceImpl implements DiaryService {
         diaryVo.setDiaryStatus(1);
         diaryDAO.insertDiary(diaryVo);
 
-        // 发送博客用户新增日记mq消息
-        sendUserData.sendUserData(SendUserData.diary, diaryVo.getUserId(), 1);
-
-        // 发送博客系统新增日记mq消息
-        sendSystemData.sendSystemData(SendSystemData.diary, 1);
+//        // 发送博客用户新增日记mq消息
+//        sendUserData.sendUserData(SendUserData.diary, diaryVo.getUserId(), 1);
+//
+//        // 发送博客系统新增日记mq消息
+//        sendSystemData.sendSystemData(SendSystemData.diary, 1);
         return diaryVo.getId();
     }
 
@@ -86,10 +84,10 @@ public class DiaryServiceImpl implements DiaryService {
         }
         diaryDAO.updateDiaryStatusByIds(idSet, userId, Constant.DELETE);
 
-        // 发送博客用户删除日记mq消息
-        sendUserData.sendUserData(SendUserData.diary, userId, -idSet.size());
-        // 发送博客系统删除日记mq消息
-        sendSystemData.sendSystemData(SendSystemData.diary, -idSet.size());
+//        // 发送博客用户删除日记mq消息
+//        sendUserData.sendUserData(SendUserData.diary, userId, -idSet.size());
+//        // 发送博客系统删除日记mq消息
+//        sendSystemData.sendSystemData(SendSystemData.diary, -idSet.size());
 
         return idSet.size();
 

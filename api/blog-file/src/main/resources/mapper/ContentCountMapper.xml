@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.file.dao.ContentCountDAO">
+    <resultMap id="BaseResultMap" type="com.blog.common.entity.file.ContentCount">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <id column="doc_count" property="docCount" jdbcType="INTEGER"/>
+        <id column="article_count" property="articleCount" jdbcType="INTEGER"/>
+        <id column="diary_count" property="diaryCount" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, doc_count, article_count, diary_count
+    </sql>
+
+    <select id="selectCountByUserId" resultType="java.lang.Integer">
+        select count(1)
+        from content_count
+        where user_id = #{userId}
+    </select>
+
+    <update id="updateContentCountByUserId" parameterType="com.blog.common.entity.file.ContentCount">
+        update content_count
+        <set>
+            <if test="docCount != null">
+                doc_count = doc_count + #{docCount},
+            </if>
+            <if test="articleCount != null">
+                article_count = article_count + #{articleCount},
+            </if>
+            <if test="diaryCount != null">
+                diary_count = diary_count + #{diaryCount},
+            </if>
+        </set>
+        <where>
+            user_id = #{userId}
+        </where>
+    </update>
+
+</mapper>

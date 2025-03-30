@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.blog.content.dao.DocCatalogDAO">
-    <resultMap id="BaseResultMap" type="com.blog.common.entity.content.doc.DocCatalog">
+<mapper namespace="com.blog.content.mapper.mybatis.DocCatalogMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.content.doc.entity.DocCatalog">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="user_id" property="userId" jdbcType="INTEGER"/>
         <id column="parent_id" property="parentId" jdbcType="INTEGER"/>
@@ -15,7 +15,7 @@
         <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <resultMap id="DocCatalogVo" type="com.blog.common.entity.content.doc.vo.DocCatalogVo">
+    <resultMap id="DocCatalogVo" type="com.blog.core.domain.content.doc.vo.DocCatalogVo">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="user_id" property="userId" jdbcType="INTEGER"/>
         <id column="parent_id" property="parentId" jdbcType="INTEGER"/>

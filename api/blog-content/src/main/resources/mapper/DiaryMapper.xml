@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.blog.content.dao.DiaryDAO">
-    <resultMap id="BaseResultMap" type="com.blog.common.entity.content.diary.Diary">
+<mapper namespace="com.blog.content.mapper.mybatis.DiaryMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.content.diary.entity.Diary">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="user_id" property="userId" jdbcType="INTEGER"/>
         <id column="diary_md" property="diaryMd" jdbcType="VARCHAR"/>
@@ -42,7 +42,7 @@
         order by diary_date desc
     </select>
 
-    <insert id="insertDiary" parameterType="com.blog.common.entity.content.diary.Diary">
+    <insert id="insertDiary" parameterType="com.blog.core.domain.content.diary.entity.Diary">
         <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -83,7 +83,7 @@
         </trim>
     </insert>
 
-    <update id="updateDiary" parameterType="com.blog.common.entity.content.diary.Diary">
+    <update id="updateDiary" parameterType="com.blog.core.domain.content.diary.entity.Diary">
         update blog_diary
         <set>
             <if test="diaryMd !=null">

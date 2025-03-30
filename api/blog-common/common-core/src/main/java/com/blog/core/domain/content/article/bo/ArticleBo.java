@@ -1,7 +1,7 @@
 package com.blog.core.domain.content.article.bo;
 
 
-import com.blog.core.domain.content.article.Article;
+import com.blog.core.domain.content.article.entity.Article;
 import lombok.Getter;
 import lombok.Setter;
 

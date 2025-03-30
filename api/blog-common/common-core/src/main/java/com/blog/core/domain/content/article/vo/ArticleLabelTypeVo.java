@@ -1,7 +1,7 @@
 package com.blog.core.domain.content.article.vo;
 
 
-import com.blog.core.domain.content.article.ArticleLabelType;
+import com.blog.core.domain.content.article.entity.ArticleLabelType;
 import com.blog.core.valication.group.AddGroup;
 import com.blog.core.valication.group.DeleteGroup;
 import com.blog.core.valication.group.UpdateGroup;

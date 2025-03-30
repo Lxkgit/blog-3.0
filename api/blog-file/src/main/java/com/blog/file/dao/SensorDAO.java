@@ -1,0 +1,20 @@
+package com.blog.file.dao;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.blog.core.domain.file.entity.Sensor;
+import io.lettuce.core.dynamic.annotation.Param;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.Set;
+
+/**
+ * @description: 传感器数据层
+ * @Author: lxk
+ * @date 2024/1/30 20:07
+ */
+
+@Mapper
+public interface SensorDAO extends BaseMapper<Sensor> {
+
+    void updateSensorStatusByIds(@Param("ids") Set<String> idSet, @Param("userId") Integer userId, @Param("sensorStatus") Integer sensorStatus);
+}

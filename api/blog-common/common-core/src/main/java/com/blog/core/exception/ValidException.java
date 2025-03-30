@@ -1,6 +1,7 @@
 package com.blog.core.exception;
 
-import com.blog.common.constant.ErrorMessage;
+
+import com.blog.core.constant.ErrorMessage;
 
 public class ValidException extends BaseException {
     private static final long serialVersionUID = 1L;

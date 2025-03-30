@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.blog.content.dao.ArticleDAO">
-    <resultMap id="BaseResultMap" type="com.blog.common.entity.content.article.Article">
+<mapper namespace="com.blog.content.mapper.mybatis.ArticleMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.content.article.entity.Article">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="user_id" property="userId" jdbcType="INTEGER"/>
         <id column="title" property="title" jdbcType="VARCHAR"/>
@@ -62,7 +62,7 @@
         order by update_time desc
     </select>
 
-    <update id="updateArticle" parameterType="com.blog.common.entity.content.article.bo.ArticleBo">
+    <update id="updateArticle" parameterType="com.blog.core.domain.content.article.bo.ArticleBo">
         update article
         <set>
             <if test="title !=null">
@@ -95,7 +95,7 @@
         </where>
     </update>
 
-    <update id="updateArticleStatus" parameterType="com.blog.common.entity.content.article.bo.ArticleBo">
+    <update id="updateArticleStatus" parameterType="com.blog.core.domain.content.article.bo.ArticleBo">
         update article
         set article_status = #{articleStatus}
         where id in

@@ -1,21 +1,21 @@
 package com.blog.content.controller;
 
-import com.blog.common.entity.content.diary.Diary;
-import com.blog.common.entity.content.diary.vo.DiaryVo;
-import com.blog.common.exception.ValidException;
-import com.blog.common.result.Result;
-import com.blog.common.result.ResultFactory;
-import com.blog.common.valication.group.AddGroup;
-import com.blog.common.valication.group.DeleteGroup;
-import com.blog.common.valication.group.UpdateGroup;
+
 import com.blog.content.service.DiaryService;
+import com.blog.core.domain.content.diary.entity.Diary;
+import com.blog.core.domain.content.diary.vo.DiaryVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
+import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.DeleteGroup;
+import com.blog.core.valication.group.UpdateGroup;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -36,56 +36,50 @@ public class DiaryController extends BaseController {
     /**
      * 新增日记
      *
-     * @param request
      * @param diaryVo
      * @return
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:diary:insert')")
-    public Result saveDiary(HttpServletRequest request, @RequestBody @Validated(value = {AddGroup.class}) DiaryVo diaryVo) {
-        diaryVo.setUserId(getBlogUser(request).getId());
+    public Result saveDiary(@RequestBody @Validated(value = {AddGroup.class}) DiaryVo diaryVo) {
         return ResultFactory.buildSuccessResult(diaryService.saveDiary(diaryVo));
     }
 
     /**
      * 批量删除日记
      *
-     * @param request
      * @param diaryVo
      * @return
      * @throws ValidException
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:diary:delete')")
-    public Result deleteDiaryByDate(HttpServletRequest request, @Validated(value = {DeleteGroup.class}) DiaryVo diaryVo) throws ValidException {
-        return ResultFactory.buildSuccessResult(diaryService.deleteDiary(diaryVo.getIds(), getBlogUser(request).getId()));
+    public Result deleteDiaryByDate(@Validated(value = {DeleteGroup.class}) DiaryVo diaryVo) throws ValidException {
+        return ResultFactory.buildSuccessResult(diaryService.deleteDiary(diaryVo.getIds(), 1));
     }
 
     /**
      * 修改日记
      *
-     * @param request
      * @param diaryVo
      * @return
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:diary:update')")
-    public Result updateDiary(HttpServletRequest request, @RequestBody @Validated(value = {UpdateGroup.class}) DiaryVo diaryVo) {
-        diaryVo.setUserId(getBlogUser(request).getId());
+    public Result updateDiary(@RequestBody @Validated(value = {UpdateGroup.class}) DiaryVo diaryVo) {
         return ResultFactory.buildSuccessResult(diaryService.updateDiary(diaryVo));
     }
 
     /**
      * 分页查询日记
      *
-     * @param request
      * @param diaryVo
      * @return
      */
     @GetMapping("/list")
     @PreAuthorize("hasAnyAuthority('sys:diary:list')")
-    public Result selectDiaryByDate(HttpServletRequest request, DiaryVo diaryVo) {
-        return ResultFactory.buildSuccessResult(diaryService.selectDiaryByDate(diaryVo, getBlogUser(request).getId()));
+    public Result selectDiaryByDate(DiaryVo diaryVo) {
+        return ResultFactory.buildSuccessResult(diaryService.selectDiaryByDate(diaryVo, 1));
     }
 
     /**

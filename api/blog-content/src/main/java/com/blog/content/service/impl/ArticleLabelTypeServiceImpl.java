@@ -1,21 +1,16 @@
 package com.blog.content.service.impl;
 
-import com.blog.common.constant.ErrorMessage;
-import com.blog.common.entity.content.article.ArticleLabel;
-import com.blog.common.entity.content.article.ArticleLabelType;
-import com.blog.common.entity.content.article.vo.ArticleLabelTypeVo;
-import com.blog.common.entity.content.article.vo.ArticleLabelVo;
-import com.blog.common.entity.user.BlogUser;
-import com.blog.common.exception.ValidException;
-import com.blog.common.util.MyStringUtils;
-import com.blog.content.dao.ArticleLabelDAO;
-import com.blog.content.dao.ArticleLabelTypeDAO;
-import com.blog.content.feign.UserClient;
+import com.blog.content.mapper.mybatis.ArticleLabelMapper;
+import com.blog.content.mapper.mybatis.ArticleLabelTypeMapper;
 import com.blog.content.service.ArticleLabelTypeService;
-import org.springframework.beans.BeanUtils;
+import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.content.article.entity.ArticleLabelType;
+import com.blog.core.domain.content.article.vo.ArticleLabelTypeVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.utils.MyStringUtils;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -28,13 +23,13 @@ import java.util.*;
 public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
 
     @Resource
-    private ArticleLabelDAO articleLabelDAO;
+    private ArticleLabelMapper articleLabelDAO;
 
     @Resource
-    private ArticleLabelTypeDAO articleLabelTypeDAO;
+    private ArticleLabelTypeMapper articleLabelTypeDAO;
 
-    @Resource
-    private UserClient userClient;
+//    @Resource
+//    private UserClient userClient;
 
     /**
      * 新增标签分类
@@ -97,37 +92,37 @@ public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
      */
     @Override
     public List<ArticleLabelTypeVo> getArticleLabelTypeList() {
-        Map<Integer, BlogUser> blogUserMap = new HashMap<>();
+//        Map<Integer, BlogUser> blogUserMap = new HashMap<>();
         List<ArticleLabelTypeVo> articleLabelTypeVoList = new ArrayList<>();
         List<ArticleLabelType> articleLabelTypeList = articleLabelTypeDAO.selectArticleLabelTypeList();
-        for (ArticleLabelType articleLabelType : articleLabelTypeList) {
-            ArticleLabelTypeVo articleLabelTypeVo = new ArticleLabelTypeVo();
-            BlogUser labelTypeUser = blogUserMap.get(articleLabelType.getUserId());
-            if (labelTypeUser == null) {
-                blogUserMap.put(articleLabelType.getUserId(), userClient.selectUserById(articleLabelType.getUserId()));
-            }
-
-            List<ArticleLabel> articleLabelList = articleLabelDAO.selectArticleLabelList(articleLabelType.getId());
-            List<ArticleLabelVo> articleLabelListVo = new ArrayList<>();
-            for (ArticleLabel articleLabel : articleLabelList) {
-                ArticleLabelVo articleLabelVo = new ArticleLabelVo();
-                BeanUtils.copyProperties(articleLabel, articleLabelVo);
-                articleLabelListVo.add(articleLabelVo);
-            }
-            articleLabelListVo.forEach(item -> {
-                BlogUser labelUser = blogUserMap.get(item.getUserId());
-                if (labelUser == null) {
-                    blogUserMap.put(item.getUserId(), userClient.selectUserById(item.getUserId()));
-                }
-                item.setBlogUser(blogUserMap.get(item.getUserId()));
-            });
-            articleLabelTypeVo.setLabelList(articleLabelListVo);
-            articleLabelTypeVo.setValue(articleLabelType.getId());
-            articleLabelTypeVo.setLabel(articleLabelType.getTypeName());
-            articleLabelTypeVo.setBlogUser(blogUserMap.get(articleLabelType.getUserId()));
-            BeanUtils.copyProperties(articleLabelType, articleLabelTypeVo);
-            articleLabelTypeVoList.add(articleLabelTypeVo);
-        }
+//        for (ArticleLabelType articleLabelType : articleLabelTypeList) {
+//            ArticleLabelTypeVo articleLabelTypeVo = new ArticleLabelTypeVo();
+//            BlogUser labelTypeUser = blogUserMap.get(articleLabelType.getUserId());
+//            if (labelTypeUser == null) {
+//                blogUserMap.put(articleLabelType.getUserId(), userClient.selectUserById(articleLabelType.getUserId()));
+//            }
+//
+//            List<ArticleLabel> articleLabelList = articleLabelDAO.selectArticleLabelList(articleLabelType.getId());
+//            List<ArticleLabelVo> articleLabelListVo = new ArrayList<>();
+//            for (ArticleLabel articleLabel : articleLabelList) {
+//                ArticleLabelVo articleLabelVo = new ArticleLabelVo();
+//                BeanUtils.copyProperties(articleLabel, articleLabelVo);
+//                articleLabelListVo.add(articleLabelVo);
+//            }
+//            articleLabelListVo.forEach(item -> {
+//                BlogUser labelUser = blogUserMap.get(item.getUserId());
+//                if (labelUser == null) {
+//                    blogUserMap.put(item.getUserId(), userClient.selectUserById(item.getUserId()));
+//                }
+//                item.setBlogUser(blogUserMap.get(item.getUserId()));
+//            });
+//            articleLabelTypeVo.setLabelList(articleLabelListVo);
+//            articleLabelTypeVo.setValue(articleLabelType.getId());
+//            articleLabelTypeVo.setLabel(articleLabelType.getTypeName());
+//            articleLabelTypeVo.setBlogUser(blogUserMap.get(articleLabelType.getUserId()));
+//            BeanUtils.copyProperties(articleLabelType, articleLabelTypeVo);
+//            articleLabelTypeVoList.add(articleLabelTypeVo);
+//        }
         return articleLabelTypeVoList;
     }
 

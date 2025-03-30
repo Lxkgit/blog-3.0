@@ -2,7 +2,7 @@ package com.blog.content.service;
 
 
 
-import com.blog.core.domain.content.article.ArticleType;
+import com.blog.core.domain.content.article.entity.ArticleType;
 import com.blog.core.domain.content.article.vo.ArticleTypeVo;
 import com.blog.core.exception.ValidException;
 

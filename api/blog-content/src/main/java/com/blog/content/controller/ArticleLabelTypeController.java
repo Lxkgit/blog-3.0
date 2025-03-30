@@ -1,21 +1,20 @@
 package com.blog.content.controller;
 
 
-import com.blog.common.entity.content.article.vo.ArticleLabelTypeVo;
-import com.blog.common.exception.ValidException;
-import com.blog.common.result.Result;
-import com.blog.common.result.ResultFactory;
-import com.blog.common.valication.group.AddGroup;
-import com.blog.common.valication.group.DeleteGroup;
-import com.blog.common.valication.group.UpdateGroup;
 import com.blog.content.service.ArticleLabelTypeService;
+import com.blog.core.domain.content.article.vo.ArticleLabelTypeVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
+import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.DeleteGroup;
+import com.blog.core.valication.group.UpdateGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Author: lxk
@@ -34,14 +33,12 @@ public class ArticleLabelTypeController extends BaseController {
     /**
      * 创建文章标签分类
      *
-     * @param request
      * @param articleLabelTypeVo
      * @return
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:article:label:type:insert')")
-    public Result saveArticleLabelType(HttpServletRequest request, @RequestBody @Validated(value = {AddGroup.class}) ArticleLabelTypeVo articleLabelTypeVo) {
-        articleLabelTypeVo.setUserId(getBlogUser(request).getId());
+    public Result saveArticleLabelType(@RequestBody @Validated(value = {AddGroup.class}) ArticleLabelTypeVo articleLabelTypeVo) {
         return ResultFactory.buildSuccessResult(articleLabelTypeService.saveArticleLabelType(articleLabelTypeVo));
     }
 

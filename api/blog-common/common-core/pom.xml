@@ -19,6 +19,11 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+
         <!-- Java Web应用程序开发所需的类和接口 -->
         <dependency>
             <groupId>jakarta.servlet</groupId>

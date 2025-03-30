@@ -51,7 +51,7 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
             if(StringUtils.isNotEmpty(token)) {
 
                 JSONObject jwt = JwtUtil.decodeJwt(token.substring(7));
-                SecurityUtil.setLoginUserBo(jwt);
+                SecurityUtil.setLoginUser(jwt);
 
 
 

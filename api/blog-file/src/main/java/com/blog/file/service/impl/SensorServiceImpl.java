@@ -1,0 +1,140 @@
+package com.blog.file.service.impl;
+
+
+/**
+ * @description: 传感器服务业务层
+ * @Author: lxk
+ * @date 2024/1/30 20:08
+ */
+
+@Slf4j
+@Service
+public class SensorServiceImpl implements SensorService {
+
+    @Resource
+    private ChipDAO chipDAO;
+
+    @Resource
+    private SensorDAO sensorDAO;
+
+    @Resource
+    private SensorTypeDAO sensorTypeDAO;
+
+    /**
+     * 创建传感器
+     *
+     * @param userId
+     * @param sensorVo
+     * @return
+     * @throws ValidException
+     */
+    @Override
+    public Integer addSensor(Integer userId, SensorVo sensorVo) throws ValidException {
+//        sensorVo.setUserId(userId);
+        sensorVo.setSensorStatus(Constant.DEVICE_OFFLINE);
+        sensorVo.setCreateTime(new Date());
+        sensorVo.setUpdateTime(new Date());
+        sensorDAO.insert(sensorVo);
+        return sensorVo.getId();
+    }
+
+    /**
+     * 删除传感器
+     *
+     * @param userId
+     * @param ids
+     * @return
+     */
+    @Override
+    public Integer deleteSensors(Integer userId, String ids) {
+        Set<String> idSet = MyStringUtils.splitString(ids, ",");
+        sensorDAO.updateSensorStatusByIds(idSet, userId, Constant.DEVICE_DELETE);
+        return null;
+    }
+
+    /**
+     * 修改传感器信息
+     *
+     * @param userId
+     * @param sensorVo
+     * @return
+     * @throws ValidException
+     */
+    @Override
+    public Integer updateSensor(Integer userId, SensorVo sensorVo) throws ValidException {
+//        Sensor sensor = sensorDAO.selectById(sensorVo.getId());
+//        if (sensor == null) {
+//            throw new ValidException(ErrorMessage.SENSOR_NOT_EXISTS);
+//        }
+//        if (!sensor.getUserId().equals(userId)) {
+//            throw new ValidException(ErrorMessage.SENSOR_USER_ERROR);
+//        }
+//        sensorVo.setUserId(userId);
+//        sensorVo.setUpdateTime(new Date());
+//        sensorDAO.updateById(sensorVo);
+//        return sensorVo.getId();
+        return 0;
+    }
+
+    /**
+     * 分页查询传感器
+     *
+     * @param userId
+     * @param sensorVoParam
+     * @return
+     */
+    @Override
+    public MyPage<SensorVo> selectSensorList(Integer userId, SensorVo sensorVoParam) {
+
+        List<SensorType> sensorTypeList = sensorTypeDAO.selectList(null);
+
+        Map<String, SensorType> map = sensorTypeList.stream().collect(Collectors.toMap(SensorType::getSensorType, Function.identity()));
+
+        Chip chip = chipDAO.selectById(sensorVoParam.getChipId());
+
+        LambdaQueryWrapper<Sensor> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Sensor::getUserId, userId);
+        wrapper.eq(Sensor::getDeviceCode, chip.getDeviceCode());
+        wrapper.eq(Sensor::getChipCode, chip.getChipCode());
+
+        if (sensorVoParam.getSensorControlType() != null) {
+            // 快速获取对应控制类型的传感器类型编码
+            wrapper.in(Sensor::getSensorType, sensorTypeDAO.selectList(new LambdaQueryWrapper<SensorType>()
+                    .eq(SensorType::getSensorControlType, sensorVoParam.getSensorControlType()))
+                    .stream().map(SensorType::getSensorType).collect(Collectors.toList()));
+        }
+
+        PageHelper.startPage(sensorVoParam.getPageNum(), sensorVoParam.getPageSize());
+        Page<Sensor> sensorPage = (Page<Sensor>) sensorDAO.selectList(wrapper);
+
+        List<SensorVo> sensorVoList = new ArrayList<>();
+        for (Sensor sensor : sensorPage) {
+            SensorVo sensorVo = new SensorVo();
+            BeanUtils.copyProperties(sensor, sensorVo);
+
+            sensorVo.setSensorTypeObj(map.get(sensor.getSensorType()));
+            sensorVoList.add(sensorVo);
+        }
+
+        return MyPageUtils.pageUtil(sensorVoList, sensorPage.getPageNum(), sensorPage.getPageSize(), (int) sensorPage.getTotal());
+    }
+
+    /**
+     * 根据id查询传感器信息
+     *
+     * @param userId
+     * @param id
+     * @return
+     */
+    @Override
+    public SensorVo selectSensorId(Integer userId, Integer id) {
+        QueryWrapper<Sensor> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", id);
+        wrapper.eq("user_id", userId);
+        Sensor sensor = sensorDAO.selectOne(wrapper);
+        SensorVo sensorVo = new SensorVo();
+        BeanUtils.copyProperties(sensor, sensorVo);
+        return sensorVo;
+    }
+
+}

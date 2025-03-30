@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.blog.content.dao.ArticleLabelDAO">
-    <resultMap id="BaseResultMap" type="com.blog.common.entity.content.article.ArticleLabel">
+<mapper namespace="com.blog.content.mapper.mybatis.ArticleLabelMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.content.article.entity.ArticleLabel">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="user_id" property="userId" jdbcType="INTEGER"/>
         <id column="label_type" property="labelType" jdbcType="INTEGER"/>
@@ -40,7 +40,7 @@
         </foreach>
     </select>
 
-    <update id="updateArticleLabel" parameterType="com.blog.common.entity.content.article.ArticleLabel">
+    <update id="updateArticleLabel" parameterType="com.blog.core.domain.content.article.entity.ArticleLabel">
         update article_label
         <set>
             <if test="labelType !=null">

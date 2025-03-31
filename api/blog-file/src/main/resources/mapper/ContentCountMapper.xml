@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.blog.file.dao.ContentCountDAO">
-    <resultMap id="BaseResultMap" type="com.blog.common.entity.file.ContentCount">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.system.entity.ContentCount">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="user_id" property="userId" jdbcType="INTEGER"/>
         <id column="doc_count" property="docCount" jdbcType="INTEGER"/>
@@ -19,7 +19,7 @@
         where user_id = #{userId}
     </select>
 
-    <update id="updateContentCountByUserId" parameterType="com.blog.common.entity.file.ContentCount">
+    <update id="updateContentCountByUserId" parameterType="com.blog.core.domain.file.system.entity.ContentCount">
         update content_count
         <set>
             <if test="docCount != null">

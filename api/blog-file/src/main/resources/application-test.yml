@@ -73,3 +73,12 @@ xxl:
       port: 60024
       logpath: /opt/docker/xxlJob/logs
       logretentiondays: 10
+
+file:
+  system: linux
+  basePath: /opt/files
+  baseUri: /files
+  serviceIp: http://${serviceIp}
+
+netty:
+  port: 9092

@@ -1,6 +1,6 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.vo.SensorVo;
+import com.blog.core.domain.file.device.vo.SensorVo;
 import com.blog.core.exception.ValidException;
 import com.blog.core.result.MyPage;
 

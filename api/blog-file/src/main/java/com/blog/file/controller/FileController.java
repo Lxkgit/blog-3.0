@@ -1,17 +1,15 @@
 package com.blog.file.controller;
 
-import com.blog.common.entity.file.vo.FileDataVo;
-import com.blog.common.exception.ValidException;
-import com.blog.common.result.Result;
-import com.blog.common.result.ResultFactory;
+import com.blog.core.domain.file.files.vo.FileDataVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
 import com.blog.file.service.FileService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @description: 文件服务接口类
@@ -22,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @RestController
 @RequestMapping("/dir")
-public class FileController extends BaseController {
+public class FileController {
 
     @Resource
     private FileService fileService;
@@ -30,84 +28,78 @@ public class FileController extends BaseController {
     /**
      * 创建云盘目录
      *
-     * @param request
      * @param fileDataVo
      * @return
      * @throws ValidException
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:file:user:save')")
-    public Result saveFileDir(HttpServletRequest request, @Validated @RequestBody FileDataVo fileDataVo) throws ValidException {
-        fileService.saveFileDir(getBlogUser(request), fileDataVo);
+    public Result saveFileDir(@Validated @RequestBody FileDataVo fileDataVo) throws ValidException {
+        fileService.saveFileDir(fileDataVo);
         return ResultFactory.buildSuccessResult();
     }
 
     /**
      * 删除云盘文件或目录
      *
-     * @param request
      * @param fileDataVo
      * @return
      * @throws ValidException
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:file:user:delete')")
-    public Result deleteFileOrDir(HttpServletRequest request, @Validated FileDataVo fileDataVo) throws ValidException {
-        fileService.deleteFileOrDir(getBlogUser(request), fileDataVo);
+    public Result deleteFileOrDir(@Validated FileDataVo fileDataVo) throws ValidException {
+        fileService.deleteFileOrDir(fileDataVo);
         return ResultFactory.buildSuccessResult();
     }
 
     /**
      * 修改云盘文件或目录名称
      *
-     * @param request
      * @param fileDataVo
      * @return
      * @throws ValidException
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:file:user:update')")
-    public Result updateFileOrDirName(HttpServletRequest request, @Validated @RequestBody FileDataVo fileDataVo) throws ValidException {
-        fileService.updateFileOrDirName(getBlogUser(request), fileDataVo);
+    public Result updateFileOrDirName(@Validated @RequestBody FileDataVo fileDataVo) throws ValidException {
+        fileService.updateFileOrDirName(fileDataVo);
         return ResultFactory.buildSuccessResult();
     }
 
     /**
      * 查看文件列表
      *
-     * @param request
      * @param fileDataVo
      * @return
      */
     @GetMapping("/select")
     @PreAuthorize("hasAnyAuthority('sys:file:user:select')")
-    public Result selectFileDir(HttpServletRequest request, @Validated FileDataVo fileDataVo) {
-        return ResultFactory.buildSuccessResult(fileService.selectFileDir(getBlogUser(request), fileDataVo));
+    public Result selectFileDir(@Validated FileDataVo fileDataVo) {
+        return ResultFactory.buildSuccessResult(fileService.selectFileDir(fileDataVo));
     }
 
     /**
      * 获取云盘剩余空间大小
      *
-     * @param request
      * @return
      */
     @GetMapping("/space")
     @PreAuthorize("hasAnyAuthority('sys:file:user:space')")
-    public Result selectUserSpace(HttpServletRequest request) {
-        return ResultFactory.buildSuccessResult(fileService.selectUserSpace(getBlogUser(request)));
+    public Result selectUserSpace() {
+        return ResultFactory.buildSuccessResult(fileService.selectUserSpace());
     }
 
     /**
      * 同步文件(包括文件同步至远程和从远程下载文件)
      *
-     * @param request
      * @param fileDataVo
      * @return
      */
     @GetMapping("/sync")
     @PreAuthorize("hasAnyAuthority('sys:file:user:sync')")
-    public Result syncFile(HttpServletRequest request,@Validated FileDataVo fileDataVo) {
-        return ResultFactory.buildSuccessResult(fileService.syncFile(getBlogUser(request), fileDataVo));
+    public Result syncFile(@Validated FileDataVo fileDataVo) {
+        return ResultFactory.buildSuccessResult(fileService.syncFile(fileDataVo));
     }
 
 }

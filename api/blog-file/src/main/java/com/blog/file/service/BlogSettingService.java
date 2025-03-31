@@ -1,7 +1,7 @@
 package com.blog.file.service;
 
 
-import com.blog.core.domain.file.vo.BlogSettingVo;
+import com.blog.core.domain.file.system.vo.BlogSettingVo;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.blog.file.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.blog.core.domain.file.entity.Sensor;
+import com.blog.core.domain.file.device.entity.Sensor;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.apache.ibatis.annotations.Mapper;
 

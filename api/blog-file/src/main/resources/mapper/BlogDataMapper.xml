@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.blog.file.dao.BlogDataDAO">
-    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.entity.BlogData">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.system.entity.BlogData">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="deployment_time" property="deploymentTime" jdbcType="TIMESTAMP"/>
         <id column="visits" property="visits" jdbcType="INTEGER"/>
@@ -20,7 +20,7 @@
         id, deployment_time, visits, user_count, ip_count, article_count, article_type_count, article_label_count, doc_count, doc_type_count, diary_count, img_count
     </sql>
 
-    <update id="updateBlogDataById" parameterType="com.blog.common.entity.file.BlogData">
+    <update id="updateBlogDataById" parameterType="com.blog.core.domain.file.system.entity.BlogData">
         update blog_data
         <set>
             <if test="deploymentTime !=null and deploymentTime!=''">

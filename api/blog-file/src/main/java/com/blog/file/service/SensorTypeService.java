@@ -1,6 +1,6 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.entity.SensorType;
+import com.blog.core.domain.file.device.entity.SensorType;
 
 import java.util.List;
 

@@ -28,7 +28,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/diary")
-public class DiaryController extends BaseController {
+public class DiaryController {
 
     @Resource
     private DiaryService diaryService;

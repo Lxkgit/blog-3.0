@@ -1,6 +1,6 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.vo.FileDataVo;
+import com.blog.core.domain.file.files.vo.FileDataVo;
 import com.blog.core.exception.ValidException;
 
 import java.util.List;

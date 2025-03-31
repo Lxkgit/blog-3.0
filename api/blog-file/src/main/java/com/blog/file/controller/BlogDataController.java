@@ -1,14 +1,13 @@
 package com.blog.file.controller;
 
-import com.blog.common.result.Result;
-import com.blog.common.result.ResultFactory;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
 import com.blog.file.service.BlogDataService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
 
 /**
  * @description: 博客数据详情接口

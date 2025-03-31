@@ -1,6 +1,43 @@
 package com.blog.file.service.impl;
 
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.file.device.entity.Chip;
+import com.blog.core.domain.file.device.entity.Sensor;
+import com.blog.core.domain.file.device.entity.SensorControl;
+import com.blog.core.domain.file.device.entity.SensorTemplate;
+import com.blog.core.domain.file.device.vo.SensorControlVo;
+import com.blog.core.domain.file.device.vo.SensorVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.MyPage;
+import com.blog.core.result.MyPageUtils;
+import com.blog.core.utils.BeanValidationUtil;
+import com.blog.core.valication.group.AddGroup;
+import com.blog.file.dao.*;
+import com.blog.file.netty.domain.dto.NettyPacket;
+import com.blog.file.netty.domain.dto.sensor.control.SensorCommandCheckDto;
+import com.blog.file.netty.domain.dto.sensor.control.SensorCommandDto;
+import com.blog.file.netty.domain.dto.sensor.control.SteeringEngine180Dto;
+import com.blog.file.netty.domain.enums.NettyTopicEnum;
+import com.blog.file.netty.domain.enums.sensor.SensorTypeEnum;
+import com.blog.file.netty.service.NettyServer;
+import com.blog.file.service.SensorControlService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /**
  * @description: 传感器控制服务类
  * @Author: lxk
@@ -26,8 +63,8 @@ public class SensorControlServiceImpl implements SensorControlService {
     @Resource
     private NettyServer nettyServer;
 
-    @Resource
-    private UserService userService;
+//    @Resource
+//    private UserService userService;
 
     @Resource
     private UserDeviceDAO userDeviceDAO;

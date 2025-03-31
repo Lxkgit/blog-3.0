@@ -1,7 +1,7 @@
 package com.blog.file.service.impl;
 
-import com.blog.core.domain.file.entity.BlogData;
-import com.blog.core.domain.file.vo.BlogDataVo;
+import com.blog.core.domain.file.system.entity.BlogData;
+import com.blog.core.domain.file.system.vo.BlogDataVo;
 import com.blog.file.dao.BlogDataDAO;
 import com.blog.file.service.BlogDataService;
 import jakarta.annotation.Resource;

@@ -1,16 +1,16 @@
 package com.blog.file.controller;
 
-import com.blog.common.constant.ErrorMessage;
-import com.blog.common.entity.file.vo.ImportDiaryVo;
-import com.blog.common.entity.file.vo.UploadVo;
-import com.blog.common.entity.user.BlogUser;
-import com.blog.common.enums.file.FilePathEnum;
-import com.blog.common.enums.file.FileTypeEnum;
-import com.blog.common.exception.ValidException;
-import com.blog.common.result.Result;
-import com.blog.common.result.ResultFactory;
+import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.file.files.vo.ImportDiaryVo;
+import com.blog.core.domain.file.files.vo.UploadVo;
+import com.blog.core.enums.file.FilePathEnum;
+import com.blog.core.enums.file.FileTypeEnum;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
 import com.blog.file.service.ImportService;
 import com.blog.file.service.UploadFileService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -33,7 +31,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/upload")
-public class UploadFileController extends BaseController {
+public class UploadFileController {
 
     @Resource
     private UploadFileService fileUploadService;
@@ -44,17 +42,16 @@ public class UploadFileController extends BaseController {
     /**
      * 上传单个文件
      *
-     * @param request
      * @param uploadVo
      * @return
      * @throws ValidException
      */
     @PostMapping
     @PreAuthorize("hasAnyAuthority('sys:file:user:upload')")
-    public Result uploadFile(HttpServletRequest request, @Validated UploadVo uploadVo) throws ValidException {
+    public Result uploadFile(@Validated UploadVo uploadVo) throws ValidException {
         MultipartFile[] files = uploadVo.getFiles();
         String filePath = FilePathEnum.getFilePathByCode(uploadVo.getFilePathCode());
-        BlogUser blogUser = getBlogUser(request);
+//        BlogUser blogUser = getBlogUser(request);
         List<String> typeList = FileTypeEnum.getTypeListByTypeName(uploadVo.getFileTypeCode());
         for (MultipartFile file : files) {
             String fileName = file.getOriginalFilename();
@@ -70,14 +67,14 @@ public class UploadFileController extends BaseController {
 
         try {
             // 基础路径按照用户id创建文件夹
-            String path = "/" + blogUser.getId();
+            String path = "/" + 1;
             if (uploadVo.getFilePathCode().equals(FilePathEnum.USER_PATH.getFilePathCode())) {
                 // 上传用户个人文件拼接附加路径
                 path = path + uploadVo.getAddPath();
             } else {
                 path = path + filePath + FileTypeEnum.getTypePathByTypeName(uploadVo.getFileTypeCode());
             }
-            return fileUploadService.upload(files, blogUser.getId(), path);
+            return fileUploadService.upload(files, 1, path);
         } catch (Exception e) {
             log.error(ErrorMessage.UNKNOWN_ERROR.getDesc(), e);
             throw new ValidException(ErrorMessage.UNKNOWN_ERROR);
@@ -85,9 +82,9 @@ public class UploadFileController extends BaseController {
     }
 
     @PostMapping("/diary/import")
-    public Result importDiary(HttpServletRequest request, @RequestBody ImportDiaryVo importDiaryVo) {
-        BlogUser blogUser = getBlogUser(request);
-        importDiaryVo.setUserId(blogUser.getId());
+    public Result importDiary(@RequestBody ImportDiaryVo importDiaryVo) {
+//        BlogUser blogUser = getBlogUser(request);
+        importDiaryVo.setUserId(1);
         if (importService.importDiary(importDiaryVo)) {
             return ResultFactory.buildSuccessResult();
         } else {

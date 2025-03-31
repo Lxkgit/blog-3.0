@@ -1,14 +1,12 @@
 package com.blog.file.controller;
 
-import com.blog.common.entity.file.vo.BlogSettingVo;
-import com.blog.common.result.Result;
-import com.blog.common.result.ResultFactory;
+import com.blog.core.domain.file.system.vo.BlogSettingVo;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
 import com.blog.file.service.BlogSettingService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @description:
@@ -19,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @RestController
 @RequestMapping("/setting")
-public class BlogSettingController extends BaseController {
+public class BlogSettingController {
 
     @Resource
     private BlogSettingService blogSettingService;
@@ -30,13 +28,13 @@ public class BlogSettingController extends BaseController {
     }
 
     @GetMapping("/select")
-    public Result selectSettingList(HttpServletRequest request, @RequestParam(value = "settingType") String settingType) {
-        return ResultFactory.buildSuccessResult(blogSettingService.selectBlogSetting(getBlogUser(request), settingType));
+    public Result selectSettingList(@RequestParam(value = "settingType") String settingType) {
+        return ResultFactory.buildSuccessResult(blogSettingService.selectBlogSetting(settingType));
     }
 
     @PostMapping("/update")
-    public Result updateSetting(HttpServletRequest request, @RequestBody BlogSettingVo blogSettingVo) {
-        blogSettingService.updateBlogSetting(getBlogUser(request), blogSettingVo);
+    public Result updateSetting(@RequestBody BlogSettingVo blogSettingVo) {
+        blogSettingService.updateBlogSetting(blogSettingVo);
         return ResultFactory.buildSuccessResult();
     }
 }

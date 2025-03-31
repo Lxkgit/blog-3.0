@@ -2,7 +2,7 @@ package com.blog.file.dao;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.blog.core.domain.file.entity.BlogSetting;
+import com.blog.core.domain.file.system.entity.BlogSetting;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

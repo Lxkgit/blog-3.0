@@ -1,6 +1,26 @@
 package com.blog.file.service.impl;
 
 
+import com.blog.core.domain.content.diary.entity.Diary;
+import com.blog.core.domain.file.files.entity.UploadLog;
+import com.blog.core.domain.file.files.vo.ImportDiaryVo;
+import com.blog.core.utils.DateUtil;
+import com.blog.core.utils.FileUtil;
+import com.blog.core.utils.ZipFileUtil;
+import com.blog.file.dao.UploadLogDAO;
+import com.blog.file.service.ImportService;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.*;
+import java.util.regex.Pattern;
+
 /**
  * @Author: lxk
  * @date 2023/2/1 15:20
@@ -23,8 +43,8 @@ public class ImportServiceImpl implements ImportService {
     @Resource
     private UploadLogDAO uploadLogDAO;
 
-    @Resource
-    private ContentClient contentClient;
+//    @Resource
+//    private ContentClient contentClient;
 
     @Override
     public boolean importDiary(ImportDiaryVo importDiaryVo) {
@@ -85,7 +105,8 @@ public class ImportServiceImpl implements ImportService {
                 map.put(DateUtil.formatDate(diary.getDiaryDate())+".txt", diary);
             }
         }
-        Map<String, List<String>> result = contentClient.saveDiaryList(map);
+//        Map<String, List<String>> result = contentClient.saveDiaryList(map);
+        Map<String, List<String>> result = null;
         boolean flag = true;
         for (String key : result.keySet()) {
             List<String> resultList = result.get(key);

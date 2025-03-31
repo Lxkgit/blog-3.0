@@ -1,6 +1,6 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.vo.BlogDataVo;
+import com.blog.core.domain.file.system.vo.BlogDataVo;
 
 /**
  * @description: 博客数据服务类接口

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.blog.file.dao.UploadLogDAO">
-    <resultMap id="BaseResultMap" type="com.blog.common.entity.file.UploadLog">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.files.entity.UploadLog">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="user_id" property="userId" jdbcType="INTEGER"/>
         <id column="file_name" property="fileName" jdbcType="VARCHAR"/>
@@ -15,7 +15,7 @@
         id, user_id,file_name, file_type, upload_state, upload_msg, upload_time
     </sql>
 
-    <insert id="saveFileUpload" parameterType="com.blog.common.entity.file.UploadLog">
+    <insert id="saveFileUpload" parameterType="com.blog.core.domain.file.files.entity.UploadLog">
         <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -62,7 +62,7 @@
         </trim>
     </insert>
 
-    <update id="updateFileUpload" parameterType="com.blog.common.entity.file.UploadLog">
+    <update id="updateFileUpload" parameterType="com.blog.core.domain.file.files.entity.UploadLog">
         update upload_log
         <set>
             <if test="uploadState != null">

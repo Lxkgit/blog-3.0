@@ -9,6 +9,7 @@ import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.AddGroup;
 import com.blog.core.valication.group.DeleteGroup;
 import com.blog.core.valication.group.UpdateGroup;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,9 +26,9 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/label/type")
-public class ArticleLabelTypeController extends BaseController {
+public class ArticleLabelTypeController {
 
-    @Autowired
+    @Resource
     private ArticleLabelTypeService articleLabelTypeService;
 
     /**

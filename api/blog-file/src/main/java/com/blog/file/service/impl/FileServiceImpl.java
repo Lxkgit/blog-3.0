@@ -1,6 +1,31 @@
 package com.blog.file.service.impl;
 
 
+import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blog.core.constant.Constant;
+import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.file.files.entity.FileData;
+import com.blog.core.domain.file.files.vo.FileDataVo;
+import com.blog.file.netty.domain.common.NettyConstant;
+import com.blog.file.netty.domain.dto.NettyPacket;
+import com.blog.file.netty.domain.dto.file.NettySyncBlogFileDto;
+import com.blog.file.netty.domain.enums.NettyTopicEnum;
+import com.blog.core.enums.file.FileTypeEnum;
+import com.blog.core.exception.ValidException;
+import com.blog.file.dao.FileDataDAO;
+import com.blog.file.dao.FileSyncDAO;
+import com.blog.file.netty.service.NettyServer;
+import com.blog.file.service.FileService;
+import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * @description: 文件服务
  * @Author: lxk
@@ -30,15 +55,15 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
-    public void saveFileDir(BlogUser blogUser, FileDataVo fileDataVoParam) throws ValidException {
+    public void saveFileDir(FileDataVo fileDataVoParam) throws ValidException {
         if (fileDataVoParam.getName() == null || fileDataVoParam.getName().equals("")) {
             throw new ValidException(ErrorMessage.FILE_NAME_NULL_ERROR);
         }
         if (fileDataVoParam.getFilePath().equals("/")) {
             throw new ValidException(ErrorMessage.BASE_FILE_DIR_NOT_CREATE);
         }
-        String path = basePath + "/" + blogUser.getId() + fileDataVoParam.getFilePath();
-        List<FileDataVo> fileDataVoList = show(path, blogUser);
+        String path = basePath + "/" + 1 + fileDataVoParam.getFilePath();
+        List<FileDataVo> fileDataVoList = show(path, 1);
         for (FileDataVo fileDataVo : fileDataVoList) {
             if (fileDataVo.getName().toLowerCase().equals(fileDataVoParam.getName().toLowerCase())) {
                 throw new ValidException(ErrorMessage.FILE_NAME_SAME_ERROR);
@@ -48,7 +73,7 @@ public class FileServiceImpl implements FileService {
         File file = new File(path + "/" + fileDataVoParam.getName());
         if (file.mkdir()) {
             fileDataVoParam.setPath(path);
-            fileDataVoParam.setUserId(blogUser.getId());
+            fileDataVoParam.setUserId(1);
             fileDataVoParam.setFileSize(0L);
             // 同步目录下创建的目录全部为同步目录
             fileDataVoParam.setDirType(fileData.getDirType().equals(Constant.DIR_TYPE_SYNC) ? Constant.DIR_TYPE_SYNC : fileDataVoParam.getDirType());
@@ -57,14 +82,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void deleteFileOrDir(BlogUser blogUser, FileDataVo fileDataVo) throws ValidException {
+    public void deleteFileOrDir(FileDataVo fileDataVo) throws ValidException {
         if (fileDataVo.getName() == null || fileDataVo.getName().equals("")) {
             throw new ValidException(ErrorMessage.FILE_NAME_NULL_ERROR);
         }
         if (fileDataVo.getFilePath().equals("/")) {
             throw new ValidException(ErrorMessage.BASE_FILE_DIR_NOT_DELETE);
         }
-        String path = basePath + "/" + blogUser.getId() + fileDataVo.getFilePath();
+        String path = basePath + "/" + 1 + fileDataVo.getFilePath();
         File file = new File(path + "/" + fileDataVo.getName());
         fileDataDAO.deleteById(fileDataVo.getId());
         file.delete();
@@ -86,14 +111,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void updateFileOrDirName(BlogUser blogUser, FileDataVo fileDataVo) throws ValidException {
+    public void updateFileOrDirName(FileDataVo fileDataVo) throws ValidException {
         if (fileDataVo.getName() == null || fileDataVo.getName().equals("")) {
             throw new ValidException(ErrorMessage.FILE_NAME_NULL_ERROR);
         }
         if (fileDataVo.getFilePath().equals("/")) {
             throw new ValidException(ErrorMessage.BASE_FILE_NOT_RENAME);
         }
-        String path = basePath + "/" + blogUser.getId() + fileDataVo.getFilePath();
+        String path = basePath + "/" + 1 + fileDataVo.getFilePath();
         new File(path + "/" + fileDataVo.getName()).renameTo(new File(path + "/" + fileDataVo.getRename()));
 
         QueryWrapper<FileData> wrapper = new QueryWrapper<>();
@@ -104,26 +129,23 @@ public class FileServiceImpl implements FileService {
     /**
      * 查询指定用户的文件目录
      *
-     * @param blogUser
+
      * @param fileDataVo
      * @return
      */
     @Override
-    public List<FileDataVo> selectFileDir(BlogUser blogUser, FileDataVo fileDataVo) {
-        String path = basePath + "/" + blogUser.getId();
+    public List<FileDataVo> selectFileDir(FileDataVo fileDataVo) {
+        String path = basePath + "/" + 1;
         if (!fileDataVo.getFilePath().equals("/")) {
             path = path + fileDataVo.getFilePath();
         }
-        return show(path, blogUser);
+        return show(path, 1);
     }
 
     @Override
-    public Long selectUserSpace(BlogUser blogUser) {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String authorization = request.getHeader("Authorization");
-        System.out.println("authorization: " + authorization);
+    public Long selectUserSpace() {
         QueryWrapper<FileData> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", blogUser.getId());
+        wrapper.eq("user_id", 1);
         List<FileData> fileDataList = fileDataDAO.selectList(wrapper);
         Long size = 0L;
         for (FileData fileData : fileDataList) {
@@ -137,12 +159,12 @@ public class FileServiceImpl implements FileService {
     /**
      * 同步文件
      *
-     * @param blogUser
+
      * @param fileDataVoList
      * @return
      */
     @Override
-    public boolean syncFileList(BlogUser blogUser, List<FileDataVo> fileDataVoList) {
+    public boolean syncFileList(List<FileDataVo> fileDataVoList) {
         for (FileDataVo fileData : fileDataVoList) {
             if (fileData.getType().equals(Constant.FILE_TYPE_DIR)) {
                 // 目录不同步
@@ -161,11 +183,11 @@ public class FileServiceImpl implements FileService {
     /**
      * 同步单个文件至远程服务器
      *
-     * @param blogUser
+
      * @param fileDataVo
      * @return
      */
-    public boolean syncFile(BlogUser blogUser, FileDataVo fileDataVo) {
+    public boolean syncFile(FileDataVo fileDataVo) {
         if (fileDataVo.getType().equals(Constant.FILE_TYPE_DIR)) {
             // 目录不同步
             return false;
@@ -198,10 +220,10 @@ public class FileServiceImpl implements FileService {
      * 查询用户的文件目录
      *
      * @param path     文件目录
-     * @param blogUser 用户信息
+ 用户信息
      * @return 文件目录下数据列表
      */
-    private List<FileDataVo> show(String path, BlogUser blogUser) {
+    private List<FileDataVo> show(String path, Integer userId) {
         FileData dir = fileDataDAO.selectByPathAndName(path);
         // 获取数据库中当前目录下文件列表
         QueryWrapper<FileData> queryWrapper = new QueryWrapper<>();
@@ -228,7 +250,7 @@ public class FileServiceImpl implements FileService {
 
                         if (!file.isFile()) {
                             // 目录计算目录占用大小
-                            fileDataVo.setFileSize(FileUtils.sizeOf(file));
+//                            fileDataVo.setFileSize(FileUtils.sizeOf(file));
                         } else {
                             if (FileTypeEnum.IMAGE.getTypeList().contains(fileType)) {
                                 // 图片添加图片链接
@@ -245,13 +267,13 @@ public class FileServiceImpl implements FileService {
                     FileDataVo fileDataVo = new FileDataVo();
                     fileDataVo.setName(file.getName());
                     fileDataVo.setPath(path);
-                    fileDataVo.setUserId(blogUser.getId());
+                    fileDataVo.setUserId(1);
                     fileDataVo.setDirType(dir == null ? 0 : dir.getDirType());
                     fileDataVo.setStatus(Constant.FILE_TYPE_FILE);
                     fileDataVo.setUpdateTime(new Date(file.lastModified()));
                     if (!file.isFile()) {
                         fileDataVo.setType(Constant.FILE_TYPE_DIR);
-                        fileDataVo.setFileSize(FileUtils.sizeOf(file));
+//                        fileDataVo.setFileSize(FileUtils.sizeOf(file));
                     } else {
                         if (FileTypeEnum.IMAGE.getTypeList().contains(fileType)) {
                             fileDataVo.setType(Constant.FILE_TYPE_FILE);

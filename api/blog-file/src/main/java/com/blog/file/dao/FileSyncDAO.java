@@ -1,7 +1,7 @@
 package com.blog.file.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.blog.core.domain.file.entity.FileSync;
+import com.blog.core.domain.file.files.entity.FileSync;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

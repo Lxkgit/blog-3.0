@@ -1,0 +1,79 @@
+package com.blog.core.domain.file.device.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
+
+/**
+ * @description: 传感器表字段
+ * @Author: lxk
+ * @date 2024/1/30 20:09
+ */
+
+@Data
+@TableName("blog_sensor")
+public class Sensor {
+
+    /**
+     * id
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
+    /**
+     * 用户id
+     */
+    private Integer userId;
+
+    /**
+     * 单片机所属设备编码
+     */
+    private String deviceCode;
+
+
+    /**
+     * 传感器所属单片机编码
+     */
+    private String chipCode;
+
+    /**
+     * 传感器名称
+     */
+    private String sensorName;
+
+    /**
+     * 传感器注册编码
+     */
+    private String sensorCode;
+
+    /**
+     * 传感器状态 0:离线 1:在线 2:删除
+     */
+    private Integer sensorStatus;
+
+    /**
+     * 传感器类型
+     */
+    private String sensorType;
+
+    /**
+     * 传感器备注信息
+     */
+    private String memo;
+
+    /**
+     * 创建时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    /**
+     * 最近修改时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
+}

@@ -6,6 +6,7 @@ import com.blog.core.domain.content.doc.entity.DocContent;
 import com.blog.core.domain.content.doc.vo.DocCatalogVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/doc")
 public class DocController {
 
-    @Autowired
+    @Resource
     private DocService docService;
 
     @PutMapping("/content/insert")

@@ -1,8 +1,8 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.entity.Device;
-import com.blog.core.domain.file.vo.DeviceHeartbeatVo;
-import com.blog.core.domain.file.vo.DeviceVo;
+import com.blog.core.domain.file.device.entity.Device;
+import com.blog.core.domain.file.device.vo.DeviceHeartbeatVo;
+import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ValidException;
 
 import java.util.List;

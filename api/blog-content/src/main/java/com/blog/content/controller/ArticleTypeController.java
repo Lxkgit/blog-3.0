@@ -7,6 +7,7 @@ import com.blog.core.exception.ValidException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.*;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,9 +24,9 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/article/type")
-public class ArticleTypeController extends BaseController {
+public class ArticleTypeController {
 
-    @Autowired
+    @Resource
     private ArticleTypeService articleTypeService;
 
     /**

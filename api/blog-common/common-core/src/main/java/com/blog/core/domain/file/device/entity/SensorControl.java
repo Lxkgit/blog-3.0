@@ -1,0 +1,73 @@
+package com.blog.core.domain.file.device.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
+
+/**
+ * @description: 传感器控制语句存储表
+ * @Author: lxk
+ * @date 2024/2/1 16:38
+ */
+
+@Data
+@TableName("blog_sensor_control")
+public class SensorControl {
+
+    /**
+     * id
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
+    /**
+     * 用户id
+     */
+    private Integer userId;
+
+    /**
+     * 单片机id
+     */
+    private Integer chipId;
+
+    /**
+     * 传感器id
+     */
+    private Integer sensorId;
+
+    /**
+     * 控制命令备注名称
+     */
+    private String controlName;
+
+    /**
+     * 控制命令消息内容
+     */
+    private String controlMessage;
+
+    /**
+     * 是否为命令组 1：命令组 0：单条命令
+     */
+    private Integer commandGroup;
+
+    /**
+     * 命令组对应的传感器id 使用 , 分割
+     */
+    private String sensorIdGroup;
+
+    /**
+     * 创建时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    /**
+     * 最近修改时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
+}

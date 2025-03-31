@@ -1,19 +1,21 @@
 package com.blog.file.service.impl;
 
 
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.constant.ErrorMessage;
-import com.blog.core.domain.file.entity.Chip;
-import com.blog.core.domain.file.entity.Device;
-import com.blog.core.domain.file.entity.DeviceHeartbeat;
-import com.blog.core.domain.file.vo.DeviceHeartbeatVo;
-import com.blog.core.domain.file.vo.DeviceVo;
+import com.blog.core.domain.file.device.entity.Chip;
+import com.blog.core.domain.file.device.entity.Device;
+import com.blog.core.domain.file.device.entity.DeviceHeartbeat;
+import com.blog.core.domain.file.device.vo.DeviceHeartbeatVo;
+import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ValidException;
 import com.blog.core.utils.MyStringUtils;
+import com.blog.file.dao.ChipDAO;
 import com.blog.file.dao.DeviceDAO;
+import com.blog.file.dao.DeviceHeartbeatDAO;
+import com.blog.file.dao.UserDeviceDAO;
 import com.blog.file.service.DeviceService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;

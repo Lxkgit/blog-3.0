@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/article")
-public class ArticleController extends BaseController {
+public class ArticleController {
 
     @Resource
     private ArticleService articleService;

@@ -2,7 +2,7 @@ package com.blog.file.dao;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.blog.core.domain.file.entity.ContentCount;
+import com.blog.core.domain.file.system.entity.ContentCount;
 import io.lettuce.core.dynamic.annotation.Param;
 
 /**
@@ -13,6 +13,7 @@ import io.lettuce.core.dynamic.annotation.Param;
 
 public interface ContentCountDAO extends BaseMapper<ContentCount> {
 
-    Integer selectCountByUserId(@Param("userId")int userId);
+    Integer selectCountByUserId(@Param("userId") int userId);
+
     void updateContentCountByUserId(ContentCount contentCount);
 }

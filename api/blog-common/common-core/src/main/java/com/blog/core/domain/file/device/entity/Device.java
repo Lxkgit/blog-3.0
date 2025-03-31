@@ -1,0 +1,70 @@
+package com.blog.core.domain.file.device.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
+
+/**
+ * @description:
+ * @Author: lxk
+ * @date 2024/1/29 13:52
+ */
+
+@Data
+@TableName("blog_device")
+public class Device {
+
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
+    /**
+     * 用户名称
+     */
+    private Integer userId;
+
+    /**
+     * 设备名称
+     */
+    private String deviceName;
+
+    /**
+     * 设备编码
+     */
+    private String deviceCode;
+
+    /**
+     * 设备在离线状态 0：离线 1：在线
+     */
+    private Integer deviceStatus;
+
+    /**
+     * 设备在离线时间模板
+     */
+    private Integer timeTemplate;
+
+    /**
+     * json 数据
+     */
+    private String dataJson;
+
+    /**
+     * 备注信息
+     */
+    private String memo;
+
+    /**
+     * 创建时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    /**
+     * 最近修改时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
+}

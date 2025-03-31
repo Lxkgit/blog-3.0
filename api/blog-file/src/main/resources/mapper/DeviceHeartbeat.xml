@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.blog.file.dao.DeviceHeartbeatDAO">
-    <resultMap id="BaseResultMap" type="com.blog.common.entity.file.DeviceHeartbeat">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.device.entity.DeviceHeartbeat">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="user_id" property="userId" jdbcType="VARCHAR"/>
         <id column="device_code" property="deviceCode" jdbcType="VARCHAR"/>

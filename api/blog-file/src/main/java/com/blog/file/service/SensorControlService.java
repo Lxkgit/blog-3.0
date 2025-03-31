@@ -1,7 +1,7 @@
 package com.blog.file.service;
 
-import com.alibaba.fastjson.JSONObject;
-import com.blog.core.domain.file.vo.SensorControlVo;
+import com.alibaba.fastjson2.JSONObject;
+import com.blog.core.domain.file.device.vo.SensorControlVo;
 import com.blog.core.exception.ValidException;
 import com.blog.core.result.MyPage;
 

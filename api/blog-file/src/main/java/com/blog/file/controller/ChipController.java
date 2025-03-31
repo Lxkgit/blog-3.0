@@ -1,21 +1,19 @@
 package com.blog.file.controller;
 
-import com.blog.common.entity.file.vo.ChipVo;
-import com.blog.common.exception.ValidException;
-import com.blog.common.result.Result;
-import com.blog.common.result.ResultFactory;
-import com.blog.common.valication.group.AddGroup;
-import com.blog.common.valication.group.SelectIdGroup;
-import com.blog.common.valication.group.SelectListGroup;
-import com.blog.common.valication.group.UpdateGroup;
+import com.blog.core.domain.file.device.vo.ChipVo;
+import com.blog.core.exception.ValidException;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
+import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.SelectIdGroup;
+import com.blog.core.valication.group.SelectListGroup;
+import com.blog.core.valication.group.UpdateGroup;
 import com.blog.file.service.ChipService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @description: 单片机服务接口
@@ -26,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @RestController
 @RequestMapping("/chip")
-public class ChipController extends BaseController {
+public class ChipController {
 
     @Resource
     private ChipService chipService;
@@ -34,73 +32,68 @@ public class ChipController extends BaseController {
     /**
      * 新增单片机接口
      *
-     * @param request
      * @param chipVo
      * @return
      * @throws ValidException
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:chip:save')")
-    public Result addChip(HttpServletRequest request, @Validated(value = {AddGroup.class}) @RequestBody ChipVo chipVo) throws ValidException {
-        return ResultFactory.buildSuccessResult(chipService.addChip(getBlogUser(request).getId(), chipVo));
+    public Result addChip(@Validated(value = {AddGroup.class}) @RequestBody ChipVo chipVo) throws ValidException {
+        return ResultFactory.buildSuccessResult(chipService.addChip(1, chipVo));
     }
 
     /**
      * 删除单片机
      *
-     * @param request
      * @param chipVo
      * @return
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:chip:delete')")
-    public Result deleteChip(HttpServletRequest request, @Validated(value = {DeleteMapping.class}) ChipVo chipVo) {
-        return ResultFactory.buildSuccessResult(chipService.deleteChips(getBlogUser(request).getId(), chipVo.getIds()));
+    public Result deleteChip(@Validated(value = {DeleteMapping.class}) ChipVo chipVo) {
+        return ResultFactory.buildSuccessResult(chipService.deleteChips(1, chipVo.getIds()));
     }
 
     /**
      * 修改单片机信息
      *
-     * @param request
      * @param chipVo
      * @return
      * @throws ValidException
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:chip:update')")
-    public Result updateChip(HttpServletRequest request, @Validated(value = {UpdateGroup.class}) @RequestBody ChipVo chipVo) throws ValidException {
-        return ResultFactory.buildSuccessResult(chipService.updateChip(getBlogUser(request).getId(), chipVo));
+    public Result updateChip(@Validated(value = {UpdateGroup.class}) @RequestBody ChipVo chipVo) throws ValidException {
+        return ResultFactory.buildSuccessResult(chipService.updateChip(1, chipVo));
     }
 
     /**
      * 分页查询单片机列表
      *
-     * @param request
      * @param chipVo
      * @return
      */
     @GetMapping("/list")
     @PreAuthorize("hasAnyAuthority('sys:chip:select')")
-    public Result selectChipList(HttpServletRequest request, @Validated(value = {SelectListGroup.class}) ChipVo chipVo) {
-        return ResultFactory.buildSuccessResult(chipService.selectChipList(getBlogUser(request).getId(), chipVo));
+    public Result selectChipList(@Validated(value = {SelectListGroup.class}) ChipVo chipVo) {
+        return ResultFactory.buildSuccessResult(chipService.selectChipList(1, chipVo));
     }
 
     /**
      * 查询指定单片机信息
      *
-     * @param request
      * @param chipVo
      * @return
      */
     @GetMapping("/id")
     @PreAuthorize("hasAnyAuthority('sys:chip:select')")
-    public Result selectChipId(HttpServletRequest request, @Validated(value = {SelectIdGroup.class}) ChipVo chipVo) throws ValidException {
-        return ResultFactory.buildSuccessResult(chipService.selectChipId(getBlogUser(request).getId(), chipVo.getId()));
+    public Result selectChipId(@Validated(value = {SelectIdGroup.class}) ChipVo chipVo) throws ValidException {
+        return ResultFactory.buildSuccessResult(chipService.selectChipId(1, chipVo.getId()));
     }
 
     @GetMapping("/info")
     @PreAuthorize("hasAnyAuthority('sys:chip:select')")
-    public Result selectChipInfo(HttpServletRequest request, @Validated(value = {SelectIdGroup.class}) ChipVo chipVo) {
-        return ResultFactory.buildSuccessResult(chipService.selectChipInfo(getBlogUser(request).getId(), chipVo));
+    public Result selectChipInfo(@Validated(value = {SelectIdGroup.class}) ChipVo chipVo) {
+        return ResultFactory.buildSuccessResult(chipService.selectChipInfo(1, chipVo));
     }
 }

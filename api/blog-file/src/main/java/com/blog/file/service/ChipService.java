@@ -1,6 +1,6 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.vo.ChipVo;
+import com.blog.core.domain.file.device.vo.ChipVo;
 import com.blog.core.exception.ValidException;
 import com.blog.core.result.MyPage;
 

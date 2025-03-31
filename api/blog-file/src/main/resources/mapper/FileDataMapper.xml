@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.blog.file.dao.FileDataDAO">
-    <resultMap id="BaseResultMap" type="com.blog.common.entity.file.FileData">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.files.entity.FileData">
         <id column="id" property="id"/>
         <id column="user_id" property="userId"/>
         <id column="name" property="name"/>
@@ -31,7 +31,7 @@
         limit 1
     </select>
     
-    <update id="updateFileCodeByIdAndUserId" parameterType="com.blog.common.entity.file.FileData">
+    <update id="updateFileCodeByIdAndUserId" parameterType="com.blog.core.domain.file.files.entity.FileData">
         update file_data
         set file_code = #{fileCode}
         where id = #{id} and user_id = #{userId}

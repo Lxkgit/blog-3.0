@@ -1,6 +1,27 @@
 package com.blog.file.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.core.domain.file.device.dto.SensorTemplateDTO;
+import com.blog.core.domain.file.device.entity.Chip;
+import com.blog.core.domain.file.device.entity.Sensor;
+import com.blog.core.domain.file.device.entity.SensorTemplate;
+import com.blog.core.domain.file.device.vo.SensorTemplateVO;
+import com.blog.core.exception.ValidException;
+import com.blog.file.dao.ChipDAO;
+import com.blog.file.dao.SensorDAO;
+import com.blog.file.dao.SensorTemplateDAO;
+import com.blog.file.service.SensorTemplateService;
+import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * @Description 传感器模板服务实现类
  * @Author lxk

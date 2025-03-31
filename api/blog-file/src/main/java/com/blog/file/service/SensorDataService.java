@@ -1,7 +1,7 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.entity.SensorData;
-import com.blog.core.domain.file.vo.SensorDataVo;
+import com.blog.core.domain.file.device.entity.SensorData;
+import com.blog.core.domain.file.device.vo.SensorDataVo;
 import com.blog.core.result.MyPage;
 
 /**

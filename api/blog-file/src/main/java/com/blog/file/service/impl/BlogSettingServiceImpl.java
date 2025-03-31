@@ -3,8 +3,8 @@ package com.blog.file.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.blog.core.domain.file.entity.BlogSetting;
-import com.blog.core.domain.file.vo.BlogSettingVo;
+import com.blog.core.domain.file.system.entity.BlogSetting;
+import com.blog.core.domain.file.system.vo.BlogSettingVo;
 import com.blog.file.dao.BlogSettingDAO;
 import com.blog.file.service.BlogSettingService;
 import jakarta.annotation.Resource;

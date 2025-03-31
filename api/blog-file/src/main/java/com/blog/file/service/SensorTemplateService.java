@@ -1,7 +1,7 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.dto.SensorTemplateDTO;
-import com.blog.core.domain.file.vo.SensorTemplateVO;
+import com.blog.core.domain.file.device.dto.SensorTemplateDTO;
+import com.blog.core.domain.file.device.vo.SensorTemplateVO;
 import com.blog.core.exception.ValidException;
 
 import java.util.List;

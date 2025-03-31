@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.blog.file.dao.SensorControlDAO">
-    <resultMap id="BaseResultMap" type="com.blog.common.entity.file.SensorControl">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.device.entity.SensorControl">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="user_id" property="userId" jdbcType="INTEGER"/>
         <id column="chip_id" property="chipId" jdbcType="INTEGER"/>
@@ -19,7 +19,7 @@
         id, user_id, sensor_id, control_name, control_message, create_time, update_time
     </sql>
 
-    <update id="updateSensorControlById" parameterType="com.blog.common.entity.file.SensorControl">
+    <update id="updateSensorControlById" parameterType="com.blog.core.domain.file.device.entity.SensorControl">
         update blog_sensor_control
         set control_name = #{controlName}, control_message = #{controlMessage}, update_time = #{updateTime}
         where id = #{id} and user_id = #{userId}

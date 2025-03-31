@@ -7,8 +7,8 @@ import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.MyStringUtils;
-import com.blog.file.dao.UploadFileDAO;
-import com.blog.file.dao.UploadLogDAO;
+import com.blog.file.mapper.UploadFileMapper;
+import com.blog.file.mapper.UploadLogMapper;
 import com.blog.file.service.UploadFileService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +32,10 @@ import java.util.List;
 public class UploadFileServiceImpl implements UploadFileService {
 
     @Resource
-    private UploadLogDAO uploadLogDAO;
+    private UploadLogMapper uploadLogDAO;
 
     @Resource
-    private UploadFileDAO uploadImgDAO;
+    private UploadFileMapper uploadImgDAO;
 
     @Value("${file.basePath}")
     private String basePath;

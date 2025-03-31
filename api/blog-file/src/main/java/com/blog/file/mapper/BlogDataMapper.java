@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 @Mapper
-public interface BlogDataDAO extends BaseMapper<BlogData> {
+public interface BlogDataMapper extends BaseMapper<BlogData> {
 
     void updateBlogDataById(BlogData blogData);
 }

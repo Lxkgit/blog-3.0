@@ -7,7 +7,7 @@ import com.blog.core.domain.file.files.vo.ImportDiaryVo;
 import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.FileUtil;
 import com.blog.core.utils.ZipFileUtil;
-import com.blog.file.dao.UploadLogDAO;
+import com.blog.file.mapper.UploadLogMapper;
 import com.blog.file.service.ImportService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class ImportServiceImpl implements ImportService {
     private String baseUri;
 
     @Resource
-    private UploadLogDAO uploadLogDAO;
+    private UploadLogMapper uploadLogDAO;
 
 //    @Resource
 //    private ContentClient contentClient;

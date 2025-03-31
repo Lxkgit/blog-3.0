@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.core.domain.file.device.entity.DeviceHeartbeat;
@@ -11,6 +11,6 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 @Mapper
-public interface DeviceHeartbeatDAO extends BaseMapper<DeviceHeartbeat> {
+public interface DeviceHeartbeatMapper extends BaseMapper<DeviceHeartbeat> {
 
 }

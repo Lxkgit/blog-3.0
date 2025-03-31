@@ -12,10 +12,10 @@ import com.blog.core.domain.file.device.vo.DeviceHeartbeatVo;
 import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ValidException;
 import com.blog.core.utils.MyStringUtils;
-import com.blog.file.dao.ChipDAO;
-import com.blog.file.dao.DeviceDAO;
-import com.blog.file.dao.DeviceHeartbeatDAO;
-import com.blog.file.dao.UserDeviceDAO;
+import com.blog.file.mapper.ChipMapper;
+import com.blog.file.mapper.DeviceMapper;
+import com.blog.file.mapper.DeviceHeartbeatMapper;
+import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.service.DeviceService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -36,16 +36,16 @@ import java.util.Set;
 public class DeviceServiceImpl implements DeviceService {
 
     @Resource
-    private DeviceDAO deviceDAO;
+    private DeviceMapper deviceDAO;
 
     @Resource
-    private ChipDAO chipDAO;
+    private ChipMapper chipDAO;
 
     @Resource
-    private UserDeviceDAO userDeviceDAO;
+    private UserDeviceMapper userDeviceDAO;
 
     @Resource
-    private DeviceHeartbeatDAO deviceHeartbeatDAO;
+    private DeviceHeartbeatMapper deviceHeartbeatDAO;
 
     /**
      * 新增设备

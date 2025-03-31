@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.core.domain.file.device.entity.SensorControl;
@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 @Mapper
-public interface SensorControlDAO extends BaseMapper<SensorControl> {
+public interface SensorControlMapper extends BaseMapper<SensorControl> {
 
     void updateSensorControlById(SensorControl sensorControl);
 }

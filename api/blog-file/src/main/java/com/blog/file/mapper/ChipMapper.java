@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -15,7 +15,7 @@ import java.util.Set;
  */
 
 @Mapper
-public interface ChipDAO extends BaseMapper<Chip> {
+public interface ChipMapper extends BaseMapper<Chip> {
 
     void updateChipStatus(@Param("ids") Set<String> ids, @Param("userId") Integer userId, @Param("chipStatus") Integer chipStatus);
 }

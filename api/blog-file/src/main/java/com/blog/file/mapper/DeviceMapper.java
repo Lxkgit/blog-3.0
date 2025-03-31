@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -15,7 +15,7 @@ import java.util.Set;
  */
 
 @Mapper
-public interface DeviceDAO extends BaseMapper<Device> {
+public interface DeviceMapper extends BaseMapper<Device> {
 
     void updateDeviceStatusById(@Param("id") String id, @Param("userId") Integer userId, @Param("deviceStatus") Integer deviceStatus);
     void updateDeviceStatusByIds(@Param("ids") Set<String> ids, @Param("userId") Integer userId, @Param("deviceStatus") Integer deviceStatus);

@@ -13,9 +13,9 @@ import com.blog.core.exception.ValidException;
 import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.MyStringUtils;
-import com.blog.file.dao.ChipDAO;
-import com.blog.file.dao.DeviceDAO;
-import com.blog.file.dao.SensorDAO;
+import com.blog.file.mapper.ChipMapper;
+import com.blog.file.mapper.DeviceMapper;
+import com.blog.file.mapper.SensorMapper;
 import com.blog.file.service.ChipService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -40,13 +40,13 @@ import java.util.Set;
 public class ChipServiceImpl implements ChipService {
 
     @Resource
-    private ChipDAO chipDAO;
+    private ChipMapper chipDAO;
 
     @Resource
-    private SensorDAO sensorDAO;
+    private SensorMapper sensorDAO;
 
     @Resource
-    private DeviceDAO deviceDAO;
+    private DeviceMapper deviceDAO;
 
     /**
      * 新增单片机

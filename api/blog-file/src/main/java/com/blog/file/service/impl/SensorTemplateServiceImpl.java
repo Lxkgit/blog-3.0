@@ -8,9 +8,9 @@ import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.entity.SensorTemplate;
 import com.blog.core.domain.file.device.vo.SensorTemplateVO;
 import com.blog.core.exception.ValidException;
-import com.blog.file.dao.ChipDAO;
-import com.blog.file.dao.SensorDAO;
-import com.blog.file.dao.SensorTemplateDAO;
+import com.blog.file.mapper.ChipMapper;
+import com.blog.file.mapper.SensorMapper;
+import com.blog.file.mapper.SensorTemplateMapper;
 import com.blog.file.service.SensorTemplateService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -32,13 +32,13 @@ import java.util.stream.Stream;
 public class SensorTemplateServiceImpl implements SensorTemplateService {
 
     @Resource
-    private SensorTemplateDAO sensorTemplateDAO;
+    private SensorTemplateMapper sensorTemplateDAO;
 
     @Resource
-    private ChipDAO chipDAO;
+    private ChipMapper chipDAO;
 
     @Resource
-    private SensorDAO sensorDAO;
+    private SensorMapper sensorDAO;
 
     @Override
     public List<SensorTemplateVO> selectSensorTemplateByChipOrSensorId(Integer userId, SensorTemplateDTO sensorTemplateDTO) throws ValidException {

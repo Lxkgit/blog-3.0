@@ -78,7 +78,7 @@ file:
   system: linux
   basePath: /opt/files
   baseUri: /files
-  serviceIp: http://${serviceIp}
+  serviceIp: http://localhost
 
 netty:
   port: 9092

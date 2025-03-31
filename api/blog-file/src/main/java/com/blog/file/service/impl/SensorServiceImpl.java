@@ -12,9 +12,9 @@ import com.blog.core.exception.ValidException;
 import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.MyStringUtils;
-import com.blog.file.dao.ChipDAO;
-import com.blog.file.dao.SensorDAO;
-import com.blog.file.dao.SensorTypeDAO;
+import com.blog.file.mapper.ChipMapper;
+import com.blog.file.mapper.SensorMapper;
+import com.blog.file.mapper.SensorTypeMapper;
 import com.blog.file.service.SensorService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -38,13 +38,13 @@ import java.util.stream.Collectors;
 public class SensorServiceImpl implements SensorService {
 
     @Resource
-    private ChipDAO chipDAO;
+    private ChipMapper chipDAO;
 
     @Resource
-    private SensorDAO sensorDAO;
+    private SensorMapper sensorDAO;
 
     @Resource
-    private SensorTypeDAO sensorTypeDAO;
+    private SensorTypeMapper sensorTypeDAO;
 
     /**
      * 创建传感器

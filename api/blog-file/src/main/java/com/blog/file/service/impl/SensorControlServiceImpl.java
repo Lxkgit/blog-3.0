@@ -16,7 +16,7 @@ import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.BeanValidationUtil;
 import com.blog.core.valication.group.AddGroup;
-import com.blog.file.dao.*;
+import com.blog.file.mapper.*;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.sensor.control.SensorCommandCheckDto;
 import com.blog.file.netty.domain.dto.sensor.control.SensorCommandDto;
@@ -49,16 +49,16 @@ import java.util.stream.Collectors;
 public class SensorControlServiceImpl implements SensorControlService {
 
     @Resource
-    private DeviceDAO deviceDAO;
+    private DeviceMapper deviceDAO;
 
     @Resource
-    private ChipDAO chipDAO;
+    private ChipMapper chipDAO;
 
     @Resource
-    private SensorDAO sensorDAO;
+    private SensorMapper sensorDAO;
 
     @Resource
-    private SensorControlDAO sensorControlDAO;
+    private SensorControlMapper sensorControlDAO;
 
     @Resource
     private NettyServer nettyServer;
@@ -67,10 +67,10 @@ public class SensorControlServiceImpl implements SensorControlService {
 //    private UserService userService;
 
     @Resource
-    private UserDeviceDAO userDeviceDAO;
+    private UserDeviceMapper userDeviceDAO;
 
     @Resource
-    private SensorTemplateDAO sensorTemplateDAO;
+    private SensorTemplateMapper sensorTemplateDAO;
 
     /**
      * 下发传感器控制指令

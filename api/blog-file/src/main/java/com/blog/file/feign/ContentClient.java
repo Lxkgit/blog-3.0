@@ -1,0 +1,23 @@
+package com.blog.file.feign;
+
+import com.blog.core.domain.content.diary.entity.Diary;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @Author: lxk
+ * @date 2022/7/9 16:56
+ * @description:
+ */
+
+@FeignClient("blog-content")
+public interface ContentClient {
+
+    @PostMapping("/content/diary/save/list")
+    Map<String, List<String>> saveDiaryList(@RequestBody Map<String, Diary> map);
+
+}

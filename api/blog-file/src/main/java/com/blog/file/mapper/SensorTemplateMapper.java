@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.core.domain.file.device.entity.SensorTemplate;
@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 @Mapper
-public interface SensorTemplateDAO  extends BaseMapper<SensorTemplate> {
+public interface SensorTemplateMapper extends BaseMapper<SensorTemplate> {
 }

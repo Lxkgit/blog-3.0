@@ -3,7 +3,7 @@ package com.blog.file.netty.service;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.domain.file.device.entity.*;
-import com.blog.file.dao.*;
+import com.blog.file.mapper.*;
 import com.blog.file.netty.domain.dto.register.NettyChipRegisterDto;
 import com.blog.file.netty.domain.dto.register.NettySensorRegisterDto;
 import com.blog.file.netty.domain.dto.sensor.receive.SensorDataDto;
@@ -25,22 +25,22 @@ public class NettyDeviceService {
     private NettyServer nettyServer;
 
     @Resource
-    private DeviceDAO deviceDAO;
+    private DeviceMapper deviceDAO;
 
     @Resource
-    private ChipDAO chipDAO;
+    private ChipMapper chipDAO;
 
     @Resource
-    private SensorDAO sensorDAO;
+    private SensorMapper sensorDAO;
 
     @Resource
-    private SensorDataDAO sensorDataDAO;
+    private SensorDataMapper sensorDataDAO;
 
     @Resource
-    private DeviceChipDAO deviceChipDAO;
+    private DeviceChipMapper deviceChipDAO;
 
     @Resource
-    private ChipSensorDAO chipSensorDAO;
+    private ChipSensorMapper chipSensorDAO;
 
     /**
      * 传感器设备主动注册

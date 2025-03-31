@@ -7,8 +7,8 @@ import com.blog.core.domain.file.device.entity.SensorData;
 import com.blog.core.domain.file.device.vo.SensorDataVo;
 import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
-import com.blog.file.dao.SensorDAO;
-import com.blog.file.dao.SensorDataDAO;
+import com.blog.file.mapper.SensorMapper;
+import com.blog.file.mapper.SensorDataMapper;
 import com.blog.file.service.SensorDataService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -30,10 +30,10 @@ import java.util.List;
 public class SensorDataServiceImpl implements SensorDataService {
 
     @Resource
-    private SensorDataDAO sensorDataDAO;
+    private SensorDataMapper sensorDataDAO;
 
     @Resource
-    private SensorDAO sensorDAO;
+    private SensorMapper sensorDAO;
 
     /**
      * 保存传感器上报数据

@@ -13,8 +13,8 @@ import com.blog.file.netty.domain.dto.file.NettySyncBlogFileDto;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.core.enums.file.FileTypeEnum;
 import com.blog.core.exception.ValidException;
-import com.blog.file.dao.FileDataDAO;
-import com.blog.file.dao.FileSyncDAO;
+import com.blog.file.mapper.FileDataMapper;
+import com.blog.file.mapper.FileSyncMapper;
 import com.blog.file.netty.service.NettyServer;
 import com.blog.file.service.FileService;
 import jakarta.annotation.Resource;
@@ -45,10 +45,10 @@ public class FileServiceImpl implements FileService {
     private String baseUri;
 
     @Resource
-    private FileDataDAO fileDataDAO;
+    private FileDataMapper fileDataDAO;
 
     @Resource
-    private FileSyncDAO fileSyncDAO;
+    private FileSyncMapper fileSyncDAO;
 
     @Resource
     private NettyServer nettyServer;

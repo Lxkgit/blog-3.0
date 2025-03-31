@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.core.domain.file.device.entity.Sensor;
@@ -14,7 +14,7 @@ import java.util.Set;
  */
 
 @Mapper
-public interface SensorDAO extends BaseMapper<Sensor> {
+public interface SensorMapper extends BaseMapper<Sensor> {
 
     void updateSensorStatusByIds(@Param("ids") Set<String> idSet, @Param("userId") Integer userId, @Param("sensorStatus") Integer sensorStatus);
 }

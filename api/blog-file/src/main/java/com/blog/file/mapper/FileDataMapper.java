@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.core.domain.file.files.entity.FileData;
@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 @Mapper
-public interface FileDataDAO extends BaseMapper<FileData> {
+public interface FileDataMapper extends BaseMapper<FileData> {
 
     /**
      * 查询系统中全部文章（删除状态的除外）

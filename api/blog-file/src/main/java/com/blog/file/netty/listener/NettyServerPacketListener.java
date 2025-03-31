@@ -11,9 +11,9 @@ import com.blog.file.netty.domain.dto.heart.NettyHeartBeatDto;
 import com.blog.file.netty.domain.dto.register.NettyRegisterDto;
 import com.blog.file.netty.domain.enums.NettyPacketType;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
-import com.blog.file.dao.DeviceDAO;
-import com.blog.file.dao.DeviceHeartbeatDAO;
-import com.blog.file.dao.UserDeviceDAO;
+import com.blog.file.mapper.DeviceMapper;
+import com.blog.file.mapper.DeviceHeartbeatMapper;
+import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.netty.event.NettyPacketEvent;
 import com.blog.file.netty.service.*;
 import io.netty.channel.ChannelId;
@@ -40,7 +40,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     private final NettyServer nettyServer;
 
     @Resource
-    private DeviceDAO deviceDAO;
+    private DeviceMapper deviceDAO;
 
     @Resource
     private NettyDeviceService nettyDeviceData;
@@ -49,10 +49,10 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     private NettyFileSync nettyFileSync;
 
     @Resource
-    private UserDeviceDAO userDeviceDAO;
+    private UserDeviceMapper userDeviceDAO;
 
     @Resource
-    private DeviceHeartbeatDAO deviceHeartbeatDAO;
+    private DeviceHeartbeatMapper deviceHeartbeatDAO;
 
     @Resource
     private NettyUserService nettyUserService;

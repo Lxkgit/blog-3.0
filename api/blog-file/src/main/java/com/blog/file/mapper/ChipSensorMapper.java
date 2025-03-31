@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -12,6 +12,6 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 @Mapper
-public interface ChipSensorDAO extends BaseMapper<ChipSensor> {
+public interface ChipSensorMapper extends BaseMapper<ChipSensor> {
 
 }

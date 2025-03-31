@@ -1,4 +1,4 @@
-package com.blog.file.dao;
+package com.blog.file.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -11,7 +11,7 @@ import io.lettuce.core.dynamic.annotation.Param;
  * @date 2023/6/28 17:23
  */
 
-public interface ContentCountDAO extends BaseMapper<ContentCount> {
+public interface ContentCountMapper extends BaseMapper<ContentCount> {
 
     Integer selectCountByUserId(@Param("userId") int userId);
 

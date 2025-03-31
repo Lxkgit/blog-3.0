@@ -5,7 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import com.blog.file.netty.domain.dto.NettyClientChannel;
 import com.blog.file.netty.domain.dto.NettyPacket;
-import com.blog.file.dao.DeviceDAO;
+import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.netty.event.NettyPacketEvent;
 import com.blog.file.netty.schedule.DeviceStatusSchedule;
 import io.netty.channel.ChannelHandler;
@@ -44,7 +44,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Resource
-    private DeviceDAO deviceDAO;
+    private DeviceMapper deviceDAO;
 
     /**
      * 当客户端主动连接服务端，通道活跃后触发

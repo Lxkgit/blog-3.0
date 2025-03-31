@@ -83,6 +83,18 @@
             <artifactId>elasticsearch</artifactId>
         </dependency>
 
+        <!-- ftp工具 -->
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+        </dependency>
+
+        <!-- socket 工具 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
         <!-- 实体类数据包 -->
         <dependency>
             <groupId>com.blog</groupId>

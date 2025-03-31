@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.blog.file.dao.SensorDataDAO">
+<mapper namespace="com.blog.file.mapper.SensorDataMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.device.entity.SensorData">
         <id column="id" property="id" jdbcType="INTEGER"/>
 <!--        <id column="sensor_id" property="sensorId" jdbcType="INTEGER"/>-->

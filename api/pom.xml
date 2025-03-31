@@ -44,6 +44,8 @@
         <jasypt.version>3.0.5</jasypt.version>
         <hutool.version>5.8.36</hutool.version>
         <commons-compress.version>1.27.1</commons-compress.version>
+        <commons-net.version>3.11.1</commons-net.version>
+        <validation.version>3.1.1</validation.version>
         <!-- 解决依赖冲突 - mq与gateway -->
         <grpc-netty.version>1.53.0</grpc-netty.version>
     </properties>
@@ -190,10 +192,18 @@
                 <version>${commons-compress.version}</version>
             </dependency>
 
+            <!-- ftp工具 -->
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>${commons-net.version}</version>
+            </dependency>
+
+            <!-- 参数校验 -->
             <dependency>
                 <groupId>jakarta.validation</groupId>
                 <artifactId>jakarta.validation-api</artifactId>
-                <version>3.1.1</version>
+                <version>${validation.version}</version>
             </dependency>
 
             <!-- 解决mq与gateway冲突问题 -->

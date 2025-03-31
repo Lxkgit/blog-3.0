@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.file.netty.domain.dto.NettyClientChannel;
-import com.blog.file.dao.DeviceDAO;
+import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.netty.service.NettyServerHandler;
 import io.netty.channel.ChannelId;
 import jakarta.annotation.Resource;
@@ -27,7 +27,7 @@ import java.util.Map;
 public class DeviceStatusSchedule {
 
     @Resource
-    private DeviceDAO deviceDAO;
+    private DeviceMapper deviceDAO;
 
     /**
      * 正常netty客户端在离线都会有逻辑处理，如果服务器异常断电可能netty离线无法收到，需要定时检测
@@ -85,7 +85,7 @@ public class DeviceStatusSchedule {
      * @param registerId
      * @param deviceDAO
      */
-    public static void removeChannelByRegisterId(String registerId, DeviceDAO deviceDAO) {
+    public static void removeChannelByRegisterId(String registerId, DeviceMapper deviceDAO) {
         for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
             NettyClientChannel channel = entry.getValue();
             if (channel.getRegisterId().equals(registerId)) {
@@ -95,7 +95,7 @@ public class DeviceStatusSchedule {
         }
     }
 
-    public static void removeNettyChannel(Map.Entry<String, NettyClientChannel> entry, NettyClientChannel channel, DeviceDAO deviceDAO) {
+    public static void removeNettyChannel(Map.Entry<String, NettyClientChannel> entry, NettyClientChannel channel, DeviceMapper deviceDAO) {
         QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<>();
         deviceQueryWrapper.eq("user_id", channel.getUserId());
         deviceQueryWrapper.eq("device_code", channel.getRegisterId());

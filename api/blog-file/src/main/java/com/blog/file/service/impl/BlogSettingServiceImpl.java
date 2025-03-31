@@ -5,7 +5,7 @@ import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.domain.file.system.entity.BlogSetting;
 import com.blog.core.domain.file.system.vo.BlogSettingVo;
-import com.blog.file.dao.BlogSettingDAO;
+import com.blog.file.mapper.BlogSettingMapper;
 import com.blog.file.service.BlogSettingService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class BlogSettingServiceImpl implements BlogSettingService {
 
     @Resource
-    private BlogSettingDAO blogSettingDAO;
+    private BlogSettingMapper blogSettingDAO;
 
     @Override
     public BlogSettingVo selectBlogSettingById(Integer id) {

@@ -1,4 +1,4 @@
-package com.blog.content.config;
+package com.blog.content.config.oauth;
 
 import com.blog.core.constant.PermitUrl;
 import org.springframework.beans.factory.annotation.Value;

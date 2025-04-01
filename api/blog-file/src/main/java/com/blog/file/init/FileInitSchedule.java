@@ -25,24 +25,24 @@ import org.springframework.scheduling.annotation.Scheduled;
 @EnableScheduling  //启用定时器
 public class FileInitSchedule {
 
-//    @Resource
-//    private FileDataMapper fileDataDAO;
-//
-//    @Resource
-//    private MQProducerService mqProducerService;
-//
-//
-//    @PostConstruct
-//    @Scheduled(cron = "0 0 0 * * ?")
-//    public void initFile() {
-//        log.info("开始初始化博客文件数据 ... ");
-//        BlogData blogData = new BlogData();
-//        blogData.setImgCount(fileDataDAO.selectImgCount());
-//        RocketMQMessage rocketMQMessage = new RocketMQMessage();
-//        rocketMQMessage.setTopic(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTopic());
-//        rocketMQMessage.setTag(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTag());
-//        rocketMQMessage.setMessage(JSON.toJSONString(blogData));
-//        rocketMQMessage.setMqMsgType(RocketMQMsgEnum.ALL.getType());
-//        mqProducerService.sendSyncOrderly(rocketMQMessage);
-//    }
+    @Resource
+    private FileDataMapper fileDataDAO;
+
+    @Resource
+    private MQProducerService mqProducerService;
+
+
+    @PostConstruct
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void initFile() {
+        log.info("开始初始化博客文件数据 ... ");
+        BlogData blogData = new BlogData();
+        blogData.setImgCount(fileDataDAO.selectImgCount());
+        RocketMQMessage rocketMQMessage = new RocketMQMessage();
+        rocketMQMessage.setTopic(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTopic());
+        rocketMQMessage.setTag(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTag());
+        rocketMQMessage.setMessage(JSON.toJSONString(blogData));
+        rocketMQMessage.setMqMsgType(RocketMQMsgEnum.ALL.getType());
+        mqProducerService.sendSyncOrderly(rocketMQMessage);
+    }
 }

@@ -9,10 +9,17 @@ public class SecurityUtil {
     @Getter
     private static LoginUserBo loginUser;
 
+    @Getter
+    private static String rzId;
+
     public static void setLoginUser(JSONObject jwt) {
         LoginUserBo loginUserBo = new LoginUserBo();
         loginUserBo.setId(jwt.getInteger("id"));
         loginUserBo.setUsername(jwt.getString("username"));
         SecurityUtil.loginUser = loginUserBo;
+    }
+
+    public static void setRzId(String rzId) {
+        SecurityUtil.rzId = rzId;
     }
 }

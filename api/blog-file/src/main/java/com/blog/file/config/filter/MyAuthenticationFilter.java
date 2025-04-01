@@ -10,6 +10,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.context.SecurityContext;
@@ -17,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
 /**
@@ -39,12 +41,19 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
      * @throws IOException
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@Nonnull HttpServletRequest request,@Nonnull HttpServletResponse response,@Nonnull FilterChain filterChain)
+            throws ServletException, IOException {
+
         try {
             String token = request.getHeader("Authorization");
             if(StringUtils.isNotEmpty(token)) {
                 JSONObject jwt = JwtUtil.decodeJwt(token.substring(7));
                 SecurityUtil.setLoginUser(jwt);
+            }
+            //从请求头获取认证id
+            String rzId = request.getHeader("rzId");
+            if (StringUtils.isNotEmpty(rzId)) {
+                SecurityUtil.setRzId(rzId);
             }
         } catch (Exception e) {
             log.error(e.getMessage());

@@ -1,0 +1,19 @@
+package com.blog.content.feign;
+
+import feign.Headers;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+/**
+ * @Author: lxk
+ * @date 2022年7月27日 15点48分
+ * @description:
+ */
+
+@FeignClient("blog-user")
+public interface UserClient {
+
+    @GetMapping(value = "/user/user/select/id")
+    void selectUserById(@RequestParam(value = "userId") Integer userId);
+}

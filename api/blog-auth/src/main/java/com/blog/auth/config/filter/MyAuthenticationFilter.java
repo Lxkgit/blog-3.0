@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
 /**
@@ -39,21 +40,35 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
      * @throws IOException
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //从请求头获取认证id
-        String rzId = request.getHeader("rzId");
-        if (StringUtils.isEmpty(rzId)) {
-            //如果header头是空的 那么在从参数获取认证id
-            rzId = request.getParameter("rzId");
-        }
+    protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain)
+            throws ServletException, IOException {
+
+
         try {
+
+            //从请求头获取认证id
+            String rzId = request.getHeader("rzId");
+            if (StringUtils.isNotEmpty(rzId)) {
+                SecurityUtil.setRzId(rzId);
+                //去redis中获取上下文
+                String key = RedisConstant.RZ_ID + ":" + rzId;
+                // 根据缓存 获取认证信息
+                Object o = redisService.getString(key);
+                if (o == null) {
+                    //如果缓存没有 那么放行
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+                SecurityContext securityContext = (SecurityContext) o;
+                //把上下文信息放入持有人手中 这样别的请求在进来 就有认证的权限了 就不需要再登陆了
+                SecurityContextHolder.setContext(securityContext);
+            }
+
             String token = request.getHeader("Authorization");
             if(StringUtils.isNotEmpty(token)) {
-
                 JSONObject jwt = JwtUtil.decodeJwt(token.substring(7));
                 SecurityUtil.setLoginUser(jwt);
-
-
+            }
 
 //                byte[] decoded =
 //                // 使用KeyFactory生成RSAPrivateKey
@@ -71,26 +86,11 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
 //                // 4. 将解密后的字节数组转为明文
 //                String decryptedToken = new String(decryptedBytes, StandardCharsets.UTF_8);
 //                System.out.println("解密后的 Token: " + decryptedToken);
-            }
+
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
 
-
-        if (StringUtils.isNotEmpty(rzId)) {
-            //去redis中获取上下文
-            String key = RedisConstant.RZ_ID + ":" + rzId;
-            // 根据缓存 获取认证信息
-            Object o = redisService.getString(key);
-            if (o == null) {
-                //如果缓存没有 那么放行
-                filterChain.doFilter(request, response);
-                return;
-            }
-            SecurityContext securityContext = (SecurityContext) o;
-            //把上下文信息放入持有人手中 这样别的请求在进来 就有认证的权限了 就不需要再登陆了
-            SecurityContextHolder.setContext(securityContext);
-        }
         //放行
         filterChain.doFilter(request, response);
     }

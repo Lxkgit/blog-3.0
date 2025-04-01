@@ -69,7 +69,7 @@ public class LoginController {
      * @throws Exception
      */
     @PostMapping("/getAuthentication")
-    public Authentication getAuthentication(HttpServletRequest request) {
+    public Authentication getAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.info("接口调用 ... ");
         return authentication;
@@ -82,7 +82,7 @@ public class LoginController {
      * @return
      */
     @PostMapping("/doLogin")
-    public Result doLogin(@RequestBody LoginVo loginVo, HttpServletRequest request) {
+    public Result doLogin(@RequestBody LoginVo loginVo) {
         return loginService.login(loginVo, request);
     }
 

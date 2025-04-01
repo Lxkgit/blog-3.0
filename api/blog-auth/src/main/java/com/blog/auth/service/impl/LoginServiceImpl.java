@@ -35,11 +35,10 @@ public class LoginServiceImpl implements LoginService {
      * 登陆
      *
      * @param vo
-     * @param request
      * @return
      */
     @Override
-    public Result login(LoginVo vo, HttpServletRequest request) {
+    public Result login(LoginVo vo) {
         //根据账号和密码 创建 认证令牌对象
         UsernamePasswordAuthenticationToken upt = new UsernamePasswordAuthenticationToken(vo.getUsername(), vo.getPassword());
         //进行登录 获取认证信息

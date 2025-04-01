@@ -83,7 +83,7 @@ public class LoginController {
      */
     @PostMapping("/doLogin")
     public Result doLogin(@RequestBody LoginVo loginVo) {
-        return loginService.login(loginVo, request);
+        return loginService.login(loginVo);
     }
 
     /**

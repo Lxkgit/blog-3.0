@@ -15,16 +15,6 @@ import java.util.stream.Collectors;
 public class MyStringUtils {
 
     /**
-     * 校验字符串是否为空
-     *
-     * @param str
-     * @return
-     */
-    public static boolean isEmpty(String str) {
-        return str == null || str.length() == 0;
-    }
-
-    /**
      * 获取指定长度的随机字符串
      *
      * @param length

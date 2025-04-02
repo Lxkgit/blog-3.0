@@ -3,6 +3,7 @@ package com.blog.content.service.impl;
 
 import com.blog.content.mapper.mybatis.ArticleLabelMapper;
 import com.blog.content.mapper.mybatis.ArticleLabelTypeMapper;
+import com.blog.content.mq.send.SendSystemData;
 import com.blog.content.service.ArticleLabelService;
 import com.blog.core.constant.ErrorMessage;
 import com.blog.core.domain.content.article.entity.ArticleLabel;
@@ -33,8 +34,8 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
     @Resource
     private ArticleLabelTypeMapper articleLabelTypeDAO;
 
-//    @Resource
-//    private SendSystemData sendSystemData;
+    @Resource
+    private SendSystemData sendSystemData;
 
     /**
      * 新增文章标签
@@ -55,7 +56,7 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
         articleLabelDAO.insert(articleLabelVo);
         articleLabelTypeDAO.updateArticleLabelTypeLabelNumAdd(articleLabelVo.getLabelType());
         // 发送博客系统新增文章标签mq消息
-//        sendSystemData.sendSystemData(SendSystemData.articleLabel, 1);
+        sendSystemData.sendSystemData(SendSystemData.articleLabel, 1);
         return articleLabelVo.getId();
     }
 
@@ -90,7 +91,7 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
         }
 
         // 发送博客系统删除文章标签mq消息
-//        sendSystemData.sendSystemData(SendSystemData.articleLabel, -idSet.size());
+        sendSystemData.sendSystemData(SendSystemData.articleLabel, -idSet.size());
         return idSet.size();
     }
 

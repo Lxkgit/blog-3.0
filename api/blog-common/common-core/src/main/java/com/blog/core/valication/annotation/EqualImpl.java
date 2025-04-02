@@ -4,6 +4,7 @@ package com.blog.core.valication.annotation;
 import com.blog.core.utils.MyStringUtils;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @description: @Equal 注解验证器
@@ -26,7 +27,7 @@ public class EqualImpl implements ConstraintValidator<Equal, Object> {
     @Override
     public boolean isValid(Object beanValue, ConstraintValidatorContext constraintValidatorContext) {
         boolean isValid = false;
-        if (MyStringUtils.isEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             return isValid;
         }
         if (null == beanValue) {

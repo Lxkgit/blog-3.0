@@ -6,6 +6,7 @@ import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Payload;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.annotation.*;
 import java.util.Set;
@@ -92,7 +93,7 @@ public @interface StringValidate {
         public boolean isValid(Object o, ConstraintValidatorContext constraintValidatorContext) {
 
             // 校验的字符不能为空
-            if (MyStringUtils.isEmpty(acceptChar)) {
+            if (StringUtils.isEmpty(acceptChar)) {
                 return false;
             }
 

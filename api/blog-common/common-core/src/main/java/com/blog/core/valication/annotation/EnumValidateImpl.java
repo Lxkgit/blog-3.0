@@ -4,6 +4,7 @@ package com.blog.core.valication.annotation;
 import com.blog.core.utils.MyStringUtils;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
 
@@ -32,10 +33,10 @@ public class EnumValidateImpl implements ConstraintValidator<EnumValidate, Objec
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         boolean isValid = false;
-        if (null == enumClass || MyStringUtils.isEmpty(methodName)) {
+        if (null == enumClass || StringUtils.isEmpty(methodName)) {
             return isValid;
         }
-        if (null == value || MyStringUtils.isEmpty(String.valueOf(value))) {
+        if (null == value || StringUtils.isEmpty(String.valueOf(value))) {
             return acceptEmpty;
         }
         if (!enumClass.isEnum()) {

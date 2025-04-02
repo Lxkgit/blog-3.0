@@ -2,7 +2,6 @@ package com.blog.log.aspect;
 
 import com.alibaba.fastjson2.JSON;
 import com.blog.log.entity.SysLog;
-import com.blog.core.utils.StringUtils;
 import com.blog.log.annotation.Log;
 import com.blog.log.enums.BusinessStatus;
 import com.blog.log.filter.PropertyPreExcludeFilter;

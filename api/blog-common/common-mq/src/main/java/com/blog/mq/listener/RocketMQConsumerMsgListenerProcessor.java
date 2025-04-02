@@ -40,7 +40,7 @@ public class RocketMQConsumerMsgListenerProcessor implements MessageListenerConc
         RocketMQMessage rocketMQMessage = JSON.parseObject(msgBody, RocketMQMessage.class);
         String topic = rocketMQMessage.getTopic();
         String tag = rocketMQMessage.getTag();
-        log.info("RocketMQ receive message: " + rocketMQMessage.toString());
+        log.info("RocketMQ receive message: {}", rocketMQMessage);
 
         rockerMQMessageHandler.handleMessage(topic, tag, rocketMQMessage);
 

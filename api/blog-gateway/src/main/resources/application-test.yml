@@ -59,12 +59,12 @@ spring:
 rocketmq:
   name-server: ${devServiceIp}:9876 # 访问地址
   producer:
-    group: blog # 必须指定group
+    group: gateway # 必须指定group
     send-message-timeout: 3000 # 消息发送超时时长，默认3s
     retry-times-when-send-failed: 3 # 同步发送消息失败重试次数，默认2
     retry-times-when-send-async-failed: 3 # 异步发送消息失败重试次数，默认2
   consumer:
-    groupName: blog
+    groupName: gateway
     namesrvAddr: ${devServiceIp}:9876 # mq的nameserver地址
     #该消费者订阅的主题和tags("*"号表示订阅该主题下所有的tags),格式：topic~tag1||tag2||tag3;topic2~*;
     topics: BLOG_USER_DATA~*;BLOG_SYSTEM_DATA~*;

@@ -23,7 +23,8 @@ public class RocketMQMessageHandlerService implements RocketMQMessageHandler {
 
     @Override
     public boolean handleMessage(String topic, String tag, RocketMQMessage rocketMQMessage) {
-        log.info(rocketMQMessage.toString());
+
+
         return false;
     }
 }

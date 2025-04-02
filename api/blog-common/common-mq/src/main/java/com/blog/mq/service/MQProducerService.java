@@ -89,8 +89,8 @@ public class MQProducerService {
      * 发送有序消息
      * @param rocketMQMessage
      */
-    public void sendSyncOrderly(RocketMQMessage rocketMQMessage) {
-        rocketMQTemplate.syncSendOrderly(rocketMQMessage.getTopic() + ":" + rocketMQMessage.getTag(),
+    public SendResult sendSyncOrderly(RocketMQMessage rocketMQMessage) {
+        return rocketMQTemplate.syncSendOrderly(rocketMQMessage.getTopic() + ":" + rocketMQMessage.getTag(),
                 MessageBuilder.withPayload(rocketMQMessage).build(), rocketMQMessage.getTopic() + ":" + rocketMQMessage.getTag());
     }
 

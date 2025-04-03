@@ -5,7 +5,7 @@ import com.blog.core.domain.file.files.vo.ImportDiaryVo;
 import com.blog.core.domain.file.files.vo.UploadVo;
 import com.blog.core.enums.file.FilePathEnum;
 import com.blog.core.enums.file.FileTypeEnum;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.file.service.ImportService;
@@ -44,11 +44,11 @@ public class UploadFileController {
      *
      * @param uploadVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping
     @PreAuthorize("hasAnyAuthority('sys:file:user:upload')")
-    public Result uploadFile(@Validated UploadVo uploadVo) throws ValidException {
+    public Result uploadFile(@Validated UploadVo uploadVo) throws ServiceException {
         MultipartFile[] files = uploadVo.getFiles();
         String filePath = FilePathEnum.getFilePathByCode(uploadVo.getFilePathCode());
 //        BlogUser blogUser = getBlogUser(request);
@@ -59,7 +59,7 @@ public class UploadFileController {
                 String fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1);
                 assert typeList != null;
                 if (!typeList.contains(fileSuffix)) {
-                    throw new ValidException(ErrorMessage.FILE_TYPE_ERROR_SUFFIX);
+                    throw new ServiceException(ErrorMessage.FILE_TYPE_ERROR_SUFFIX);
                 }
             }
         }
@@ -77,7 +77,7 @@ public class UploadFileController {
             return fileUploadService.upload(files, 1, path);
         } catch (Exception e) {
             log.error(ErrorMessage.UNKNOWN_ERROR.getDesc(), e);
-            throw new ValidException(ErrorMessage.UNKNOWN_ERROR);
+            throw new ServiceException(ErrorMessage.UNKNOWN_ERROR);
         }
     }
 

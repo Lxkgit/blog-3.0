@@ -1,6 +1,7 @@
 package com.blog.core.domain.content.article.vo;
 
 
+import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.article.entity.ArticleType;
 import com.blog.core.valication.group.AddGroup;
 import com.blog.core.valication.group.DeleteGroup;
@@ -43,7 +44,7 @@ public class ArticleTypeVo extends ArticleType {
 
     private String label;
 
-//    private BlogUser blogUser;
+    private UserVo userVo;
 
     private List<ArticleTypeVo> children;
 }

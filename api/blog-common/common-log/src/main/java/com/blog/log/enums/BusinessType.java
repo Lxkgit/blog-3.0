@@ -48,11 +48,6 @@ public enum BusinessType
     FORCE,
 
     /**
-     * 生成代码
-     */
-    GENCODE,
-
-    /**
      * 清空数据
      */
     CLEAN,

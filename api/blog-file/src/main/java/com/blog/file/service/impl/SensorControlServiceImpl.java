@@ -11,7 +11,7 @@ import com.blog.core.domain.file.device.entity.SensorControl;
 import com.blog.core.domain.file.device.entity.SensorTemplate;
 import com.blog.core.domain.file.device.vo.SensorControlVo;
 import com.blog.core.domain.file.device.vo.SensorVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.BeanValidationUtil;
@@ -77,19 +77,19 @@ public class SensorControlServiceImpl implements SensorControlService {
      *
      * @param userId
      * @param id     控制命令消息id
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Boolean controlSensor(Integer userId, Integer id) throws ValidException {
+    public Boolean controlSensor(Integer userId, Integer id) throws ServiceException {
 
         SensorControl sensorControl = sensorControlDAO.selectById(id);
 
         if (sensorControl == null) {
-            throw new ValidException(ErrorMessage.SENSOR_CONTROL_NOT_EXISTS);
+            throw new ServiceException(ErrorMessage.SENSOR_CONTROL_NOT_EXISTS);
         }
 
         if (!userId.equals(sensorControl.getUserId())) {
-            throw new ValidException("只能控制自己的传感器");
+            throw new ServiceException("只能控制自己的传感器");
         }
 
         Sensor sensor = sensorDAO.selectById(sensorControl.getSensorId());
@@ -113,10 +113,10 @@ public class SensorControlServiceImpl implements SensorControlService {
      * @param userId
      * @param sensorControlVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Integer createSensorControl(Integer userId, SensorControlVo sensorControlVo) throws ValidException, IllegalAccessException, InstantiationException, NoSuchFieldException {
+    public Integer createSensorControl(Integer userId, SensorControlVo sensorControlVo) throws ServiceException, IllegalAccessException, InstantiationException, NoSuchFieldException {
 
         JSONArray jsonArray = JSONArray.parseArray(sensorControlVo.getControlMessage());
         List<SensorCommandCheckDto> sensorCommandCheckDtoList = new ArrayList<>();
@@ -158,7 +158,7 @@ public class SensorControlServiceImpl implements SensorControlService {
                     // 设置属性值
                     field.set(commandCheckDto, dataJsonObject.getString("value"));
                 } else {
-                    throw new ValidException("传感器属性值类型错误");
+                    throw new ServiceException("传感器属性值类型错误");
                 }
             }
             // 校验命令
@@ -220,7 +220,7 @@ public class SensorControlServiceImpl implements SensorControlService {
      * @return
      */
     @Override
-    public MyPage<SensorControlVo> selectSensorControlList(Integer userId, SensorControlVo sensorControlVoParam) throws ValidException {
+    public MyPage<SensorControlVo> selectSensorControlList(Integer userId, SensorControlVo sensorControlVoParam) throws ServiceException {
 
         // 传感器与单片机id
         Integer sensorId = sensorControlVoParam.getSensorId();
@@ -249,7 +249,7 @@ public class SensorControlServiceImpl implements SensorControlService {
                     .eq(Sensor::getDeviceCode, chip.getDeviceCode()).eq(Sensor::getChipCode, chip.getChipCode());
 
         } else {
-            throw new ValidException("传感器id与单片机id不可同时为空");
+            throw new ServiceException("传感器id与单片机id不可同时为空");
         }
 
         // 获取到传感器控制命令
@@ -366,14 +366,14 @@ public class SensorControlServiceImpl implements SensorControlService {
      * 校验命令数据
      *
      * @param sensorCommandCheckVo
-     * @throws ValidException
+     * @throws ServiceException
      */
-    private static void validateIvsRuleInfo(SensorCommandCheckDto sensorCommandCheckVo) throws ValidException {
+    private static void validateIvsRuleInfo(SensorCommandCheckDto sensorCommandCheckVo) throws ServiceException {
 
         Map<String, String> errorMap = BeanValidationUtil.validationBean(sensorCommandCheckVo, AddGroup.class);
 
         if (!CollectionUtils.isEmpty(errorMap)) {
-            throw new ValidException(ErrorMessage.PARAMETER_VERIFICATION_ERROR, errorMap);
+            throw new ServiceException(ErrorMessage.PARAMETER_VERIFICATION_ERROR, errorMap);
         }
     }
 }

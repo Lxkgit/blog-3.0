@@ -2,8 +2,16 @@ package com.blog.core.exception;
 
 
 import com.blog.core.constant.ErrorMessage;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.io.Serial;
+
+@Setter
+@Getter
 public abstract class BaseException extends Exception {
+
+    @Serial
     private static final long serialVersionUID = 1L;
     private String errMsg;
     private String code;
@@ -27,43 +35,4 @@ public abstract class BaseException extends Exception {
         this.errMsg = errMsg;
     }
 
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public void setErrMsg(String errMsg) {
-        this.errMsg = errMsg;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public ErrorMessage getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(ErrorMessage errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public Object getArgs() {
-        return args;
-    }
-
-    public void setArgs(Object args) {
-        this.args = args;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
-    public void setData(Object data) {
-        this.data = data;
-    }
 }

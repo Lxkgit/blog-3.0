@@ -18,11 +18,11 @@ import org.springframework.stereotype.Service;
 public class BlogDataServiceImpl implements BlogDataService {
 
     @Resource
-    private BlogDataMapper blogDataDAO;
+    private BlogDataMapper blogDataMapper;
 
     @Override
     public BlogDataVo selectBlogData() {
-        BlogData blogData = blogDataDAO.selectById(1);
+        BlogData blogData = blogDataMapper.selectById(1);
         BlogDataVo blogDataVo = new BlogDataVo();
         BeanUtils.copyProperties(blogData, blogDataVo);
         return blogDataVo;

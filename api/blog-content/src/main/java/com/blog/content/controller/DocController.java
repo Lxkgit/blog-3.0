@@ -70,8 +70,7 @@ public class DocController {
 
     @GetMapping("/content/user")
     public Result selectDocUserList() {
-//        docService.selectDocUserList()
-        return ResultFactory.buildSuccessResult();
+        return ResultFactory.buildSuccessResult(docService.selectDocUserList());
     }
 
 }

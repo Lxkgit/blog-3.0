@@ -1,7 +1,7 @@
 package com.blog.file.controller;
 
 import com.blog.core.domain.file.device.vo.DeviceVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.AddGroup;
@@ -35,11 +35,11 @@ public class DeviceController {
      *
      * @param deviceVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:device:save')")
-    public Result addDevice(@Validated(value = {AddGroup.class}) @RequestBody DeviceVo deviceVo) throws ValidException {
+    public Result addDevice(@Validated(value = {AddGroup.class}) @RequestBody DeviceVo deviceVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(deviceService.addDevice(1, deviceVo));
     }
 
@@ -48,11 +48,11 @@ public class DeviceController {
      *
      * @param deviceVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:device:delete')")
-    public Result deleteDevice(@Validated(value = {DeleteGroup.class}) DeviceVo deviceVo) throws ValidException {
+    public Result deleteDevice(@Validated(value = {DeleteGroup.class}) DeviceVo deviceVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(deviceService.deleteDevice(1, deviceVo.getIds()));
     }
 
@@ -61,11 +61,11 @@ public class DeviceController {
      *
      * @param deviceVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:device:update')")
-    public Result updateDevice(@Validated(value = {UpdateGroup.class}) @RequestBody DeviceVo deviceVo) throws ValidException {
+    public Result updateDevice(@Validated(value = {UpdateGroup.class}) @RequestBody DeviceVo deviceVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(deviceService.updateDevice(1, deviceVo));
     }
 
@@ -76,7 +76,7 @@ public class DeviceController {
      */
     @GetMapping("/list")
     @PreAuthorize("hasAnyAuthority('sys:device:select')")
-    public Result selectDeviceList() throws ValidException {
+    public Result selectDeviceList() throws ServiceException {
         return ResultFactory.buildSuccessResult(deviceService.selectDeviceList(1));
     }
 
@@ -88,7 +88,7 @@ public class DeviceController {
      */
     @GetMapping("/id")
     @PreAuthorize("hasAnyAuthority('sys:device:select')")
-    public Result selectDeviceById(@Validated(value = {SelectIdGroup.class}) DeviceVo deviceVo) throws ValidException {
+    public Result selectDeviceById(@Validated(value = {SelectIdGroup.class}) DeviceVo deviceVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(deviceService.selectDeviceById(1, deviceVo.getId()));
     }
 

@@ -16,7 +16,7 @@ public class AsyncLogService {
      * 保存系统日志记录
      */
     @Async
-    public void saveSysLog(SysLog sysOperLog) throws Exception {
+    public void saveSysLog(SysLog sysLog) throws Exception {
 
     }
 }

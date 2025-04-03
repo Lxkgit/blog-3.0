@@ -7,7 +7,7 @@ import com.blog.core.domain.file.device.entity.Chip;
 import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.entity.SensorTemplate;
 import com.blog.core.domain.file.device.vo.SensorTemplateVO;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.file.mapper.ChipMapper;
 import com.blog.file.mapper.SensorMapper;
 import com.blog.file.mapper.SensorTemplateMapper;
@@ -41,7 +41,7 @@ public class SensorTemplateServiceImpl implements SensorTemplateService {
     private SensorMapper sensorDAO;
 
     @Override
-    public List<SensorTemplateVO> selectSensorTemplateByChipOrSensorId(Integer userId, SensorTemplateDTO sensorTemplateDTO) throws ValidException {
+    public List<SensorTemplateVO> selectSensorTemplateByChipOrSensorId(Integer userId, SensorTemplateDTO sensorTemplateDTO) throws ServiceException {
         LambdaQueryWrapper<SensorTemplate> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         Set<String> sensorTypeSet;
         if (sensorTemplateDTO.getChipId() != null) {
@@ -51,7 +51,7 @@ public class SensorTemplateServiceImpl implements SensorTemplateService {
         } else if (sensorTemplateDTO.getSensorId() != null) {
             sensorTypeSet = Stream.of(sensorDAO.selectById(sensorTemplateDTO.getSensorId())).map(Sensor::getSensorType).collect(Collectors.toSet());
         } else {
-            throw new ValidException("单片机id与传感器id不能同时为空");
+            throw new ServiceException("单片机id与传感器id不能同时为空");
         }
 
         List<SensorTemplate> sensorTemplateList = sensorTemplateDAO.selectList(lambdaQueryWrapper.eq(SensorTemplate::getUserId, userId).in(SensorTemplate::getSensorType, sensorTypeSet));

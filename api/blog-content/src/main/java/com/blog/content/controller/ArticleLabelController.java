@@ -2,7 +2,7 @@ package com.blog.content.controller;
 
 import com.blog.content.service.ArticleLabelService;
 import com.blog.core.domain.content.article.vo.ArticleLabelVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.AddGroup;
@@ -11,7 +11,6 @@ import com.blog.core.valication.group.SelectListGroup;
 import com.blog.core.valication.group.UpdateGroup;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +40,7 @@ public class ArticleLabelController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAuthority('sys:article:label:insert')")
-    public Result saveArticleLabel(@RequestBody @Validated(value = {AddGroup.class}) ArticleLabelVo articleLabelVo) throws ValidException {
+    public Result saveArticleLabel(@RequestBody @Validated(value = {AddGroup.class}) ArticleLabelVo articleLabelVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(articleLabelService.saveArticleLabel(articleLabelVo));
     }
 
@@ -53,7 +52,7 @@ public class ArticleLabelController {
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:article:label:delete')")
-    public Result deleteArticleLabelByIds(@Validated(value = {DeleteGroup.class}) ArticleLabelVo articleLabelVo) throws ValidException {
+    public Result deleteArticleLabelByIds(@Validated(value = {DeleteGroup.class}) ArticleLabelVo articleLabelVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(articleLabelService.deleteArticleLabelByIds(articleLabelVo.getIds(), 1));
     }
 
@@ -65,7 +64,7 @@ public class ArticleLabelController {
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:article:label:update')")
-    public Result updateArticleLabel(@RequestBody @Validated(value = {UpdateGroup.class}) ArticleLabelVo articleLabelVo) throws ValidException {
+    public Result updateArticleLabel(@RequestBody @Validated(value = {UpdateGroup.class}) ArticleLabelVo articleLabelVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(articleLabelService.updateArticleLabel(articleLabelVo));
     }
 

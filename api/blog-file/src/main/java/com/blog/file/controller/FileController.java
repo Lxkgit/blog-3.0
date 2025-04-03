@@ -1,7 +1,7 @@
 package com.blog.file.controller;
 
 import com.blog.core.domain.file.files.vo.FileDataVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.file.service.FileService;
@@ -30,11 +30,11 @@ public class FileController {
      *
      * @param fileDataVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:file:user:save')")
-    public Result saveFileDir(@Validated @RequestBody FileDataVo fileDataVo) throws ValidException {
+    public Result saveFileDir(@Validated @RequestBody FileDataVo fileDataVo) throws ServiceException {
         fileService.saveFileDir(fileDataVo);
         return ResultFactory.buildSuccessResult();
     }
@@ -44,11 +44,11 @@ public class FileController {
      *
      * @param fileDataVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:file:user:delete')")
-    public Result deleteFileOrDir(@Validated FileDataVo fileDataVo) throws ValidException {
+    public Result deleteFileOrDir(@Validated FileDataVo fileDataVo) throws ServiceException {
         fileService.deleteFileOrDir(fileDataVo);
         return ResultFactory.buildSuccessResult();
     }
@@ -58,11 +58,11 @@ public class FileController {
      *
      * @param fileDataVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:file:user:update')")
-    public Result updateFileOrDirName(@Validated @RequestBody FileDataVo fileDataVo) throws ValidException {
+    public Result updateFileOrDirName(@Validated @RequestBody FileDataVo fileDataVo) throws ServiceException {
         fileService.updateFileOrDirName(fileDataVo);
         return ResultFactory.buildSuccessResult();
     }

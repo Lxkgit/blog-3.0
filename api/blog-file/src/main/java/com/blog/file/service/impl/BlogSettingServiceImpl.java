@@ -25,11 +25,11 @@ import java.util.Map;
 public class BlogSettingServiceImpl implements BlogSettingService {
 
     @Resource
-    private BlogSettingMapper blogSettingDAO;
+    private BlogSettingMapper blogSettingMapper;
 
     @Override
     public BlogSettingVo selectBlogSettingById(Integer id) {
-        BlogSetting blogSetting = blogSettingDAO.selectById(id);
+        BlogSetting blogSetting = blogSettingMapper.selectById(id);
         if (blogSetting != null) {
             List<BlogSettingVo> blogSettingVoList = new ArrayList<>();
             List<BlogSetting> blogSettingList = new ArrayList<>();
@@ -48,7 +48,7 @@ public class BlogSettingServiceImpl implements BlogSettingService {
         if (settingType.startsWith("1")) {
             queryWrapper.eq("user_id", 1);
         }
-        List<BlogSetting> blogSettingList = blogSettingDAO.selectList(queryWrapper);
+        List<BlogSetting> blogSettingList = blogSettingMapper.selectList(queryWrapper);
         setBlogSettingVoList(blogSettingVoList, blogSettingList);
         return blogSettingVoList;
     }
@@ -57,7 +57,7 @@ public class BlogSettingServiceImpl implements BlogSettingService {
     public void updateBlogSetting(BlogSettingVo blogSettingVo) {
         blogSettingVo.setUserId(1);
         blogSettingVo.setSetting(JSON.toJSONString(blogSettingVo));
-        blogSettingDAO.updateById(blogSettingVo);
+        blogSettingMapper.updateById(blogSettingVo);
     }
 
     private void setBlogSettingVoList(List<BlogSettingVo> blogSettingVoList, List<BlogSetting> blogSettingList) {

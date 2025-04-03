@@ -1,7 +1,7 @@
 package com.blog.file.controller;
 
 import com.blog.core.domain.file.device.vo.ChipVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.AddGroup;
@@ -34,12 +34,12 @@ public class ChipController {
      *
      * @param chipVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:chip:save')")
-    public Result addChip(@Validated(value = {AddGroup.class}) @RequestBody ChipVo chipVo) throws ValidException {
-        return ResultFactory.buildSuccessResult(chipService.addChip(1, chipVo));
+    public Result addChip(@Validated(value = {AddGroup.class}) @RequestBody ChipVo chipVo) throws ServiceException {
+        return ResultFactory.buildSuccessResult(chipService.addChip(chipVo));
     }
 
     /**
@@ -51,7 +51,7 @@ public class ChipController {
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:chip:delete')")
     public Result deleteChip(@Validated(value = {DeleteMapping.class}) ChipVo chipVo) {
-        return ResultFactory.buildSuccessResult(chipService.deleteChips(1, chipVo.getIds()));
+        return ResultFactory.buildSuccessResult(chipService.deleteChips(chipVo.getIds()));
     }
 
     /**
@@ -59,11 +59,11 @@ public class ChipController {
      *
      * @param chipVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:chip:update')")
-    public Result updateChip(@Validated(value = {UpdateGroup.class}) @RequestBody ChipVo chipVo) throws ValidException {
+    public Result updateChip(@Validated(value = {UpdateGroup.class}) @RequestBody ChipVo chipVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(chipService.updateChip(1, chipVo));
     }
 
@@ -87,7 +87,7 @@ public class ChipController {
      */
     @GetMapping("/id")
     @PreAuthorize("hasAnyAuthority('sys:chip:select')")
-    public Result selectChipId(@Validated(value = {SelectIdGroup.class}) ChipVo chipVo) throws ValidException {
+    public Result selectChipId(@Validated(value = {SelectIdGroup.class}) ChipVo chipVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(chipService.selectChipId(1, chipVo.getId()));
     }
 

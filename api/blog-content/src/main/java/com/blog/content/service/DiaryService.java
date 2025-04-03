@@ -4,7 +4,7 @@ package com.blog.content.service;
 
 import com.blog.core.domain.content.diary.entity.Diary;
 import com.blog.core.domain.content.diary.vo.DiaryVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 
 import java.util.List;
 import java.util.Map;
@@ -23,10 +23,9 @@ public interface DiaryService {
      * 删除日记接口
      *
      * @param ids
-     * @param userId
      * @return
      */
-    Integer deleteDiary(String ids, Integer userId) throws ValidException;
+    Integer deleteDiary(String ids) throws ServiceException;
 
     /**
      * 修改日记接口
@@ -40,10 +39,9 @@ public interface DiaryService {
      * 查询日记接口
      *
      * @param diaryVo
-     * @param userId
      * @return
      */
-    Map<String, Object> selectDiaryByDate(DiaryVo diaryVo, Integer userId);
+    Map<String, Object> selectDiaryByDate(DiaryVo diaryVo);
 
     Map<String, List<String>> saveDiaryList(Map<String, Diary> map);
 

@@ -3,7 +3,7 @@ package com.blog.content.service;
 
 
 import com.blog.core.domain.content.article.vo.ArticleLabelTypeVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 public interface ArticleLabelTypeService {
 
     Integer saveArticleLabelType(ArticleLabelTypeVo articleLabelTypeVo);
-    Integer deleteArticleLabelTypeByIds(String ids) throws ValidException;
-    Integer updateArticleLabelType(ArticleLabelTypeVo articleLabelTypeVo) throws ValidException;
+    Integer deleteArticleLabelTypeByIds(String ids) throws ServiceException;
+    Integer updateArticleLabelType(ArticleLabelTypeVo articleLabelTypeVo) throws ServiceException;
     List<ArticleLabelTypeVo> getArticleLabelTypeList();
 }

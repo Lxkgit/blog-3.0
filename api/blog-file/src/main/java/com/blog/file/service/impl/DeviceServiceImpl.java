@@ -10,7 +10,7 @@ import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.DeviceHeartbeat;
 import com.blog.core.domain.file.device.vo.DeviceHeartbeatVo;
 import com.blog.core.domain.file.device.vo.DeviceVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.ChipMapper;
 import com.blog.file.mapper.DeviceMapper;
@@ -53,16 +53,16 @@ public class DeviceServiceImpl implements DeviceService {
      * @param userId
      * @param deviceVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Integer addDevice(Integer userId, DeviceVo deviceVo) throws ValidException {
+    public Integer addDevice(Integer userId, DeviceVo deviceVo) throws ServiceException {
         QueryWrapper<Device> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         wrapper.eq("device_code", deviceVo.getDeviceCode());
         Device device = deviceDAO.selectOne(wrapper);
         if (device != null) {
-            throw new ValidException(ErrorMessage.DEVICE_CODE_EXISTS);
+            throw new ServiceException(ErrorMessage.DEVICE_CODE_EXISTS);
         }
 //        BlogUser blogUser = JSONObject.parseObject(JSONObject.toJSONString(userClient.getUserById(userId).getResult()), BlogUser.class);
 //        deviceVo.setUserId(blogUser.getId());
@@ -79,10 +79,10 @@ public class DeviceServiceImpl implements DeviceService {
      * @param userId
      * @param ids
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Integer deleteDevice(Integer userId, String ids) throws ValidException {
+    public Integer deleteDevice(Integer userId, String ids) throws ServiceException {
         Set<String> idSet = MyStringUtils.splitString(ids, ",");
         for (String id : idSet) {
             Device device = deviceDAO.selectById(Integer.parseInt(id));
@@ -90,7 +90,7 @@ public class DeviceServiceImpl implements DeviceService {
 //                DeviceStatusSchedule.removeChannelByRegisterId(device.getDeviceCode(), deviceDAO);
                 deviceDAO.updateDeviceStatusById(id, userId, Constant.DEVICE_DELETE);
             } else {
-                throw new ValidException(ErrorMessage.DEVICE_NOT_EXISTS, "id: " + id);
+                throw new ServiceException(ErrorMessage.DEVICE_NOT_EXISTS, "id: " + id);
             }
         }
         return idSet.size();
@@ -102,17 +102,17 @@ public class DeviceServiceImpl implements DeviceService {
      * @param userId
      * @param deviceVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Integer updateDevice(Integer userId, DeviceVo deviceVo) throws ValidException {
+    public Integer updateDevice(Integer userId, DeviceVo deviceVo) throws ServiceException {
         QueryWrapper<Device> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         wrapper.eq("device_code", deviceVo.getDeviceCode());
         wrapper.ne("id", deviceVo.getId());
         Device device = deviceDAO.selectOne(wrapper);
         if (device != null) {
-            throw new ValidException(ErrorMessage.DEVICE_CODE_EXISTS);
+            throw new ServiceException(ErrorMessage.DEVICE_CODE_EXISTS);
         }
         Device oldDevice = deviceDAO.selectById(deviceVo.getId());
         // 设备编码变化需要重新连接netty通道
@@ -130,7 +130,7 @@ public class DeviceServiceImpl implements DeviceService {
      * @return
      */
     @Override
-    public List<Device> selectDeviceList(Integer userId) throws ValidException {
+    public List<Device> selectDeviceList(Integer userId) throws ServiceException {
 //        BlogUser blogUser = userService.getBlogUserById(userId);
         LambdaQueryWrapper<Device> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Device::getUserId, 1);
@@ -139,7 +139,7 @@ public class DeviceServiceImpl implements DeviceService {
 
 
     @Override
-    public DeviceVo selectDeviceById(Integer userId, Integer id) throws ValidException {
+    public DeviceVo selectDeviceById(Integer userId, Integer id) throws ServiceException {
 
 //        BlogUser blogUser = userService.getBlogUserById(userId);
 

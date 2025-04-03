@@ -1,6 +1,7 @@
 package com.blog.content.service;
 
 
+import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.doc.entity.DocCatalog;
 import com.blog.core.domain.content.doc.entity.DocContent;
 import com.blog.core.domain.content.doc.vo.DocCatalogVo;
@@ -16,6 +17,6 @@ public interface DocService {
     List<DocCatalogVo> selectDocCatalogTree(DocCatalogVo docCatalogVo);
     DocContent selectDocContentById(Integer catalogId);
     DocCatalog selectDocCatalogById(Integer catalogId);
-//    List<BlogUser> selectDocUserList();
+    List<UserVo> selectDocUserList();
 
 }

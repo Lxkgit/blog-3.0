@@ -36,12 +36,6 @@ public class SyncBlogFileSchedule {
     public void initFile() {
         log.info("文件同步");
 
-        // 容器内无法在宿主机内执行脚本
-//        if (!ShellUtil.shell(ShellCommand.exportBlogZip)) {
-//            // 脚本执行失败停止执行
-//            return;
-//        }
-
         NettySyncBlogFileDto nettySyncBlogFile = new NettySyncBlogFileDto();
         nettySyncBlogFile.setSyncType(2);
         nettySyncBlogFile.setFileCode("blog.zip");

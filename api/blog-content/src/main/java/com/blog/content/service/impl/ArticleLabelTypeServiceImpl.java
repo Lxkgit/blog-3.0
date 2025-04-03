@@ -1,14 +1,19 @@
 package com.blog.content.service.impl;
 
+import com.blog.content.feign.UserClient;
 import com.blog.content.mapper.mybatis.ArticleLabelMapper;
 import com.blog.content.mapper.mybatis.ArticleLabelTypeMapper;
 import com.blog.content.service.ArticleLabelTypeService;
 import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.auth.vo.UserVo;
+import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.domain.content.article.entity.ArticleLabelType;
 import com.blog.core.domain.content.article.vo.ArticleLabelTypeVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.domain.content.article.vo.ArticleLabelVo;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
 import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,13 +28,13 @@ import java.util.*;
 public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
 
     @Resource
-    private ArticleLabelMapper articleLabelDAO;
+    private ArticleLabelMapper articleLabelMapper;
 
     @Resource
-    private ArticleLabelTypeMapper articleLabelTypeDAO;
+    private ArticleLabelTypeMapper articleLabelTypeMapper;
 
-//    @Resource
-//    private UserClient userClient;
+    @Resource
+    private UserClient userClient;
 
     /**
      * 新增标签分类
@@ -43,7 +48,7 @@ public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
         articleLabelTypeVo.setLabelNum(0);
         articleLabelTypeVo.setCreateTime(new Date());
         articleLabelTypeVo.setUpdateTime(new Date());
-        articleLabelTypeDAO.insert(articleLabelTypeVo);
+        articleLabelTypeMapper.insert(articleLabelTypeVo);
         return articleLabelTypeVo.getId();
     }
 
@@ -52,18 +57,18 @@ public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
      *
      * @param articleLabelTypeIds
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Integer deleteArticleLabelTypeByIds(String articleLabelTypeIds) throws ValidException {
+    public Integer deleteArticleLabelTypeByIds(String articleLabelTypeIds) throws ServiceException {
         Set<String> ids = MyStringUtils.splitString(articleLabelTypeIds, ",");
         for (String id : ids) {
-            ArticleLabelType articleLabelType = articleLabelTypeDAO.selectById(Integer.parseInt(id));
+            ArticleLabelType articleLabelType = articleLabelTypeMapper.selectById(Integer.parseInt(id));
             if (!articleLabelType.getLabelNum().equals(0)) {
-                throw new ValidException(ErrorMessage.ARTICLE_LABEL_TYPE_NUMBER_ERROR);
+                throw new ServiceException(ErrorMessage.ARTICLE_LABEL_TYPE_NUMBER_ERROR);
             }
         }
-        articleLabelTypeDAO.deleteArticleLabelTypeByIds(ids);
+        articleLabelTypeMapper.deleteArticleLabelTypeByIds(ids);
         return ids.size();
     }
 
@@ -74,13 +79,13 @@ public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
      * @return
      */
     @Override
-    public Integer updateArticleLabelType(ArticleLabelTypeVo articleLabelTypeVo) throws ValidException {
-        ArticleLabelType articleLabelType = articleLabelTypeDAO.selectById(articleLabelTypeVo.getId());
+    public Integer updateArticleLabelType(ArticleLabelTypeVo articleLabelTypeVo) throws ServiceException {
+        ArticleLabelType articleLabelType = articleLabelTypeMapper.selectById(articleLabelTypeVo.getId());
         if (articleLabelType == null) {
-            throw new ValidException(ErrorMessage.ARTICLE_LABEL_TYPE_NOT_EXISTS);
+            throw new ServiceException(ErrorMessage.ARTICLE_LABEL_TYPE_NOT_EXISTS);
         }
         articleLabelTypeVo.setUpdateTime(new Date());
-        articleLabelTypeDAO.updateArticleLabelType(articleLabelTypeVo);
+        articleLabelTypeMapper.updateArticleLabelType(articleLabelTypeVo);
         return articleLabelTypeVo.getId();
     }
 
@@ -92,37 +97,37 @@ public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
      */
     @Override
     public List<ArticleLabelTypeVo> getArticleLabelTypeList() {
-//        Map<Integer, BlogUser> blogUserMap = new HashMap<>();
+        Map<Integer, UserVo> blogUserMap = new HashMap<>();
         List<ArticleLabelTypeVo> articleLabelTypeVoList = new ArrayList<>();
-        List<ArticleLabelType> articleLabelTypeList = articleLabelTypeDAO.selectArticleLabelTypeList();
-//        for (ArticleLabelType articleLabelType : articleLabelTypeList) {
-//            ArticleLabelTypeVo articleLabelTypeVo = new ArticleLabelTypeVo();
-//            BlogUser labelTypeUser = blogUserMap.get(articleLabelType.getUserId());
-//            if (labelTypeUser == null) {
-//                blogUserMap.put(articleLabelType.getUserId(), userClient.selectUserById(articleLabelType.getUserId()));
-//            }
-//
-//            List<ArticleLabel> articleLabelList = articleLabelDAO.selectArticleLabelList(articleLabelType.getId());
-//            List<ArticleLabelVo> articleLabelListVo = new ArrayList<>();
-//            for (ArticleLabel articleLabel : articleLabelList) {
-//                ArticleLabelVo articleLabelVo = new ArticleLabelVo();
-//                BeanUtils.copyProperties(articleLabel, articleLabelVo);
-//                articleLabelListVo.add(articleLabelVo);
-//            }
-//            articleLabelListVo.forEach(item -> {
-//                BlogUser labelUser = blogUserMap.get(item.getUserId());
-//                if (labelUser == null) {
-//                    blogUserMap.put(item.getUserId(), userClient.selectUserById(item.getUserId()));
-//                }
-//                item.setBlogUser(blogUserMap.get(item.getUserId()));
-//            });
-//            articleLabelTypeVo.setLabelList(articleLabelListVo);
-//            articleLabelTypeVo.setValue(articleLabelType.getId());
-//            articleLabelTypeVo.setLabel(articleLabelType.getTypeName());
-//            articleLabelTypeVo.setBlogUser(blogUserMap.get(articleLabelType.getUserId()));
-//            BeanUtils.copyProperties(articleLabelType, articleLabelTypeVo);
-//            articleLabelTypeVoList.add(articleLabelTypeVo);
-//        }
+        List<ArticleLabelType> articleLabelTypeList = articleLabelTypeMapper.selectArticleLabelTypeList();
+        for (ArticleLabelType articleLabelType : articleLabelTypeList) {
+            ArticleLabelTypeVo articleLabelTypeVo = new ArticleLabelTypeVo();
+            UserVo labelTypeUser = blogUserMap.get(articleLabelType.getUserId());
+            if (labelTypeUser == null) {
+                blogUserMap.put(articleLabelType.getUserId(), userClient.selectUserById(articleLabelType.getUserId()));
+            }
+
+            List<ArticleLabel> articleLabelList = articleLabelMapper.selectArticleLabelList(articleLabelType.getId());
+            List<ArticleLabelVo> articleLabelListVo = new ArrayList<>();
+            for (ArticleLabel articleLabel : articleLabelList) {
+                ArticleLabelVo articleLabelVo = new ArticleLabelVo();
+                BeanUtils.copyProperties(articleLabel, articleLabelVo);
+                articleLabelListVo.add(articleLabelVo);
+            }
+            articleLabelListVo.forEach(item -> {
+                UserVo labelUser = blogUserMap.get(item.getUserId());
+                if (labelUser == null) {
+                    blogUserMap.put(item.getUserId(), userClient.selectUserById(item.getUserId()));
+                }
+                item.setUserVo(blogUserMap.get(item.getUserId()));
+            });
+            articleLabelTypeVo.setLabelList(articleLabelListVo);
+            articleLabelTypeVo.setValue(articleLabelType.getId());
+            articleLabelTypeVo.setLabel(articleLabelType.getTypeName());
+            articleLabelTypeVo.setUserVo(blogUserMap.get(articleLabelType.getUserId()));
+            BeanUtils.copyProperties(articleLabelType, articleLabelTypeVo);
+            articleLabelTypeVoList.add(articleLabelTypeVo);
+        }
         return articleLabelTypeVoList;
     }
 

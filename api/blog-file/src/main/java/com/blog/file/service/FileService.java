@@ -1,7 +1,7 @@
 package com.blog.file.service;
 
 import com.blog.core.domain.file.files.vo.FileDataVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 
 import java.util.List;
 
@@ -15,11 +15,11 @@ public interface FileService {
 
     List<FileDataVo> selectFileDir(FileDataVo fileDataVo);
 
-    void saveFileDir(FileDataVo fileDataVo) throws ValidException;
+    void saveFileDir(FileDataVo fileDataVo) throws ServiceException;
 
-    void deleteFileOrDir(FileDataVo fileDataVo) throws ValidException;
+    void deleteFileOrDir(FileDataVo fileDataVo) throws ServiceException;
 
-    void updateFileOrDirName(FileDataVo fileDataVo) throws ValidException;
+    void updateFileOrDirName(FileDataVo fileDataVo) throws ServiceException;
 
     Long selectUserSpace();
 

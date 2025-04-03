@@ -1,6 +1,7 @@
 package com.blog.core.domain.content.article.vo;
 
 
+import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.article.entity.ArticleLabelType;
 import com.blog.core.valication.group.AddGroup;
 import com.blog.core.valication.group.DeleteGroup;
@@ -43,5 +44,5 @@ public class ArticleLabelTypeVo extends ArticleLabelType {
 
     private List<ArticleLabelVo> labelList;
 
-//    private BlogUser blogUser;
+    private UserVo userVo;
 }

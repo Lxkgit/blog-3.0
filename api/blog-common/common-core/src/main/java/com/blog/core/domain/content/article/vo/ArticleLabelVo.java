@@ -1,5 +1,6 @@
 package com.blog.core.domain.content.article.vo;
 
+import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.valication.group.AddGroup;
 import com.blog.core.valication.group.DeleteGroup;
@@ -49,6 +50,6 @@ public class ArticleLabelVo extends ArticleLabel {
     @Pattern(regexp = "^[0-9]+(,[0-9]+)+|[0-9]+$", message = "请输入正确的文章id字符串", groups = {DeleteGroup.class})
     private String ids;
 
-//    BlogUser blogUser;
+    private UserVo userVo;
 
 }

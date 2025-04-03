@@ -3,13 +3,12 @@ package com.blog.content.controller;
 
 import com.blog.content.service.ArticleTypeService;
 import com.blog.core.domain.content.article.vo.ArticleTypeVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +48,7 @@ public class ArticleTypeController {
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:article:type:delete')")
-    public Result deleteArticleType(@Validated(value = {DeleteGroup.class}) ArticleTypeVo articleTypeVo) throws ValidException {
+    public Result deleteArticleType(@Validated(value = {DeleteGroup.class}) ArticleTypeVo articleTypeVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(articleTypeService.deleteArticleTypeById(articleTypeVo.getArticleTypeId()));
     }
 
@@ -61,7 +60,7 @@ public class ArticleTypeController {
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:article:type:update')")
-    public Result updateArticleType(@RequestBody @Validated(value = {UpdateGroup.class}) ArticleTypeVo articleTypeVo) throws ValidException {
+    public Result updateArticleType(@RequestBody @Validated(value = {UpdateGroup.class}) ArticleTypeVo articleTypeVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(articleTypeService.updateArticleType(articleTypeVo));
     }
 

@@ -3,7 +3,7 @@ package com.blog.file.controller;
 import com.blog.core.domain.file.device.vo.SensorControlVo;
 import com.blog.core.domain.file.device.vo.SensorDataVo;
 import com.blog.core.domain.file.device.vo.SensorVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.*;
@@ -45,11 +45,11 @@ public class SensorController {
      *
      * @param sensorVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:sensor:save')")
-    public Result addSensor( @Validated(value = {AddGroup.class}) @RequestBody SensorVo sensorVo) throws ValidException {
+    public Result addSensor( @Validated(value = {AddGroup.class}) @RequestBody SensorVo sensorVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(sensorService.addSensor(1, sensorVo));
     }
 
@@ -70,11 +70,11 @@ public class SensorController {
      *
      * @param sensorVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:sensor:update')")
-    public Result updateSensor( @Validated(value = {UpdateGroup.class}) @RequestBody SensorVo sensorVo) throws ValidException {
+    public Result updateSensor( @Validated(value = {UpdateGroup.class}) @RequestBody SensorVo sensorVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(sensorService.updateSensor(1, sensorVo));
     }
 
@@ -120,11 +120,11 @@ public class SensorController {
      *
      * @param sensorControlVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @PostMapping("/control/save")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:save')")
-    public Result addSensorControl( @Validated(value = {AddGroup.class}) @RequestBody SensorControlVo sensorControlVo) throws ValidException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+    public Result addSensorControl( @Validated(value = {AddGroup.class}) @RequestBody SensorControlVo sensorControlVo) throws ServiceException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         return ResultFactory.buildSuccessResult(sensorControlService.createSensorControl(1, sensorControlVo));
     }
 
@@ -160,7 +160,7 @@ public class SensorController {
      */
     @GetMapping("/control/list")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:select')")
-    public Result selectSensorControlList( @Validated(value = {SelectListGroup.class}) SensorControlVo sensorControlVo) throws ValidException {
+    public Result selectSensorControlList( @Validated(value = {SelectListGroup.class}) SensorControlVo sensorControlVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(sensorControlService.selectSensorControlList(1, sensorControlVo));
     }
 
@@ -184,7 +184,7 @@ public class SensorController {
      */
     @GetMapping("/control/send")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:send')")
-    public Result controlSensor( @Validated(value = {SelectIdGroup.class}) SensorControlVo sensorControlVo) throws ValidException {
+    public Result controlSensor( @Validated(value = {SelectIdGroup.class}) SensorControlVo sensorControlVo) throws ServiceException {
         Boolean flag = sensorControlService.controlSensor(1, sensorControlVo.getId());
         if (flag) {
             return ResultFactory.buildSuccessResult();

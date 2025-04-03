@@ -11,65 +11,67 @@ import java.lang.annotation.*;
  * @date 2025/01/19
  */
 
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
+
 @Documented
-public @interface Log
-{
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.PARAMETER, ElementType.METHOD})
+public @interface Log {
+
     /**
      * 模块
      */
-    public String module() default "";
+    String module() default "";
 
     /**
      * 业务
      */
-    public String business() default "";
+    String business() default "";
 
     /**
      * 操作
+     *
      * @return
      */
-    public String operate() default "";
+    String operate() default "";
 
     /**
      * 模块
      */
-    public String title() default "";
+    String title() default "";
 
     /**
      * 功能
      */
-    public BusinessType businessType() default BusinessType.OTHER;
+    BusinessType businessType() default BusinessType.OTHER;
 
     /**
      * 操作人类别
      */
-    public OperatorType operatorType() default OperatorType.MANAGE;
+    OperatorType operatorType() default OperatorType.MANAGE;
 
     /**
      * 是否保存请求的参数
      */
-    public boolean isSaveRequestData() default true;
+    boolean isSaveRequestData() default true;
 
     /**
      * 是否保存响应的参数
      */
-    public boolean isSaveResponseData() default true;
+    boolean isSaveResponseData() default true;
 
     /**
      * 排除指定的请求参数
      */
-    public String[] excludeParamNames() default {};
+    String[] excludeParamNames() default {};
 
     /**
      * 是否保存到数据库
      */
-    public boolean isSaveDataBase() default true;
+    boolean isSaveDataBase() default true;
 
     /**
      * 过滤耗时
      */
-    public long filterCostTime() default 0L;
+    long filterCostTime() default 0L;
 }
 

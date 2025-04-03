@@ -12,7 +12,7 @@ import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncBlogFileDto;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.core.enums.file.FileTypeEnum;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.file.mapper.FileDataMapper;
 import com.blog.file.mapper.FileSyncMapper;
 import com.blog.file.netty.service.NettyServer;
@@ -45,7 +45,7 @@ public class FileServiceImpl implements FileService {
     private String baseUri;
 
     @Resource
-    private FileDataMapper fileDataDAO;
+    private FileDataMapper fileDataMapper;
 
     @Resource
     private FileSyncMapper fileSyncDAO;
@@ -55,21 +55,21 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
-    public void saveFileDir(FileDataVo fileDataVoParam) throws ValidException {
+    public void saveFileDir(FileDataVo fileDataVoParam) throws ServiceException {
         if (fileDataVoParam.getName() == null || fileDataVoParam.getName().equals("")) {
-            throw new ValidException(ErrorMessage.FILE_NAME_NULL_ERROR);
+            throw new ServiceException(ErrorMessage.FILE_NAME_NULL_ERROR);
         }
         if (fileDataVoParam.getFilePath().equals("/")) {
-            throw new ValidException(ErrorMessage.BASE_FILE_DIR_NOT_CREATE);
+            throw new ServiceException(ErrorMessage.BASE_FILE_DIR_NOT_CREATE);
         }
         String path = basePath + "/" + 1 + fileDataVoParam.getFilePath();
         List<FileDataVo> fileDataVoList = show(path, 1);
         for (FileDataVo fileDataVo : fileDataVoList) {
             if (fileDataVo.getName().toLowerCase().equals(fileDataVoParam.getName().toLowerCase())) {
-                throw new ValidException(ErrorMessage.FILE_NAME_SAME_ERROR);
+                throw new ServiceException(ErrorMessage.FILE_NAME_SAME_ERROR);
             }
         }
-        FileData fileData = fileDataDAO.selectByPathAndName(path);
+        FileData fileData = fileDataMapper.selectByPathAndName(path);
         File file = new File(path + "/" + fileDataVoParam.getName());
         if (file.mkdir()) {
             fileDataVoParam.setPath(path);
@@ -77,21 +77,21 @@ public class FileServiceImpl implements FileService {
             fileDataVoParam.setFileSize(0L);
             // 同步目录下创建的目录全部为同步目录
             fileDataVoParam.setDirType(fileData.getDirType().equals(Constant.DIR_TYPE_SYNC) ? Constant.DIR_TYPE_SYNC : fileDataVoParam.getDirType());
-            fileDataDAO.insert(fileDataVoParam);
+            fileDataMapper.insert(fileDataVoParam);
         }
     }
 
     @Override
-    public void deleteFileOrDir(FileDataVo fileDataVo) throws ValidException {
+    public void deleteFileOrDir(FileDataVo fileDataVo) throws ServiceException {
         if (fileDataVo.getName() == null || fileDataVo.getName().equals("")) {
-            throw new ValidException(ErrorMessage.FILE_NAME_NULL_ERROR);
+            throw new ServiceException(ErrorMessage.FILE_NAME_NULL_ERROR);
         }
         if (fileDataVo.getFilePath().equals("/")) {
-            throw new ValidException(ErrorMessage.BASE_FILE_DIR_NOT_DELETE);
+            throw new ServiceException(ErrorMessage.BASE_FILE_DIR_NOT_DELETE);
         }
         String path = basePath + "/" + 1 + fileDataVo.getFilePath();
         File file = new File(path + "/" + fileDataVo.getName());
-        fileDataDAO.deleteById(fileDataVo.getId());
+        fileDataMapper.deleteById(fileDataVo.getId());
         file.delete();
     }
 
@@ -111,19 +111,19 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void updateFileOrDirName(FileDataVo fileDataVo) throws ValidException {
+    public void updateFileOrDirName(FileDataVo fileDataVo) throws ServiceException {
         if (fileDataVo.getName() == null || fileDataVo.getName().equals("")) {
-            throw new ValidException(ErrorMessage.FILE_NAME_NULL_ERROR);
+            throw new ServiceException(ErrorMessage.FILE_NAME_NULL_ERROR);
         }
         if (fileDataVo.getFilePath().equals("/")) {
-            throw new ValidException(ErrorMessage.BASE_FILE_NOT_RENAME);
+            throw new ServiceException(ErrorMessage.BASE_FILE_NOT_RENAME);
         }
         String path = basePath + "/" + 1 + fileDataVo.getFilePath();
         new File(path + "/" + fileDataVo.getName()).renameTo(new File(path + "/" + fileDataVo.getRename()));
 
         QueryWrapper<FileData> wrapper = new QueryWrapper<>();
         wrapper.likeRight("path", path + "/" + fileDataVo.getName());
-        fileDataDAO.delete(wrapper);
+        fileDataMapper.delete(wrapper);
     }
 
     /**
@@ -146,7 +146,7 @@ public class FileServiceImpl implements FileService {
     public Long selectUserSpace() {
         QueryWrapper<FileData> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", 1);
-        List<FileData> fileDataList = fileDataDAO.selectList(wrapper);
+        List<FileData> fileDataList = fileDataMapper.selectList(wrapper);
         Long size = 0L;
         for (FileData fileData : fileDataList) {
             if (fileData.getFileSize() != null) {
@@ -205,9 +205,9 @@ public class FileServiceImpl implements FileService {
             String fileCode = UUID.randomUUID().toString();
             nettySyncBlogFile.setFileCode(fileCode);
             fileDataVo.setFileCode(fileCode);
-            fileDataDAO.updateFileCodeByIdAndUserId(fileDataVo);
+            fileDataMapper.updateFileCodeByIdAndUserId(fileDataVo);
         } else if (fileDataVo.getSyncType().equals(1)) {
-            FileData fileData = fileDataDAO.selectById(fileDataVo.getId());
+            FileData fileData = fileDataMapper.selectById(fileDataVo.getId());
             nettySyncBlogFile.setFileCode(fileData.getFileCode());
         }
         NettyPacket<NettySyncBlogFileDto> syncFileRequest = NettyPacket.buildRequest(nettySyncBlogFile);
@@ -224,11 +224,11 @@ public class FileServiceImpl implements FileService {
      * @return 文件目录下数据列表
      */
     private List<FileDataVo> show(String path, Integer userId) {
-        FileData dir = fileDataDAO.selectByPathAndName(path);
+        FileData dir = fileDataMapper.selectByPathAndName(path);
         // 获取数据库中当前目录下文件列表
         QueryWrapper<FileData> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("path", path);
-        List<FileData> fileDataList = fileDataDAO.selectList(queryWrapper);
+        List<FileData> fileDataList = fileDataMapper.selectList(queryWrapper);
         List<FileDataVo> fileDataVoList = new ArrayList<>();
         for (FileData fileData : fileDataList) {
             FileDataVo fileDataVo = new FileDataVo();
@@ -283,7 +283,7 @@ public class FileServiceImpl implements FileService {
                         }
                         fileDataVo.setFileSize(file.length());
                     }
-                    fileDataDAO.insert(fileDataVo);
+                    fileDataMapper.insert(fileDataVo);
                     fileDataVo.setFlag(true);
                     fileDataVoList.add(fileDataVo);
                 }
@@ -295,10 +295,10 @@ public class FileServiceImpl implements FileService {
                     QueryWrapper<FileData> wrapper = new QueryWrapper<>();
                     wrapper.likeRight("path", path + "/" + fileDataVo.getName());
                     wrapper.ne("dir_type", Constant.DIR_TYPE_SYNC);
-                    fileDataDAO.delete(wrapper);
+                    fileDataMapper.delete(wrapper);
                     // 删除该目录
                     if (!fileDataVo.getDirType().equals(Constant.DIR_TYPE_SYNC)) {
-                        fileDataDAO.deleteById(fileDataVo.getId());
+                        fileDataMapper.deleteById(fileDataVo.getId());
                         // 标记为false移除List中当前数据
                         fileDataVo.setFlag(false);
                     }
@@ -311,12 +311,12 @@ public class FileServiceImpl implements FileService {
             QueryWrapper<FileData> wrapper = new QueryWrapper<>();
             wrapper.likeRight("path", path);
             wrapper.ne("dir_type", Constant.DIR_TYPE_SYNC);
-            fileDataDAO.delete(wrapper);
+            fileDataMapper.delete(wrapper);
             fileDataVoList.clear();
         }
         fileDataVoList.forEach(fileDataVo -> {
             if (fileDataVo.getId() != null) {
-                fileDataDAO.updateById(fileDataVo);
+                fileDataMapper.updateById(fileDataVo);
             }
         });
         Collections.sort(fileDataVoList);

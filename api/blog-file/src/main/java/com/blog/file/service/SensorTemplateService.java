@@ -2,7 +2,7 @@ package com.blog.file.service;
 
 import com.blog.core.domain.file.device.dto.SensorTemplateDTO;
 import com.blog.core.domain.file.device.vo.SensorTemplateVO;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 
 import java.util.List;
 
@@ -14,5 +14,5 @@ import java.util.List;
 
 public interface SensorTemplateService {
 
-    List<SensorTemplateVO> selectSensorTemplateByChipOrSensorId(Integer userId, SensorTemplateDTO sensorTemplateDTO) throws ValidException;
+    List<SensorTemplateVO> selectSensorTemplateByChipOrSensorId(Integer userId, SensorTemplateDTO sensorTemplateDTO) throws ServiceException;
 }

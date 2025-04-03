@@ -22,19 +22,6 @@ spring:
 
   cloud:
     gateway:
-#      globalcors:
-#        # gateway 跨域设置
-#        cors-configurations:
-#          '[/**]':
-#            allowedOriginPatterns: "*"
-#            allowedHeaders: "*"
-#            allowCredentials: true
-#            allowedMethods:
-#              - GET
-#              - POST
-#              - PUT
-#              - DELETE
-#              - OPTIONS
       # 设置与服务注册发现组件结合，这样可以采用服务名的路由策略
       discovery:
         locator:
@@ -72,9 +59,6 @@ rocketmq:
     consumeThreadMax: 64
     #设置一次消费消息的条数，默认为1条
     consumeMessageBatchMaxSize: 1
-
-mybatis:
-  mapper-locations: classpath:/mapper/*.xml
 
 easy-es:
   enable: true

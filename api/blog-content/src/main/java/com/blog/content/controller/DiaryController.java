@@ -4,7 +4,7 @@ package com.blog.content.controller;
 import com.blog.content.service.DiaryService;
 import com.blog.core.domain.content.diary.entity.Diary;
 import com.blog.core.domain.content.diary.vo.DiaryVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.AddGroup;
@@ -50,12 +50,12 @@ public class DiaryController {
      *
      * @param diaryVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:diary:delete')")
-    public Result deleteDiaryByDate(@Validated(value = {DeleteGroup.class}) DiaryVo diaryVo) throws ValidException {
-        return ResultFactory.buildSuccessResult(diaryService.deleteDiary(diaryVo.getIds(), 1));
+    public Result deleteDiaryByDate(@Validated(value = {DeleteGroup.class}) DiaryVo diaryVo) throws ServiceException {
+        return ResultFactory.buildSuccessResult(diaryService.deleteDiary(diaryVo.getIds()));
     }
 
     /**
@@ -79,7 +79,7 @@ public class DiaryController {
     @GetMapping("/list")
     @PreAuthorize("hasAnyAuthority('sys:diary:list')")
     public Result selectDiaryByDate(DiaryVo diaryVo) {
-        return ResultFactory.buildSuccessResult(diaryService.selectDiaryByDate(diaryVo, 1));
+        return ResultFactory.buildSuccessResult(diaryService.selectDiaryByDate(diaryVo));
     }
 
     /**

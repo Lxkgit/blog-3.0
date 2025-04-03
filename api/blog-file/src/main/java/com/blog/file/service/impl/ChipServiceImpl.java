@@ -9,10 +9,11 @@ import com.blog.core.domain.file.device.entity.Chip;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.vo.ChipVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.MyStringUtils;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.ChipMapper;
 import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.mapper.SensorMapper;
@@ -40,36 +41,36 @@ import java.util.Set;
 public class ChipServiceImpl implements ChipService {
 
     @Resource
-    private ChipMapper chipDAO;
+    private ChipMapper chipMapper;
 
     @Resource
-    private SensorMapper sensorDAO;
+    private SensorMapper sensorMapper;
 
     @Resource
-    private DeviceMapper deviceDAO;
+    private DeviceMapper deviceMapper;
 
     /**
      * 新增单片机
      *
-     * @param userId
      * @param chipVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Integer addChip(Integer userId, ChipVo chipVo) throws ValidException {
+    public Integer addChip(ChipVo chipVo) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         QueryWrapper<Chip> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         wrapper.eq("chip_code", chipVo.getChipCode());
-        Chip chip = chipDAO.selectOne(wrapper);
+        Chip chip = chipMapper.selectOne(wrapper);
         if (chip != null) {
-            throw new ValidException(ErrorMessage.CHIP_CODE_EXISTS);
+            throw new ServiceException(ErrorMessage.CHIP_CODE_EXISTS);
         }
-//        chipVo.setUserId(userId);
+        chipVo.setUserId(userId);
         chipVo.setChipStatus(Constant.DEVICE_OFFLINE);
         chipVo.setCreateTime(new Date());
         chipVo.setUpdateTime(new Date());
-        chipDAO.insert(chipVo);
+        chipMapper.insert(chipVo);
         return chipVo.getId();
     }
 
@@ -83,7 +84,7 @@ public class ChipServiceImpl implements ChipService {
     @Override
     public Integer deleteChips(Integer userId, String ids) {
         Set<String> idSet = MyStringUtils.splitString(ids, ",");
-        chipDAO.updateChipStatus(idSet, userId, Constant.DEVICE_DELETE);
+        chipMapper.updateChipStatus(idSet, userId, Constant.DEVICE_DELETE);
         return idSet.size();
     }
 
@@ -93,22 +94,22 @@ public class ChipServiceImpl implements ChipService {
      * @param userId
      * @param chipVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Integer updateChip(Integer userId, ChipVo chipVo) throws ValidException {
+    public Integer updateChip(Integer userId, ChipVo chipVo) throws ServiceException {
         QueryWrapper<Chip> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         wrapper.eq("chip_code", chipVo.getChipCode());
         wrapper.ne("id", chipVo.getId());
-        Chip chip = chipDAO.selectOne(wrapper);
+        Chip chip = chipMapper.selectOne(wrapper);
         if (chip != null) {
-            throw new ValidException(ErrorMessage.CHIP_CODE_EXISTS);
+            throw new ServiceException(ErrorMessage.CHIP_CODE_EXISTS);
         }
 //        chipVo.setUserId(userId);
         chipVo.setChipStatus(Constant.DEVICE_OFFLINE);
         chipVo.setUpdateTime(new Date());
-        chipDAO.updateById(chipVo);
+        chipMapper.updateById(chipVo);
         return chipVo.getId();
     }
 
@@ -121,7 +122,7 @@ public class ChipServiceImpl implements ChipService {
      */
     @Override
     public MyPage<ChipVo> selectChipList(Integer userId, ChipVo chipVoParam) {
-        Device device = deviceDAO.selectById(chipVoParam.getDeviceId());
+        Device device = deviceMapper.selectById(chipVoParam.getDeviceId());
 
         LambdaQueryWrapper<Chip> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Chip::getUserId, userId);
@@ -129,7 +130,7 @@ public class ChipServiceImpl implements ChipService {
         wrapper.ne(Chip::getChipStatus, Constant.DEVICE_DELETE);
 
         PageHelper.startPage(chipVoParam.getPageNum(), chipVoParam.getPageSize());
-        Page<Chip> chipPage = (Page<Chip>) chipDAO.selectList(wrapper);
+        Page<Chip> chipPage = (Page<Chip>) chipMapper.selectList(wrapper);
 
         List<ChipVo> chipVoList = new ArrayList<>();
         for (Chip chip : chipPage) {
@@ -149,12 +150,12 @@ public class ChipServiceImpl implements ChipService {
      * @return
      */
     @Override
-    public ChipVo selectChipId(Integer userId, Integer id) throws ValidException {
+    public ChipVo selectChipId(Integer userId, Integer id) throws ServiceException {
 
         LambdaQueryWrapper<Chip> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Chip::getId, id);
         wrapper.eq(Chip::getUserId, 1);
-        Chip chip = chipDAO.selectOne(wrapper);
+        Chip chip = chipMapper.selectOne(wrapper);
 
         ChipVo chipVo = new ChipVo();
         BeanUtils.copyProperties(chip, chipVo);
@@ -162,7 +163,7 @@ public class ChipServiceImpl implements ChipService {
         LambdaQueryWrapper<Sensor> sensorLambdaQueryWrapper = new LambdaQueryWrapper<>();
         sensorLambdaQueryWrapper.eq(Sensor::getDeviceCode, chip.getDeviceCode());
         sensorLambdaQueryWrapper.eq(Sensor::getChipCode, chip.getChipCode());
-        List<Sensor> sensorList = sensorDAO.selectList(sensorLambdaQueryWrapper);
+        List<Sensor> sensorList = sensorMapper.selectList(sensorLambdaQueryWrapper);
 
         chipVo.setSensorList(sensorList);
         return chipVo;

@@ -3,14 +3,14 @@ package com.blog.content.service;
 
 import com.blog.core.domain.content.article.entity.Article;
 import com.blog.core.domain.content.article.vo.ArticleVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.MyPage;
 
 public interface ArticleService {
 
-    MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo articleVo) throws ValidException;
+    MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo articleVo) throws ServiceException;
     ArticleVo selectArticleById(int articleId);
-    int saveArticle(ArticleVo article) throws ValidException;
-    int updateArticle(Article article) throws ValidException;
-    Integer deleteArticle(String articleIds) throws ValidException;
+    int saveArticle(ArticleVo article) throws ServiceException;
+    int updateArticle(Article article) throws ServiceException;
+    Integer deleteArticle(String articleIds) throws ServiceException;
 }

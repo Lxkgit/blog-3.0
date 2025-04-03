@@ -1,7 +1,7 @@
 package com.blog.file.controller;
 
 import com.blog.core.domain.file.device.dto.SensorTemplateDTO;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.file.service.SensorTemplateService;
@@ -30,7 +30,7 @@ public class SensorTemplateController {
      * @return
      */
     @GetMapping("/chipOrSensorId")
-    public Result selectSensorTemplateByChipOrSensorId(SensorTemplateDTO sensorTemplateDTO) throws ValidException {
+    public Result selectSensorTemplateByChipOrSensorId(SensorTemplateDTO sensorTemplateDTO) throws ServiceException {
         return ResultFactory.buildSuccessResult(sensorTemplateService.selectSensorTemplateByChipOrSensorId(1, sensorTemplateDTO));
     }
 

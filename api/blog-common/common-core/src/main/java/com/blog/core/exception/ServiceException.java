@@ -2,39 +2,41 @@ package com.blog.core.exception;
 
 
 import com.blog.core.constant.ErrorMessage;
+import lombok.Getter;
+import lombok.Setter;
 
-public class ValidException extends BaseException {
+import java.io.Serial;
+
+@Setter
+@Getter
+public class ServiceException extends BaseException {
+
+    @Serial
     private static final long serialVersionUID = 1L;
+
     private String errMsg;
 
-    public ValidException(String code) {
+    public ServiceException(String code) {
         super(code);
     }
 
-    public ValidException(String code, String errMsg) {
+    public ServiceException(String code, String errMsg) {
         super(code, errMsg);
     }
 
-    public ValidException(ErrorMessage errorMessage) {
+    public ServiceException(ErrorMessage errorMessage) {
         super(errorMessage.getCode(), errorMessage.getDesc());
         this.setErrorMessage(errorMessage);
     }
 
-    public ValidException(ErrorMessage errorMessage, Object data) {
+    public ServiceException(ErrorMessage errorMessage, Object data) {
         super(errorMessage.getCode(), errorMessage.getDesc());
         this.setErrorMessage(errorMessage);
         this.setData(data);
     }
 
-    public ValidException(String code, String errMsg, Throwable cause) {
+    public ServiceException(String code, String errMsg, Throwable cause) {
         super(code, errMsg, cause);
     }
 
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public void setErrMsg(String errMsg) {
-        this.errMsg = errMsg;
-    }
 }

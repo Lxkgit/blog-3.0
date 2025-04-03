@@ -5,8 +5,8 @@ package com.blog.log.enums;
  * @description 操作人类别
  * @date 2025/01/19
  */
-public enum OperatorType
-{
+public enum OperatorType {
+
     /**
      * 其它
      */

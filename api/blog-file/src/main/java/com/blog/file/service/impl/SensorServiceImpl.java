@@ -8,7 +8,7 @@ import com.blog.core.domain.file.device.entity.Chip;
 import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.entity.SensorType;
 import com.blog.core.domain.file.device.vo.SensorVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.MyStringUtils;
@@ -52,10 +52,10 @@ public class SensorServiceImpl implements SensorService {
      * @param userId
      * @param sensorVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Integer addSensor(Integer userId, SensorVo sensorVo) throws ValidException {
+    public Integer addSensor(Integer userId, SensorVo sensorVo) throws ServiceException {
 //        sensorVo.setUserId(userId);
         sensorVo.setSensorStatus(Constant.DEVICE_OFFLINE);
         sensorVo.setCreateTime(new Date());
@@ -84,10 +84,10 @@ public class SensorServiceImpl implements SensorService {
      * @param userId
      * @param sensorVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
-    public Integer updateSensor(Integer userId, SensorVo sensorVo) throws ValidException {
+    public Integer updateSensor(Integer userId, SensorVo sensorVo) throws ServiceException {
 //        Sensor sensor = sensorDAO.selectById(sensorVo.getId());
 //        if (sensor == null) {
 //            throw new ValidException(ErrorMessage.SENSOR_NOT_EXISTS);

@@ -2,6 +2,7 @@ package com.blog.core.domain.content.article.vo;
 
 
 
+import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.article.entity.Article;
 import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.domain.content.article.entity.ArticleType;
@@ -114,7 +115,7 @@ public class ArticleVo extends Article {
     /**
      * 接口访问用户
      */
-//    private BlogUser blogUser;
+    private UserVo userVo;
 
     /**
      * 文章分类

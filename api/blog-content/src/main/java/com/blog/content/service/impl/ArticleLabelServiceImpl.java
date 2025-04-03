@@ -8,7 +8,7 @@ import com.blog.content.service.ArticleLabelService;
 import com.blog.core.constant.ErrorMessage;
 import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.domain.content.article.vo.ArticleLabelVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -29,10 +29,10 @@ import java.util.Set;
 public class ArticleLabelServiceImpl implements ArticleLabelService {
 
     @Resource
-    private ArticleLabelMapper articleLabelDAO;
+    private ArticleLabelMapper articleLabelMapper;
 
     @Resource
-    private ArticleLabelTypeMapper articleLabelTypeDAO;
+    private ArticleLabelTypeMapper articleLabelTypeMapper;
 
     @Resource
     private SendSystemData sendSystemData;
@@ -41,20 +41,20 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
      * 新增文章标签
      *
      * @param articleLabelVo
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer saveArticleLabel(ArticleLabelVo articleLabelVo) throws ValidException {
+    public Integer saveArticleLabel(ArticleLabelVo articleLabelVo) throws ServiceException {
         articleLabelVo.setId(null);
         articleLabelVo.setArticleNum(0);
         articleLabelVo.setCreateTime(new Date());
         articleLabelVo.setUpdateTime(new Date());
-        if (articleLabelTypeDAO.selectById(articleLabelVo.getLabelType()) == null) {
-            throw new ValidException(ErrorMessage.ARTICLE_LABEL_TYPE_NOT_EXISTS);
+        if (articleLabelTypeMapper.selectById(articleLabelVo.getLabelType()) == null) {
+            throw new ServiceException(ErrorMessage.ARTICLE_LABEL_TYPE_NOT_EXISTS);
         }
-        articleLabelDAO.insert(articleLabelVo);
-        articleLabelTypeDAO.updateArticleLabelTypeLabelNumAdd(articleLabelVo.getLabelType());
+        articleLabelMapper.insert(articleLabelVo);
+        articleLabelTypeMapper.updateArticleLabelTypeLabelNumAdd(articleLabelVo.getLabelType());
         // 发送博客系统新增文章标签mq消息
         sendSystemData.sendSystemData(SendSystemData.articleLabel, 1);
         return articleLabelVo.getId();
@@ -66,28 +66,28 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
      * @param labelIds
      * @param userId
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer deleteArticleLabelByIds(String labelIds, Integer userId) throws ValidException {
+    public Integer deleteArticleLabelByIds(String labelIds, Integer userId) throws ServiceException {
         Set<String> idSet = MyStringUtils.splitString(labelIds, ",");
 
-        List<ArticleLabel> articleLabelList = articleLabelDAO.selectBatchIds(idSet);
+        List<ArticleLabel> articleLabelList = articleLabelMapper.selectBatchIds(idSet);
         for (ArticleLabel articleLabel : articleLabelList) {
             if (articleLabel.getArticleNum() != 0) {
                 String errorMag = "文章标签【" + articleLabel.getLabelName() + "】下文章数量不为0";
-                throw new ValidException(ErrorMessage.ARTICLE_LABEL_NUM_ERROR, errorMag);
+                throw new ServiceException(ErrorMessage.ARTICLE_LABEL_NUM_ERROR, errorMag);
             }
             if (!articleLabel.getUserId().equals(userId)) {
                 String errorMag = "文章标签【" + articleLabel.getLabelName() + "】创建者不为你";
-                throw new ValidException(ErrorMessage.ARTICLE_LABEL_USER_DELETE_ERROR, errorMag);
+                throw new ServiceException(ErrorMessage.ARTICLE_LABEL_USER_DELETE_ERROR, errorMag);
             }
         }
 
-        articleLabelDAO.deleteArticleLabelByIds(idSet, userId);
+        articleLabelMapper.deleteArticleLabelByIds(idSet, userId);
         for (ArticleLabel articleLabel : articleLabelList) {
-            articleLabelTypeDAO.updateArticleLabelTypeLabelNumSubtract(articleLabel.getLabelType());
+            articleLabelTypeMapper.updateArticleLabelTypeLabelNumSubtract(articleLabel.getLabelType());
         }
 
         // 发送博客系统删除文章标签mq消息
@@ -100,21 +100,21 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
      *
      * @param articleLabelVo
      * @return
-     * @throws ValidException
+     * @throws ServiceException
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateArticleLabel(ArticleLabelVo articleLabelVo) throws ValidException {
-        ArticleLabel oldLabel = articleLabelDAO.selectById(articleLabelVo.getId());
+    public Integer updateArticleLabel(ArticleLabelVo articleLabelVo) throws ServiceException {
+        ArticleLabel oldLabel = articleLabelMapper.selectById(articleLabelVo.getId());
         if (oldLabel == null) {
-            throw new ValidException(ErrorMessage.ARTICLE_LABEL_NOT_EXISTS);
+            throw new ServiceException(ErrorMessage.ARTICLE_LABEL_NOT_EXISTS);
         }
         if (!oldLabel.getUserId().equals(articleLabelVo.getUserId())) {
-            throw new ValidException(ErrorMessage.ARTICLE_LABEL_USER_UPDATE_ERROR);
+            throw new ServiceException(ErrorMessage.ARTICLE_LABEL_USER_UPDATE_ERROR);
         }
-        articleLabelTypeDAO.updateArticleLabelTypeLabelNumSubtract(oldLabel.getLabelType());
-        articleLabelTypeDAO.updateArticleLabelTypeLabelNumAdd(articleLabelVo.getLabelType());
-        articleLabelDAO.updateArticleLabel(articleLabelVo);
+        articleLabelTypeMapper.updateArticleLabelTypeLabelNumSubtract(oldLabel.getLabelType());
+        articleLabelTypeMapper.updateArticleLabelTypeLabelNumAdd(articleLabelVo.getLabelType());
+        articleLabelMapper.updateArticleLabel(articleLabelVo);
         return articleLabelVo.getId();
     }
 
@@ -126,7 +126,7 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
      */
     @Override
     public List<ArticleLabel> selectArticleLabelList(Integer labelType) {
-        return articleLabelDAO.selectArticleLabelList(labelType);
+        return articleLabelMapper.selectArticleLabelList(labelType);
     }
 
 }

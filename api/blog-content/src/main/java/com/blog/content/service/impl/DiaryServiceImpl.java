@@ -3,19 +3,23 @@ package com.blog.content.service.impl;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.content.mapper.mybatis.DiaryMapper;
+import com.blog.content.mq.send.SendSystemData;
+import com.blog.content.mq.send.SendUserData;
 import com.blog.content.service.DiaryService;
 import com.blog.core.constant.Constant;
 import com.blog.core.constant.ErrorMessage;
 import com.blog.core.domain.content.diary.entity.Diary;
 import com.blog.core.domain.content.diary.vo.DiaryVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.MyStringUtils;
+import com.blog.core.utils.SecurityUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -33,13 +37,13 @@ import java.util.regex.Pattern;
 public class DiaryServiceImpl implements DiaryService {
 
     @Resource
-    private DiaryMapper diaryDAO;
+    private DiaryMapper diaryMapper;
 
-//    @Resource
-//    private SendSystemData sendSystemData;
-//
-//    @Resource
-//    private SendUserData sendUserData;
+    @Resource
+    private SendSystemData sendSystemData;
+
+    @Resource
+    private SendUserData sendUserData;
 
     /**
      * 新增日记
@@ -49,16 +53,19 @@ public class DiaryServiceImpl implements DiaryService {
      */
     @Override
     public Integer saveDiary(DiaryVo diaryVo) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+
+        diaryVo.setUserId(userId);
         diaryVo.setCreateTime(new Date());
         diaryVo.setUpdateTime(new Date());
         diaryVo.setDiaryStatus(1);
-        diaryDAO.insertDiary(diaryVo);
+        diaryMapper.insertDiary(diaryVo);
 
-//        // 发送博客用户新增日记mq消息
-//        sendUserData.sendUserData(SendUserData.diary, diaryVo.getUserId(), 1);
-//
-//        // 发送博客系统新增日记mq消息
-//        sendSystemData.sendSystemData(SendSystemData.diary, 1);
+        // 发送博客用户新增日记mq消息
+        sendUserData.sendUserData(SendUserData.diary, userId, 1);
+
+        // 发送博客系统新增日记mq消息
+        sendSystemData.sendSystemData(SendSystemData.diary, 1);
         return diaryVo.getId();
     }
 
@@ -66,28 +73,28 @@ public class DiaryServiceImpl implements DiaryService {
      * 删除日记
      *
      * @param diaryIds
-     * @param userId
      * @return
      */
     @Override
-    public Integer deleteDiary(String diaryIds, Integer userId) throws ValidException {
+    public Integer deleteDiary(String diaryIds) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         Set<String> idSet = MyStringUtils.splitString(diaryIds, ",");
         for (String id : idSet) {
             QueryWrapper<Diary> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("id", id);
             queryWrapper.eq("user_id", userId);
             queryWrapper.ne("diary_status", Constant.DELETE);
-            Diary diary = diaryDAO.selectOne(queryWrapper);
+            Diary diary = diaryMapper.selectOne(queryWrapper);
             if (diary == null) {
-                throw new ValidException(ErrorMessage.DIARY_NOT_EXISTS, "日记id: " + id + " 不存在");
+                throw new ServiceException(ErrorMessage.DIARY_NOT_EXISTS, "日记id: " + id + " 不存在");
             }
         }
-        diaryDAO.updateDiaryStatusByIds(idSet, userId, Constant.DELETE);
+        diaryMapper.updateDiaryStatusByIds(idSet, userId, Constant.DELETE);
 
-//        // 发送博客用户删除日记mq消息
-//        sendUserData.sendUserData(SendUserData.diary, userId, -idSet.size());
-//        // 发送博客系统删除日记mq消息
-//        sendSystemData.sendSystemData(SendSystemData.diary, -idSet.size());
+        // 发送博客用户删除日记mq消息
+        sendUserData.sendUserData(SendUserData.diary, userId, -idSet.size());
+        // 发送博客系统删除日记mq消息
+        sendSystemData.sendSystemData(SendSystemData.diary, -idSet.size());
 
         return idSet.size();
 
@@ -102,7 +109,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public Integer updateDiary(DiaryVo diaryVo) {
         diaryVo.setUpdateTime(new Date());
-        diaryDAO.updateDiary(diaryVo);
+        diaryMapper.updateDiary(diaryVo);
         return diaryVo.getId();
     }
 
@@ -111,11 +118,11 @@ public class DiaryServiceImpl implements DiaryService {
      * 通过日期查询未删除日记
      *
      * @param diaryVo
-     * @param userId
      * @return
      */
     @Override
-    public Map<String, Object> selectDiaryByDate(DiaryVo diaryVo, Integer userId) {
+    public Map<String, Object> selectDiaryByDate(DiaryVo diaryVo) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         MyPage<Diary> myPage = null;
         Map<String, Object> map = new HashMap<>();
         List<Diary> list = new ArrayList<>();
@@ -123,27 +130,27 @@ public class DiaryServiceImpl implements DiaryService {
         String dateMonth = diaryVo.getDateMonth();
         if (diaryVo.getPageNum() != null && diaryVo.getPageSize() != null) {
             PageHelper.startPage(diaryVo.getPageNum(), diaryVo.getPageSize());
-            Page<Diary> articlePage = (Page<Diary>) diaryDAO.selectDiaryList(userId);
+            Page<Diary> articlePage = (Page<Diary>) diaryMapper.selectDiaryList(userId);
             try {
                 myPage = MyPageUtils.pageUtil(articlePage, articlePage.getPageNum(), articlePage.getPageSize(), (int) articlePage.getTotal());
             } catch (Exception e) {
                 log.info("查找日记报错: {}", e.getMessage(), e);
             }
             map.put("diary", myPage);
-        } else if (dateDay != null && !dateDay.equals("")) {
+        } else if (StringUtils.isNotEmpty(dateDay)) {
             String pattern = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
             boolean isMatch = Pattern.matches(pattern, dateDay);
             if (isMatch) {
-                list = diaryDAO.selectDiaryByDate(dateDay, userId);
+                list = diaryMapper.selectDiaryByDate(dateDay, userId);
             } else {
                 map.put("msg", "请输入正确的日期格式(yyyy-MM-dd) ... ");
             }
             map.put("diary", list);
-        } else if (dateMonth != null && !dateMonth.equals("")) {
+        } else if (StringUtils.isNotEmpty(dateMonth)) {
             String pattern = "^[0-9]{4}-[0-9]{2}$";
             boolean isMatch = Pattern.matches(pattern, dateMonth);
             if (isMatch) {
-                list = diaryDAO.selectDiaryByDate(dateMonth, userId);
+                list = diaryMapper.selectDiaryByDate(dateMonth, userId);
             } else {
                 map.put("msg", "请输入正确的月份格式(yyyy-MM) ... ");
             }
@@ -170,16 +177,16 @@ public class DiaryServiceImpl implements DiaryService {
         Set<String> keySet = map.keySet();
         for (String key : keySet) {
             Diary diary = map.get(key);
-            List<Diary> diaries = diaryDAO.selectDiaryByDate(DateUtil.formatDate(diary.getDiaryDate()), diary.getUserId());
+            List<Diary> diaries = diaryMapper.selectDiaryByDate(DateUtil.formatDate(diary.getDiaryDate()), diary.getUserId());
             if (diaries.size() == 0) {
-                if (diaryDAO.insert(diary) == 1) {
+                if (diaryMapper.insert(diary) == 1) {
                     saveList.add(key);
                 } else {
                     failList.add(key);
                 }
             } else {
                 diary.setId(diaries.get(0).getId());
-                if (diaryDAO.updateDiary(diary) == 1) {
+                if (diaryMapper.updateDiary(diary) == 1) {
                     updateList.add(key);
                 } else {
                     failList.add(key);

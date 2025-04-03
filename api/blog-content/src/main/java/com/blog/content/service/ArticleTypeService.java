@@ -4,7 +4,7 @@ package com.blog.content.service;
 
 import com.blog.core.domain.content.article.entity.ArticleType;
 import com.blog.core.domain.content.article.vo.ArticleTypeVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public interface ArticleTypeService {
      * @param articleTypeId
      * @return
      */
-    Integer deleteArticleTypeById(String articleTypeId) throws ValidException;
+    Integer deleteArticleTypeById(String articleTypeId) throws ServiceException;
 
     /**
      * 修改文章分类
@@ -38,7 +38,7 @@ public interface ArticleTypeService {
      * @param articleType
      * @return
      */
-    Integer updateArticleType(ArticleTypeVo articleType) throws ValidException;
+    Integer updateArticleType(ArticleTypeVo articleType) throws ServiceException;
 
     /**
      * 根据传入的父节点id获取子节点

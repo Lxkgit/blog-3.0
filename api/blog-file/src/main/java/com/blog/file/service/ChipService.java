@@ -1,7 +1,7 @@
 package com.blog.file.service;
 
 import com.blog.core.domain.file.device.vo.ChipVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.MyPage;
 
 /**
@@ -12,16 +12,16 @@ import com.blog.core.result.MyPage;
 
 public interface ChipService {
 
-    Integer addChip(Integer userId, ChipVo chipVo) throws ValidException;
+    Integer addChip(ChipVo chipVo) throws ServiceException;
 
-    Integer deleteChips(Integer userId, String ids);
+    Integer deleteChips(String ids);
 
-    Integer updateChip(Integer userId, ChipVo chipVo) throws ValidException;
+    Integer updateChip(ChipVo chipVo) throws ServiceException;
 
-    MyPage<ChipVo> selectChipList(Integer userId, ChipVo chipVo);
+    MyPage<ChipVo> selectChipList(ChipVo chipVo);
 
-    ChipVo selectChipId(Integer userId, Integer id) throws ValidException;
+    ChipVo selectChipId(Integer id) throws ServiceException;
 
-    ChipVo selectChipInfo(Integer userId, ChipVo chipVo);
+    ChipVo selectChipInfo(ChipVo chipVo);
 
 }

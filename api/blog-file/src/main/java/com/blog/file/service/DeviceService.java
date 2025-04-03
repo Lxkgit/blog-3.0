@@ -3,7 +3,7 @@ package com.blog.file.service;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.vo.DeviceHeartbeatVo;
 import com.blog.core.domain.file.device.vo.DeviceVo;
-import com.blog.core.exception.ValidException;
+import com.blog.core.exception.ServiceException;
 
 import java.util.List;
 
@@ -15,15 +15,15 @@ import java.util.List;
 
 public interface DeviceService {
 
-    Integer addDevice(Integer userId, DeviceVo deviceVo) throws ValidException;
+    Integer addDevice(Integer userId, DeviceVo deviceVo) throws ServiceException;
 
-    Integer updateDevice(Integer userId, DeviceVo deviceVo) throws ValidException;
+    Integer updateDevice(Integer userId, DeviceVo deviceVo) throws ServiceException;
 
-    Integer deleteDevice(Integer userId, String ids) throws ValidException;
+    Integer deleteDevice(Integer userId, String ids) throws ServiceException;
 
-    List<Device> selectDeviceList(Integer userId) throws ValidException;
+    List<Device> selectDeviceList(Integer userId) throws ServiceException;
 
-    DeviceVo selectDeviceById(Integer userId, Integer id) throws ValidException;
+    DeviceVo selectDeviceById(Integer userId, Integer id) throws ServiceException;
 
     List<DeviceHeartbeatVo> selectDeviceInfoById(Integer userId, Integer id);
 }

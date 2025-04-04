@@ -9,8 +9,12 @@ import com.blog.core.result.MyPage;
 public interface ArticleService {
 
     MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo articleVo) throws ServiceException;
+
     ArticleVo selectArticleById(int articleId);
+
     int saveArticle(ArticleVo article) throws ServiceException;
+
     int updateArticle(Article article) throws ServiceException;
+
     Integer deleteArticle(String articleIds) throws ServiceException;
 }

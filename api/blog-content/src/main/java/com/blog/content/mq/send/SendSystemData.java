@@ -2,7 +2,9 @@ package com.blog.content.mq.send;
 
 import com.alibaba.fastjson.JSON;
 
+import com.blog.core.domain.file.system.vo.BlogDataVo;
 import com.blog.core.enums.mq.RocketMQTopicEnum;
+import com.blog.mq.constant.MQConstant;
 import com.blog.mq.entity.RocketMQMessage;
 import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.Resource;
@@ -38,30 +40,31 @@ public class SendSystemData {
 
     /**
      * 消息中组装单一种类数据
+     *
      * @param type  1: 发送文章 2: 发送文章分类 3: 发送文章标签 4: 发送文档 5: 发送文档分类 6: 发送日记
      * @param count 数量
      */
     public void sendSystemData(Integer type, Integer count) {
-//        BlogDataVo blogDataVo = new BlogDataVo();
-//
-//        if (type.equals(article)) {
-//            blogDataVo.setArticleCount(count);
-//        } else if (type.equals(articleType)) {
-//            blogDataVo.setArticleTypeCount(count);
-//        } else if (type.equals(articleLabel)) {
-//            blogDataVo.setArticleLabelCount(count);
-//        } else if (type.equals(doc)) {
-//            blogDataVo.setDocCount(count);
-//        } else if (type.equals(docType)) {
-//            blogDataVo.setDocTypeCount(count);
-//        } else if (type.equals(diary)) {
-//            blogDataVo.setDiaryCount(count);
-//        } else {
-//            return;
-//        }
+        BlogDataVo blogDataVo = new BlogDataVo();
+
+        if (type.equals(article)) {
+            blogDataVo.setArticleCount(count);
+        } else if (type.equals(articleType)) {
+            blogDataVo.setArticleTypeCount(count);
+        } else if (type.equals(articleLabel)) {
+            blogDataVo.setArticleLabelCount(count);
+        } else if (type.equals(doc)) {
+            blogDataVo.setDocCount(count);
+        } else if (type.equals(docType)) {
+            blogDataVo.setDocTypeCount(count);
+        } else if (type.equals(diary)) {
+            blogDataVo.setDiaryCount(count);
+        } else {
+            return;
+        }
 
         RocketMQMessage blogDataVoRocketMQMessage = new RocketMQMessage(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTopic(),
-                RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTag(), 1, JSON.toJSONString("blogDataVo"));
+                RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTag(), MQConstant.ADD_MSG, JSON.toJSONString("blogDataVo"));
         mqProducerService.sendSyncOrderly(blogDataVoRocketMQMessage);
     }
 }

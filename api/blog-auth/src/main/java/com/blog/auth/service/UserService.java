@@ -1,5 +1,7 @@
 package com.blog.auth.service;
 
+import com.blog.core.domain.auth.vo.UserVo;
+
 /**
  * @author lxk
  * @description 用户接口服务
@@ -7,4 +9,6 @@ package com.blog.auth.service;
  */
 
 public interface UserService {
+
+    UserVo selectUserById(Integer userId);
 }

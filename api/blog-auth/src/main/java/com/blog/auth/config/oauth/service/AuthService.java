@@ -29,7 +29,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-public class UserService implements UserDetailsService {
+public class AuthService implements UserDetailsService {
 
     @Resource
     private UserMapper userMapper;

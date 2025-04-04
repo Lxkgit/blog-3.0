@@ -1,5 +1,6 @@
 package com.blog.content.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.content.feign.UserClient;
 import com.blog.content.mapper.mybatis.ArticleMapper;
@@ -10,6 +11,7 @@ import com.blog.content.mq.send.SendUserData;
 import com.blog.content.service.ArticleService;
 import com.blog.core.constant.Constant;
 import com.blog.core.constant.ErrorMessage;
+import com.blog.core.domain.auth.entity.Role;
 import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.article.bo.ArticleBo;
 import com.blog.core.domain.content.article.entity.Article;
@@ -23,6 +25,7 @@ import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -128,7 +131,7 @@ public class ArticleServiceImpl implements ArticleService {
     /**
      * 更新文章接口
      *
-     * @param article  文章数据
+     * @param article 文章数据
      * @return
      */
     @Override
@@ -162,29 +165,29 @@ public class ArticleServiceImpl implements ArticleService {
     /**
      * 查询文章列表
      *
-     * @param articleVoParam 查询参数
+     * @param param 查询参数
      * @return
      */
     @Override
-    public MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo articleVoParam) throws ServiceException {
+    public MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo param) throws ServiceException {
         Integer userId = SecurityUtil.getLoginUser().getId();
 
         QueryWrapper<Article> articleQueryWrapper = new QueryWrapper<>();
 
         // 管理页面只查询当前用户文章，首页查询全部和指定用户文章
-        if (articleVoParam.getType() == 1) {
+        if (param.getType() == 1) {
             articleQueryWrapper.eq("user_id", userId);
         } else {
-            if (articleVoParam.getSelectUser() != null && articleVoParam.getSelectUser() != 0) {
-                articleQueryWrapper.eq("user_id", articleVoParam.getSelectUser());
+            if (param.getSelectUser() != null && param.getSelectUser() != 0) {
+                articleQueryWrapper.eq("user_id", param.getSelectUser());
             }
         }
 
         // 按照文章分类查询
-        if (StringUtils.isNotEmpty(articleVoParam.getArticleType())) {
+        if (StringUtils.isNotEmpty(param.getArticleType())) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(articleVoParam.getArticleType());
-            ArticleType articleType = articleTypeMapper.selectById(Integer.parseInt(articleVoParam.getArticleType()));
+            stringBuilder.append(param.getArticleType());
+            ArticleType articleType = articleTypeMapper.selectById(Integer.parseInt(param.getArticleType()));
             if (articleType == null) {
                 throw new ServiceException(ErrorMessage.ARTICLE_TYPE_ERROR);
             }
@@ -196,11 +199,11 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         // 指定文章状态
-        if (StringUtils.isNotEmpty(articleVoParam.getSelectStatus())) {
-            Set<String> statusSet = MyStringUtils.splitString(articleVoParam.getSelectStatus(), ",");
+        if (StringUtils.isNotEmpty(param.getSelectStatus())) {
+            Set<String> statusSet = MyStringUtils.splitString(param.getSelectStatus(), ",");
             articleQueryWrapper.and((wrapper) -> {
                 Iterator<String> set = statusSet.iterator();
-                int i=0;
+                int i = 0;
                 while (set.hasNext()) {
                     if (i == 0) {
                         wrapper.eq("article_status", set.next());
@@ -214,8 +217,8 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         // 排序
-        if (articleVoParam.getSortType() != null && !articleVoParam.getSortType().equals("")) {
-            List<String> sortList = Arrays.asList(articleVoParam.getSortType().split(","));
+        if (StringUtils.isNotEmpty(param.getSortType())) {
+            List<String> sortList = Arrays.asList(param.getSortType().split(","));
             if (sortList.contains("0")) {
                 articleQueryWrapper.orderByDesc("article_status");
             }
@@ -223,20 +226,22 @@ public class ArticleServiceImpl implements ArticleService {
                 articleQueryWrapper.orderByDesc("update_time");
             }
         }
-        PageHelper.startPage(articleVoParam.getPageNum(), articleVoParam.getPageSize());
-        Page<Article> articlePage = (Page<Article>) articleMapper.selectList(articleQueryWrapper);
+
+        PageHelper.startPage(param.getPageNum(), param.getPageSize());
+        List<Article> articleList = articleMapper.selectList(articleQueryWrapper);
+        PageInfo<Article> articlePage = new PageInfo<>(articleList);
         List<ArticleVo> articleVoList = new ArrayList<>();
 
         Map<Integer, UserVo> userMap = new HashMap<>();
-        for (Article article : articlePage) {
+        for (Article article : articlePage.getList()) {
             ArticleVo articleVo = new ArticleVo();
             BeanUtils.copyProperties(article, articleVo);
             if (userMap.containsKey(article.getUserId())) {
                 articleVo.setUserVo(userMap.get(article.getUserId()));
             } else {
-                UserVo userVo = userClient.selectUserById(article.getUserId());
-                userMap.put(article.getUserId(), userVo);
-                articleVo.setUserVo(userVo);
+//                UserVo userVo = userClient.selectUserById(article.getUserId());
+//                userMap.put(article.getUserId(), userVo);
+//                articleVo.setUserVo(userVo);
             }
             setArticleTypeAndLabel(article, articleVo);
             articleVoList.add(articleVo);
@@ -251,12 +256,12 @@ public class ArticleServiceImpl implements ArticleService {
      * @param articleVo
      */
     private void setArticleTypeAndLabel(Article article, ArticleVo articleVo) {
-        if (article.getArticleType() != null && !article.getArticleType().equals("")) {
+        if (StringUtils.isNotEmpty(article.getArticleType())) {
             String[] types = article.getArticleType().split(",");
             List<ArticleType> articleTypeList = articleTypeMapper.selectArticleTypeByArray(types);
             articleVo.setArticleTypes(articleTypeList);
         }
-        if (article.getArticleLabel() != null && !article.getArticleLabel().equals("")) {
+        if (StringUtils.isNotEmpty(article.getArticleLabel())) {
             String[] labels = article.getArticleLabel().split(",");
             List<ArticleLabel> articleLabelList = articleLabelMapper.selectArticleLabelByArray(labels);
             articleVo.setArticleLabels(articleLabelList);

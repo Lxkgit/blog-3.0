@@ -79,7 +79,7 @@ public class LogAspect {
             // 请求的地址
 //            String ip = IpUtils.getIpAddr();
             String ip = "IpUtils.getIpAddr()";
-            sysLog.setOperIp(ip);
+//            sysLog.setOperIp(ip);
             ServletRequestAttributes requestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
             HttpServletRequest request = requestAttributes.getRequest();
             System.out.println(request.toString());

@@ -1,7 +1,6 @@
 package com.blog.content.service.impl;
 
 
-
 import com.blog.content.feign.UserClient;
 import com.blog.content.mapper.mybatis.ArticleTypeMapper;
 import com.blog.content.mq.send.SendSystemData;

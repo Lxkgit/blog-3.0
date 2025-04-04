@@ -1,7 +1,6 @@
 package com.blog.content.service;
 
 
-
 import com.blog.core.domain.content.article.entity.ArticleType;
 import com.blog.core.domain.content.article.vo.ArticleTypeVo;
 import com.blog.core.exception.ServiceException;
@@ -49,6 +48,7 @@ public interface ArticleTypeService {
 
     /**
      * 通过id查询文章分类
+     *
      * @param id
      * @return
      */
@@ -56,12 +56,14 @@ public interface ArticleTypeService {
 
     /**
      * 查询全部文章分类
+     *
      * @return
      */
     List<ArticleType> selectArticleTypeList();
 
     /**
      * 查询文章分类，并返回树结构组织
+     *
      * @return
      */
     List<ArticleTypeVo> selectArticleTypeTree();

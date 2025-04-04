@@ -35,12 +35,6 @@ public interface MenuMapper extends BaseMapper<Menu> {
      */
     List<Menu> getAuthList(@Param("ids") List<Integer> ids);
 
-
-
-
-
-
-
     /**
      * 查询用户关联的菜单id
      *

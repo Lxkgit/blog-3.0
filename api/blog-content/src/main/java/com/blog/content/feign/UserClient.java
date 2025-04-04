@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @description:
  */
 
-@FeignClient("blog-user")
+@FeignClient("blog-auth")
 public interface UserClient {
 
-    @GetMapping(value = "/user/user/select/id")
+    @GetMapping(value = "/auth/user/select/id")
     UserVo selectUserById(@RequestParam(value = "userId") Integer userId);
 }

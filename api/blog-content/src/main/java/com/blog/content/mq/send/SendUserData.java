@@ -1,7 +1,9 @@
 package com.blog.content.mq.send;
 
 import com.alibaba.fastjson.JSON;
+import com.blog.core.domain.file.system.vo.ContentCountVo;
 import com.blog.core.enums.mq.RocketMQTopicEnum;
+import com.blog.mq.constant.MQConstant;
 import com.blog.mq.entity.RocketMQMessage;
 import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.Resource;
@@ -31,24 +33,25 @@ public class SendUserData {
 
     /**
      * 消息中组装单一种类数据
-     * @param type  1: 发送文章 2: 发送日记 3: 发送文档
+     *
+     * @param type   1: 发送文章 2: 发送日记 3: 发送文档
      * @param userId 用户id
-     * @param count 数量
+     * @param count  数量
      */
     public void sendUserData(Integer type, Integer userId, Integer count) {
-//        ContentCountVo contentCountVo = new ContentCountVo();
-//        contentCountVo.setUserId(userId);
-//        if (type.equals(article)) {
-//            contentCountVo.setArticleCount(count);
-//        } else if (type.equals(diary)) {
-//            contentCountVo.setDiaryCount(count);
-//        } else if (type.equals(doc)) {
-//            contentCountVo.setDocCount(count);
-//        } else {
-//            return;
-//        }
+        ContentCountVo contentCountVo = new ContentCountVo();
+        contentCountVo.setUserId(userId);
+        if (type.equals(article)) {
+            contentCountVo.setArticleCount(count);
+        } else if (type.equals(diary)) {
+            contentCountVo.setDiaryCount(count);
+        } else if (type.equals(doc)) {
+            contentCountVo.setDocCount(count);
+        } else {
+            return;
+        }
         RocketMQMessage rocketMQMessage = new RocketMQMessage(RocketMQTopicEnum.BLOG_USER_DATA.getTopic(),
-                RocketMQTopicEnum.BLOG_USER_DATA.getTag(), 1, JSON.toJSONString("contentCountVo"));
+                RocketMQTopicEnum.BLOG_USER_DATA.getTag(), MQConstant.ADD_MSG, JSON.toJSONString("contentCountVo"));
         mqProducerService.sendSyncOrderly(rocketMQMessage);
     }
 }

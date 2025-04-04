@@ -51,9 +51,6 @@ rocketmq:
     #设置一次消费消息的条数，默认为1条
     consumeMessageBatchMaxSize: 1
 
-mybatis:
-  mapper-locations: classpath:/mapper/*.xml
-
 easy-es:
   enable: true
   address : ${devServiceIp}:9200
@@ -81,4 +78,4 @@ file:
   serviceIp: http://localhost
 
 netty:
-  port: 9092
+  port: 60032

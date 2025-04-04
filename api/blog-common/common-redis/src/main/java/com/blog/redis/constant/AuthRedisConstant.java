@@ -11,15 +11,15 @@ public class AuthRedisConstant {
     /**
      * 认证id
      */
-    public final static String RZ_ID = "rzId";
+    public final static String RZ_ID = "AUTH:RZ_ID";
 
     /**
      * 公钥
      */
-    public static final String PUBLIC_KEY = "PUBLIC_KEY";
+    public static final String PUBLIC_KEY = "AUTH:PUBLIC_KEY";
 
     /**
      * 私钥
      */
-    public static final String PRIVATE_KEY = "PRIVATE_KEY";
+    public static final String PRIVATE_KEY = "AUTH:PRIVATE_KEY";
 }

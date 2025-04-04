@@ -1,6 +1,6 @@
 package com.blog.auth.config.oauth.provider;
 
-import com.blog.auth.config.oauth.service.UserService;
+import com.blog.auth.config.oauth.service.AuthService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 public class MyAuthenticationProvider implements AuthenticationProvider {
 
     @Resource
-    private UserService userService;
+    private AuthService userService;
 
     @Resource
     private PasswordEncoder passwordEncoder;

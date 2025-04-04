@@ -7,6 +7,7 @@ import com.blog.core.constant.Constant;
 import com.blog.core.constant.ErrorMessage;
 import com.blog.core.domain.file.files.entity.FileData;
 import com.blog.core.domain.file.files.vo.FileDataVo;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.file.netty.domain.common.NettyConstant;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncBlogFileDto;
@@ -18,6 +19,7 @@ import com.blog.file.mapper.FileSyncMapper;
 import com.blog.file.netty.service.NettyServer;
 import com.blog.file.service.FileService;
 import jakarta.annotation.Resource;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -56,6 +58,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void saveFileDir(FileDataVo fileDataVoParam) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         if (fileDataVoParam.getName() == null || fileDataVoParam.getName().equals("")) {
             throw new ServiceException(ErrorMessage.FILE_NAME_NULL_ERROR);
         }
@@ -63,7 +66,7 @@ public class FileServiceImpl implements FileService {
             throw new ServiceException(ErrorMessage.BASE_FILE_DIR_NOT_CREATE);
         }
         String path = basePath + "/" + 1 + fileDataVoParam.getFilePath();
-        List<FileDataVo> fileDataVoList = show(path, 1);
+        List<FileDataVo> fileDataVoList = show(path, userId);
         for (FileDataVo fileDataVo : fileDataVoList) {
             if (fileDataVo.getName().toLowerCase().equals(fileDataVoParam.getName().toLowerCase())) {
                 throw new ServiceException(ErrorMessage.FILE_NAME_SAME_ERROR);
@@ -216,11 +219,11 @@ public class FileServiceImpl implements FileService {
         return true;
     }
 
+
     /**
      * 查询用户的文件目录
-     *
-     * @param path     文件目录
- 用户信息
+     * @param path 文件目录
+     * @param userId 用户ID
      * @return 文件目录下数据列表
      */
     private List<FileDataVo> show(String path, Integer userId) {
@@ -250,7 +253,7 @@ public class FileServiceImpl implements FileService {
 
                         if (!file.isFile()) {
                             // 目录计算目录占用大小
-//                            fileDataVo.setFileSize(FileUtils.sizeOf(file));
+                            fileDataVo.setFileSize(FileUtils.sizeOf(file));
                         } else {
                             if (FileTypeEnum.IMAGE.getTypeList().contains(fileType)) {
                                 // 图片添加图片链接
@@ -267,13 +270,13 @@ public class FileServiceImpl implements FileService {
                     FileDataVo fileDataVo = new FileDataVo();
                     fileDataVo.setName(file.getName());
                     fileDataVo.setPath(path);
-                    fileDataVo.setUserId(1);
+                    fileDataVo.setUserId(userId);
                     fileDataVo.setDirType(dir == null ? 0 : dir.getDirType());
                     fileDataVo.setStatus(Constant.FILE_TYPE_FILE);
                     fileDataVo.setUpdateTime(new Date(file.lastModified()));
                     if (!file.isFile()) {
                         fileDataVo.setType(Constant.FILE_TYPE_DIR);
-//                        fileDataVo.setFileSize(FileUtils.sizeOf(file));
+                        fileDataVo.setFileSize(FileUtils.sizeOf(file));
                     } else {
                         if (FileTypeEnum.IMAGE.getTypeList().contains(fileType)) {
                             fileDataVo.setType(Constant.FILE_TYPE_FILE);

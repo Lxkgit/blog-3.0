@@ -8,6 +8,7 @@ import com.blog.core.enums.file.FileTypeEnum;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.file.service.ImportService;
 import com.blog.file.service.UploadFileService;
 import jakarta.annotation.Resource;
@@ -49,9 +50,10 @@ public class UploadFileController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('sys:file:user:upload')")
     public Result uploadFile(@Validated UploadVo uploadVo) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+
         MultipartFile[] files = uploadVo.getFiles();
         String filePath = FilePathEnum.getFilePathByCode(uploadVo.getFilePathCode());
-//        BlogUser blogUser = getBlogUser(request);
         List<String> typeList = FileTypeEnum.getTypeListByTypeName(uploadVo.getFileTypeCode());
         for (MultipartFile file : files) {
             String fileName = file.getOriginalFilename();
@@ -67,14 +69,14 @@ public class UploadFileController {
 
         try {
             // 基础路径按照用户id创建文件夹
-            String path = "/" + 1;
+            String path = "/" + userId;
             if (uploadVo.getFilePathCode().equals(FilePathEnum.USER_PATH.getFilePathCode())) {
                 // 上传用户个人文件拼接附加路径
                 path = path + uploadVo.getAddPath();
             } else {
                 path = path + filePath + FileTypeEnum.getTypePathByTypeName(uploadVo.getFileTypeCode());
             }
-            return fileUploadService.upload(files, 1, path);
+            return fileUploadService.upload(files, userId, path);
         } catch (Exception e) {
             log.error(ErrorMessage.UNKNOWN_ERROR.getDesc(), e);
             throw new ServiceException(ErrorMessage.UNKNOWN_ERROR);

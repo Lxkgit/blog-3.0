@@ -1,5 +1,6 @@
 package com.blog.core.domain.file.device.vo;
 
+import com.blog.core.domain.file.device.dto.NettyHeartbeatDto;
 import com.blog.core.domain.file.device.entity.DeviceHeartbeat;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,5 +15,5 @@ import lombok.Setter;
 @Setter
 public class DeviceHeartbeatVo extends DeviceHeartbeat {
 
-//    private NettyHeartBeatDto nettyHeartBeatDto;
+    private NettyHeartbeatDto nettyHeartbeatDto;
 }

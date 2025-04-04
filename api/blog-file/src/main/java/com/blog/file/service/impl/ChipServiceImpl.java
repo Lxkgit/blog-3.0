@@ -77,12 +77,12 @@ public class ChipServiceImpl implements ChipService {
     /**
      * 批量删除单片机
      *
-     * @param userId
      * @param ids
      * @return
      */
     @Override
-    public Integer deleteChips(Integer userId, String ids) {
+    public Integer deleteChips(String ids) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         Set<String> idSet = MyStringUtils.splitString(ids, ",");
         chipMapper.updateChipStatus(idSet, userId, Constant.DEVICE_DELETE);
         return idSet.size();
@@ -91,13 +91,13 @@ public class ChipServiceImpl implements ChipService {
     /**
      * 修改单片机信息
      *
-     * @param userId
      * @param chipVo
      * @return
      * @throws ServiceException
      */
     @Override
-    public Integer updateChip(Integer userId, ChipVo chipVo) throws ServiceException {
+    public Integer updateChip(ChipVo chipVo) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         QueryWrapper<Chip> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         wrapper.eq("chip_code", chipVo.getChipCode());
@@ -106,7 +106,7 @@ public class ChipServiceImpl implements ChipService {
         if (chip != null) {
             throw new ServiceException(ErrorMessage.CHIP_CODE_EXISTS);
         }
-//        chipVo.setUserId(userId);
+        chipVo.setUserId(userId);
         chipVo.setChipStatus(Constant.DEVICE_OFFLINE);
         chipVo.setUpdateTime(new Date());
         chipMapper.updateById(chipVo);
@@ -116,12 +116,12 @@ public class ChipServiceImpl implements ChipService {
     /**
      * 分页查询单片机
      *
-     * @param userId
      * @param chipVoParam
      * @return
      */
     @Override
-    public MyPage<ChipVo> selectChipList(Integer userId, ChipVo chipVoParam) {
+    public MyPage<ChipVo> selectChipList(ChipVo chipVoParam) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         Device device = deviceMapper.selectById(chipVoParam.getDeviceId());
 
         LambdaQueryWrapper<Chip> wrapper = new LambdaQueryWrapper<>();
@@ -145,16 +145,15 @@ public class ChipServiceImpl implements ChipService {
     /**
      * 查询指定单片机信息
      *
-     * @param userId
      * @param id
      * @return
      */
     @Override
-    public ChipVo selectChipId(Integer userId, Integer id) throws ServiceException {
-
+    public ChipVo selectChipId(Integer id) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         LambdaQueryWrapper<Chip> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Chip::getId, id);
-        wrapper.eq(Chip::getUserId, 1);
+        wrapper.eq(Chip::getUserId, userId);
         Chip chip = chipMapper.selectOne(wrapper);
 
         ChipVo chipVo = new ChipVo();
@@ -170,7 +169,7 @@ public class ChipServiceImpl implements ChipService {
     }
 
     @Override
-    public ChipVo selectChipInfo(Integer userId, ChipVo chipVo) {
+    public ChipVo selectChipInfo(ChipVo chipVo) {
         
 
         return null;

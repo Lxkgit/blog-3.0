@@ -21,9 +21,9 @@ import java.util.List;
 public class SensorTypeServiceImpl implements SensorTypeService {
 
     @Resource
-    private SensorTypeMapper sensorTypeDAO;
+    private SensorTypeMapper sensorTypeMapper;
 
     public List<SensorType> selectSensorTypeList() {
-        return sensorTypeDAO.selectList(null);
+        return sensorTypeMapper.selectList(null);
     }
 }

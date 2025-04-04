@@ -31,7 +31,7 @@ public class SensorTemplateController {
      */
     @GetMapping("/chipOrSensorId")
     public Result selectSensorTemplateByChipOrSensorId(SensorTemplateDTO sensorTemplateDTO) throws ServiceException {
-        return ResultFactory.buildSuccessResult(sensorTemplateService.selectSensorTemplateByChipOrSensorId(1, sensorTemplateDTO));
+        return ResultFactory.buildSuccessResult(sensorTemplateService.selectSensorTemplateByChipOrSensorId(sensorTemplateDTO));
     }
 
 }

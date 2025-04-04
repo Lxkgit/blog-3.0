@@ -64,7 +64,7 @@ public class ChipController {
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:chip:update')")
     public Result updateChip(@Validated(value = {UpdateGroup.class}) @RequestBody ChipVo chipVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(chipService.updateChip(1, chipVo));
+        return ResultFactory.buildSuccessResult(chipService.updateChip(chipVo));
     }
 
     /**
@@ -76,7 +76,7 @@ public class ChipController {
     @GetMapping("/list")
     @PreAuthorize("hasAnyAuthority('sys:chip:select')")
     public Result selectChipList(@Validated(value = {SelectListGroup.class}) ChipVo chipVo) {
-        return ResultFactory.buildSuccessResult(chipService.selectChipList(1, chipVo));
+        return ResultFactory.buildSuccessResult(chipService.selectChipList(chipVo));
     }
 
     /**
@@ -88,12 +88,12 @@ public class ChipController {
     @GetMapping("/id")
     @PreAuthorize("hasAnyAuthority('sys:chip:select')")
     public Result selectChipId(@Validated(value = {SelectIdGroup.class}) ChipVo chipVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(chipService.selectChipId(1, chipVo.getId()));
+        return ResultFactory.buildSuccessResult(chipService.selectChipId(chipVo.getId()));
     }
 
     @GetMapping("/info")
     @PreAuthorize("hasAnyAuthority('sys:chip:select')")
     public Result selectChipInfo(@Validated(value = {SelectIdGroup.class}) ChipVo chipVo) {
-        return ResultFactory.buildSuccessResult(chipService.selectChipInfo(1, chipVo));
+        return ResultFactory.buildSuccessResult(chipService.selectChipInfo(chipVo));
     }
 }

@@ -31,12 +31,6 @@ import java.util.List;
 @Service
 public class UploadFileServiceImpl implements UploadFileService {
 
-    @Resource
-    private UploadLogMapper uploadLogDAO;
-
-    @Resource
-    private UploadFileMapper uploadImgDAO;
-
     @Value("${file.basePath}")
     private String basePath;
 
@@ -45,6 +39,12 @@ public class UploadFileServiceImpl implements UploadFileService {
 
     @Value("${file.baseUri}")
     private String baseUri;
+
+    @Resource
+    private UploadLogMapper uploadLogMapper;
+
+    @Resource
+    private UploadFileMapper uploadFileMapper;
 
     @Override
     public Result upload(MultipartFile[] files, Integer userId, String filePath) {
@@ -57,7 +57,7 @@ public class UploadFileServiceImpl implements UploadFileService {
                 String formatDate = DateUtil.formatDateTime(date).replace(" ", "_").replace(":", "-");
                 String newFileName = formatDate + "_" + MyStringUtils.getRandomString(6) + "_" + fileName;
                 UploadLog uploadLog = new UploadLog(userId, newFileName, fileType, 0, "", date);
-                uploadLogDAO.insert(uploadLog);
+                uploadLogMapper.insert(uploadLog);
                 try {
                     File targetFile;
                     File file1 = new File(basePath + filePath);
@@ -69,11 +69,11 @@ public class UploadFileServiceImpl implements UploadFileService {
                     String url = serviceIp + baseUri + filePath + "/" + newFileName;
 
                     result.add(url);
-                    uploadImgDAO.insert(new UploadFile(userId, newFileName, url, date, fileType, basePath + filePath));
-                    uploadLogDAO.updateById(new UploadLog(uploadLog.getId(), userId, 1, "文件上传成功"));
+                    uploadFileMapper.insert(new UploadFile(userId, newFileName, url, date, fileType, basePath + filePath));
+                    uploadLogMapper.updateById(new UploadLog(uploadLog.getId(), userId, 1, "文件上传成功"));
 
                 } catch (Exception e) {
-                    uploadLogDAO.updateById(new UploadLog(uploadLog.getId(), userId, 2, "文件上传失败"));
+                    uploadLogMapper.updateById(new UploadLog(uploadLog.getId(), userId, 2, "文件上传失败"));
                     log.error(e.getMessage(), e);
                 }
             }

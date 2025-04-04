@@ -41,7 +41,7 @@ public class ImportServiceImpl implements ImportService {
     private String baseUri;
 
     @Resource
-    private UploadLogMapper uploadLogDAO;
+    private UploadLogMapper uploadLogMapper;
 
 //    @Resource
 //    private ContentClient contentClient;
@@ -123,7 +123,7 @@ public class ImportServiceImpl implements ImportService {
                 }
                 log.info("日记名称： {}", DateUtil.dateToDateTime(diaryDate) );
                 UploadLog uploadLog = new UploadLog(userId, DateUtil.dateToDateTime(diaryDate), "diary", uploadState, uploadStr, new Date());
-                uploadLogDAO.insert(uploadLog);
+                uploadLogMapper.insert(uploadLog);
             }
         }
         return flag;

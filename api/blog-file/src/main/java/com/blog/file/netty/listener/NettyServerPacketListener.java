@@ -7,7 +7,7 @@ import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.DeviceHeartbeat;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.file.netty.domain.dto.NettyClientChannel;
-import com.blog.file.netty.domain.dto.heart.NettyHeartBeatDto;
+import com.blog.core.domain.file.device.dto.NettyHeartbeatDto;
 import com.blog.file.netty.domain.dto.register.NettyRegisterDto;
 import com.blog.file.netty.domain.enums.NettyPacketType;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
@@ -136,7 +136,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
 
             // 更新通道最近心跳时间 防止被定时任务清除通道
             NettyServerHandler.clientMap.get(deviceCode).setDate(new Date());
-            NettyHeartBeatDto nettyHeartBeat = JSONObject.parseObject(data, NettyHeartBeatDto.class);
+            NettyHeartbeatDto nettyHeartBeat = JSONObject.parseObject(data, NettyHeartbeatDto.class);
 
             // 记录心跳中携带的 cpu 内存 网络 状态数据
             DeviceHeartbeat deviceHeartbeat = new DeviceHeartbeat();

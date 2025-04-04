@@ -13,14 +13,14 @@ import com.blog.core.result.MyPage;
 public interface SensorService {
 
 
-    Integer addSensor(Integer userId, SensorVo sensorVo) throws ServiceException;
+    Integer addSensor(SensorVo sensorVo) throws ServiceException;
 
-    Integer deleteSensors(Integer userId, String ids);
+    Integer deleteSensors(String ids);
 
-    Integer updateSensor(Integer userId, SensorVo sensorVo) throws ServiceException;
+    Integer updateSensor(SensorVo sensorVo) throws ServiceException;
 
-    MyPage<SensorVo> selectSensorList(Integer userId, SensorVo sensorVo);
+    MyPage<SensorVo> selectSensorList(SensorVo sensorVo);
 
-    SensorVo selectSensorId(Integer userId, Integer id);
+    SensorVo selectSensorId(Integer id);
 
 }

@@ -15,18 +15,18 @@ import java.util.List;
 
 public interface SensorControlService {
 
-    Integer createSensorControl(Integer userId, SensorControlVo sensorControlVo) throws ServiceException, IllegalAccessException, InstantiationException, NoSuchFieldException;
+    Integer createSensorControl(SensorControlVo sensorControlVo) throws ServiceException, IllegalAccessException, InstantiationException, NoSuchFieldException;
 
-    Integer deleteSensorControl(Integer userId, List<Integer> ids);
+    Integer deleteSensorControl(List<Integer> ids);
 
-    Integer updateSensorControl(Integer userId, SensorControlVo sensorControlVo);
+    Integer updateSensorControl(SensorControlVo sensorControlVo);
 
-    MyPage<SensorControlVo> selectSensorControlList(Integer userId, SensorControlVo sensorControlVo) throws ServiceException;
+    MyPage<SensorControlVo> selectSensorControlList(SensorControlVo sensorControlVo) throws ServiceException;
 
-    JSONObject selectSensorControlById(Integer userId, Integer id);
+    JSONObject selectSensorControlById(Integer id);
 
     /**
      * 下发传感器控制命令
      */
-    Boolean controlSensor(Integer userId, Integer id) throws ServiceException;
+    Boolean controlSensor(Integer id) throws ServiceException;
 }

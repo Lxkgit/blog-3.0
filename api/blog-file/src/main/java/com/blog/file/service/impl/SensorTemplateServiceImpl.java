@@ -8,6 +8,7 @@ import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.entity.SensorTemplate;
 import com.blog.core.domain.file.device.vo.SensorTemplateVO;
 import com.blog.core.exception.ServiceException;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.ChipMapper;
 import com.blog.file.mapper.SensorMapper;
 import com.blog.file.mapper.SensorTemplateMapper;
@@ -32,29 +33,31 @@ import java.util.stream.Stream;
 public class SensorTemplateServiceImpl implements SensorTemplateService {
 
     @Resource
-    private SensorTemplateMapper sensorTemplateDAO;
+    private SensorTemplateMapper sensorTemplateMapper;
 
     @Resource
-    private ChipMapper chipDAO;
+    private ChipMapper chipMapper;
 
     @Resource
-    private SensorMapper sensorDAO;
+    private SensorMapper sensorMapper;
 
     @Override
-    public List<SensorTemplateVO> selectSensorTemplateByChipOrSensorId(Integer userId, SensorTemplateDTO sensorTemplateDTO) throws ServiceException {
+    public List<SensorTemplateVO> selectSensorTemplateByChipOrSensorId(SensorTemplateDTO sensorTemplateDTO) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+
         LambdaQueryWrapper<SensorTemplate> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         Set<String> sensorTypeSet;
         if (sensorTemplateDTO.getChipId() != null) {
-            Chip chip = chipDAO.selectById(sensorTemplateDTO.getChipId());
-            sensorTypeSet = sensorDAO.selectList(new LambdaQueryWrapper<Sensor>().eq(Sensor::getDeviceCode, chip.getDeviceCode())
+            Chip chip = chipMapper.selectById(sensorTemplateDTO.getChipId());
+            sensorTypeSet = sensorMapper.selectList(new LambdaQueryWrapper<Sensor>().eq(Sensor::getDeviceCode, chip.getDeviceCode())
                     .eq(Sensor::getChipCode, chip.getChipCode())).stream().map(Sensor::getSensorType).collect(Collectors.toSet());
         } else if (sensorTemplateDTO.getSensorId() != null) {
-            sensorTypeSet = Stream.of(sensorDAO.selectById(sensorTemplateDTO.getSensorId())).map(Sensor::getSensorType).collect(Collectors.toSet());
+            sensorTypeSet = Stream.of(sensorMapper.selectById(sensorTemplateDTO.getSensorId())).map(Sensor::getSensorType).collect(Collectors.toSet());
         } else {
             throw new ServiceException("单片机id与传感器id不能同时为空");
         }
 
-        List<SensorTemplate> sensorTemplateList = sensorTemplateDAO.selectList(lambdaQueryWrapper.eq(SensorTemplate::getUserId, userId).in(SensorTemplate::getSensorType, sensorTypeSet));
+        List<SensorTemplate> sensorTemplateList = sensorTemplateMapper.selectList(lambdaQueryWrapper.eq(SensorTemplate::getUserId, userId).in(SensorTemplate::getSensorType, sensorTypeSet));
 
         List<SensorTemplateVO> sensorTemplateVOList = new ArrayList<>();
         sensorTemplateList.forEach(item -> {

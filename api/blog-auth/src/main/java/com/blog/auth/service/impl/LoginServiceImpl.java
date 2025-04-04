@@ -1,14 +1,13 @@
 package com.blog.auth.service.impl;
 
 
-import com.blog.core.constant.RedisConstant;
 import com.blog.auth.service.LoginService;
 import com.blog.core.domain.auth.vo.LoginVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
+import com.blog.redis.constant.AuthRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,7 +47,7 @@ public class LoginServiceImpl implements LoginService {
         }
         //认证Id
         String rzId = UUID.randomUUID().toString();
-        String key = RedisConstant.RZ_ID + ":" + rzId;
+        String key = AuthRedisConstant.RZ_ID + ":" + rzId;
         //创建安全上下文
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         //把用户认证信息放到 安全上下文中
@@ -68,7 +67,7 @@ public class LoginServiceImpl implements LoginService {
      */
     @Override
     public void tuiChu(String rzId) {
-        String key = RedisConstant.RZ_ID + ":" + rzId;
+        String key = AuthRedisConstant.RZ_ID + ":" + rzId;
         //清空上下文
         SecurityContextHolder.clearContext();
         //删除缓存

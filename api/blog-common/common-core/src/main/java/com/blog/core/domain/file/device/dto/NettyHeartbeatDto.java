@@ -1,9 +1,8 @@
-package com.blog.file.netty.domain.dto.heart;
+package com.blog.core.domain.file.device.dto;
 
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -18,12 +17,11 @@ import java.util.List;
  */
 
 @Data
-public class NettyHeartBeatDto {
+public class NettyHeartbeatDto {
 
     /**
      * 心跳时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date heartBeat;
 

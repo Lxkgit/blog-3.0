@@ -14,5 +14,5 @@ public interface SensorDataService {
 
     Integer saveSensorData(SensorData sensorData);
 
-    MyPage<SensorDataVo> selectSensorDataList(Integer userId, SensorDataVo sensorDataVo);
+    MyPage<SensorDataVo> selectSensorDataList(SensorDataVo sensorDataVo);
 }

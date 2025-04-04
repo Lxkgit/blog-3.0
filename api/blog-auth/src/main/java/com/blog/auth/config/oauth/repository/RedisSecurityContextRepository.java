@@ -2,7 +2,7 @@ package com.blog.auth.config.oauth.repository;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.blog.auth.config.oauth.context.SupplierDeferredSecurityContext;
-import com.blog.core.constant.RedisConstant;
+import com.blog.redis.constant.AuthRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,7 +54,7 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
         if (ObjectUtils.isEmpty(rzId)) {
             return;
         }
-        String key = RedisConstant.RZ_ID + ":" + rzId;
+        String key = AuthRedisConstant.RZ_ID + ":" + rzId;
         // 如果当前的context是空的，则移除
         SecurityContext emptyContext = this.securityContextHolderStrategy.createEmptyContext();
         if (emptyContext.equals(context)) {
@@ -77,7 +77,7 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
         if (ObjectUtils.isEmpty(rzId)) {
             return false;
         }
-        String key = RedisConstant.RZ_ID + ":" + rzId;
+        String key = AuthRedisConstant.RZ_ID + ":" + rzId;
         return redisService.getString(key) != null;
     }
 
@@ -109,7 +109,7 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
         if (ObjectUtils.isEmpty(rzId)) {
             return null;
         }
-        String key = RedisConstant.RZ_ID + ":" + rzId;
+        String key = AuthRedisConstant.RZ_ID + ":" + rzId;
         // 根据缓存 获取认证信息
         Object o = redisService.getString(key);
         //直接返回上下文 就不需要再登陆了 否则会跳转到登陆界面

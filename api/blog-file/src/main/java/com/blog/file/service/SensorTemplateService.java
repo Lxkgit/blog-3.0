@@ -14,5 +14,5 @@ import java.util.List;
 
 public interface SensorTemplateService {
 
-    List<SensorTemplateVO> selectSensorTemplateByChipOrSensorId(Integer userId, SensorTemplateDTO sensorTemplateDTO) throws ServiceException;
+    List<SensorTemplateVO> selectSensorTemplateByChipOrSensorId(SensorTemplateDTO sensorTemplateDTO) throws ServiceException;
 }

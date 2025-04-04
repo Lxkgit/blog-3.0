@@ -40,7 +40,7 @@ public class DeviceController {
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:device:save')")
     public Result addDevice(@Validated(value = {AddGroup.class}) @RequestBody DeviceVo deviceVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(deviceService.addDevice(1, deviceVo));
+        return ResultFactory.buildSuccessResult(deviceService.addDevice(deviceVo));
     }
 
     /**
@@ -53,7 +53,7 @@ public class DeviceController {
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:device:delete')")
     public Result deleteDevice(@Validated(value = {DeleteGroup.class}) DeviceVo deviceVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(deviceService.deleteDevice(1, deviceVo.getIds()));
+        return ResultFactory.buildSuccessResult(deviceService.deleteDevice(deviceVo.getIds()));
     }
 
     /**
@@ -66,7 +66,7 @@ public class DeviceController {
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:device:update')")
     public Result updateDevice(@Validated(value = {UpdateGroup.class}) @RequestBody DeviceVo deviceVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(deviceService.updateDevice(1, deviceVo));
+        return ResultFactory.buildSuccessResult(deviceService.updateDevice(deviceVo));
     }
 
     /**
@@ -77,7 +77,7 @@ public class DeviceController {
     @GetMapping("/list")
     @PreAuthorize("hasAnyAuthority('sys:device:select')")
     public Result selectDeviceList() throws ServiceException {
-        return ResultFactory.buildSuccessResult(deviceService.selectDeviceList(1));
+        return ResultFactory.buildSuccessResult(deviceService.selectDeviceList());
     }
 
     /**
@@ -89,13 +89,13 @@ public class DeviceController {
     @GetMapping("/id")
     @PreAuthorize("hasAnyAuthority('sys:device:select')")
     public Result selectDeviceById(@Validated(value = {SelectIdGroup.class}) DeviceVo deviceVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(deviceService.selectDeviceById(1, deviceVo.getId()));
+        return ResultFactory.buildSuccessResult(deviceService.selectDeviceById(deviceVo.getId()));
     }
 
     @GetMapping("/info")
     @PreAuthorize("hasAnyAuthority('sys:device:select')")
     public Result selectDeviceInfo(@Validated(value = {SelectIdGroup.class}) DeviceVo deviceVo) {
-        return ResultFactory.buildSuccessResult(deviceService.selectDeviceInfoById(1, deviceVo.getId()));
+        return ResultFactory.buildSuccessResult(deviceService.selectDeviceInfoById(deviceVo.getId()));
     }
 
 }

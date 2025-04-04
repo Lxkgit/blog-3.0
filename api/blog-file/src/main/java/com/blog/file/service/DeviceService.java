@@ -15,15 +15,15 @@ import java.util.List;
 
 public interface DeviceService {
 
-    Integer addDevice(Integer userId, DeviceVo deviceVo) throws ServiceException;
+    Integer addDevice(DeviceVo deviceVo) throws ServiceException;
 
-    Integer updateDevice(Integer userId, DeviceVo deviceVo) throws ServiceException;
+    Integer updateDevice(DeviceVo deviceVo) throws ServiceException;
 
-    Integer deleteDevice(Integer userId, String ids) throws ServiceException;
+    Integer deleteDevice(String ids) throws ServiceException;
 
-    List<Device> selectDeviceList(Integer userId) throws ServiceException;
+    List<Device> selectDeviceList() throws ServiceException;
 
-    DeviceVo selectDeviceById(Integer userId, Integer id) throws ServiceException;
+    DeviceVo selectDeviceById(Integer id) throws ServiceException;
 
-    List<DeviceHeartbeatVo> selectDeviceInfoById(Integer userId, Integer id);
+    List<DeviceHeartbeatVo> selectDeviceInfoById(Integer id);
 }

@@ -50,7 +50,7 @@ public class SensorController {
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:sensor:save')")
     public Result addSensor( @Validated(value = {AddGroup.class}) @RequestBody SensorVo sensorVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(sensorService.addSensor(1, sensorVo));
+        return ResultFactory.buildSuccessResult(sensorService.addSensor(sensorVo));
     }
 
     /**
@@ -62,7 +62,7 @@ public class SensorController {
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:sensor:delete')")
     public Result deleteSensor( @Validated(value = {DeleteMapping.class}) SensorVo sensorVo) {
-        return ResultFactory.buildSuccessResult(sensorService.deleteSensors(1, sensorVo.getIds()));
+        return ResultFactory.buildSuccessResult(sensorService.deleteSensors(sensorVo.getIds()));
     }
 
     /**
@@ -75,7 +75,7 @@ public class SensorController {
     @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('sys:sensor:update')")
     public Result updateSensor( @Validated(value = {UpdateGroup.class}) @RequestBody SensorVo sensorVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(sensorService.updateSensor(1, sensorVo));
+        return ResultFactory.buildSuccessResult(sensorService.updateSensor(sensorVo));
     }
 
     /**
@@ -87,7 +87,7 @@ public class SensorController {
     @GetMapping("/list")
     @PreAuthorize("hasAnyAuthority('sys:sensor:select')")
     public Result selectSensorList( @Validated(value = {SelectListGroup.class}) SensorVo sensorVo) {
-        return ResultFactory.buildSuccessResult(sensorService.selectSensorList(1, sensorVo));
+        return ResultFactory.buildSuccessResult(sensorService.selectSensorList(sensorVo));
     }
 
     /**
@@ -101,7 +101,7 @@ public class SensorController {
     @GetMapping("/id")
     @PreAuthorize("hasAnyAuthority('sys:sensor:select')")
     public Result selectSensorId( @Validated(value = {SelectIdGroup.class}) SensorVo sensorVo) {
-        return ResultFactory.buildSuccessResult(sensorService.selectSensorId(1, sensorVo.getId()));
+        return ResultFactory.buildSuccessResult(sensorService.selectSensorId(sensorVo.getId()));
     }
 
     /**
@@ -125,7 +125,7 @@ public class SensorController {
     @PostMapping("/control/save")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:save')")
     public Result addSensorControl( @Validated(value = {AddGroup.class}) @RequestBody SensorControlVo sensorControlVo) throws ServiceException, InstantiationException, IllegalAccessException, NoSuchFieldException {
-        return ResultFactory.buildSuccessResult(sensorControlService.createSensorControl(1, sensorControlVo));
+        return ResultFactory.buildSuccessResult(sensorControlService.createSensorControl(sensorControlVo));
     }
 
     /**
@@ -137,7 +137,7 @@ public class SensorController {
     @DeleteMapping("/control/delete")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:delete')")
     public Result deleteSensorControl( @Validated(value = {DeleteGroup.class}) SensorControlVo sensorControlVo) {
-        return ResultFactory.buildSuccessResult(sensorControlService.deleteSensorControl(1, sensorControlVo.getIds()));
+        return ResultFactory.buildSuccessResult(sensorControlService.deleteSensorControl(sensorControlVo.getIds()));
     }
 
     /**
@@ -149,7 +149,7 @@ public class SensorController {
     @PostMapping("/control/update")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:update')")
     public Result updateSensorControl( @Validated(value = {UpdateGroup.class}) @RequestBody SensorControlVo sensorControlVo) {
-        return ResultFactory.buildSuccessResult(sensorControlService.updateSensorControl(1, sensorControlVo));
+        return ResultFactory.buildSuccessResult(sensorControlService.updateSensorControl(sensorControlVo));
     }
 
     /**
@@ -161,7 +161,7 @@ public class SensorController {
     @GetMapping("/control/list")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:select')")
     public Result selectSensorControlList( @Validated(value = {SelectListGroup.class}) SensorControlVo sensorControlVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(sensorControlService.selectSensorControlList(1, sensorControlVo));
+        return ResultFactory.buildSuccessResult(sensorControlService.selectSensorControlList(sensorControlVo));
     }
 
     /**
@@ -173,7 +173,7 @@ public class SensorController {
     @GetMapping("/control/id")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:select')")
     public Result selectSensorControlById( @Validated(value = {SelectIdGroup.class}) SensorControlVo sensorControlVo) {
-        return ResultFactory.buildSuccessResult(sensorControlService.selectSensorControlById(1, sensorControlVo.getId()));
+        return ResultFactory.buildSuccessResult(sensorControlService.selectSensorControlById(sensorControlVo.getId()));
     }
 
     /**
@@ -185,7 +185,7 @@ public class SensorController {
     @GetMapping("/control/send")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:send')")
     public Result controlSensor( @Validated(value = {SelectIdGroup.class}) SensorControlVo sensorControlVo) throws ServiceException {
-        Boolean flag = sensorControlService.controlSensor(1, sensorControlVo.getId());
+        Boolean flag = sensorControlService.controlSensor(sensorControlVo.getId());
         if (flag) {
             return ResultFactory.buildSuccessResult();
         }
@@ -201,7 +201,7 @@ public class SensorController {
     @GetMapping("/data")
     @PreAuthorize("hasAnyAuthority('sys:sensor:data:select')")
     public Result selectSensorDataList( @Validated(value = {SelectIdGroup.class}) SensorDataVo sensorDataVo) {
-        return ResultFactory.buildSuccessResult(sensorDataService.selectSensorDataList(1, sensorDataVo));
+        return ResultFactory.buildSuccessResult(sensorDataService.selectSensorDataList(sensorDataVo));
     }
 
 }

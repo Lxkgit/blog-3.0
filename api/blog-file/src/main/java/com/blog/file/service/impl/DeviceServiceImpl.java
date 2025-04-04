@@ -1,6 +1,7 @@
 package com.blog.file.service.impl;
 
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.constant.Constant;
@@ -12,10 +13,13 @@ import com.blog.core.domain.file.device.vo.DeviceHeartbeatVo;
 import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.ChipMapper;
 import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.mapper.DeviceHeartbeatMapper;
 import com.blog.file.mapper.UserDeviceMapper;
+import com.blog.core.domain.file.device.dto.NettyHeartbeatDto;
+import com.blog.file.netty.schedule.DeviceStatusSchedule;
 import com.blog.file.service.DeviceService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -36,59 +40,58 @@ import java.util.Set;
 public class DeviceServiceImpl implements DeviceService {
 
     @Resource
-    private DeviceMapper deviceDAO;
+    private DeviceMapper deviceMapper;
 
     @Resource
-    private ChipMapper chipDAO;
+    private ChipMapper chipMapper;
 
     @Resource
     private UserDeviceMapper userDeviceDAO;
 
     @Resource
-    private DeviceHeartbeatMapper deviceHeartbeatDAO;
+    private DeviceHeartbeatMapper deviceHeartbeatMapper;
 
     /**
      * 新增设备
      *
-     * @param userId
      * @param deviceVo
      * @return
      * @throws ServiceException
      */
     @Override
-    public Integer addDevice(Integer userId, DeviceVo deviceVo) throws ServiceException {
+    public Integer addDevice(DeviceVo deviceVo) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         QueryWrapper<Device> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         wrapper.eq("device_code", deviceVo.getDeviceCode());
-        Device device = deviceDAO.selectOne(wrapper);
+        Device device = deviceMapper.selectOne(wrapper);
         if (device != null) {
             throw new ServiceException(ErrorMessage.DEVICE_CODE_EXISTS);
         }
-//        BlogUser blogUser = JSONObject.parseObject(JSONObject.toJSONString(userClient.getUserById(userId).getResult()), BlogUser.class);
-//        deviceVo.setUserId(blogUser.getId());
+        deviceVo.setUserId(userId);
         deviceVo.setDeviceStatus(Constant.DEVICE_OFFLINE);
         deviceVo.setCreateTime(new Date());
         deviceVo.setUpdateTime(new Date());
-        deviceDAO.insert(deviceVo);
+        deviceMapper.insert(deviceVo);
         return deviceVo.getId();
     }
 
     /**
      * 删除设备
      *
-     * @param userId
      * @param ids
      * @return
      * @throws ServiceException
      */
     @Override
-    public Integer deleteDevice(Integer userId, String ids) throws ServiceException {
+    public Integer deleteDevice(String ids) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         Set<String> idSet = MyStringUtils.splitString(ids, ",");
         for (String id : idSet) {
-            Device device = deviceDAO.selectById(Integer.parseInt(id));
+            Device device = deviceMapper.selectById(Integer.parseInt(id));
             if (device != null) {
-//                DeviceStatusSchedule.removeChannelByRegisterId(device.getDeviceCode(), deviceDAO);
-                deviceDAO.updateDeviceStatusById(id, userId, Constant.DEVICE_DELETE);
+                DeviceStatusSchedule.removeChannelByRegisterId(device.getDeviceCode(), deviceMapper);
+                deviceMapper.updateDeviceStatusById(id, userId, Constant.DEVICE_DELETE);
             } else {
                 throw new ServiceException(ErrorMessage.DEVICE_NOT_EXISTS, "id: " + id);
             }
@@ -99,61 +102,59 @@ public class DeviceServiceImpl implements DeviceService {
     /**
      * 修改设备
      *
-     * @param userId
      * @param deviceVo
      * @return
      * @throws ServiceException
      */
     @Override
-    public Integer updateDevice(Integer userId, DeviceVo deviceVo) throws ServiceException {
+    public Integer updateDevice(DeviceVo deviceVo) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         QueryWrapper<Device> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         wrapper.eq("device_code", deviceVo.getDeviceCode());
         wrapper.ne("id", deviceVo.getId());
-        Device device = deviceDAO.selectOne(wrapper);
+        Device device = deviceMapper.selectOne(wrapper);
         if (device != null) {
             throw new ServiceException(ErrorMessage.DEVICE_CODE_EXISTS);
         }
-        Device oldDevice = deviceDAO.selectById(deviceVo.getId());
+        Device oldDevice = deviceMapper.selectById(deviceVo.getId());
         // 设备编码变化需要重新连接netty通道
         if (!oldDevice.getDeviceCode().equals(deviceVo.getDeviceCode())) {
-//            DeviceStatusSchedule.removeChannelByRegisterId(oldDevice.getDeviceCode(), deviceDAO);
+            DeviceStatusSchedule.removeChannelByRegisterId(oldDevice.getDeviceCode(), deviceMapper);
         }
-        deviceDAO.updateById(deviceVo);
+        deviceMapper.updateById(deviceVo);
         return deviceVo.getId();
     }
 
     /**
      * 查询设备列表
      *
-     * @param userId
      * @return
      */
     @Override
-    public List<Device> selectDeviceList(Integer userId) throws ServiceException {
-//        BlogUser blogUser = userService.getBlogUserById(userId);
+    public List<Device> selectDeviceList() throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         LambdaQueryWrapper<Device> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Device::getUserId, 1);
-        return deviceDAO.selectList(wrapper);
+        wrapper.eq(Device::getUserId, userId);
+        return deviceMapper.selectList(wrapper);
     }
 
 
     @Override
-    public DeviceVo selectDeviceById(Integer userId, Integer id) throws ServiceException {
-
-//        BlogUser blogUser = userService.getBlogUserById(userId);
+    public DeviceVo selectDeviceById(Integer id) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
 
         LambdaQueryWrapper<Device> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Device::getId, id);
-        wrapper.eq(Device::getUserId, 1);
-        Device device = deviceDAO.selectOne(wrapper);
+        wrapper.eq(Device::getUserId, userId);
+        Device device = deviceMapper.selectOne(wrapper);
 
         DeviceVo deviceVo = new DeviceVo();
         BeanUtils.copyProperties(device, deviceVo);
 
         LambdaQueryWrapper<Chip> chipLambdaQueryWrapper = new LambdaQueryWrapper<>();
         chipLambdaQueryWrapper.eq(Chip::getDeviceCode, device.getDeviceCode());
-        List<Chip> chipList = chipDAO.selectList(chipLambdaQueryWrapper);
+        List<Chip> chipList = chipMapper.selectList(chipLambdaQueryWrapper);
         deviceVo.setChipList(chipList);
 
         return deviceVo;
@@ -161,16 +162,15 @@ public class DeviceServiceImpl implements DeviceService {
 
     /**
      * 查询设备详细信息
-     * @param userId 用户id
      * @param id 设备id
      * @return
      */
     @Override
-    public List<DeviceHeartbeatVo> selectDeviceInfoById(Integer userId, Integer id) {
-
+    public List<DeviceHeartbeatVo> selectDeviceInfoById(Integer id) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         int dataCount = 100;
 
-        Device device = deviceDAO.selectById(id);
+        Device device = deviceMapper.selectById(id);
 
         LambdaQueryWrapper<DeviceHeartbeat> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DeviceHeartbeat::getUserId, userId);
@@ -178,14 +178,14 @@ public class DeviceServiceImpl implements DeviceService {
         wrapper.orderByDesc(DeviceHeartbeat::getId);
         wrapper.last("LIMIT " + dataCount);
 
-        List<DeviceHeartbeat> list = deviceHeartbeatDAO.selectList(wrapper);
+        List<DeviceHeartbeat> list = deviceHeartbeatMapper.selectList(wrapper);
 
         List<DeviceHeartbeatVo> voList = new ArrayList<>();
 
         list.forEach(item -> {
             DeviceHeartbeatVo vo = new DeviceHeartbeatVo();
             BeanUtils.copyProperties(item, vo);
-//            vo.setNettyHeartBeatDto(JSONObject.parseObject(item.getDeviceJson(), NettyHeartBeatDto.class));
+            vo.setNettyHeartbeatDto(JSONObject.parseObject(item.getDeviceJson(), NettyHeartbeatDto.class));
             vo.setDeviceJson(null);
             voList.add(vo);
         });

@@ -15,6 +15,7 @@ import com.blog.core.exception.ServiceException;
 import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.BeanValidationUtil;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.core.valication.group.AddGroup;
 import com.blog.file.mapper.*;
 import com.blog.file.netty.domain.dto.NettyPacket;
@@ -52,13 +53,13 @@ public class SensorControlServiceImpl implements SensorControlService {
     private DeviceMapper deviceDAO;
 
     @Resource
-    private ChipMapper chipDAO;
+    private ChipMapper chipMapper;
 
     @Resource
-    private SensorMapper sensorDAO;
+    private SensorMapper sensorMapper;
 
     @Resource
-    private SensorControlMapper sensorControlDAO;
+    private SensorControlMapper sensorControlMapper;
 
     @Resource
     private NettyServer nettyServer;
@@ -70,19 +71,19 @@ public class SensorControlServiceImpl implements SensorControlService {
     private UserDeviceMapper userDeviceDAO;
 
     @Resource
-    private SensorTemplateMapper sensorTemplateDAO;
+    private SensorTemplateMapper sensorTemplateMapper;
 
     /**
      * 下发传感器控制指令
      *
-     * @param userId
      * @param id     控制命令消息id
      * @throws ServiceException
      */
     @Override
-    public Boolean controlSensor(Integer userId, Integer id) throws ServiceException {
+    public Boolean controlSensor(Integer id) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
 
-        SensorControl sensorControl = sensorControlDAO.selectById(id);
+        SensorControl sensorControl = sensorControlMapper.selectById(id);
 
         if (sensorControl == null) {
             throw new ServiceException(ErrorMessage.SENSOR_CONTROL_NOT_EXISTS);
@@ -92,7 +93,7 @@ public class SensorControlServiceImpl implements SensorControlService {
             throw new ServiceException("只能控制自己的传感器");
         }
 
-        Sensor sensor = sensorDAO.selectById(sensorControl.getSensorId());
+        Sensor sensor = sensorMapper.selectById(sensorControl.getSensorId());
 
         List<SteeringEngine180Dto> list = JSONArray.parseArray(sensorControl.getControlMessage(), SteeringEngine180Dto.class);
 
@@ -110,13 +111,13 @@ public class SensorControlServiceImpl implements SensorControlService {
     /**
      * 创建传感器控制指令
      *
-     * @param userId
      * @param sensorControlVo
      * @return
      * @throws ServiceException
      */
     @Override
-    public Integer createSensorControl(Integer userId, SensorControlVo sensorControlVo) throws ServiceException, IllegalAccessException, InstantiationException, NoSuchFieldException {
+    public Integer createSensorControl(SensorControlVo sensorControlVo) throws ServiceException, IllegalAccessException, InstantiationException, NoSuchFieldException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
 
         JSONArray jsonArray = JSONArray.parseArray(sensorControlVo.getControlMessage());
         List<SensorCommandCheckDto> sensorCommandCheckDtoList = new ArrayList<>();
@@ -175,9 +176,9 @@ public class SensorControlServiceImpl implements SensorControlService {
         sensorControlVo.setControlMessage(JSONObject.toJSONString(sensorCommandCheckDtoList));
 
         if (sensorControlVo.getId() != null) {
-            sensorControlDAO.updateById(sensorControlVo);
+            sensorControlMapper.updateById(sensorControlVo);
         } else {
-            sensorControlDAO.insert(sensorControlVo);
+            sensorControlMapper.insert(sensorControlVo);
         }
         return sensorControlVo.getId();
     }
@@ -185,42 +186,42 @@ public class SensorControlServiceImpl implements SensorControlService {
     /**
      * 删除传感器控制指令
      *
-     * @param userId
      * @param ids
      * @return
      */
     @Override
-    public Integer deleteSensorControl(Integer userId, List<Integer> ids) {
+    public Integer deleteSensorControl(List<Integer> ids) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         LambdaQueryWrapper<SensorControl> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.in(SensorControl::getId, ids);
         lambdaQueryWrapper.eq(SensorControl::getUserId, userId);
-        return sensorControlDAO.delete(lambdaQueryWrapper);
+        return sensorControlMapper.delete(lambdaQueryWrapper);
     }
 
     /**
      * 修改传感器控制指令
      *
-     * @param userId
      * @param sensorControlVo
      * @return
      */
     @Override
-    public Integer updateSensorControl(Integer userId, SensorControlVo sensorControlVo) {
+    public Integer updateSensorControl(SensorControlVo sensorControlVo) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
         sensorControlVo.setUserId(userId);
         sensorControlVo.setUpdateTime(new Date());
-        sensorControlDAO.updateSensorControlById(sensorControlVo);
+        sensorControlMapper.updateSensorControlById(sensorControlVo);
         return sensorControlVo.getId();
     }
 
     /**
      * 分页查询传感器指令
      *
-     * @param userId
      * @param sensorControlVoParam
      * @return
      */
     @Override
-    public MyPage<SensorControlVo> selectSensorControlList(Integer userId, SensorControlVo sensorControlVoParam) throws ServiceException {
+    public MyPage<SensorControlVo> selectSensorControlList(SensorControlVo sensorControlVoParam) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
 
         // 传感器与单片机id
         Integer sensorId = sensorControlVoParam.getSensorId();
@@ -244,7 +245,7 @@ public class SensorControlServiceImpl implements SensorControlService {
             if (sensorControlVoParam.getCommandGroup() != null) {
                 wrapper.eq(SensorControl::getCommandGroup, sensorControlVoParam.getCommandGroup());
             }
-            Chip chip = chipDAO.selectById(chipId);
+            Chip chip = chipMapper.selectById(chipId);
             sensorLambdaQueryWrapper = new LambdaQueryWrapper<Sensor>().eq(Sensor::getUserId, userId)
                     .eq(Sensor::getDeviceCode, chip.getDeviceCode()).eq(Sensor::getChipCode, chip.getChipCode());
 
@@ -254,10 +255,10 @@ public class SensorControlServiceImpl implements SensorControlService {
 
         // 获取到传感器控制命令
         PageHelper.startPage(sensorControlVoParam.getPageNum(), sensorControlVoParam.getPageSize());
-        Page<SensorControl> sensorControlPage = (Page<SensorControl>) sensorControlDAO.selectList(wrapper);
+        Page<SensorControl> sensorControlPage = (Page<SensorControl>) sensorControlMapper.selectList(wrapper);
 
         // 获取传感器
-        sensorMap = sensorDAO.selectList(sensorLambdaQueryWrapper).stream().collect(Collectors.toMap(Sensor::getId, Function.identity()));
+        sensorMap = sensorMapper.selectList(sensorLambdaQueryWrapper).stream().collect(Collectors.toMap(Sensor::getId, Function.identity()));
 
         // 返回的传感器命令数据
         List<SensorControlVo> sensorControlVoList = new ArrayList<>();
@@ -304,13 +305,13 @@ public class SensorControlServiceImpl implements SensorControlService {
      *      ]
      * }
      *
-     * @param userId
      * @param id
      * @return
      */
     @Override
-    public JSONObject selectSensorControlById(Integer userId, Integer id) {
-        SensorControl sensorControl = sensorControlDAO.selectOne(new LambdaQueryWrapper<SensorControl>().eq(SensorControl::getUserId, userId).eq(SensorControl::getId, id));
+    public JSONObject selectSensorControlById(Integer id) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+        SensorControl sensorControl = sensorControlMapper.selectOne(new LambdaQueryWrapper<SensorControl>().eq(SensorControl::getUserId, userId).eq(SensorControl::getId, id));
         JSONObject result = new JSONObject();
         result.put("id", id);
         result.put("name", sensorControl.getControlName());
@@ -325,10 +326,10 @@ public class SensorControlServiceImpl implements SensorControlService {
         }
 
         // 获取命令组中的传感器类型
-        Set<String> sensorTypeSet = sensorDAO.selectList(new LambdaQueryWrapper<Sensor>().in(Sensor::getId, sensorIds))
+        Set<String> sensorTypeSet = sensorMapper.selectList(new LambdaQueryWrapper<Sensor>().in(Sensor::getId, sensorIds))
                 .stream().map(Sensor::getSensorType).collect(Collectors.toSet());
 
-        Map<String, SensorTemplate> sensorTemplateMap = sensorTemplateDAO.selectList(new LambdaQueryWrapper<SensorTemplate>()
+        Map<String, SensorTemplate> sensorTemplateMap = sensorTemplateMapper.selectList(new LambdaQueryWrapper<SensorTemplate>()
                 .in(SensorTemplate::getSensorType, sensorTypeSet)).stream().collect(Collectors.toMap(SensorTemplate::getSensorType, Function.identity()));
 
         // 解析控制命令
@@ -342,7 +343,7 @@ public class SensorControlServiceImpl implements SensorControlService {
             sensorData.put("sensorCode", js.getString("sensorCode"));
 
             SensorVo sensorVo = new SensorVo();
-            BeanUtils.copyProperties(sensorDAO.selectById(js.getInteger("id")), sensorVo);
+            BeanUtils.copyProperties(sensorMapper.selectById(js.getInteger("id")), sensorVo);
             sensorData.put("sensorData", sensorVo);
 
             SensorTemplate from = sensorTemplateMap.get(js.getString("sensorType"));

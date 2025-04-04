@@ -1,9 +1,9 @@
 package com.blog.auth.config.filter;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.blog.core.constant.RedisConstant;
 import com.blog.core.utils.JwtUtil;
 import com.blog.core.utils.SecurityUtil;
+import com.blog.redis.constant.AuthRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
@@ -51,7 +51,7 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.isNotEmpty(rzId)) {
                 SecurityUtil.setRzId(rzId);
                 //去redis中获取上下文
-                String key = RedisConstant.RZ_ID + ":" + rzId;
+                String key = AuthRedisConstant.RZ_ID + ":" + rzId;
                 // 根据缓存 获取认证信息
                 Object o = redisService.getString(key);
                 if (o == null) {

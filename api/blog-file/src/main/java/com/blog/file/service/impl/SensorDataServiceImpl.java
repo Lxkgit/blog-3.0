@@ -30,10 +30,10 @@ import java.util.List;
 public class SensorDataServiceImpl implements SensorDataService {
 
     @Resource
-    private SensorDataMapper sensorDataDAO;
+    private SensorDataMapper sensorDataMapper;
 
     @Resource
-    private SensorMapper sensorDAO;
+    private SensorMapper sensorMapper;
 
     /**
      * 保存传感器上报数据
@@ -44,20 +44,19 @@ public class SensorDataServiceImpl implements SensorDataService {
     @Override
     public Integer saveSensorData(SensorData sensorData) {
         sensorData.setCreateTime(new Date());
-        return sensorDataDAO.insert(sensorData);
+        return sensorDataMapper.insert(sensorData);
     }
 
     /**
      * 查询数据传感器上报数据
      *
-     * @param userId
      * @param sensorDataVoParam
      * @return
      */
     @Override
-    public MyPage<SensorDataVo> selectSensorDataList(Integer userId, SensorDataVo sensorDataVoParam) {
+    public MyPage<SensorDataVo> selectSensorDataList(SensorDataVo sensorDataVoParam) {
 
-        Sensor sensor = sensorDAO.selectById(sensorDataVoParam.getSensorId());
+        Sensor sensor = sensorMapper.selectById(sensorDataVoParam.getSensorId());
         LambdaQueryWrapper<SensorData> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SensorData::getDeviceCode, sensor.getDeviceCode());
         wrapper.eq(SensorData::getChipCode, sensor.getChipCode());
@@ -65,7 +64,7 @@ public class SensorDataServiceImpl implements SensorDataService {
 
 
         PageHelper.startPage(sensorDataVoParam.getPageNum(), sensorDataVoParam.getPageSize());
-        Page<SensorData> sensorDataPage = (Page<SensorData>) sensorDataDAO.selectList(wrapper);
+        Page<SensorData> sensorDataPage = (Page<SensorData>) sensorDataMapper.selectList(wrapper);
 
         List<SensorDataVo> sensorDataVoList = new ArrayList<>();
         for (SensorData sensorData : sensorDataPage) {

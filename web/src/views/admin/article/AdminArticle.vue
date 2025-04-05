@@ -213,7 +213,7 @@ function articleFn(): any {
     let path = '/admin/article/editor'
     store.addTag('编辑文章', path, true)
     router.push(path)
-    cStore.setArticle(article)
+    cStore.article = article
   }
 
   /**

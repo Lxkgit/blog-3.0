@@ -53,7 +53,7 @@ export function request(config: any) {
           ElMessage.error('对不起，您暂无权限访问此接口，请登录重试！')
           localStorage.clear()
           sessionStorage.clear()
-          window.location.href = "http://127.0.0.1:5173";
+          window.location.href = "http://localhost:5173/";
           break
         case 403:
           ElMessage.error('对不起，您暂无权限访问此接口！')

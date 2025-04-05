@@ -131,7 +131,7 @@ let autoSaveTime = ref(10000);
 
 onMounted(() => {
   // 初始化文章数据
-  if (cStore.getArticle !== 'null') {
+  if (cStore.article !== 'null') {
     article.data = cStore.article;
     console.log(article.data)
     if (article.data !== null && article.data.articleType !== null) {

@@ -12,7 +12,7 @@
       </p>
       <div class="info">
         <span>
-          {{ article.blogUser.nickname }}
+          <!-- {{ article.blogUser.name }} -->
         </span>
         <span v-if="article.articleTypes !== null" class="tag article-tag-hover"
           :style="'background-color: ' + tagColor(article.articleTypes[0].id)">
@@ -49,9 +49,9 @@
 </template>
 
 <script setup lang="ts">
-// import Loading from "@/components/common/Loading.vue"
+import Loading from "@/components/common/Loading.vue"
 import icon from "@/utils/icon";
-// import timeFormat from "@/utils/timeFormat";
+import timeFormat from "@/utils/timeFormat";
 import color from "@/utils/color";
 import { useRouter } from "vue-router";
 import { onMounted } from "vue";

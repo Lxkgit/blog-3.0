@@ -23,7 +23,11 @@ import css from 'highlight.js/lib/languages/css';
 import scss from 'highlight.js/lib/languages/scss';
 import xml from 'highlight.js/lib/languages/xml';
 import java from 'highlight.js/lib/languages/java'
-
+import createTodoListPlugin from '@kangc/v-md-editor/lib/plugins/todo-list/index';
+import '@kangc/v-md-editor/lib/plugins/todo-list/todo-list.css';
+import createHighlightLinesPlugin from '@kangc/v-md-editor/lib/plugins/highlight-lines/index';
+import '@kangc/v-md-editor/lib/plugins/highlight-lines/highlight-lines.css';
+import createLineNumbertPlugin from '@kangc/v-md-editor/lib/plugins/line-number/index';
 hljs.registerLanguage('json', json);
 hljs.registerLanguage('python', python);
 hljs.registerLanguage('yaml', yaml);
@@ -36,6 +40,9 @@ hljs.registerLanguage('java', java);
 VMdEditor.use(githubTheme, {
   Hljs: hljs,
 });
+VMdEditor.use(createTodoListPlugin());
+VMdEditor.use(createHighlightLinesPlugin());
+VMdEditor.use(createLineNumbertPlugin());
 
 const emit = defineEmits(['change', 'save', 'update:text'])
 const props = defineProps({

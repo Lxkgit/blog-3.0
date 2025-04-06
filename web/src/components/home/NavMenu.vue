@@ -161,11 +161,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, onActivated } from "vue";
 import icon from "@/utils/icon";
-// import { ArrowDown, ArrowUp } from "@element-plus/icons-vue";
+import { ArrowDown, ArrowUp } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-// import user from "@/utils/user";
+import user from "@/utils/user";
 import { systemStore } from "@/store/system";
-// import { tagsStore } from "@/store/tag";
+import { tagsStore } from "@/store/tag";
 import dark from "@/utils/dark";
 import color from "@/utils/color";
 import theme from "@/utils/theme";
@@ -173,15 +173,15 @@ import navigation from "@/utils/navigation";
 import Cookies from 'js-cookie';
 
 const store = systemStore();
-// const tagStore = tagsStore();
+const tagStore = tagsStore();
 const { isDark, setDark } = dark();
 const { setTheme } = theme();
 let { navigationList, setNavigation, navigationType } = navigation();
 const router = useRouter();
 
 let { MyIcon } = icon();
-// // 引入用户信息模块
-// let { isLogin, userName, logout } = user();
+// 引入用户信息模块
+let { isLogin, userName, logout } = user();
 const { themeList } = color();
 const props = defineProps({
   // 导航栏类型(前台后台)
@@ -198,8 +198,8 @@ const siteConfig = reactive({
 });
 
 const selfPage = () => {
-  // tagStore.activeTag("/admin/index");
-  // router.push("/admin/index");
+  tagStore.activeTag("/admin/index");
+  router.push("/admin/index");
 };
 
 // 跳转至登录页
@@ -273,6 +273,7 @@ onActivated(() => {
 });
 
 onMounted(() => {
+  console.log("--" + isLogin.value)
   asideMenuFold.value = store.asideMenuFold;
   // if (isLogin.value === true) {
   //   getPhotoData();

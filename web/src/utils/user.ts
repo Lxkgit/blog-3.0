@@ -9,7 +9,7 @@ import { userLoginApi, userTokenApi, userInfoApi, userLogoutApi, userMenuApi } f
 function user() {
 	// let { openSocketUser, closeWebSocketUser } = socketUser()
 	const store = systemStore()
-	const isLogin = ref(false)
+	let isLogin = ref(false)
 	const userId = ref()
 	const userToken = ref()
 	const userName = ref()
@@ -20,7 +20,8 @@ function user() {
 	})
 
 	onMounted(() => {
-
+      console.log(" -- -" + store.isLogin)
+      isLogin.value = store.isLogin
 	})
 
   const userLoginFun = (param: any) => {

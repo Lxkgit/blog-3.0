@@ -86,7 +86,7 @@ const props = defineProps({
     required: true,
     default: 1,
   },
-  // 图片是否需要裁剪 0：不需要 1：需要
+  // 图片是否需要裁剪 0: 不需要 1: 需要
   cropper: {
     type: Number,
     default: 0,

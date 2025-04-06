@@ -58,7 +58,7 @@
         <span class="card-title no-choose">🏷️ 所有标签</span>
       </template>
       <div class="all-tag">
-        <TagCloud></TagCloud>
+        全部标签
       </div>
     </el-card>
     <el-card class="card-hover">
@@ -86,10 +86,10 @@
           <MyIcon type="icon-article" />
           文章: {{ blogData.data.articleCount }}篇
         </div>
-        <!-- <div>
+        <div>
           <MyIcon type="icon-wenzhangfenlei" />
           文章分类数: {{ blogData.data.articleTypeCount }}个
-        </div> -->
+        </div>
         <div>
           <MyIcon type="icon-tag" />
           标签: {{ blogData.data.articleLabelCount }}个
@@ -98,10 +98,10 @@
           <MyIcon type="icon-book" />
           笔记: {{ blogData.data.docCount }}篇
         </div>
-        <!-- <div>
+        <div>
           <MyIcon type="icon-wenzhangfenlei1" />
           笔记分类数: {{ blogData.data.docTypeCount }}个
-        </div> -->
+        </div>
       </div>
     </el-card>
   </section>
@@ -111,11 +111,11 @@
 import { ArrowDown, ArrowUp } from '@element-plus/icons-vue'
 // import TagCloud from "@/components/common/TagCloud.vue";
 import { onMounted, reactive, ref, onUnmounted } from "vue";
-// import timeFormat from "@/utils/timeFormat";
+import timeFormat from "@/utils/timeFormat";
 import icon from "@/utils/icon";
 import { useRouter } from "vue-router";
-// import { selectBlogDataApi, selectBlogSettingByIdApi } from "@/api/file"
-// import mitter from "@/utils/mitt";
+import { selectBlogDataApi, selectBlogSettingByIdApi } from "@/api/file"
+import mitter from "@/utils/mitt";
 
 let { MyIcon } = icon()
 
@@ -133,21 +133,21 @@ async function recommendData() {
   }
 }
 
-// mitter.on("SYSTEM_DATA", (data: any) => {
-//   blogData.data.visits = data.visits
-//   blogData.data.userCount = data.userCount
-//   blogData.data.ipCount = data.ipCount
-//   blogData.data.articleCount = data.articleCount
-//   blogData.data.articleTypeCount = data.articleTypeCount
-//   blogData.data.articleLabelCount = data.articleLabelCount
-//   blogData.data.docCount = data.docCount
-//   blogData.data.docTypeCount = data.docTypeCount
-// })
+mitter.on("SYSTEM_DATA", (data: any) => {
+  blogData.data.visits = data.visits
+  blogData.data.userCount = data.userCount
+  blogData.data.ipCount = data.ipCount
+  blogData.data.articleCount = data.articleCount
+  blogData.data.articleTypeCount = data.articleTypeCount
+  blogData.data.articleLabelCount = data.articleLabelCount
+  blogData.data.docCount = data.docCount
+  blogData.data.docTypeCount = data.docTypeCount
+})
 
 //Vue3中的写法
-// onUnmounted(()=>{
-//   mitter.off("SYSTEM_DATA")
-// })
+onUnmounted(()=>{
+  mitter.off("SYSTEM_DATA")
+})
 
 
 // 排行列表-全部种类
@@ -194,20 +194,20 @@ const toDetail = (detailID: any) => {
   router.push({ path: `/detail/article/${detailID}` })
 }
 
-// const selectBlogDataFun = () => {
-//   selectBlogDataApi().then((res: any) => {
-//       if(res.code === 200) {
-//         blogData.data = res.result
-//         runTime(res.result.deploymentTime)
-//       }
-//   })
-// }
+const selectBlogDataFun = () => {
+  selectBlogDataApi().then((res: any) => {
+      if(res.code === 200) {
+        blogData.data = res.result
+        runTime(res.result.deploymentTime)
+      }
+  })
+}
 
-// const selectBlogSettingByIdFun = () => {
-//   selectBlogSettingByIdApi(2).then((res: any) => {
-//     webNotice.value = res.result
-//   })
-// }
+const selectBlogSettingByIdFun = () => {
+  selectBlogSettingByIdApi(2).then((res: any) => {
+    webNotice.value = res.result
+  })
+}
 
 // 运行时间
 let runTimeString = ref();
@@ -227,8 +227,8 @@ const runTime = (time: any) => {
 onMounted(() => {
   recommendData()
   rankingData()
-  // selectBlogDataFun()
-  // selectBlogSettingByIdFun()
+  selectBlogDataFun()
+  selectBlogSettingByIdFun()
 })
 </script>
 

@@ -160,10 +160,10 @@ import { ElMessage } from 'element-plus'
 import { systemStore } from '@/store/system'
 
 // import { getUserVerifyCodeApi, registerUserApi } from "@/api/user"
-// import mitter from "@/utils/mitt";
-import user from "@/utils/user"
+import mitter from '@/utils/mitt'
+import user from '@/utils/user'
 
-const { userLoginFun } = user();
+const { userLoginFun } = user()
 const store = systemStore()
 const router = useRouter()
 let { MyIcon } = icon()
@@ -196,8 +196,6 @@ const loginSubmit = () => {
     })
   }
 }
-
-
 
 // // 注册表单对象
 // const registerRef = ref(null)
@@ -403,7 +401,7 @@ function registerFn() {
 
 <style scoped>
 .login-register {
-  background-image: v-bind("bgiURL");
+  background-image: v-bind('bgiURL');
   width: 100vw;
   height: 100vh;
   background-size: 100% 100%;
@@ -414,7 +412,9 @@ function registerFn() {
 
 .login-register .container {
   border-radius: 10px;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.25),
+    0 10px 10px rgba(0, 0, 0, 0.22);
   position: absolute;
   overflow: hidden;
   width: 768px;
@@ -611,5 +611,4 @@ function registerFn() {
 .register-btn {
   margin: 20px auto;
 }
-
 </style>

@@ -9,19 +9,19 @@ export const roleListApi = (pageNum: any, pageSize: any) => {
 
 // 创建角色接口
 export const createRoleApi = (roleDate: any) => {
-  const uri = "/user/role/save"
+  const uri = "/auth/role/save"
   return api.post(uri, roleDate)
 }
 
 // 修改角色接口
 export const updateRoleApi = (roleDate: any) => {
-  const uri = "/user/role/update"
+  const uri = "/auth/role/update"
   return api.post(uri, roleDate)
 }
 
 // 删除角色接口
 export const deleteRoleApi = (ids: any) => {
-  const uri = "/user/role/delete?ids=" + ids
+  const uri = "/auth/role/delete?ids=" + ids
   return api.delete(uri)
 }
 
@@ -29,7 +29,7 @@ export const deleteRoleApi = (ids: any) => {
 
 // 修改角色权限接口
 export const updateRolePerApi = (rolePer: any) => {
-  const uri = "/user/role/permission/update"
+  const uri = "/auth/role/permission/update"
   return api.post(uri, rolePer)
 }
 
@@ -37,13 +37,13 @@ export const updateRolePerApi = (rolePer: any) => {
 
 // 用户列表接口
 export const userListApi = (page: any, size: any) => {
-  const uri = "/user/user/list?page=" + page + "&size=" + size
+  const uri = "/auth/user/list?page=" + page + "&size=" + size
   return api.get(uri)
 }
 
 // 管理员修改用户信息
 export const updateUserPerApi = (userDate: any) => {
-  const uri = "/user/user/permission/update"
+  const uri = "/auth/user/permission/update"
   return api.post(uri, userDate)
 }
 
@@ -54,13 +54,13 @@ export const updateUserApi = (userDate: any) => {
 
 // 用户注册
 export const registerUserApi = (userDate: any) => {
-  const uri = "/user/user/register"
+  const uri = "/auth/user/register"
   return api.put(uri, userDate)
 }
 
 // 获取注册验证码
 export const getUserVerifyCodeApi = (email: any) => {
-  const uri = "/user/user/code?email=" + email
+  const uri = "/auth/user/code?email=" + email
   return api.get(uri)
 }
 
@@ -75,6 +75,6 @@ export const getUserVerifyCodeApi = (email: any) => {
  * @returns
  */
 export const userMenuApi = () => {
-  const uri = "/user/menu/list"
+  const uri = "/auth/menu/list"
   return api.get(uri)
 }

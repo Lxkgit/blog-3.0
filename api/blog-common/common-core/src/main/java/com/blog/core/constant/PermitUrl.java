@@ -14,11 +14,31 @@ public class PermitUrl {
 
     private static final String[] basePermitUrl = {};
 
-    private static final String[] authPermitUrl = {"/hello"};
+    private static final String[] authPermitUrl = {
+            "/user/select/id"
+    };
 
-    private static final String[] filePermitUrl = {"/hello"};
+    private static final String[] filePermitUrl = {
+            "/files/**",
+            "/img/**",
+            "/client/**",
+            "/result",
+            "/mq/**",
+            "/data",
+            "/setting/id"
+    };
 
-    private static final String[] contentPermitUrl = {"/hello"};
+    private static final String[] contentPermitUrl = {
+            "/article/list",
+            "/article/id",
+            "/article/type/tree",
+            "/article/type/node",
+            "/doc/catalog/tree",
+            "/doc/content/id",
+            "/doc/catalog/id",
+            "/doc/content/user",
+            "/article/type/id",
+            "/article/label/list"};
 
     /**
      * 需要放开权限的url

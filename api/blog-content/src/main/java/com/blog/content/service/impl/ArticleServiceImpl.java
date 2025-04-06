@@ -170,12 +170,12 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Override
     public MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo param) throws ServiceException {
-        Integer userId = SecurityUtil.getLoginUser().getId();
 
         QueryWrapper<Article> articleQueryWrapper = new QueryWrapper<>();
 
         // 管理页面只查询当前用户文章，首页查询全部和指定用户文章
         if (param.getType() == 1) {
+            Integer userId = SecurityUtil.getLoginUser().getId();
             articleQueryWrapper.eq("user_id", userId);
         } else {
             if (param.getSelectUser() != null && param.getSelectUser() != 0) {

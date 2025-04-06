@@ -154,7 +154,6 @@ public class DocServiceImpl implements DocService {
      */
     @Override
     public List<DocCatalogVo> selectDocCatalogTree(DocCatalogVo docCatalogVo) {
-        Integer userId = SecurityUtil.getLoginUser().getId();
         Integer lowerLimit = docCatalogVo.getTypeLowerLimit();
         Integer upperLimit = docCatalogVo.getTypeUpperLimit();
         List<Integer> docLevelList = new ArrayList<>();
@@ -164,6 +163,7 @@ public class DocServiceImpl implements DocService {
         if (docCatalogVo.getType() == 0) {
             docCatalogVo.setUserId(docCatalogVo.getUserId());
         } else if (docCatalogVo.getType() == 1) {
+            Integer userId = SecurityUtil.getLoginUser().getId();
             docCatalogVo.setUserId(userId);
         }
         List<DocCatalogVo> docCatalogVoList = docCatalogMapper.selectListByDocTypeAndUserId(docLevelList, docCatalogVo.getUserId(), docCatalogVo.getDocType());

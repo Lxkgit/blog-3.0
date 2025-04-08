@@ -53,9 +53,9 @@ public class InitConfig implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         System.out.println("开始加载配置 ");
-//        InitRegisterConfig();
-//        // 加载netty注册码
-//        InitNettyRegisterConfig();
+        InitRegisterConfig();
+        // 加载netty注册码
+        InitNettyRegisterConfig();
 //        MqttPushClient.connect(new LoginConfig(
 //                (String) getRegisterConfig("mqtt","ip"),
 //                (Integer) getRegisterConfig("mqtt","port"),

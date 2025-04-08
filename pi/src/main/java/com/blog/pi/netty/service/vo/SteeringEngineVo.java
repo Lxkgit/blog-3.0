@@ -1,0 +1,26 @@
+package com.blog.pi.netty.service.vo;
+
+import com.alibaba.fastjson2.annotation.JSONField;
+
+/**
+ * @description: 舵机命令下发参数
+ * @Author: lxk
+ * @date 2024/2/2 11:06
+ */
+
+public class SteeringEngineVo extends SensorCommandVo {
+
+    /**
+     * 舵机旋转角度
+     */
+    @JSONField(name = "data")
+    private Integer data;
+
+    public Integer getData() {
+        return data;
+    }
+
+    public void setData(Integer data) {
+        this.data = data;
+    }
+}

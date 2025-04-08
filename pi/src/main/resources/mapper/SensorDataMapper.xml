@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.pi.dao.SensorDataDAO">
+    <resultMap id="BaseResultMap" type="com.blog.pi.domain.entity.SensorData">
+        <id column="id" property="id"/>
+        <id column="chip_type" property="chipType"/>
+        <id column="sensor_type" property="sensorType"/>
+        <id column="data" property="data"/>
+        <id column="create_time" property="createTime"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        id, chip_type, sensor_type, data, create_time
+    </sql>
+
+</mapper>

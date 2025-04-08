@@ -1,0 +1,102 @@
+package com.blog.pi.mqtt;
+
+import com.alibaba.fastjson2.JSONObject;
+import com.blog.pi.mqtt.enums.MQTTTopicEnum;
+import com.blog.pi.netty.client.NettyClient;
+import com.blog.pi.netty.dto.NettyPacket;
+import com.blog.pi.netty.enums.NettyPacketType;
+import com.blog.pi.netty.enums.NettyTopicEnum;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.paho.client.mqttv3.*;
+
+@Slf4j
+public class PushCallback implements MqttCallback {
+
+    @Resource
+    private final NettyClient nettyClient = SpringUtils.getBean(NettyClient.class);
+
+    /**
+     * mqtt断线重连
+     *
+     * @param throwable
+     */
+    @Override
+    public void connectionLost(Throwable throwable) {
+        long reconnectTimes = 0;
+        while (true) {
+            try {
+                if (MqttPushClient.getClient().isConnected()) {
+                    // 判断已经重新连接成功  需要重新订阅主题 可以在这个if里面订阅主题  或者 connectComplete（方法里面）
+                    log.warn("MQTT 重新连接成功");
+                    MqttPushClient.subscribe();
+                    return;
+                }
+                reconnectTimes += 1;
+                log.warn("MQTT 重连次数: {}", reconnectTimes);
+                MqttPushClient.getClient().reconnect();
+            } catch (MqttException e) {
+                log.error("mqtt断连异常", e);
+            }
+            try {
+                // 5秒执行异常重新连接
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * mqtt消息接收
+     *
+     * @param topic
+     * @param message
+     */
+    @Override
+    public void messageArrived(String topic, MqttMessage message) {
+        try {
+            String data = new String(message.getPayload());
+            log.info("MQTT Topic:【{}】 data:【{}】", topic, data);
+
+            if (topic.equals(MQTTTopicEnum.CHIP_SENSOR_REGISTER.getTopic())) {
+
+                // 发送 Netty 单片机设备注册消息
+                NettyPacket<String> nettyRequest = NettyPacket.buildRequest(data);
+                nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
+                nettyRequest.setTopic(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic());
+                nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
+            } else if (topic.equals(MQTTTopicEnum.SENSOR_DATA.getTopic())) {
+
+                // 发送 Netty 传感器数据
+                NettyPacket<String> nettyRequest = NettyPacket.buildRequest(data);
+                nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
+                nettyRequest.setTopic(NettyTopicEnum.SENSOR_DATA.getTopic());
+                nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
+            }
+
+//            MQTTSensorData mqttSensorData = JSONObject.toJavaObject(JSONObject.parseObject(data), MQTTSensorData.class);
+//            NettyPacket<MQTTSensorData> nettyRequest = NettyPacket.buildRequest(mqttSensorData);
+//            nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
+//            nettyRequest.setTopic(NettyTopicEnum.BLOG_SENSOR_DATA.getTopic());
+//            nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * mqtt消息发送完成 回调消息
+     *
+     * @param token
+     */
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken token) {
+//        try {
+//            System.out.println(token.getMessage());
+//        } catch (MqttException e) {
+//            e.printStackTrace();
+//        }
+    }
+}

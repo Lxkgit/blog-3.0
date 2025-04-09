@@ -11,7 +11,7 @@ async def send_heartbeat(websocket):
         try:
             msg = {
                 'topic': 'heart',
-                'message': get_computer_config()
+                'message': 'smp_service'
             }
             await websocket.send(json.dumps(msg))
             await asyncio.sleep(60)
@@ -74,6 +74,11 @@ async def connect_with_retry(url):
                 # 接收消息
                 async for message in ws:
                     print(f"收到消息: {message}")
+                    msg = {
+                        'topic': 'system',
+                        'message': get_computer_config()
+                    }
+                    await ws.send(json.dumps(msg))
                 return
         except (websockets.ConnectionClosedError, ConnectionRefusedError) as e:
             print(f"连接断开: {e} {delay}秒后重试...")

@@ -1,16 +1,18 @@
 package com.blog.pi.socket.device;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.blog.pi.socket.SocketMessage;
-import com.blog.pi.socket.device.domain.enums.SocketTopicEnum;
+import com.blog.pi.socket.device.domain.constant.DeviceSocketConstant;
+import com.blog.pi.socket.device.domain.constant.DeviceSocketTopic;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -40,16 +42,8 @@ public class DeviceSocket {
      */
     @OnOpen
     public void onOpen(Session session) {
-        onlineCount.incrementAndGet(); // 在线数加1
-        try {
-            SocketMessage<String> socketMessage = new SocketMessage<>();
-            socketMessage.setTopic(SocketTopicEnum.SOCKET_SYSTEM.getTopic());
-            socketMessage.setMessage("连接成功");
-            sendMessage(JSON.toJSONString(socketMessage));
-            socketMap.put(session.getId(), session);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
+        // 在线数加1
+        onlineCount.incrementAndGet();
         log.info("有新连接加入，当前在线人数为：{}", onlineCount.get());
     }
 
@@ -58,7 +52,6 @@ public class DeviceSocket {
      */
     @OnClose
     public void onClose(Session session) {
-        socket.remove(this);
         // 在线数减1
         onlineCount.decrementAndGet();
         log.info("用户退出，当前在线人数为：{}", onlineCount.get());
@@ -71,16 +64,18 @@ public class DeviceSocket {
      */
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
-        if (message != null && !message.isEmpty()) {
-            for (DeviceSocket sendObjectMessage : socket) {
-                if (session.equals(socket)) {
-                    sendObjectMessage.sendMessage(message);
-                }
-                String topic = (String) JSON.parseObject(message).get("topic");
-                if(topic.equals("heart")) {
-                    sendObjectMessage.sendMessage("{\"msg\":\"hearBeat\",\"topic\":\"heart\"}");
-                }
+        if (StringUtils.isNotEmpty(message)) {
+            JSONObject jsonObject = JSON.parseObject(message);
+            if (jsonObject.getString("topic").equals(DeviceSocketTopic.SOCKET_HEART)) {
+                socketMap.put(jsonObject.getString("message"), session);
+
+                SocketMessage<String> message1 = new SocketMessage<>();
+                message1.setTopic(DeviceSocketTopic.SOCKET_SYSTEM);
+                message1.setMessage("s");
+                sendMessage(DeviceSocketConstant.localhost, message1);
             }
+        } else {
+            onClose(session);
         }
         log.info("服务端收到客户端的消息:{}", message);
     }
@@ -93,13 +88,17 @@ public class DeviceSocket {
     /**
      * 服务端发送消息给客户端
      */
-    public void sendMessage(String message) throws IOException {
-        //如果开启@Async异步需要加锁，否则就会报错
-        synchronized (session){
-            this.session.getBasicRemote().sendText(message);
+    public <T> void sendMessage(String clientName, SocketMessage<T> socketMessage) throws IOException {
+        if (socketMap.containsKey(clientName)) {
+            Session session = socketMap.get(clientName);
+            //如果开启@Async异步需要加锁，否则就会报错
+            synchronized (session) {
+                session.getBasicRemote().sendText(JSON.toJSONString(socketMessage));
+            }
         }
-    }
 
+
+    }
 
 
 }

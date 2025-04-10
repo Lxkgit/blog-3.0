@@ -10,6 +10,9 @@ import com.blog.pi.netty.enums.HeartBeatType;
 import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.netty.event.NettyPacketEvent;
 import com.blog.pi.netty.service.DeviceInfoService;
+import com.blog.pi.socket.SocketMessage;
+import com.blog.pi.socket.device.DeviceSocket;
+import com.blog.pi.socket.device.domain.constant.DeviceSocketConstant;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -48,6 +51,8 @@ public class NettyClientHandler extends ChannelDuplexHandler {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    @Resource
+    private DeviceSocket deviceSocket;
 
     /**
      * 客户端连接到服务端后调用
@@ -96,6 +101,9 @@ public class NettyClientHandler extends ChannelDuplexHandler {
 
                 nettyHeartBeat.setClientIds(chipStatusService.getMqttClientId(true));
 
+                SocketMessage<String> socketMessage = new SocketMessage<>();
+                socketMessage.setTopic("system");
+                deviceSocket.sendMessage(DeviceSocketConstant.localhost, socketMessage);
                 deviceInfoService.setHeartBeatMsg(nettyHeartBeat);
                 // 向服务端发送心跳包
                 NettyPacket<NettyHeartBeatDto> nettyRequest = NettyPacket.buildRequest(nettyHeartBeat);

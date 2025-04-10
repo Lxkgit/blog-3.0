@@ -54,8 +54,8 @@ def get_computer_config():
         'cpu_count': cpu_count,
         'cpu_freq': cpu_freq,
         'cpu_percent_total': cpu_percent_total,
-        'total_memory': total_memory / 1024 / 1024 / 1024,
-        'available_memory': available_memory / 1024 / 1024 / 1024,
+        'total_memory': total_memory,
+        'available_memory': available_memory,
         'disk_partitions': disk_info,
         'disk_usage': disk_usage,
     }
@@ -70,15 +70,18 @@ async def connect_with_retry(url):
             async with websockets.connect(url) as ws:
                 print("连接成功！")
                 # 启动心跳任务
-                asyncio.create_task(send_heartbeat(ws))
+                await asyncio.create_task(send_heartbeat(ws))
                 # 接收消息
                 async for message in ws:
                     print(f"收到消息: {message}")
-                    msg = {
-                        'topic': 'system',
-                        'message': get_computer_config()
-                    }
-                    await ws.send(json.dumps(msg))
+                    msgJson = json.loads(message)
+                    if msgJson["topic"] == "system":
+                        msg = {
+                            'topic': 'system',
+                            'message': get_computer_config()
+                        }
+                        await ws.send(json.dumps(msg))
+
                 return
         except (websockets.ConnectionClosedError, ConnectionRefusedError) as e:
             print(f"连接断开: {e} {delay}秒后重试...")

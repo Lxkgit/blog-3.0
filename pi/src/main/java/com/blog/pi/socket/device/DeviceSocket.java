@@ -71,7 +71,7 @@ public class DeviceSocket {
 
                 SocketMessage<String> message1 = new SocketMessage<>();
                 message1.setTopic(DeviceSocketTopic.SOCKET_SYSTEM);
-                message1.setMessage("s");
+                message1.setMessage(DeviceSocketConstant.localhost);
                 sendMessage(DeviceSocketConstant.localhost, message1);
             }
         } else {
@@ -90,6 +90,7 @@ public class DeviceSocket {
      */
     public <T> void sendMessage(String clientName, SocketMessage<T> socketMessage) throws IOException {
         if (socketMap.containsKey(clientName)) {
+            log.info("socket 发送消息");
             Session session = socketMap.get(clientName);
             //如果开启@Async异步需要加锁，否则就会报错
             synchronized (session) {

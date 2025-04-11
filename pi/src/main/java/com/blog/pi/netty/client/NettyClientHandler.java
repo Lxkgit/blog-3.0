@@ -51,9 +51,6 @@ public class NettyClientHandler extends ChannelDuplexHandler {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Resource
-    private DeviceSocket deviceSocket;
-
     /**
      * 客户端连接到服务端后调用
      * 可在此次发送客户端注册
@@ -101,10 +98,6 @@ public class NettyClientHandler extends ChannelDuplexHandler {
 
                 nettyHeartBeat.setClientIds(chipStatusService.getMqttClientId(true));
 
-                SocketMessage<String> socketMessage = new SocketMessage<>();
-                socketMessage.setTopic("system");
-                deviceSocket.sendMessage(DeviceSocketConstant.localhost, socketMessage);
-                deviceInfoService.setHeartBeatMsg(nettyHeartBeat);
                 // 向服务端发送心跳包
                 NettyPacket<NettyHeartBeatDto> nettyRequest = NettyPacket.buildRequest(nettyHeartBeat);
                 nettyRequest.setNettyPacketType(NettyPacketType.HEARTBEAT.getValue());

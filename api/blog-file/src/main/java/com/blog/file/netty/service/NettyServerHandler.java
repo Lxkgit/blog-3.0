@@ -44,7 +44,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Resource
-    private DeviceMapper deviceDAO;
+    private DeviceMapper deviceMapper;
 
     /**
      * 当客户端主动连接服务端，通道活跃后触发
@@ -132,7 +132,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
             NettyClientChannel channel = entry.getValue();
             if (channel.getChannelId().equals(channelId)) {
-                DeviceStatusSchedule.removeNettyChannel(entry, channel, deviceDAO);
+                DeviceStatusSchedule.removeNettyChannel(entry, channel, deviceMapper);
                 break;
             }
         }

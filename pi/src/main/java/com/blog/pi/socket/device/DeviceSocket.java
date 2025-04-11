@@ -2,9 +2,15 @@ package com.blog.pi.socket.device;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.blog.pi.mqtt.SpringUtils;
+import com.blog.pi.netty.client.NettyClient;
+import com.blog.pi.netty.dto.NettyPacket;
+import com.blog.pi.netty.enums.NettyPacketType;
+import com.blog.pi.netty.enums.NettyTopicEnum;
 import com.blog.pi.socket.SocketMessage;
 import com.blog.pi.socket.device.domain.constant.DeviceSocketConstant;
 import com.blog.pi.socket.device.domain.constant.DeviceSocketTopic;
+import jakarta.annotation.Resource;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @ServerEndpoint("/python")
 public class DeviceSocket {
+
+    @Resource
+    private NettyClient nettyClient = SpringUtils.getBean(NettyClient.class);
 
     /**
      * 记录当前在线连接数
@@ -64,20 +73,24 @@ public class DeviceSocket {
      */
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
+        log.info("服务端收到客户端的消息:{}", message);
         if (StringUtils.isNotEmpty(message)) {
             JSONObject jsonObject = JSON.parseObject(message);
-            if (jsonObject.getString("topic").equals(DeviceSocketTopic.SOCKET_HEART)) {
+            String topic = jsonObject.getString("topic");
+            if (DeviceSocketTopic.SOCKET_REGISTER.equals(topic)) {
                 socketMap.put(jsonObject.getString("message"), session);
+            } else if (DeviceSocketTopic.SOCKET_SYSTEM.equals(topic)) {
+                // 发送 Netty 单片机设备注册消息
+                NettyPacket<String> nettyRequest = NettyPacket.buildRequest(message);
+                nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
+                nettyRequest.setTopic(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic());
+                nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
+            } else if (DeviceSocketTopic.SOCKET_HEART.equals(topic)) {
 
-                SocketMessage<String> message1 = new SocketMessage<>();
-                message1.setTopic(DeviceSocketTopic.SOCKET_SYSTEM);
-                message1.setMessage(DeviceSocketConstant.localhost);
-                sendMessage(DeviceSocketConstant.localhost, message1);
             }
         } else {
             onClose(session);
         }
-        log.info("服务端收到客户端的消息:{}", message);
     }
 
     @OnError
@@ -97,7 +110,13 @@ public class DeviceSocket {
                 session.getBasicRemote().sendText(JSON.toJSONString(socketMessage));
             }
         }
+    }
 
+    public <T> void sendMessage(Session session, SocketMessage<T> socketMessage) throws IOException {
+        //如果开启@Async异步需要加锁，否则就会报错
+        synchronized (session) {
+            session.getBasicRemote().sendText(JSON.toJSONString(socketMessage));
+        }
 
     }
 

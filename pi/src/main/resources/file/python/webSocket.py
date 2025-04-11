@@ -3,18 +3,36 @@ import websockets
 import platform
 import psutil
 import json
+import time
+
+service_info_delay = 60
 
 
 async def send_heartbeat(websocket):
-    """心跳包维持连接"""
+    print("启动心跳任务")
+    await websocket.send("{'topic': 'register', 'message': 'smp_service'}")
     while True:
         try:
             msg = {
                 'topic': 'heart',
-                'message': 'smp_service'
+                'message': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
             }
             await websocket.send(json.dumps(msg))
             await asyncio.sleep(60)
+        except websockets.ConnectionClosed:
+            break  # 连接断开时退出循环
+
+
+async def send_service_info(websocket):
+    print("启动服务器数据监测任务")
+    while True:
+        try:
+            msg = {
+                'topic': 'system',
+                'message': get_computer_config()
+            }
+            await websocket.send(json.dumps(msg))
+            await asyncio.sleep(30)
         except websockets.ConnectionClosed:
             break  # 连接断开时退出循环
 
@@ -68,20 +86,14 @@ async def connect_with_retry(url):
     while True:
         try:
             async with websockets.connect(url) as ws:
-                print("连接成功！")
+                print("socket 连接成功")
                 # 启动心跳任务
-                await asyncio.create_task(send_heartbeat(ws))
+                asyncio.create_task(send_heartbeat(ws))
+                # 启动服务器数据监测任务
+                asyncio.create_task(send_service_info(ws))
                 # 接收消息
                 async for message in ws:
                     print(f"收到消息: {message}")
-                    msgJson = json.loads(message)
-                    if msgJson["topic"] == "system":
-                        msg = {
-                            'topic': 'system',
-                            'message': get_computer_config()
-                        }
-                        await ws.send(json.dumps(msg))
-
                 return
         except (websockets.ConnectionClosedError, ConnectionRefusedError) as e:
             print(f"连接断开: {e} {delay}秒后重试...")

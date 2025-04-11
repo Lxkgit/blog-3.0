@@ -107,6 +107,11 @@
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+        </dependency>
+
         <!-- 实体类数据包 -->
         <dependency>
             <groupId>com.blog</groupId>

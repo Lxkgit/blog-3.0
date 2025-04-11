@@ -33,6 +33,7 @@
         <elasticsearch.version>7.14.1</elasticsearch.version>
         <rocketmq.version>2.3.1</rocketmq.version>
         <netty.version>4.1.117.Final</netty.version>
+        <minio.version>8.5.17</minio.version>
 
         <!-- 工具类版本 -->
         <mybatis-plus.version>3.5.10.1</mybatis-plus.version>
@@ -155,6 +156,13 @@
                 <groupId>org.dromara.easy-es</groupId>
                 <artifactId>easy-es-boot-starter</artifactId>
                 <version>${easyes.version}</version>
+            </dependency>
+
+            <!-- minio -->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
             </dependency>
 
             <!-- JSON 解析器和生成器 -->

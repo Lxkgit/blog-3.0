@@ -23,7 +23,7 @@ public class UploadVo {
          * 上传文件数据
          */
         @NotNull(message="导入文件不能为空")
-        private MultipartFile[] files;
+        private MultipartFile files;
 
         /**
          * 文件类型编码

@@ -1,11 +1,8 @@
 package com.blog.file.controller;
 
-import com.blog.core.constant.ErrorMessage;
 import com.blog.core.domain.file.files.vo.ImportDiaryVo;
 import com.blog.core.domain.file.files.vo.UploadVo;
 import com.blog.core.enums.file.FilePathEnum;
-import com.blog.core.enums.file.FileTypeEnum;
-import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.utils.SecurityUtil;
@@ -19,9 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 /**
  * @Author: lxk
@@ -45,42 +39,43 @@ public class UploadFileController {
      *
      * @param uploadVo
      * @return
-     * @throws ServiceException
      */
     @PostMapping
     @PreAuthorize("hasAnyAuthority('sys:file:user:upload')")
-    public Result uploadFile(@Validated UploadVo uploadVo) throws ServiceException {
-        Integer userId = SecurityUtil.getLoginUser().getId();
+    public Result uploadFile(@Validated UploadVo uploadVo) {
+        return ResultFactory.buildSuccessResult(fileUploadService.uploadService(uploadVo));
 
-        MultipartFile[] files = uploadVo.getFiles();
-        String filePath = FilePathEnum.getFilePathByCode(uploadVo.getFilePathCode());
-        List<String> typeList = FileTypeEnum.getTypeListByTypeName(uploadVo.getFileTypeCode());
-        for (MultipartFile file : files) {
-            String fileName = file.getOriginalFilename();
-            if (fileName != null && !fileName.equals("")) {
-                String fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-                assert typeList != null;
-                if (!typeList.contains(fileSuffix)) {
-                    throw new ServiceException(ErrorMessage.FILE_TYPE_ERROR_SUFFIX);
-                }
-            }
-        }
-
-
-        try {
-            // 基础路径按照用户id创建文件夹
-            String path = "/" + userId;
-            if (uploadVo.getFilePathCode().equals(FilePathEnum.USER_PATH.getFilePathCode())) {
-                // 上传用户个人文件拼接附加路径
-                path = path + uploadVo.getAddPath();
-            } else {
-                path = path + filePath + FileTypeEnum.getTypePathByTypeName(uploadVo.getFileTypeCode());
-            }
-            return fileUploadService.upload(files, userId, path);
-        } catch (Exception e) {
-            log.error(ErrorMessage.UNKNOWN_ERROR.getDesc(), e);
-            throw new ServiceException(ErrorMessage.UNKNOWN_ERROR);
-        }
+//
+//
+//        MultipartFile[] files = uploadVo.getFiles();
+//
+//        List<String> typeList = FileTypeEnum.getTypeListByTypeName(uploadVo.getFileTypeCode());
+//        for (MultipartFile file : files) {
+//            String fileName = file.getOriginalFilename();
+//            if (fileName != null && !fileName.equals("")) {
+//                String fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+//                assert typeList != null;
+//                if (!typeList.contains(fileSuffix)) {
+//                    throw new ServiceException(ErrorMessage.FILE_TYPE_ERROR_SUFFIX);
+//                }
+//            }
+//        }
+//
+//
+//        try {
+//            // 基础路径按照用户id创建文件夹
+//            String path = "/" + userId;
+//            if (uploadVo.getFilePathCode().equals(FilePathEnum.USER_PATH.getFilePathCode())) {
+//                // 上传用户个人文件拼接附加路径
+//                path = path + uploadVo.getAddPath();
+//            } else {
+//                path = path + filePath + FileTypeEnum.getTypePathByTypeName(uploadVo.getFileTypeCode());
+//            }
+//            return fileUploadService.upload(files, userId, path);
+//        } catch (Exception e) {
+//            log.error(ErrorMessage.UNKNOWN_ERROR.getDesc(), e);
+//            throw new ServiceException(ErrorMessage.UNKNOWN_ERROR);
+//        }
     }
 
     @PostMapping("/diary/import")

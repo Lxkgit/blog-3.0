@@ -1,8 +1,9 @@
 package com.blog.core.enums.file;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.*;
 
 /**
  * @Author: lxk
@@ -12,10 +13,10 @@ import java.util.List;
 
 public enum FileTypeEnum {
 
-    IMAGE(1, "图片", Arrays.asList("jpg", "png"), "/img"),
-    FILE(2, "文件", Arrays.asList("zip", "7z", "txt"), "/file"),
-    OTHER_FILE(3, "用户自定义上传文件", Arrays.asList("jpg", "png", "txt", "zip", "7z"), null),
-    DIARY_FILE(4, "日记文件", Collections.singletonList("zip"), "/upload");
+    IMAGE(1, "图片", new HashSet<>(Arrays.asList("jpg", "png")), "/img"),
+    FILE(2, "文件", new HashSet<>(Arrays.asList("zip", "7z")), "/file"),
+    VIDEO(3, "视频", new HashSet<>(Arrays.asList("mp4", "avi")), "/video"),
+    DIARY_FILE(4, "其他", new HashSet<>(Arrays.asList("mp4")), "/other");
 
     /**
      * 文件类型编码
@@ -30,17 +31,17 @@ public enum FileTypeEnum {
     /**
      * 文件后缀名
      */
-    private List<String> typeList;
+    private Set<String> typeSet;
 
     /**
      * 文件类型存放位置
      */
     private String fileTypePath;
 
-    public static List<String> getTypeListByTypeName(Integer fileType) {
+    public static String getTypeListByTypeName(String fileType) {
         for (FileTypeEnum fileTypeEnum : FileTypeEnum.values()) {
-            if (fileTypeEnum.getFileType().equals(fileType)) {
-                return fileTypeEnum.getTypeList();
+            if (fileTypeEnum.getTypeSet().contains(fileType)) {
+                return fileTypeEnum.getFileTypePath();
             }
         }
         return null;
@@ -55,10 +56,10 @@ public enum FileTypeEnum {
         return null;
     }
 
-    FileTypeEnum(Integer fileType, String fileTypeName, List<String> typeList, String fileTypePath) {
+    FileTypeEnum(Integer fileType, String fileTypeName, Set<String> typeSet, String fileTypePath) {
         this.fileType = fileType;
         this.fileTypeName = fileTypeName;
-        this.typeList = typeList;
+        this.typeSet = typeSet;
         this.fileTypePath = fileTypePath;
     }
 
@@ -78,12 +79,12 @@ public enum FileTypeEnum {
         this.fileTypeName = fileTypeName;
     }
 
-    public List<String> getTypeList() {
-        return typeList;
+    public Set<String> getTypeSet() {
+        return typeSet;
     }
 
-    public void setTypeList(List<String> typeList) {
-        this.typeList = typeList;
+    public void setTypeSet(Set<String> typeSet) {
+        this.typeSet = typeSet;
     }
 
     public String getFileTypePath() {

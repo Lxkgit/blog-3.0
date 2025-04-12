@@ -255,7 +255,7 @@ public class FileServiceImpl implements FileService {
                             // 目录计算目录占用大小
                             fileDataVo.setFileSize(FileUtils.sizeOf(file));
                         } else {
-                            if (FileTypeEnum.IMAGE.getTypeList().contains(fileType)) {
+                            if (FileTypeEnum.IMAGE.getTypeSet().contains(fileType)) {
                                 // 图片添加图片链接
                                 fileDataVo.setImgPath(serviceIp + baseUri + path.substring(basePath.length()) + "/" + file.getName());
                             }
@@ -278,7 +278,7 @@ public class FileServiceImpl implements FileService {
                         fileDataVo.setType(Constant.FILE_TYPE_DIR);
                         fileDataVo.setFileSize(FileUtils.sizeOf(file));
                     } else {
-                        if (FileTypeEnum.IMAGE.getTypeList().contains(fileType)) {
+                        if (FileTypeEnum.IMAGE.getTypeSet().contains(fileType)) {
                             fileDataVo.setType(Constant.FILE_TYPE_FILE);
                             fileDataVo.setImgPath(serviceIp + baseUri + path.substring(basePath.length()) + "/" + file.getName());
                         } else {

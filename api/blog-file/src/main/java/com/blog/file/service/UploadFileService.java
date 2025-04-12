@@ -1,6 +1,6 @@
 package com.blog.file.service;
 
-import com.blog.core.result.Result;
+import com.blog.core.domain.file.files.vo.UploadVo;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -11,6 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface UploadFileService {
 
-    Result upload(MultipartFile[] files, Integer userId, String filePath);
+    String uploadService(UploadVo uploadVo);
 
 }

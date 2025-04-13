@@ -125,7 +125,16 @@ public class DateUtil {
      * @return
      */
     public static String formatDateTime(Date date) {
-        return format(date, null);
+        return format(date, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    /**
+     * 时间转日期字符串（yyyy-MM-dd_HH:mm:ss）
+     *
+     * @return
+     */
+    public static String formatDateTimeNoSpaces() {
+        return format(new Date(), "yyyy-MM-dd_HH:mm:ss");
     }
 
     /**

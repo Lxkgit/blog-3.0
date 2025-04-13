@@ -2,12 +2,12 @@ package com.blog.file.service.impl;
 
 
 import com.blog.core.domain.content.diary.entity.Diary;
-import com.blog.core.domain.file.files.entity.UploadLog;
+import com.blog.core.domain.file.files.entity.FileUploadLog;
 import com.blog.core.domain.file.files.vo.ImportDiaryVo;
 import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.FileUtil;
 import com.blog.core.utils.ZipFileUtil;
-import com.blog.file.mapper.UploadLogMapper;
+import com.blog.file.mapper.FileUploadLogMapper;
 import com.blog.file.service.ImportService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class ImportServiceImpl implements ImportService {
     private String baseUri;
 
     @Resource
-    private UploadLogMapper uploadLogMapper;
+    private FileUploadLogMapper uploadLogMapper;
 
 //    @Resource
 //    private ContentClient contentClient;
@@ -122,7 +122,7 @@ public class ImportServiceImpl implements ImportService {
                     uploadStr = "日记上传失败";
                 }
                 log.info("日记名称： {}", DateUtil.dateToDateTime(diaryDate) );
-                UploadLog uploadLog = new UploadLog(userId, DateUtil.dateToDateTime(diaryDate), "diary", uploadState, uploadStr, new Date());
+                FileUploadLog uploadLog = new FileUploadLog(userId, DateUtil.dateToDateTime(diaryDate), "diary", uploadState, uploadStr, new Date());
                 uploadLogMapper.insert(uploadLog);
             }
         }

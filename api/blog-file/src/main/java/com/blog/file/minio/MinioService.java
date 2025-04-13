@@ -1,16 +1,19 @@
 package com.blog.file.minio;
 
-import cn.hutool.extra.spring.SpringUtil;
+import com.blog.core.domain.file.files.entity.FileUploadLog;
+import com.blog.core.exception.ServiceException;
+import com.blog.core.utils.SecurityUtil;
+import com.blog.file.mapper.FileUploadLogMapper;
 import io.minio.*;
-import io.minio.http.Method;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Date;
 
 /**
  * @Description Minio服务
@@ -22,24 +25,87 @@ import java.io.InputStream;
 @Service
 public class MinioService {
 
+    @Value("${minio.ip}")
+    private String ip;
+
+    @Value("${minio.bucket}")
+    private String bucket;
+
     @Resource
     private MinioClient minioClient;
 
-    public boolean uploadFile(MultipartFile file, String path) {
+    @Resource
+    private FileUploadLogMapper fileUploadLogMapper;
 
+    public String uploadFile(MultipartFile file, String path) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+        String userName = SecurityUtil.getLoginUser().getUsername();
+        String fileName = file.getOriginalFilename();
+        assert fileName != null;
+        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+
+        // 记录文件上传信息
+        FileUploadLog fileUploadLog = new FileUploadLog(userId, file.getOriginalFilename(), fileType, 0, userName, new Date());
+        fileUploadLogMapper.insert(fileUploadLog);
         try {
             InputStream inputStream = file.getInputStream();
             minioClient.putObject(PutObjectArgs.builder()
-                    .bucket("blog")
+                    .bucket(bucket)
                     .object(path)
                     .stream(inputStream, file.getSize(), -1)
                     .contentType(file.getContentType())
                     .build());
-            //常规访问路径获取
-            return true;
+
+            // /files 为nginx代理路径
+            String fileUrl = ip + "/files/" + bucket + path;
+            // 文件上传成功
+            FileUploadLog fileLog = new FileUploadLog();
+            fileLog.setId(fileUploadLog.getId());
+            fileLog.setFileUrl(fileUrl);
+            fileLog.setUploadState(1);
+            fileUploadLogMapper.updateById(fileLog);
+
+            return fileUrl;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return false;
+            // 文件上传失败
+            FileUploadLog fileLog = new FileUploadLog();
+            fileLog.setId(fileUploadLog.getId());
+            fileLog.setErrorMsg(e.getMessage());
+            fileLog.setUploadState(2);
+            fileUploadLogMapper.updateById(fileLog);
+            log.error(e.getMessage());
+            throw new ServiceException(e.getMessage());
         }
     }
+
+    /**
+     * 创建文件夹
+     *
+     * @param path 记得路径最后加一个/ 例如 bucket/folder/
+     */
+    public void createDir(String path) throws ServiceException {
+        try {
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(path + "/")
+                    .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
+                    .build());
+        } catch (Exception e) {
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    /**
+     * 创建文件夹
+     *
+     * @param path 记得路径最后加一个/ 例如 bucket/folder/
+     */
+    public void deleteDir(String path, String dirName) throws ServiceException {
+        try {
+//            minioClient.delete
+        } catch (Exception e) {
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
 }

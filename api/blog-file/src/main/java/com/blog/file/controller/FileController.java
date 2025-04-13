@@ -1,6 +1,7 @@
 package com.blog.file.controller;
 
-import com.blog.core.domain.file.files.vo.FileDataVo;
+import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
+import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
@@ -34,72 +35,84 @@ public class FileController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:file:user:save')")
-    public Result saveFileDir(@Validated @RequestBody FileDataVo fileDataVo) throws ServiceException {
+    public Result saveFileDir(@Validated @RequestBody FileCategoryVo fileDataVo) throws ServiceException {
         fileService.saveFileDir(fileDataVo);
         return ResultFactory.buildSuccessResult();
     }
 
     /**
-     * 删除云盘文件或目录
+     * 删除云盘目录
      *
-     * @param fileDataVo
+     * @param fileCategoryVo
      * @return
      * @throws ServiceException
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:file:user:delete')")
-    public Result deleteFileOrDir(@Validated FileDataVo fileDataVo) throws ServiceException {
-        fileService.deleteFileOrDir(fileDataVo);
+    public Result deleteFileOrDir(@Validated FileCategoryVo fileCategoryVo) throws ServiceException {
+        fileService.deleteFileDir(fileCategoryVo);
         return ResultFactory.buildSuccessResult();
     }
-
+//
+//    /**
+//     * 修改云盘文件或目录名称
+//     *
+//     * @param fileDataVo
+//     * @return
+//     * @throws ServiceException
+//     */
+//    @PostMapping("/update")
+//    @PreAuthorize("hasAnyAuthority('sys:file:user:update')")
+//    public Result updateFileOrDirName(@Validated @RequestBody FileCategoryDataVo fileDataVo) throws ServiceException {
+//        fileService.updateFileOrDirName(fileDataVo);
+//        return ResultFactory.buildSuccessResult();
+//    }
+//
     /**
-     * 修改云盘文件或目录名称
+     * 查看文件列表
      *
-     * @param fileDataVo
+     * @param fileCategoryVo
      * @return
-     * @throws ServiceException
      */
-    @PostMapping("/update")
-    @PreAuthorize("hasAnyAuthority('sys:file:user:update')")
-    public Result updateFileOrDirName(@Validated @RequestBody FileDataVo fileDataVo) throws ServiceException {
-        fileService.updateFileOrDirName(fileDataVo);
-        return ResultFactory.buildSuccessResult();
+    @GetMapping("/select")
+    @PreAuthorize("hasAnyAuthority('sys:file:user:select')")
+    public Result selectFileDir(@Validated FileCategoryVo fileCategoryVo) {
+        return ResultFactory.buildSuccessResult(fileService.selectFileDir(fileCategoryVo));
     }
 
     /**
      * 查看文件列表
      *
-     * @param fileDataVo
+     * @param fileCategoryVo
      * @return
      */
-    @GetMapping("/select")
+    @GetMapping("/select/file")
     @PreAuthorize("hasAnyAuthority('sys:file:user:select')")
-    public Result selectFileDir(@Validated FileDataVo fileDataVo) {
-        return ResultFactory.buildSuccessResult(fileService.selectFileDir(fileDataVo));
+    public Result selectFile(@Validated FileCategoryVo fileCategoryVo) {
+        return ResultFactory.buildSuccessResult(fileService.selectFile(fileCategoryVo));
     }
-
-    /**
-     * 获取云盘剩余空间大小
-     *
-     * @return
-     */
-    @GetMapping("/space")
-    @PreAuthorize("hasAnyAuthority('sys:file:user:space')")
-    public Result selectUserSpace() {
-        return ResultFactory.buildSuccessResult(fileService.selectUserSpace());
-    }
-
-    /**
-     * 同步文件(包括文件同步至远程和从远程下载文件)
-     *
-     * @param fileDataVo
-     * @return
-     */
-    @GetMapping("/sync")
-    @PreAuthorize("hasAnyAuthority('sys:file:user:sync')")
-    public Result syncFile(@Validated FileDataVo fileDataVo) {
-        return ResultFactory.buildSuccessResult(fileService.syncFile(fileDataVo));
-    }
+//
+//    /**
+//     * 获取云盘剩余空间大小
+//     *
+//     * @return
+//     */
+//    @GetMapping("/space")
+//    @PreAuthorize("hasAnyAuthority('sys:file:user:space')")
+//    public Result selectUserSpace() {
+//        return ResultFactory.buildSuccessResult(fileService.selectUserSpace());
+//    }
+//
+//    /**
+//     * 同步文件(包括文件同步至远程和从远程下载文件)
+//     *
+//     * @param fileDataVo
+//     * @return
+//     */
+//    @GetMapping("/sync")
+//    @PreAuthorize("hasAnyAuthority('sys:file:user:sync')")
+//    public Result syncFile(@Validated FileCategoryDataVo fileDataVo) {
+//        return ResultFactory.buildSuccessResult(fileService.syncFile(fileDataVo));
+//    }
 
 }

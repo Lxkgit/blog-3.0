@@ -61,7 +61,7 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
             redisService.delKey(key);
         } else {
             // 保存认证信息 过期时间1个小时 保持和access_token的过期时间一致
-            redisService.setString(key, context, 3600);
+            redisService.setString(key, context, 28800);
         }
     }
 

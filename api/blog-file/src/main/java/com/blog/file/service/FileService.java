@@ -1,6 +1,9 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.files.vo.FileDataVo;
+import com.blog.core.domain.file.files.entity.FileCategory;
+import com.blog.core.domain.file.files.entity.FileCategoryData;
+import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
+import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.exception.ServiceException;
 
 import java.util.List;
@@ -13,17 +16,19 @@ import java.util.List;
 
 public interface FileService {
 
-    List<FileDataVo> selectFileDir(FileDataVo fileDataVo);
+    List<FileCategory> selectFileDir(FileCategoryVo fileCategoryVo);
 
-    void saveFileDir(FileDataVo fileDataVo) throws ServiceException;
+    List<FileCategoryData> selectFile(FileCategoryVo fileCategoryVo);
 
-    void deleteFileOrDir(FileDataVo fileDataVo) throws ServiceException;
+    void saveFileDir(FileCategoryVo fileDataVo) throws ServiceException;
 
-    void updateFileOrDirName(FileDataVo fileDataVo) throws ServiceException;
-
-    Long selectUserSpace();
-
-    boolean syncFile(FileDataVo fileDataVo);
-
-    boolean syncFileList(List<FileDataVo> fileDataVoList);
+    void deleteFileDir(FileCategoryVo fileCategoryVo) throws ServiceException;
+//
+//    void updateFileOrDirName(FileCategoryDataVo fileDataVo) throws ServiceException;
+//
+//    Long selectUserSpace();
+//
+//    boolean syncFile(FileCategoryDataVo fileDataVo);
+//
+//    boolean syncFileList(List<FileCategoryDataVo> fileDataVoList);
 }

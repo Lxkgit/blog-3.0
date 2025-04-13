@@ -74,7 +74,8 @@ xxl:
 
 minio:
   # MinIO服务器地址
-  url: http://${devServiceIp}/
+  ip: http://${devServiceIp}
+  port: 9000
   # MinIO服务器访问凭据
   username: minio
   password: minio-960@*

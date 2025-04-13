@@ -1,26 +1,27 @@
 export default function () {
   /**
    *
-   * @param type 文件类型
+   * @param fileType 文件类型
    * 文件类型
    */
-  const fileType = (type: any, dirType?: any) => {
-    let val = ''
-    switch (type) {
-      case 0:
-        if (dirType === 0) {
-          val = '本地目录'
-        } else if (dirType === 1) {
-          val = '同步目录'
-        }
-        break
-      case 1:
-        val = '图片'
-        break
-      default:
-        val = '文件'
+  const fileType = (fileType: any) => {
+    let type = {
+      key: 0,
+      value: ""
     }
-    return val
+    let img = ["jpg", "png"];
+    let zip = ["zip", "7z"];
+    if(img.indexOf(fileType) != -1) {
+      type.key = 1;
+      type.value = "图片"
+    } else if (zip.indexOf(fileType) != -1) {
+      type.key = 2;
+      type.value = "压缩文件"
+    }
+
+
+
+    return type
   }
 
   return {

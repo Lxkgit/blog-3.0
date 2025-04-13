@@ -53,9 +53,14 @@ export const updateFileDirOrFileApi = (params: any) => {
     return api.delete(uri, params)
 }
 
-export const selectFileDirOrFileApi = (params: any) => {
+export const selectFileDirApi = (params: any) => {
     const uri = "/file/dir/select"
     return api.get(uri, params)
+}
+
+export const selectFileApi = (params: any) => {
+  const uri = "/file/dir/select/file"
+  return api.get(uri, params)
 }
 
 export const syncFileApi = (params: any) => {

@@ -1,11 +1,11 @@
 package com.blog.file.controller;
 
 import com.blog.core.domain.file.files.vo.ImportDiaryVo;
-import com.blog.core.domain.file.files.vo.UploadVo;
-import com.blog.core.enums.file.FilePathEnum;
+import com.blog.core.domain.file.files.vo.FileUploadVo;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.core.utils.SecurityUtil;
+import com.blog.core.valication.group.AddGroup;
 import com.blog.file.service.ImportService;
 import com.blog.file.service.UploadFileService;
 import jakarta.annotation.Resource;
@@ -42,7 +42,7 @@ public class UploadFileController {
      */
     @PostMapping
     @PreAuthorize("hasAnyAuthority('sys:file:user:upload')")
-    public Result uploadFile(@Validated UploadVo uploadVo) {
+    public Result uploadFile(@Validated(value = {AddGroup.class}) FileUploadVo uploadVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(fileUploadService.uploadService(uploadVo));
 
 //

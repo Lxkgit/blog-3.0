@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.file.mapper.FileCategoryMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.files.entity.FileCategory">
+        <id column="id" property="id"/>
+        <id column="dir_name" property="dirName"/>
+        <id column="dir_path" property="dirPath"/>
+        <id column="parent_dir" property="parentDir"/>
+        <id column="user_id" property="userId"/>
+        <id column="share_user" property="shareUser"/>
+        <id column="local_file_count" property="localFileCount"/>
+        <id column="remote_file_count" property="remoteFileCount"/>
+        <id column="occupy_space" property="occupySpace"/>
+        <id column="create_by" property="createBy"/>
+        <id column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, dir_name, dir_path, parent_dir, user_id, share_user, local_file_count, remote_file_count, occupy_space, create_by, create_time
+    </sql>
+
+
+</mapper>

@@ -1,7 +1,8 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.files.vo.UploadVo;
-import org.springframework.web.multipart.MultipartFile;
+import com.blog.core.domain.file.files.entity.FileCategoryData;
+import com.blog.core.domain.file.files.vo.FileUploadVo;
+import com.blog.core.exception.ServiceException;
 
 /**
  * @author: lxk
@@ -11,6 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface UploadFileService {
 
-    String uploadService(UploadVo uploadVo);
+    FileCategoryData uploadService(FileUploadVo uploadVo) throws ServiceException;
 
+    void createDir(String path) throws ServiceException;
+
+    void deleteDir(String path, String dirName);
 }

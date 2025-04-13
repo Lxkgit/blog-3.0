@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.blog.core.domain.file.system.entity.BlogData;
 import com.blog.core.enums.mq.RocketMQMsgEnum;
 import com.blog.core.enums.mq.RocketMQTopicEnum;
-import com.blog.file.mapper.FileDataMapper;
+import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.mq.entity.RocketMQMessage;
 import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.PostConstruct;
@@ -26,25 +26,25 @@ import org.springframework.scheduling.annotation.Scheduled;
 @EnableScheduling  //启用定时器
 public class FileInitSchedule {
 
-    @Resource
-    private FileDataMapper fileDataMapper;
-
-    @Resource
-    private MQProducerService mqProducerService;
-
-
-    @PostConstruct
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void initFile() {
-        log.info("开始初始化博客文件数据 ... ");
-        BlogData blogData = new BlogData();
-        blogData.setImgCount(fileDataMapper.selectImgCount());
-        RocketMQMessage rocketMQMessage = new RocketMQMessage();
-        rocketMQMessage.setTopic(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTopic());
-        rocketMQMessage.setTag(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTag());
-        rocketMQMessage.setMessage(JSON.toJSONString(blogData));
-        rocketMQMessage.setMqMsgType(RocketMQMsgEnum.ALL.getType());
-        SendResult sendResult = mqProducerService.sendSyncOrderly(rocketMQMessage);
-        log.info("sendMQResult:{}", sendResult);
-    }
+//    @Resource
+//    private FileCategoryDataMapper fileDataMapper;
+//
+//    @Resource
+//    private MQProducerService mqProducerService;
+//
+//
+//    @PostConstruct
+//    @Scheduled(cron = "0 0 0 * * ?")
+//    public void initFile() {
+//        log.info("开始初始化博客文件数据 ... ");
+//        BlogData blogData = new BlogData();
+//        blogData.setImgCount(fileDataMapper.selectImgCount());
+//        RocketMQMessage rocketMQMessage = new RocketMQMessage();
+//        rocketMQMessage.setTopic(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTopic());
+//        rocketMQMessage.setTag(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTag());
+//        rocketMQMessage.setMessage(JSON.toJSONString(blogData));
+//        rocketMQMessage.setMqMsgType(RocketMQMsgEnum.ALL.getType());
+//        SendResult sendResult = mqProducerService.sendSyncOrderly(rocketMQMessage);
+//        log.info("sendMQResult:{}", sendResult);
+//    }
 }

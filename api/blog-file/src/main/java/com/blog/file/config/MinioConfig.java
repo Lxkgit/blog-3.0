@@ -14,8 +14,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MinioConfig {
 
-    @Value("${minio.url}")
-    private String url;
+    @Value("${minio.ip}")
+    private String ip;
+
+    @Value("${minio.port}")
+    private Integer port;
 
     @Value("${minio.username}")
     private String username;
@@ -28,6 +31,6 @@ public class MinioConfig {
 
     @Bean
     public MinioClient minioClient() {
-        return MinioClient.builder().endpoint(url).credentials(username, password).build();
+        return MinioClient.builder().endpoint(ip + ":" + port).credentials(username, password).build();
     }
 }

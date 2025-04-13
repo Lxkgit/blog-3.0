@@ -9,12 +9,18 @@
           <el-button type="success" size="small" text>上传文件</el-button>
         </el-upload>
         <div style="line-height: 23px; margin-left: 20px">
-          <MyIcon :style="[
-              filePath === '/' ? { 'pointer-events': 'none' } : { cursor: 'pointer' },
-            ]" style="margin-right: 20px; outline: 0" type="icon-shangyibu" @click="changePath(-2)" title="返回上一级" />
+          <MyIcon
+            :style="[filePath === '/' ? { 'pointer-events': 'none' } : { cursor: 'pointer' }]"
+            style="margin-right: 20px; outline: 0"
+            type="icon-shangyibu"
+            @click="changePath(-2)"
+            title="返回上一级"
+          />
           <span style="">当前路径：&nbsp;</span>
           <div style="display: inline; margin-left: 10px">
-            <span class="file_path" style="cursor: pointer" @click="changePath(-1)">&nbsp;/&nbsp;</span>
+            <span class="file_path" style="cursor: pointer" @click="changePath(-1)"
+              >&nbsp;/&nbsp;</span
+            >
             <span v-if="filePath !== '/'">
               <div v-for="(item, idx) in filePathArr" style="display: inline" :key="idx">
                 <span v-if="idx != 0">&nbsp;/&nbsp;</span>
@@ -27,7 +33,8 @@
         </div>
       </div>
       <el-divider content-position="left">文件目录</el-divider>
-      <div style="
+      <div
+        style="
           display: flex;
           flex-wrap: wrap;
           align-content: flex-start;
@@ -35,128 +42,263 @@
           overflow: auto;
           margin: 10px;
           height: calc(100vh - 330px);
-        " @contextmenu.prevent="openMenu($event, null)">
-        <div v-for="item in dirList.data" :key="item.id">
-          <el-card :body-style="{ padding: '0px' }" shadow="hover" style="width: 159px; height: 150px; margin-bottom: 25px; margin-right: 10px" @contextmenu.prevent.stop="openMenu($event, item)" :key="item.id">
-            <div style="
-                width: 159px;
-                height: 125px;
-                border-bottom: 1px solid #dcdfe6;
-                position: relative;
-              " class="file_item">
-              <!-- 本地文件列表 -->
-              <div v-if="item.dirType === 0">
-                <div v-if="item.type === 0" style="height: 125px; cursor: pointer" @dblclick="openFileDirFun(item)">
-                  本地目录
-                  <div class="show_icon">
-                    <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileDirOrFileFun(item)" />
-                  </div>
-                </div>
-                <div v-else-if="item.type === 1" style="
+        "
+        @contextmenu.prevent="openMenu($event, null)"
+      >
+        <div style="display: flex">
+          <div v-if="false" style="width: 79vw">
+            <!-- 表头 -->
+            <ul class="table-header">
+              <li
+                v-for="(header, index) in headers"
+                :key="index"
+                class="header-item"
+                :style="{ width: header.width }"
+              >
+                {{ header.title }}
+              </li>
+            </ul>
+            <!-- 目录数据行 -->
+            <ul v-for="(row, rowIndex) in dirList.data" :key="rowIndex" class="table-row">
+              <li class="data-item" :style="{ width: headers[0].width }">
+                <MyIcon type="icon-user" /> {{ row.dirName }}
+              </li>
+              <li class="data-item" :style="{ width: headers[1].width }">
+                {{ row.occupySpace }}
+              </li>
+              <li class="data-item" :style="{ width: headers[2].width }">目录</li>
+              <li class="data-item" :style="{ width: headers[3].width }">
+                {{ row.createBy }}
+              </li>
+              <li class="data-item" :style="{ width: headers[4].width }">
+                {{ row.createTime }}
+              </li>
+              <li class="data-item" :style="{ width: headers[5].width }">
+                <MyIcon type="icon-user" /> <MyIcon type="icon-user" />
+              </li>
+            </ul>
+            <!-- 文件数据行 -->
+            <ul v-for="(row, rowIndex) in fileList.data" :key="rowIndex" class="table-row">
+              <li class="data-item" :style="{ width: headers[0].width }">
+                <MyIcon type="icon-edit" /> {{ row.fileName }}
+              </li>
+              <li class="data-item" :style="{ width: headers[1].width }">
+                {{ row.fileSize / 1024 / 1024 }}MB
+              </li>
+              <li class="data-item" :style="{ width: headers[2].width }">
+                {{ row.fileStatus }}
+              </li>
+              <li class="data-item" :style="{ width: headers[3].width }">
+                {{ row.createBy }}
+              </li>
+              <li class="data-item" :style="{ width: headers[4].width }">
+                {{ row.createTime }}
+              </li>
+              <li class="data-item" :style="{ width: headers[5].width }">
+                <MyIcon type="icon-eye" @click="showImg(row)"></MyIcon> <MyIcon type="icon-user" />
+                <MyIcon type="icon-delete" />
+              </li>
+            </ul>
+          </div>
+          <div v-else style="display: flex; width: 79vw; flex-wrap: wrap">
+            <ul v-for="item in dirList.data">
+              <el-card
+                :body-style="{ padding: '0px' }"
+                shadow="hover"
+                style="width: 155px; height: 150px; margin-bottom: 25px; margin-right: 10px"
+                @contextmenu.prevent.stop="openMenu($event, item)"
+                :key="item.id"
+              >
+                <div
+                  style="
+                    width: 159px;
                     height: 125px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                  ">
-                  <img :src="item.imgPath" class="image" style="width: 100%; height: 100%; object-fit: cover" loading="lazy" />
-                  <div class="show_icon">
-                    <MyIcon title="预览" class="icon_type" type="icon-search" @click="showImg(item)" />
-                    <MyIcon title="查看文件信息" class="icon_type" type="icon-file" @click="showFileDesc(item)" />
-                    <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileDirOrFileFun(item)" />
-                  </div>
-                </div>
-                <div v-else style="height: 125px">
-                  <div class="show_icon">
-                    <MyIcon title="查看文件信息" class="icon_type" type="icon-file" @click="showFileDesc(item)" />
-                    <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileDirOrFileFun(item)" />
-                  </div>
-                  其它类型文件
-                </div>
-              </div>
-              <!-- 远程同步文件列表 -->
-              <div v-else-if="item.dirType === 1">
-                <div v-if="item.type === 0" style="height: 125px; cursor: pointer" @dblclick="openFileDirFun(item)">
-                  远程同步目录
-                  <div class="show_icon">
-                    <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileDirOrFileFun(item)" />
-                  </div>
-                </div>
-                <div v-else-if="item.type === 1" style="
-                    height: 125px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                  ">
-                  <div v-if="item.status === 0">
-                    图片已同步远程
+                    border-bottom: 1px solid #dcdfe6;
+                    position: relative;
+                  "
+                  class="file_item"
+                >
+                  <div style="height: 125px; cursor: pointer" @dblclick="openFileDirFun(item)">
+                    本地目录
                     <div class="show_icon">
-                      <MyIcon title="同步" class="icon_type" type="icon-refresh" />
-                      <MyIcon title="查看文件信息" class="icon_type" type="icon-file" @click="showFileDesc(item)" />
-                      <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileDirOrFileFun(item)" />
+                      <MyIcon
+                        title="删除"
+                        class="icon_type"
+                        type="icon-delete"
+                        @click="deleteFileDirOrFileFun(item)"
+                      />
                     </div>
                   </div>
-                  <div v-else-if="item.status === 1">
-                    <img :src="item.imgPath" class="image" style="width: 100%; height: 100%; object-fit: cover" loading="lazy" />
+                </div>
+                <div style="display: flex; padding-left: 5px; padding-top: 2px">
+                  <el-tag class="mx-1" size="small" style=""> 目录 </el-tag>
+                  <span
+                    :title="item.dirName"
+                    style="
+                      margin-left: 5px;
+                      width: 90px;
+                      height: 20px;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      -o-text-overflow: ellipsis;
+                      white-space: nowrap;
+                      display: inline-block;
+                    "
+                    >{{ item.dirName }}</span
+                  >
+                </div>
+              </el-card>
+            </ul>
+            <ul v-for="item in fileList.data">
+              <el-card
+                :body-style="{ padding: '0px' }"
+                shadow="hover"
+                style="width: 155px; height: 150px; margin-bottom: 25px; margin-right: 10px"
+                @contextmenu.prevent.stop="openMenu($event, item)"
+                :key="item.id"
+              >
+                <div
+                  style="
+                    width: 159px;
+                    height: 125px;
+                    border-bottom: 1px solid #dcdfe6;
+                    position: relative;
+                  "
+                  class="file_item"
+                >
+                  <div
+                    v-if="fileType(item.fileType).key === 1"
+                    style="
+                      height: 125px;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                    "
+                  >
+                    <img
+                      :src="item.fileUrl"
+                      class="image"
+                      style="width: 100%; height: 100%; object-fit: cover"
+                      loading="lazy"
+                    />
                     <div class="show_icon">
-                      <MyIcon title="同步" class="icon_type" type="icon-refresh" @click="syncFileFun(item)"/>
-                      <MyIcon title="预览" class="icon_type" type="icon-search" @click="showImg(item)" />
-                      <MyIcon title="查看文件信息" class="icon_type" type="icon-file" @click="showFileDesc(item)" />
-                      <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileDirOrFileFun(item)" />
+                      <MyIcon
+                        title="预览"
+                        class="icon_type"
+                        type="icon-search"
+                        @click="showImg(item)"
+                      />
+                      <MyIcon
+                        title="查看文件信息"
+                        class="icon_type"
+                        type="icon-file"
+                        @click="showFileDesc(item)"
+                      />
+                      <MyIcon
+                        title="删除"
+                        class="icon_type"
+                        type="icon-delete"
+                        @click="deleteFileDirOrFileFun(item)"
+                      />
                     </div>
                   </div>
+                  <div v-else-if="fileType(item.fileType).key === 2" style="height: 125px">
+                    <div class="show_icon">
+                      <MyIcon
+                        title="查看文件信息"
+                        class="icon_type"
+                        type="icon-file"
+                        @click="showFileDesc(item)"
+                      />
+                      <MyIcon
+                        title="删除"
+                        class="icon_type"
+                        type="icon-delete"
+                        @click="deleteFileDirOrFileFun(item)"
+                      />
+                    </div>
+                    压缩文件
+                  </div>
+                  <div v-else style="height: 125px">
+                    <div class="show_icon">
+                      <MyIcon
+                        title="查看文件信息"
+                        class="icon_type"
+                        type="icon-file"
+                        @click="showFileDesc(item)"
+                      />
+                      <MyIcon
+                        title="删除"
+                        class="icon_type"
+                        type="icon-delete"
+                        @click="deleteFileDirOrFileFun(item)"
+                      />
+                    </div>
+                    其它类型文件
+                  </div>
                 </div>
-              </div>
-              <div v-else style="height: 125px">
-                <div class="show_icon">
-                  <MyIcon title="查看文件信息" class="icon_type" type="icon-file" @click="showFileDesc(item)" />
-                  <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileDirOrFileFun(item)" />
+                <div style="display: flex; padding-left: 5px; padding-top: 2px">
+                  <el-tag class="mx-1" size="small" style="">
+                    {{ fileType(item.fileType).value }}
+                  </el-tag>
+                  <span
+                    :title="item.fileName"
+                    style="
+                      margin-left: 5px;
+                      width: 90px;
+                      height: 20px;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      -o-text-overflow: ellipsis;
+                      white-space: nowrap;
+                      display: inline-block;
+                    "
+                    >{{ item.fileName }}</span
+                  >
+                  <MyIcon v-if="item.type !== 0" type="icon-download" style="line-height: 21px" />
                 </div>
-                其它类型文件
-              </div>
-            </div>
-            <div style="display: flex; padding-left: 5px; padding-top: 2px">
-              <el-tag class="mx-1" size="small" style="">
-                {{ fileType(item.type, item.dirType) }}
-              </el-tag>
-              <span :title="item.name" style="
-                  line-height: 20px;
-                  margin-left: 5px;
-                  width: 90px;
-                  height: 20px;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                  -o-text-overflow: ellipsis;
-                  white-space: nowrap;
-                  display: inline-block;
-                ">{{ item.name }}</span>
-              <MyIcon v-if="item.type !== 0" type="icon-download" style="line-height: 21px" />
-            </div>
-          </el-card>
+              </el-card>
+            </ul>
+          </div>
         </div>
       </div>
     </el-card>
-    <el-image-viewer v-if="dialogImageUrl.show" :initial-index="dialogImageUrl.index" :url-list="dialogImageUrl.url" :hide-on-click-modal="true" @close="dialogImageUrl.show = false">
+    <el-image-viewer
+      v-if="dialogImageUrl.show"
+      :initial-index="dialogImageUrl.index"
+      :index="dialogImageUrl.index"
+      :url-list="dialogImageUrl.url"
+      :hide-on-click-modal="true"
+      :show-progress="true"
+      @close="dialogImageUrl.show = false"
+    >
     </el-image-viewer>
-    <ul v-if="menu.visible" :style="{ left: menu.left + 'px', top: menu.top + 'px' }" class="contextmenu">
-      <li @click="refreshDir">刷新</li>
+    <ul
+      v-if="menu.visible"
+      :style="{ left: menu.left + 'px', top: menu.top + 'px' }"
+      class="contextmenu"
+    >
+      <li @click="refreshDir()">刷新</li>
       <li v-if="menu.type === -1">
-        <el-upload :auto-upload="false" multiple :show-file-list="false" @click="menu.visible = false" :on-change="changeUpload" style="padding: 0">
+        <el-upload
+          :auto-upload="false"
+          multiple
+          :show-file-list="false"
+          @click="menu.visible = false"
+          :on-change="changeUpload"
+          style="padding: 0"
+        >
           上传文件
         </el-upload>
       </li>
-      <li v-if="menu.type === -1" @click="
-          menu.dirDialog = true;
-          menu.visible = false;
-        ">
-        创建目录
-      </li>
+      <li v-if="menu.type === -1">创建目录</li>
       <li v-if="menu.type !== -1" @click="showFileDesc(null)">查看文件信息</li>
       <li @click="menu.visible = false">关闭菜单</li>
     </ul>
     <el-dialog v-model="menu.fileDialog" width="40%">
       <el-form :model="menu.file" label-width="100px">
         <el-form-item label="文件名称: ">
-          <el-input v-model="menu.file.name" size="small" />
+          <el-input v-model="menu.file.fileName" size="small" />
         </el-form-item>
         <el-form-item v-if="menu.file.type === 0" label="目录大小: ">
           <el-input v-model="menu.file.fileSize" size="small" />
@@ -167,7 +309,13 @@
       </el-form>
     </el-dialog>
     <el-dialog v-model="menu.dirDialog" width="40%">
-      <el-form :model="menu.dirFile" label-width="100px" ref="createFileFormRef" :rules="createFileRules" label-position="left">
+      <el-form
+        :model="menu.dirFile"
+        label-width="100px"
+        ref="createFileFormRef"
+        :rules="createFileRules"
+        label-position="left"
+      >
         <el-form-item label="目录名称: " prop="name">
           <el-input v-model="menu.dirFile.name" size="small" />
         </el-form-item>
@@ -182,8 +330,8 @@
             <el-radio border :label="1">
               同步
               <el-tooltip content="文件存放远程树莓派" placement="top" @click.stop.prevent>
-                <MyIcon type="icon-wenhaofill" />
-              </el-tooltip></el-radio>
+                <MyIcon type="icon-wenhaofill" /> </el-tooltip
+            ></el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -199,17 +347,18 @@
 
 <script setup lang="ts">
 import {
-  selectFileDirOrFileApi,
+  selectFileDirApi,
+  selectFileApi,
   deleteFileDirOrFileApi,
   uploadApi,
   saveFileDirApi,
-  syncFileApi
-} from '@/api/file';
-import icon from '@/utils/icon';
-import { onMounted, ref, reactive } from 'vue';
-import mixin from '@/mixins/fileType';
-import { ElImageViewer } from 'element-plus';
-import { ElMessage } from 'element-plus';
+  syncFileApi,
+} from '@/api/file'
+import icon from '@/utils/icon'
+import { onMounted, ref, reactive } from 'vue'
+import mixin from '@/mixins/fileType'
+import { ElImageViewer } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 let {
   createFileFormRef,
@@ -217,6 +366,7 @@ let {
   filePath,
   filePathArr,
   dirList,
+  fileList,
   dialogImageUrl,
   menu,
   openMenu,
@@ -229,27 +379,37 @@ let {
   openFileDirFun,
   showImg,
   deleteFileDirOrFileFun,
-  syncFileFun
-} = fileFn();
+  syncFileFun,
+} = fileFn()
 
-let { fileType } = mixin();
-let { MyIcon } = icon();
+let { fileType } = mixin()
+let { MyIcon } = icon()
+
+let headers = [
+  { title: '文件/目录名称', width: '25%' },
+  { title: '文件/目录大小', width: '15%' },
+  { title: '文件状态', width: '15%' },
+  { title: '创建用户', width: '15%' },
+  { title: '创建时间', width: '15%' },
+  { title: '操作', width: '15%' },
+]
 
 onMounted(() => {
-  selectFileDirOrFileFun();
-});
+  selectFileDirOrFileFun()
+})
 
 /**
  * 文件云盘接口合集
  */
 function fileFn(): any {
   // 创建目录表单
-  const createFileFormRef: any = ref(null);
+  const createFileFormRef: any = ref(null)
 
-  let filePath: any = ref('/user');
-  let filePathArr = ref([]);
-  let dirList: any = reactive({ data: [] });
-  let dialogImageUrl: any = reactive({ url: [], index: 0, show: false });
+  let filePath: any = ref('/user')
+  let filePathArr = ref([])
+  let dirList: any = reactive({ data: [] })
+  let fileList: any = reactive({ data: [] })
+  let dialogImageUrl: any = reactive({ url: [], index: 0, show: false })
 
   let menu: any = reactive({
     visible: false,
@@ -263,41 +423,41 @@ function fileFn(): any {
       dirType: 0,
     },
     file: null,
-  });
+  })
   /**
    * 打开菜单
    */
   const openMenu = (e: any, item?: any) => {
     if (item !== null) {
       // 选定文件、目录打开菜单
-      menu.file = item;
-      menu.type = item.type;
+      menu.file = item
+      menu.type = item.type
     } else {
       // 空白页面打开菜单
-      menu.type = -1;
+      menu.type = -1
     }
-    menu.visible = true;
-    menu.left = e.clientX;
-    menu.top = e.clientY;
-  };
+    menu.visible = true
+    menu.left = e.clientX
+    menu.top = e.clientY
+  }
 
   /**
    * 查看文件详细信息
    */
   const showFileDesc = (item: any) => {
     if (item === null) {
-      menu.visible = false;
+      menu.visible = false
     } else {
-      menu.file = item;
+      menu.file = item
     }
-    menu.fileDialog = true;
-  };
+    menu.fileDialog = true
+  }
 
   // 注册表单验证规则
   const createFileRules = {
     name: [{ required: true, message: '请输入目录名称', trigger: 'blur' }],
     dirType: [{ required: true, message: '请选择目录类型', trigger: 'blur' }],
-  };
+  }
 
   /**
    * 创建文件目录
@@ -313,62 +473,68 @@ function fileFn(): any {
             type: 0,
           }).then((res: any) => {
             if (res.code === 200) {
-              menu.dirFile.name = '';
-              menu.dirFile.dirType = 0;
-              ElMessage.success({ message: '文件上传成功', type: 'success' });
-              selectFileDirOrFileFun();
+              menu.dirFile.name = ''
+              menu.dirFile.dirType = 0
+              ElMessage.success({ message: '文件上传成功', type: 'success' })
+              selectFileDirOrFileFun()
             }
-          });
-          menu.dirDialog = false;
+          })
+          menu.dirDialog = false
         }
-      });
+      })
     }
-  };
+  }
 
   /**
    * 上传文件
    */
   const changeUpload = (file: any, fileLists: any) => {
-    if (file.size / 1024 / 1024 > 100) {
-      ElMessage.error('单文件最大上传大小为100M');
-      return;
+    if (file.size / 1024 / 1024 > 1024) {
+      ElMessage.error('单文件最大上传大小为1G')
+      return
     }
-    const data = new FormData();
-    data.append('files', file.raw);
-    data.append('fileTypeCode', '3');
-    data.append('filePathCode', '4');
-    data.append('addPath', filePath.value);
+    const data = new FormData()
+    data.append('file', file.raw)
+    data.append('appointPath', filePath.value)
     uploadApi(data).then((res: any) => {
       if (res.code === 200) {
-        ElMessage.success({ message: '文件上传成功', type: 'success' });
-        selectFileDirOrFileFun();
+        ElMessage.success({ message: '文件上传成功', type: 'success' })
+        selectFileDirOrFileFun()
       } else {
-        ElMessage.error({ message: res.message, type: 'error' });
+        ElMessage.error({ message: res.message, type: 'error' })
       }
-    });
-  };
+    })
+  }
 
   /**
    * 刷新当前目录
    */
   const refreshDir = () => {
-    menu.visible = false;
-    selectFileDirOrFileFun();
-  };
+    menu.visible = false
+    selectFileDirOrFileFun()
+  }
 
   /**
-   * 查询当前目录下文件列表
+   * 查询当前目录下目录与文件列表
    */
   const selectFileDirOrFileFun = () => {
-    selectFileDirOrFileApi({
-      filePath: filePath.value,
+    selectFileDirApi({
+      dirPath: filePath.value,
     }).then((res: any) => {
       if (res.code === 200) {
-        dirList.data = res.result;
-        filePathArr.value = filePath.value.substr(1).split('/');
+        dirList.data = res.result
+        filePathArr.value = filePath.value.substr(1).split('/')
       }
-    });
-  };
+    })
+    selectFileApi({
+      dirPath: filePath.value,
+    }).then((res: any) => {
+      if (res.code === 200) {
+        fileList.data = res.result
+        // filePathArr.value = filePath.value.substr(1).split('/')
+      }
+    })
+  }
 
   /**
    * 切换目录
@@ -376,59 +542,59 @@ function fileFn(): any {
   const changePath = (idx: any) => {
     // 回到根目录
     if (idx === -1) {
-      filePath.value = '/';
-      selectFileDirOrFileFun();
+      filePath.value = '/'
+      selectFileDirOrFileFun()
     } else if (idx === -2) {
       // 回到上一级
       if (filePathArr.value.length <= 1) {
-        filePath.value = '/';
+        filePath.value = '/'
       } else {
-        idx = filePathArr.value.length - 2;
-        filePath.value = '';
+        idx = filePathArr.value.length - 2
+        filePath.value = ''
         for (let i = 0; i <= idx; i++) {
-          filePath.value += '/' + filePathArr.value[i];
+          filePath.value += '/' + filePathArr.value[i]
         }
       }
-      selectFileDirOrFileFun();
+      selectFileDirOrFileFun()
     } else {
       // 进入指定目录
       if (idx !== filePathArr.value.length - 1) {
-        filePath.value = '';
+        filePath.value = ''
         for (let i = 0; i <= idx; i++) {
-          filePath.value += '/' + filePathArr.value[i];
+          filePath.value += '/' + filePathArr.value[i]
         }
-        selectFileDirOrFileFun();
+        selectFileDirOrFileFun()
       }
     }
-  };
+  }
 
   /**
    * 打开文件目录
    */
   const openFileDirFun = (dir: any) => {
     if (filePath.value === '/') {
-      filePath.value += dir.name;
+      filePath.value += dir.name
     } else {
-      filePath.value += '/' + dir.name;
+      filePath.value += '/' + dir.name
     }
-    selectFileDirOrFileFun();
-  };
+    selectFileDirOrFileFun()
+  }
 
   /**
    * 展示图片
    */
   const showImg = (img: any) => {
-    dialogImageUrl.show = true;
-    dialogImageUrl.url = [];
-    for (let i = 0; i < dirList.data.length; i++) {
-      if (dirList.data[i].type === 1) {
-        if (dirList.data[i].imgPath === img.imgPath) {
-          dialogImageUrl.index = dialogImageUrl.url.length;
+    dialogImageUrl.show = true
+    dialogImageUrl.url = []
+    for (let i = 0; i < fileList.data.length; i++) {
+      if (fileList.data[i].fileType === 'png') {
+        if (fileList.data[i].fileUrl === img.fileUrl) {
+          dialogImageUrl.index = i
         }
-        dialogImageUrl.url.push(dirList.data[i].imgPath);
+        dialogImageUrl.url.push(fileList.data[i].fileUrl)
       }
     }
-  };
+  }
 
   /**
    * 删除文件或目录
@@ -440,13 +606,13 @@ function fileFn(): any {
       id: item.id,
       dirType: item.dirType,
     }).then((res: any) => {
-      console.log(res);
+      console.log(res)
       if (res.code === 200) {
-        ElMessage.success('文件删除成功');
-        selectFileDirOrFileFun();
+        ElMessage.success('文件删除成功')
+        selectFileDirOrFileFun()
       }
-    });
-  };
+    })
+  }
 
   const syncFileFun = (item: any) => {
     syncFileApi({
@@ -456,10 +622,8 @@ function fileFn(): any {
       dirType: item.dirType,
       name: item.name,
       syncType: 1,
-      fileCode: "1111"
-    }).then((res: any) => {
-
-    })
+      fileCode: '1111',
+    }).then((res: any) => {})
   }
 
   return {
@@ -468,6 +632,7 @@ function fileFn(): any {
     filePath,
     filePathArr,
     dirList,
+    fileList,
     dialogImageUrl,
     menu,
     openMenu,
@@ -480,8 +645,8 @@ function fileFn(): any {
     openFileDirFun,
     showImg,
     deleteFileDirOrFileFun,
-    syncFileFun
-  };
+    syncFileFun,
+  }
 }
 </script>
 
@@ -509,7 +674,8 @@ function fileFn(): any {
   font-style: normal;
   color: rgba(0, 0, 0, 0.87);
   border-radius: 0.28571429rem;
-  box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12),
+  box-shadow:
+    0 2px 4px 0 rgba(34, 36, 38, 0.12),
     0 2px 10px 0 rgba(34, 36, 38, 0.15);
 }
 
@@ -572,5 +738,61 @@ function fileFn(): any {
 
 .contextmenu li:hover {
   background: #eee;
+}
+
+/* 核心样式 */
+.table-container {
+  width: 100%;
+  min-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 表格行通用样式 */
+.table-header,
+.table-row {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  padding-left: 10px;
+  box-sizing: border-box; /* 关键对齐属性 */
+}
+
+/* 表头样式 */
+.table-header {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+/* 单元格通用样式 */
+.header-item,
+.data-item {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  min-height: 15px;
+  display: flex;
+  align-items: center;
+  overflow: hidden; /* 处理超长内容 */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 列宽控制逻辑 */
+.header-item {
+  flex-shrink: 0; /* 禁止宽度压缩 */
+}
+.header-item[style*='auto'] {
+  flex: 1; /* 自动填充列 */
+}
+
+/* 斑马纹效果 */
+.table-row:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+/* 悬停效果 */
+.table-row:hover {
+  background-color: #e9ecef;
 }
 </style>

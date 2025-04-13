@@ -1,30 +1,26 @@
 package com.blog.file.service.impl;
 
 
-import com.blog.core.domain.file.files.entity.UploadFile;
-import com.blog.core.domain.file.files.entity.UploadLog;
-import com.blog.core.domain.file.files.vo.UploadVo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.core.domain.file.files.entity.FileCategory;
+import com.blog.core.domain.file.files.entity.FileCategoryData;
+import com.blog.core.domain.file.files.vo.FileUploadVo;
 import com.blog.core.enums.file.FilePathEnum;
 import com.blog.core.enums.file.FileTypeEnum;
-import com.blog.core.result.Result;
-import com.blog.core.result.ResultFactory;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
-import com.blog.file.mapper.UploadFileMapper;
-import com.blog.file.mapper.UploadLogMapper;
+import com.blog.file.mapper.FileCategoryDataMapper;
+import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.file.service.UploadFileService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @Author: lxk
@@ -37,61 +33,118 @@ import java.util.List;
 public class UploadFileServiceImpl implements UploadFileService {
 
     @Resource
-    private UploadLogMapper uploadLogMapper;
+    private FileCategoryMapper fileCategoryMapper;
 
     @Resource
-    private UploadFileMapper uploadFileMapper;
+    private FileCategoryDataMapper fileCategoryDataMapper;
 
     @Resource
     private MinioService minioService;
 
+    /**
+     * 文件上传服务
+     *
+     * @param uploadVo
+     * @return
+     * @throws ServiceException
+     */
     @Override
-    public String uploadService(UploadVo uploadVo) {
+    public FileCategoryData uploadService(FileUploadVo uploadVo) throws ServiceException {
         Integer userId = SecurityUtil.getLoginUser().getId();
+        String userName = SecurityUtil.getLoginUser().getUsername();
         String filePath = FilePathEnum.getFilePathByCode(uploadVo.getFilePathCode());
-        String fileName = uploadVo.getFiles().getOriginalFilename();
+        String fileName = uploadVo.getFile().getOriginalFilename();
+        if (StringUtils.isEmpty(fileName)) {
+            throw new ServiceException("文件名称不能为空");
+        }
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
         String typePath = FileTypeEnum.getTypeListByTypeName(fileType);
 
-        String path = "/" + userId + "/" + filePath + "/" + typePath + "/" + DateUtil.formatDateTime(new Date()) + "_" + MyStringUtils.getRandomString(6) + "_" + fileName;
-        minioService.uploadFile(uploadVo.getFiles(), path);
+        String path;
+        if (StringUtils.isNotEmpty(uploadVo.getAppointPath())) {
+            path = "/" + userId + uploadVo.getAppointPath();
+        } else {
+            path = "/" + userId + filePath + typePath;
+        }
 
-        return path;
+        Integer categoryId = getFileCategory(path);
+        String newFileName = DateUtil.formatDateTimeNoSpaces() + "_" + MyStringUtils.getRandomString(6) + "_" + fileName;
+
+        String fileUrl = minioService.uploadFile(uploadVo.getFile(), path + "/" + newFileName);
+
+        if (StringUtils.isNotEmpty(fileUrl)) {
+            FileCategoryData fileCategoryData = new FileCategoryData();
+            fileCategoryData.setUserId(userId);
+            fileCategoryData.setFileName(fileName);
+            fileCategoryData.setFileCategoryId(categoryId);
+            fileCategoryData.setFileUrl(fileUrl);
+            fileCategoryData.setFileSize((int) uploadVo.getFile().getSize());
+            fileCategoryData.setFileStatus(0);
+            fileCategoryData.setFileType(fileType);
+            fileCategoryData.setCreateBy(userName);
+            fileCategoryData.setCreateTime(new Date());
+            fileCategoryDataMapper.insert(fileCategoryData);
+            return fileCategoryData;
+        }
+        return null;
     }
 
-    //    @Override
-//    public Result upload(MultipartFile[] files, Integer userId, String filePath) {
-//        Date date = new Date();
-//        List<String> result = new ArrayList<>();
-//        for (MultipartFile file : files) {
-//            String fileName = file.getOriginalFilename();
-//            if (fileName != null && !fileName.equals("")) {
-//                String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
-//                String formatDate = DateUtil.formatDateTime(date).replace(" ", "_").replace(":", "-");
-//                String newFileName = formatDate + "_" + MyStringUtils.getRandomString(6) + "_" + fileName;
-//                UploadLog uploadLog = new UploadLog(userId, newFileName, fileType, 0, "", date);
-//                uploadLogMapper.insert(uploadLog);
-//                try {
-//                    File targetFile;
-//                    File file1 = new File(basePath + filePath);
-//                    if (!file1.exists() && !file1.isDirectory()) {
-//                        file1.mkdirs();
-//                    }
-//                    targetFile = new File(file1, newFileName);
-//                    file.transferTo(targetFile);
-//                    String url = serviceIp + baseUri + filePath + "/" + newFileName;
-//
-//                    result.add(url);
-//                    uploadFileMapper.insert(new UploadFile(userId, newFileName, url, date, fileType, basePath + filePath));
-//                    uploadLogMapper.updateById(new UploadLog(uploadLog.getId(), userId, 1, "文件上传成功"));
-//
-//                } catch (Exception e) {
-//                    uploadLogMapper.updateById(new UploadLog(uploadLog.getId(), userId, 2, "文件上传失败"));
-//                    log.error(e.getMessage(), e);
-//                }
-//            }
-//        }
-//        return ResultFactory.buildSuccessResult(result);
-//    }
+    /**
+     * 创建目录
+     * @param path 目录
+     * @throws ServiceException
+     */
+    @Override
+    public void createDir(String path) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+        String createDir = "/" + userId + path;
+        minioService.createDir(createDir);
+        getFileCategory(createDir);
+    }
+
+    /**
+     * 删除目录
+     * @param path 目录
+     */
+    @Override
+    public void deleteDir(String path, String dirName) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+        String createDir = "/" + userId + path;
+//        minioService.createDir(createDir);
+        getFileCategory(createDir);
+    }
+
+    /**
+     * 获取文件上传目录id
+     *
+     * @param path 文件上传路径
+     * @return 文件直属目录id
+     */
+    private Integer getFileCategory(String path) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+        String userName = SecurityUtil.getLoginUser().getUsername();
+        String[] pathArray = path.split("/");
+        StringBuilder dirOath = new StringBuilder();
+        Integer resultFileCategoryId = 0;
+        for (int i = 1; i < pathArray.length; i++) {
+            String str = pathArray[i];
+            dirOath.append("/").append(str);
+            LambdaQueryWrapper<FileCategory> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(FileCategory::getDirPath, dirOath.toString());
+            FileCategory category = fileCategoryMapper.selectOne(wrapper);
+            if (category == null) {
+                category = new FileCategory();
+                category.setDirName(str);
+                category.setDirPath(dirOath.toString());
+                category.setParentDir(resultFileCategoryId);
+                category.setUserId(userId);
+                category.setCreateBy(userName);
+                category.setCreateTime(new Date());
+                fileCategoryMapper.insert(category);
+            }
+            resultFileCategoryId = category.getId();
+        }
+        return resultFileCategoryId;
+    }
 
 }

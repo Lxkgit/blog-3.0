@@ -8,6 +8,8 @@ package com.blog.core.constant;
 
 public class Constant {
 
+    // 授权信息有效时间
+    public static  final Integer AUTH_EFFECTIVE_TIME = 28800;
     public static final String articleSaveFail = "文章保存失败";
     public static final String articleUpdateFail = "文章修改失败";
     public static final String JWTError = "JWT解析报错";

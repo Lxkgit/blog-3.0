@@ -2,6 +2,7 @@ package com.blog.auth.service.impl;
 
 
 import com.blog.auth.service.LoginService;
+import com.blog.core.constant.Constant;
 import com.blog.core.domain.auth.vo.LoginVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
@@ -56,7 +57,7 @@ public class LoginServiceImpl implements LoginService {
         SecurityContextHolder.setContext(securityContext);
 
         // 保存认证信息 过期时间1个小时 保持和access_token的过期时间一致
-        redisService.setString(key, securityContext, 3600);
+        redisService.setString(key, securityContext, Constant.AUTH_EFFECTIVE_TIME);
         return ResultFactory.buildSuccessResult(rzId);
     }
 

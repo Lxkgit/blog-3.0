@@ -46,7 +46,7 @@
         @contextmenu.prevent="openMenu($event, null)"
       >
         <div style="display: flex">
-          <div v-if="false" style="width: 79vw">
+          <div v-if="true" style="width: 79vw">
             <!-- 表头 -->
             <ul class="table-header">
               <li
@@ -64,7 +64,7 @@
                 <MyIcon type="icon-user" /> {{ row.dirName }}
               </li>
               <li class="data-item" :style="{ width: headers[1].width }">
-                {{ row.occupySpace }}
+                {{ fileSizeConvert(row.occupySpace).value }}
               </li>
               <li class="data-item" :style="{ width: headers[2].width }">目录</li>
               <li class="data-item" :style="{ width: headers[3].width }">
@@ -83,10 +83,10 @@
                 <MyIcon type="icon-edit" /> {{ row.fileName }}
               </li>
               <li class="data-item" :style="{ width: headers[1].width }">
-                {{ row.fileSize / 1024 / 1024 }}MB
+                {{ fileSizeConvert(row.fileSize).value }}
               </li>
               <li class="data-item" :style="{ width: headers[2].width }">
-                {{ row.fileStatus }}
+                {{ fileStatusEnum(row.fileStatus).value }}
               </li>
               <li class="data-item" :style="{ width: headers[3].width }">
                 {{ row.createBy }}
@@ -167,7 +167,7 @@
                   class="file_item"
                 >
                   <div
-                    v-if="fileType(item.fileType).key === 1"
+                    v-if="fileTypeEnum(item.fileType).key === 1"
                     style="
                       height: 125px;
                       display: flex;
@@ -202,7 +202,7 @@
                       />
                     </div>
                   </div>
-                  <div v-else-if="fileType(item.fileType).key === 2" style="height: 125px">
+                  <div v-else-if="fileTypeEnum(item.fileType).key === 2" style="height: 125px">
                     <div class="show_icon">
                       <MyIcon
                         title="查看文件信息"
@@ -239,7 +239,7 @@
                 </div>
                 <div style="display: flex; padding-left: 5px; padding-top: 2px">
                   <el-tag class="mx-1" size="small" style="">
-                    {{ fileType(item.fileType).value }}
+                    {{ fileTypeEnum(item.fileType).value }}
                   </el-tag>
                   <span
                     :title="item.fileName"
@@ -382,16 +382,16 @@ let {
   syncFileFun,
 } = fileFn()
 
-let { fileType } = mixin()
+let { fileTypeEnum, fileStatusEnum, fileSizeConvert } = mixin()
 let { MyIcon } = icon()
 
 let headers = [
   { title: '文件/目录名称', width: '25%' },
-  { title: '文件/目录大小', width: '15%' },
-  { title: '文件状态', width: '15%' },
-  { title: '创建用户', width: '15%' },
-  { title: '创建时间', width: '15%' },
-  { title: '操作', width: '15%' },
+  { title: '文件/目录大小', width: '17%' },
+  { title: '文件状态', width: '16%' },
+  { title: '创建用户', width: '13%' },
+  { title: '创建时间', width: '16%' },
+  { title: '操作', width: '13%' },
 ]
 
 onMounted(() => {

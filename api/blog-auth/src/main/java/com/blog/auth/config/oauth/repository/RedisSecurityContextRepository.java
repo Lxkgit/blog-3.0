@@ -2,6 +2,7 @@ package com.blog.auth.config.oauth.repository;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.blog.auth.config.oauth.context.SupplierDeferredSecurityContext;
+import com.blog.core.constant.Constant;
 import com.blog.redis.constant.AuthRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
@@ -61,7 +62,7 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
             redisService.delKey(key);
         } else {
             // 保存认证信息 过期时间1个小时 保持和access_token的过期时间一致
-            redisService.setString(key, context, 28800);
+            redisService.setString(key, context, Constant.AUTH_EFFECTIVE_TIME);
         }
     }
 

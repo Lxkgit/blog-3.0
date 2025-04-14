@@ -43,46 +43,21 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
-    public void saveFileDir(FileCategoryVo fileCategoryVo) throws ServiceException {
+    public void createDir(FileCategoryVo fileCategoryVo) throws ServiceException {
         uploadFileService.createDir(fileCategoryVo.getDirPath() + "/" + fileCategoryVo.getDirName());
     }
 
+
     @Override
     public void deleteFileDir(FileCategoryVo fileCategoryVo) throws ServiceException {
-
+        uploadFileService.deleteFileDir(fileCategoryVo.getDirPath(), fileCategoryVo.getDirName());
     }
-//
-//    private void deleteDir(File dir) {
-//        File[] files = dir.listFiles();
-//        // 删除dir 里面的内容
-//        // 用到递归  此处注意不要经常用  因为java删除的内容是 在回收站找不到
-//        for (File file : files) {
-//            if (file.isFile()) {
-//                file.delete();
-//            } else {
-//                deleteDir(file);
-//            }
-//        }
-//        // 删除 dir
-//        dir.delete();
-//    }
-//
-//    @Override
-//    public void updateFileOrDirName(FileCategoryDataVo fileDataVo) throws ServiceException {
-//        if (fileDataVo.getName() == null || fileDataVo.getName().equals("")) {
-//            throw new ServiceException(ErrorMessage.FILE_NAME_NULL_ERROR);
-//        }
-//        if (fileDataVo.getFilePath().equals("/")) {
-//            throw new ServiceException(ErrorMessage.BASE_FILE_NOT_RENAME);
-//        }
-//        String path = basePath + "/" + 1 + fileDataVo.getFilePath();
-//        new File(path + "/" + fileDataVo.getName()).renameTo(new File(path + "/" + fileDataVo.getRename()));
-//
-//        QueryWrapper<FileCategoryData> wrapper = new QueryWrapper<>();
-//        wrapper.likeRight("path", path + "/" + fileDataVo.getName());
-//        fileDataMapper.delete(wrapper);
-//    }
-//
+
+    @Override
+    public void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException {
+        uploadFileService.deleteFile(fileCategoryData);
+    }
+
     /**
      * 查询指定用户的文件目录
      *
@@ -91,54 +66,40 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public List<FileCategory> selectFileDir(FileCategoryVo fileDataVo) {
-        Integer userId = SecurityUtil.getLoginUser().getId();
-        LambdaQueryWrapper<FileCategory> wrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.isNotEmpty(fileDataVo.getDirPath())) {
-            wrapper.eq(FileCategory::getDirPath, "/" + userId + fileDataVo.getDirPath());
-        } else {
-            wrapper.eq(FileCategory::getDirPath, "/" + userId);
-        }
-        wrapper.eq(FileCategory::getUserId, userId);
-        FileCategory fileCategory = fileCategoryMapper.selectOne(wrapper);
-
+        FileCategory fileCategory = getFileDir(fileDataVo);
         LambdaQueryWrapper<FileCategory> childWrapper = new LambdaQueryWrapper<>();
         childWrapper.eq(FileCategory::getParentDir, fileCategory.getId());
-
         return fileCategoryMapper.selectList(childWrapper);
     }
 
     @Override
     public List<FileCategoryData> selectFile(FileCategoryVo fileDataVo) {
-        Integer userId = SecurityUtil.getLoginUser().getId();
-        LambdaQueryWrapper<FileCategory> wrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.isNotEmpty(fileDataVo.getDirPath())) {
-            wrapper.eq(FileCategory::getDirPath, "/" + userId + fileDataVo.getDirPath());
-        } else {
-            wrapper.eq(FileCategory::getDirPath, "/" + userId);
-        }
-        wrapper.eq(FileCategory::getUserId, userId);
-        FileCategory fileCategory = fileCategoryMapper.selectOne(wrapper);
-
+        FileCategory fileCategory = getFileDir(fileDataVo);
         LambdaQueryWrapper<FileCategoryData> dateWrapper = new LambdaQueryWrapper<>();
         dateWrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
         fileCategoryDataMapper.selectList(dateWrapper);
         return fileCategoryDataMapper.selectList(dateWrapper);
     }
 
-    //
-//    @Override
-//    public Long selectUserSpace() {
-//        QueryWrapper<FileCategoryData> wrapper = new QueryWrapper<>();
-//        wrapper.eq("user_id", 1);
-//        List<FileCategoryData> fileDataList = fileDataMapper.selectList(wrapper);
-//        Long size = 0L;
-//        for (FileCategoryData fileData : fileDataList) {
-//            if (fileData.getFileSize() != null) {
-//                size += fileData.getFileSize();
-//            }
-//        }
-//        return size;
-//    }
+    /**
+     * 查询指定目录
+     *
+     * @param fileDataVo
+     * @return
+     */
+    private FileCategory getFileDir(FileCategoryVo fileDataVo) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+        LambdaQueryWrapper<FileCategory> wrapper = new LambdaQueryWrapper<>();
+        if (StringUtils.isNotEmpty(fileDataVo.getDirPath())) {
+            wrapper.eq(FileCategory::getDirPath, "/" + userId + fileDataVo.getDirPath());
+        } else {
+            wrapper.eq(FileCategory::getDirPath, "/" + userId);
+        }
+        wrapper.eq(FileCategory::getUserId, userId);
+        return fileCategoryMapper.selectOne(wrapper);
+    }
+
+
 //
 //    /**
 //     * 同步文件

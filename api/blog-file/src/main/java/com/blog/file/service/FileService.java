@@ -20,13 +20,11 @@ public interface FileService {
 
     List<FileCategoryData> selectFile(FileCategoryVo fileCategoryVo);
 
-    void saveFileDir(FileCategoryVo fileDataVo) throws ServiceException;
+    void createDir(FileCategoryVo fileDataVo) throws ServiceException;
 
     void deleteFileDir(FileCategoryVo fileCategoryVo) throws ServiceException;
-//
-//    void updateFileOrDirName(FileCategoryDataVo fileDataVo) throws ServiceException;
-//
-//    Long selectUserSpace();
+
+    void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException;
 //
 //    boolean syncFile(FileCategoryDataVo fileDataVo);
 //

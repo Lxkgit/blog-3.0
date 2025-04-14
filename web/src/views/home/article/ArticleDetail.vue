@@ -92,7 +92,7 @@
 
 <script setup name="ArticleDetail" lang="ts">
 import NavMenu from "@/components/home/NavMenu.vue";
-import Loading from "@/components/home/Loading.vue"
+import Loading from "@/components/common/Loading.vue"
 import Footer from "@/components/home/Footer.vue"
 import BackTop from "@/components/home/BackTop.vue"
 // import MarkDown from "@/components/detail/MarkDown.vue"

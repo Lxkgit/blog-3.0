@@ -2,7 +2,6 @@ package com.blog.auth.config.oauth.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.blog.auth.mapper.MenuMapper;
 import com.blog.auth.mapper.UserMapper;
 import com.blog.core.domain.auth.bo.LoginUserBo;
@@ -11,6 +10,7 @@ import com.blog.auth.entity.MyUserDetails;
 import com.blog.core.domain.auth.entity.User;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

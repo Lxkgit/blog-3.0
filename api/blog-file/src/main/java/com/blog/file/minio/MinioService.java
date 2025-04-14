@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Date;
 
@@ -79,30 +78,18 @@ public class MinioService {
     }
 
     /**
-     * 创建文件夹
+     * 删除指定文件
      *
-     * @param path 记得路径最后加一个/ 例如 bucket/folder/
+     * @param path 文件路径
+     * @param fileName 文件名称
      */
-    public void createDir(String path) throws ServiceException {
+    public void deleteFile(String path, String fileName) throws ServiceException {
         try {
-            minioClient.putObject(PutObjectArgs.builder()
-                    .bucket(bucket)
-                    .object(path + "/")
-                    .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
-                    .build());
-        } catch (Exception e) {
-            throw new ServiceException(e.getMessage());
-        }
-    }
-
-    /**
-     * 创建文件夹
-     *
-     * @param path 记得路径最后加一个/ 例如 bucket/folder/
-     */
-    public void deleteDir(String path, String dirName) throws ServiceException {
-        try {
-//            minioClient.delete
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(path + "/" + fileName)
+                            .build());
         } catch (Exception e) {
             throw new ServiceException(e.getMessage());
         }

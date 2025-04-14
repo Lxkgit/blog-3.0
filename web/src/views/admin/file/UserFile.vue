@@ -10,7 +10,7 @@
         </el-upload>
         <div style="line-height: 23px; margin-left: 20px">
           <MyIcon
-            :style="[filePath === '/' ? { 'pointer-events': 'none' } : { cursor: 'pointer' }]"
+            :style="[filePath === '' ? { 'pointer-events': 'none' } : { cursor: 'pointer' }]"
             style="margin-right: 20px; outline: 0"
             type="icon-shangyibu"
             @click="changePath(-2)"
@@ -18,17 +18,16 @@
           />
           <span style="">当前路径：&nbsp;</span>
           <div style="display: inline; margin-left: 10px">
-            <span class="file_path" style="cursor: pointer" @click="changePath(-1)"
-              >&nbsp;/&nbsp;</span
+            <span class="file_path" style="cursor: pointer" @click="changePath(-1)">根目录</span>
+            <div
+              v-for="(item, idx) in filePathArr"
+              style="display: inline; margin-left: 5px"
+              :key="idx"
             >
-            <span v-if="filePath !== '/'">
-              <div v-for="(item, idx) in filePathArr" style="display: inline" :key="idx">
-                <span v-if="idx != 0">&nbsp;/&nbsp;</span>
-                <span class="file_path" style="cursor: pointer" @click="changePath(idx)">
-                  {{ item }}
-                </span>
-              </div>
-            </span>
+              <span class="file_path" style="cursor: pointer" @click="changePath(idx)">
+                {{ item }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -43,7 +42,7 @@
           margin: 10px;
           height: calc(100vh - 330px);
         "
-        @contextmenu.prevent="openMenu($event, null)"
+        @contextmenu.prevent="openMenu($event)"
       >
         <div style="display: flex">
           <div v-if="true" style="width: 79vw">
@@ -60,44 +59,50 @@
             </ul>
             <!-- 目录数据行 -->
             <ul v-for="(row, rowIndex) in dirList.data" :key="rowIndex" class="table-row">
-              <li class="data-item" :style="{ width: headers[0].width }">
-                <MyIcon type="icon-user" /> {{ row.dirName }}
-              </li>
-              <li class="data-item" :style="{ width: headers[1].width }">
-                {{ fileSizeConvert(row.occupySpace).value }}
-              </li>
-              <li class="data-item" :style="{ width: headers[2].width }">目录</li>
-              <li class="data-item" :style="{ width: headers[3].width }">
-                {{ row.createBy }}
-              </li>
-              <li class="data-item" :style="{ width: headers[4].width }">
-                {{ row.createTime }}
-              </li>
-              <li class="data-item" :style="{ width: headers[5].width }">
-                <MyIcon type="icon-user" /> <MyIcon type="icon-user" />
-              </li>
+              <div style="display: flex; width: 100%; position: relative; cursor: pointer;" @contextmenu.prevent.stop="openMenu($event, 1, row)" @dblclick="openFileDirFun(row)">
+                <li class="data-item" :style="{ width: headers[0].width }" >
+                  <MyIcon type="icon-user" /> {{ row.dirName }}
+                </li>
+                <li class="data-item" :style="{ width: headers[1].width }">
+                  {{ fileSizeConvert(row.occupySpace).value }}
+                </li>
+                <li class="data-item" :style="{ width: headers[2].width }">目录</li>
+                <li class="data-item" :style="{ width: headers[3].width }">
+                  {{ row.createBy }}
+                </li>
+                <li class="data-item" :style="{ width: headers[4].width }">
+                  {{ row.createTime }}
+                </li>
+                <li class="data-item" :style="{ width: headers[5].width }">
+                  <MyIcon type="icon-user" /> <MyIcon type="icon-user" />
+                  <MyIcon type="icon-delete" @click="deleteFileDirFun(row)"/>
+                </li>
+              </div>
             </ul>
             <!-- 文件数据行 -->
             <ul v-for="(row, rowIndex) in fileList.data" :key="rowIndex" class="table-row">
-              <li class="data-item" :style="{ width: headers[0].width }">
-                <MyIcon type="icon-edit" /> {{ row.fileName }}
-              </li>
-              <li class="data-item" :style="{ width: headers[1].width }">
-                {{ fileSizeConvert(row.fileSize).value }}
-              </li>
-              <li class="data-item" :style="{ width: headers[2].width }">
-                {{ fileStatusEnum(row.fileStatus).value }}
-              </li>
-              <li class="data-item" :style="{ width: headers[3].width }">
-                {{ row.createBy }}
-              </li>
-              <li class="data-item" :style="{ width: headers[4].width }">
-                {{ row.createTime }}
-              </li>
-              <li class="data-item" :style="{ width: headers[5].width }">
-                <MyIcon type="icon-eye" @click="showImg(row)"></MyIcon> <MyIcon type="icon-user" />
-                <MyIcon type="icon-delete" />
-              </li>
+              <div style="display: flex; width: 100%; position: relative; cursor: pointer;" @contextmenu.prevent.stop="openMenu($event, 2, row)">
+                <li class="data-item" :style="{ width: headers[0].width }">
+                  <MyIcon type="icon-edit" /> {{ row.fileName }}
+                </li>
+                <li class="data-item" :style="{ width: headers[1].width }">
+                  {{ fileSizeConvert(row.fileSize).value }}
+                </li>
+                <li class="data-item" :style="{ width: headers[2].width }">
+                  {{ fileStatusEnum(row.fileStatus).value }}
+                </li>
+                <li class="data-item" :style="{ width: headers[3].width }">
+                  {{ row.createBy }}
+                </li>
+                <li class="data-item" :style="{ width: headers[4].width }">
+                  {{ row.createTime }}
+                </li>
+                <li class="data-item" :style="{ width: headers[5].width }">
+                  <MyIcon type="icon-eye" @click="showImg(row)"></MyIcon>
+                  <MyIcon type="icon-user" />
+                  <MyIcon type="icon-delete" @click="deleteFileFun(row)"/>
+                </li>
+              </div>
             </ul>
           </div>
           <div v-else style="display: flex; width: 79vw; flex-wrap: wrap">
@@ -125,7 +130,7 @@
                         title="删除"
                         class="icon_type"
                         type="icon-delete"
-                        @click="deleteFileDirOrFileFun(item)"
+                        @click="deleteFileDirFun(item)"
                       />
                     </div>
                   </div>
@@ -198,7 +203,7 @@
                         title="删除"
                         class="icon_type"
                         type="icon-delete"
-                        @click="deleteFileDirOrFileFun(item)"
+                        @click="deleteFileFun(item)"
                       />
                     </div>
                   </div>
@@ -214,7 +219,7 @@
                         title="删除"
                         class="icon_type"
                         type="icon-delete"
-                        @click="deleteFileDirOrFileFun(item)"
+                        @click="deleteFileFun(item)"
                       />
                     </div>
                     压缩文件
@@ -231,7 +236,7 @@
                         title="删除"
                         class="icon_type"
                         type="icon-delete"
-                        @click="deleteFileDirOrFileFun(item)"
+                        @click="deleteFileFun(item)"
                       />
                     </div>
                     其它类型文件
@@ -279,7 +284,7 @@
       class="contextmenu"
     >
       <li @click="refreshDir()">刷新</li>
-      <li v-if="menu.type === -1">
+      <li v-if="menu.type === 0">
         <el-upload
           :auto-upload="false"
           multiple
@@ -291,8 +296,10 @@
           上传文件
         </el-upload>
       </li>
-      <li v-if="menu.type === -1">创建目录</li>
-      <li v-if="menu.type !== -1" @click="showFileDesc(null)">查看文件信息</li>
+      <li v-if="menu.type === 0" @click="createDir()">创建目录</li>
+      <li v-if="menu.type === 0" @click="deleteFileDirFun()">删除目录</li>
+      <li v-if="menu.type === 1">打开目录</li>
+      <li v-if="menu.type === 2" @click="showFileDesc(null)">查看文件信息</li>
       <li @click="menu.visible = false">关闭菜单</li>
     </ul>
     <el-dialog v-model="menu.fileDialog" width="40%">
@@ -349,7 +356,8 @@
 import {
   selectFileDirApi,
   selectFileApi,
-  deleteFileDirOrFileApi,
+  deleteFileDirApi,
+  deleteFileApi,
   uploadApi,
   saveFileDirApi,
   syncFileApi,
@@ -374,11 +382,13 @@ let {
   saveFileDirFun,
   changeUpload,
   refreshDir,
+  createDir,
   selectFileDirOrFileFun,
   changePath,
   openFileDirFun,
   showImg,
-  deleteFileDirOrFileFun,
+  deleteFileDirFun,
+  deleteFileFun,
   syncFileFun,
 } = fileFn()
 
@@ -398,6 +408,7 @@ onMounted(() => {
   selectFileDirOrFileFun()
 })
 
+
 /**
  * 文件云盘接口合集
  */
@@ -406,7 +417,7 @@ function fileFn(): any {
   const createFileFormRef: any = ref(null)
 
   let filePath: any = ref('/user')
-  let filePathArr = ref([])
+  let filePathArr = ref(['/user'])
   let dirList: any = reactive({ data: [] })
   let fileList: any = reactive({ data: [] })
   let dialogImageUrl: any = reactive({ url: [], index: 0, show: false })
@@ -420,22 +431,26 @@ function fileFn(): any {
     dirDialog: false,
     dirFile: {
       name: '',
-      dirType: 0,
     },
     file: null,
   })
   /**
    * 打开菜单
    */
-  const openMenu = (e: any, item?: any) => {
-    if (item !== null) {
-      // 选定文件、目录打开菜单
-      menu.file = item
-      menu.type = item.type
+  const openMenu = (e: any, type?:any, row?: any) => {
+    if(type === 1) {
+      // 打开目录
+      menu.file = row
+      menu.type = type
+    } else if (type === 2) {
+      // 打开文件
+      menu.file = row
+      menu.type = type
     } else {
-      // 空白页面打开菜单
-      menu.type = -1
+    // 空白页面打开菜单
+      menu.type = 0
     }
+
     menu.visible = true
     menu.left = e.clientX
     menu.top = e.clientY
@@ -456,7 +471,7 @@ function fileFn(): any {
   // 注册表单验证规则
   const createFileRules = {
     name: [{ required: true, message: '请输入目录名称', trigger: 'blur' }],
-    dirType: [{ required: true, message: '请选择目录类型', trigger: 'blur' }],
+    // dirType: [{ required: true, message: '请选择目录类型', trigger: 'blur' }],
   }
 
   /**
@@ -467,15 +482,12 @@ function fileFn(): any {
       createFileFormRef.value.validate((valid: any) => {
         if (valid) {
           saveFileDirApi({
-            name: menu.dirFile.name,
-            filePath: filePath.value,
-            dirType: menu.dirFile.dirType,
-            type: 0,
+            dirPath: filePath.value,
+            dirName: menu.dirFile.name
           }).then((res: any) => {
             if (res.code === 200) {
               menu.dirFile.name = ''
-              menu.dirFile.dirType = 0
-              ElMessage.success({ message: '文件上传成功', type: 'success' })
+              ElMessage.success({ message: '目录创建成功', type: 'success' })
               selectFileDirOrFileFun()
             }
           })
@@ -514,24 +526,27 @@ function fileFn(): any {
     selectFileDirOrFileFun()
   }
 
+  const createDir = () => {
+    menu.dirDialog = true
+    menu.visible = false
+  }
   /**
    * 查询当前目录下目录与文件列表
    */
   const selectFileDirOrFileFun = () => {
+    let path = filePath.value
     selectFileDirApi({
-      dirPath: filePath.value,
+      dirPath: path,
     }).then((res: any) => {
       if (res.code === 200) {
         dirList.data = res.result
-        filePathArr.value = filePath.value.substr(1).split('/')
       }
     })
     selectFileApi({
-      dirPath: filePath.value,
+      dirPath: path,
     }).then((res: any) => {
       if (res.code === 200) {
         fileList.data = res.result
-        // filePathArr.value = filePath.value.substr(1).split('/')
       }
     })
   }
@@ -542,18 +557,21 @@ function fileFn(): any {
   const changePath = (idx: any) => {
     // 回到根目录
     if (idx === -1) {
-      filePath.value = '/'
+      filePath.value = null
+      filePathArr.value = []
       selectFileDirOrFileFun()
     } else if (idx === -2) {
       // 回到上一级
       if (filePathArr.value.length <= 1) {
-        filePath.value = '/'
+        filePath.value = null
+        filePathArr.value = []
       } else {
         idx = filePathArr.value.length - 2
         filePath.value = ''
         for (let i = 0; i <= idx; i++) {
-          filePath.value += '/' + filePathArr.value[i]
+          filePath.value += filePathArr.value[i]
         }
+        filePathArr.value.splice(idx+1)
       }
       selectFileDirOrFileFun()
     } else {
@@ -561,8 +579,9 @@ function fileFn(): any {
       if (idx !== filePathArr.value.length - 1) {
         filePath.value = ''
         for (let i = 0; i <= idx; i++) {
-          filePath.value += '/' + filePathArr.value[i]
+          filePath.value += filePathArr.value[i]
         }
+        filePathArr.value.splice(idx+1)
         selectFileDirOrFileFun()
       }
     }
@@ -572,10 +591,12 @@ function fileFn(): any {
    * 打开文件目录
    */
   const openFileDirFun = (dir: any) => {
-    if (filePath.value === '/') {
-      filePath.value += dir.name
+    filePathArr.value.push("/" + dir.dirName)
+
+    if(filePath.value !== null) {
+      filePath.value += '/' + dir.dirName
     } else {
-      filePath.value += '/' + dir.name
+      filePath.value = '/' + dir.dirName
     }
     selectFileDirOrFileFun()
   }
@@ -587,7 +608,7 @@ function fileFn(): any {
     dialogImageUrl.show = true
     dialogImageUrl.url = []
     for (let i = 0; i < fileList.data.length; i++) {
-      if (fileList.data[i].fileType === 'png') {
+      if (fileTypeEnum(fileList.data[i].fileType).key === 1) {
         if (fileList.data[i].fileUrl === img.fileUrl) {
           dialogImageUrl.index = i
         }
@@ -597,16 +618,31 @@ function fileFn(): any {
   }
 
   /**
-   * 删除文件或目录
+   * 删除目录
    */
-  const deleteFileDirOrFileFun = (item: any) => {
-    deleteFileDirOrFileApi({
-      filePath: filePath.value,
-      name: item.name,
-      id: item.id,
-      dirType: item.dirType,
+  const deleteFileDirFun = (item: any) => {
+    deleteFileDirApi({
+      dirPath: filePath.value,
+      dirName: item.dirName
     }).then((res: any) => {
       console.log(res)
+      if (res.code === 200) {
+        ElMessage.success('文件删除成功')
+        selectFileDirOrFileFun()
+      }
+    })
+  }
+
+  /**
+   * 删除文件
+   */
+   const deleteFileFun = (item: any) => {
+    deleteFileApi({
+      dirPath: filePath.value,
+      fileName: item.fileName,
+      id: item.id,
+    }).then((res: any) => {
+
       if (res.code === 200) {
         ElMessage.success('文件删除成功')
         selectFileDirOrFileFun()
@@ -640,11 +676,13 @@ function fileFn(): any {
     saveFileDirFun,
     changeUpload,
     refreshDir,
+    createDir,
     selectFileDirOrFileFun,
     changePath,
     openFileDirFun,
     showImg,
-    deleteFileDirOrFileFun,
+    deleteFileDirFun,
+    deleteFileFun,
     syncFileFun,
   }
 }

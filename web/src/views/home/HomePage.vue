@@ -66,7 +66,7 @@
 import NavMenu from '@/components/home/NavMenu.vue'
 import Footer from '@/components/home/Footer.vue'
 import BackTop from '@/components/home/BackTop.vue'
-import Loading from '@/components/home/Loading.vue'
+import Loading from '@/components/common/Loading.vue'
 import ArticleItem from '@/components/home/ArticleItem.vue'
 import Aside from '@/components/home/Aside.vue'
 

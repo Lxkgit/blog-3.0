@@ -43,9 +43,14 @@ export const saveFileDirApi = (params: any) => {
     return api.post(uri, params)
 }
 
-export const deleteFileDirOrFileApi = (params: any) => {
+export const deleteFileDirApi = (params: any) => {
     const uri = "/file/dir/delete"
     return api.delete(uri, params)
+}
+
+export const deleteFileApi = (params: any) => {
+  const uri = "/file/dir/delete/file"
+  return api.delete(uri, params)
 }
 
 export const updateFileDirOrFileApi = (params: any) => {

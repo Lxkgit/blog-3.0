@@ -1,5 +1,6 @@
 package com.blog.file.controller;
 
+import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.exception.ServiceException;
@@ -35,8 +36,8 @@ public class FileController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:file:user:save')")
-    public Result saveFileDir(@Validated @RequestBody FileCategoryVo fileDataVo) throws ServiceException {
-        fileService.saveFileDir(fileDataVo);
+    public Result createDir(@Validated @RequestBody FileCategoryVo fileDataVo) throws ServiceException {
+        fileService.createDir(fileDataVo);
         return ResultFactory.buildSuccessResult();
     }
 
@@ -49,25 +50,24 @@ public class FileController {
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:file:user:delete')")
-    public Result deleteFileOrDir(@Validated FileCategoryVo fileCategoryVo) throws ServiceException {
+    public Result deleteFileDir(@Validated FileCategoryVo fileCategoryVo) throws ServiceException {
         fileService.deleteFileDir(fileCategoryVo);
         return ResultFactory.buildSuccessResult();
     }
-//
-//    /**
-//     * 修改云盘文件或目录名称
-//     *
-//     * @param fileDataVo
-//     * @return
-//     * @throws ServiceException
-//     */
-//    @PostMapping("/update")
-//    @PreAuthorize("hasAnyAuthority('sys:file:user:update')")
-//    public Result updateFileOrDirName(@Validated @RequestBody FileCategoryDataVo fileDataVo) throws ServiceException {
-//        fileService.updateFileOrDirName(fileDataVo);
-//        return ResultFactory.buildSuccessResult();
-//    }
-//
+
+    /**
+     *
+     * @param fileCategoryDataVo
+     * @return
+     * @throws ServiceException
+     */
+    @DeleteMapping("/delete/file")
+    @PreAuthorize("hasAnyAuthority('sys:file:user:delete')")
+    public Result deleteFile(@Validated FileCategoryDataVo fileCategoryDataVo) throws ServiceException {
+        fileService.deleteFile(fileCategoryDataVo);
+        return ResultFactory.buildSuccessResult();
+    }
+
     /**
      * 查看文件列表
      *
@@ -91,17 +91,7 @@ public class FileController {
     public Result selectFile(@Validated FileCategoryVo fileCategoryVo) {
         return ResultFactory.buildSuccessResult(fileService.selectFile(fileCategoryVo));
     }
-//
-//    /**
-//     * 获取云盘剩余空间大小
-//     *
-//     * @return
-//     */
-//    @GetMapping("/space")
-//    @PreAuthorize("hasAnyAuthority('sys:file:user:space')")
-//    public Result selectUserSpace() {
-//        return ResultFactory.buildSuccessResult(fileService.selectUserSpace());
-//    }
+
 //
 //    /**
 //     * 同步文件(包括文件同步至远程和从远程下载文件)

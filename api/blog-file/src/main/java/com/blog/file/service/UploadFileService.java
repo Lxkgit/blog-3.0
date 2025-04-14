@@ -1,6 +1,7 @@
 package com.blog.file.service;
 
 import com.blog.core.domain.file.files.entity.FileCategoryData;
+import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileUploadVo;
 import com.blog.core.exception.ServiceException;
 
@@ -16,5 +17,7 @@ public interface UploadFileService {
 
     void createDir(String path) throws ServiceException;
 
-    void deleteDir(String path, String dirName);
+    void deleteFileDir(String path, String dirName) throws ServiceException;
+
+    void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException;
 }

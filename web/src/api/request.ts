@@ -4,8 +4,8 @@ import { systemStore } from "@/store/system"
 
 export function request(config: any) {
   const store = systemStore()
-  const token = store.userLocal.access_token || store.userSession.access_token
-  const rz_id = store.userLocal.rz_id
+  const token = store.userSession.access_token
+  const rz_id = store.userSession.rz_id
   // 创建axios的实例
   const instance = axios.create({
     baseURL: "/api",

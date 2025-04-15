@@ -16,14 +16,15 @@ import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { systemStore } from "@/store/system"
 import dark from "@/utils/dark";
+
 // import socketAll from '@/utils/socketAll';
 // import socketUser from '@/utils/socketUser'
-// import user from "@/utils/user";
+import user from "@/utils/user";
 // import mitter from "@/utils/mitt";
 // import { selectBlogSettingByIdApi } from "@/api/file"
 // import SettingEnum from "@/enums/blogSettingEnum"
 
-// let { isLogin, userId } = user();
+let { isLogin, userId, refreshTokenFun } = user();
 const store = systemStore()
 let { setDark } = dark()
 // let { openSocketAll } = socketAll()
@@ -47,6 +48,7 @@ watch(() => router, (newValue) => {
 // })
 
 onMounted(() => {
+  refreshTokenFun()
   // console.log(window.config.api)
   // selectBlogSettingByIdFun()
   const is_dark = window.matchMedia('(prefers-color-scheme: dark)').matches

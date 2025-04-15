@@ -4,7 +4,7 @@ import type { UploadProps } from 'element-plus'
 
 export const uploadUrl = "http://localhost:9527/file/upload"
 const store = systemStore()
-const token = store.userLocal.access_token || store.userSession.access_token
+const token = store.userSession.access_token
 export let header = {
     Authorization: "Bearer " + token
 }

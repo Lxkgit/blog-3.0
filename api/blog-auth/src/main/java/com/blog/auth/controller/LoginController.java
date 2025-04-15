@@ -111,10 +111,18 @@ public class LoginController {
         //拼接获取token的路径
         String url = "http://auth-server:60001/auth/oauth2/token";
         Map<String, String> map = new HashMap<>();
-        map.put("redirect_uri", vo.getRedirectUri());
-        map.put("grant_type", "authorization_code");
-        map.put("code", vo.getCode());
-        map.put("client_id", vo.getClientId());
+
+        if ("authorization_code".equals(vo.getGrantType())) {
+            map.put("code", vo.getCode());
+            map.put("client_id", vo.getClientId());
+            map.put("redirect_uri", vo.getRedirectUri());
+            map.put("grant_type", vo.getGrantType());
+        } else if ("refresh_token".equals(vo.getGrantType())) {
+            map.put("client_id", vo.getClientId());
+            map.put("grant_type", vo.getGrantType());
+            map.put("refresh_token", vo.getRefreshToken());
+            map.put("client_secret", vo.getClientSecret());
+        }
         return HttpUtils.doPost(url, map, vo);
     }
 }

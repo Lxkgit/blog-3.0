@@ -13,9 +13,7 @@ export const systemStore = defineStore('system', {
     keepLogin: false,
     // 保持登录用户信息(localStorage)
     userLocal: {
-      rz_id: "",
-      user_id: "",
-      access_token: ""
+      refresh_token: ""
     },
     userInfo: {},
     // 临时登录用户信息(sessionStorage)
@@ -112,9 +110,14 @@ export const systemStore = defineStore('system', {
   },
 
   persist: {
+    // enabled: true,
+    // strategies: [
+    //   { storage: localStorage, paths: ['userLocal'] },
+    //   { storage: sessionStorage, paths: ['userSession'] }
+    // ]
     enabled: true,               // 启用持久化
     storage: localStorage,       // 存储方式: localStorage 或 sessionStorage
-    paths: ['userLocal', 'userInfo', 'isLogin'],            // 只持久化 count 状态
+    paths: ['userLocal', 'userInfo', 'isLogin', 'userSession'],            // 只持久化 count 状态
     // key: 'custom-counter-store', // 自定义存储的 key
   }
 })

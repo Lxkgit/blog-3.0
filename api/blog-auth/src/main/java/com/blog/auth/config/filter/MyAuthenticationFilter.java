@@ -42,8 +42,6 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain)
             throws ServletException, IOException {
-
-
         try {
 
             //从请求头获取认证id

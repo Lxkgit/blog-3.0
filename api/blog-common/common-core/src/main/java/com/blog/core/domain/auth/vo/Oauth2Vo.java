@@ -17,5 +17,7 @@ public class Oauth2Vo {
     //客户端密码
     private String clientSecret;
 
+    private String grantType;
 
+    private String refreshToken;
 }

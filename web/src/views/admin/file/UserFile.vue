@@ -45,7 +45,7 @@
         @contextmenu.prevent="openMenu($event)"
       >
         <div style="display: flex">
-          <div v-if="true" style="width: 79vw">
+          <div v-if="true" style="width: 79vw" @contextmenu.prevent.stop="openMenu($event)">
             <!-- 表头 -->
             <ul class="table-header">
               <li
@@ -81,7 +81,7 @@
             </ul>
             <!-- 文件数据行 -->
             <ul v-for="(row, rowIndex) in fileList.data" :key="rowIndex" class="table-row">
-              <div style="display: flex; width: 100%; position: relative; cursor: pointer;" @contextmenu.prevent.stop="openMenu($event, 2, row)">
+              <div style="display: flex; width: 100%; position: relative; cursor: pointer;" @contextmenu.prevent.stop="openMenu($event, 2, row)" @dblclick="openFileFun(row)">
                 <li class="data-item" :style="{ width: headers[0].width }">
                   <MyIcon type="icon-edit" /> {{ row.fileName }}
                 </li>
@@ -98,7 +98,7 @@
                   {{ row.createTime }}
                 </li>
                 <li class="data-item" :style="{ width: headers[5].width }">
-                  <MyIcon type="icon-eye" @click="showImg(row)"></MyIcon>
+                  <MyIcon type="icon-eye" @click="openFileFun(row)"></MyIcon>
                   <MyIcon type="icon-user" />
                   <MyIcon type="icon-delete" @click="deleteFileFun(row)"/>
                 </li>
@@ -297,9 +297,13 @@
         </el-upload>
       </li>
       <li v-if="menu.type === 0" @click="createDir()">创建目录</li>
-      <li v-if="menu.type === 0" @click="deleteFileDirFun()">删除目录</li>
-      <li v-if="menu.type === 1">打开目录</li>
+      <li v-if="menu.type === 0" @click="changePath(-2)">返回上一级</li>
+      <li v-if="menu.type === 1" @click="openDir()">打开目录</li>
+      <li v-if="menu.type === 1" @click="">查看目录信息</li>
+      <li v-if="menu.type === 1" @click="deleteFileDirFun()">删除目录</li>
+      <li v-if="menu.type === 2" @click="">打开文件</li>
       <li v-if="menu.type === 2" @click="showFileDesc(null)">查看文件信息</li>
+      <li v-if="menu.type === 2" @click="">删除文件</li>
       <li @click="menu.visible = false">关闭菜单</li>
     </ul>
     <el-dialog v-model="menu.fileDialog" width="40%">
@@ -383,9 +387,11 @@ let {
   changeUpload,
   refreshDir,
   createDir,
+  openDir,
   selectFileDirOrFileFun,
   changePath,
   openFileDirFun,
+  openFileFun,
   showImg,
   deleteFileDirFun,
   deleteFileFun,
@@ -432,6 +438,7 @@ function fileFn(): any {
     dirFile: {
       name: '',
     },
+    dir: null,
     file: null,
   })
   /**
@@ -440,7 +447,7 @@ function fileFn(): any {
   const openMenu = (e: any, type?:any, row?: any) => {
     if(type === 1) {
       // 打开目录
-      menu.file = row
+      menu.dir = row
       menu.type = type
     } else if (type === 2) {
       // 打开文件
@@ -526,10 +533,22 @@ function fileFn(): any {
     selectFileDirOrFileFun()
   }
 
+  /**
+   * 菜单-创建目录
+   */
   const createDir = () => {
     menu.dirDialog = true
     menu.visible = false
   }
+
+  /**
+   * 菜单-打开目录
+   */
+  const openDir = () => {
+    menu.visible = false
+    openFileDirFun(menu.dir)
+  }
+
   /**
    * 查询当前目录下目录与文件列表
    */
@@ -602,6 +621,16 @@ function fileFn(): any {
   }
 
   /**
+   * 打开文件
+   * @param file 文件 
+   */
+  const openFileFun = (file: any) => {
+    if(fileTypeEnum(file.fileType).key === 1) {
+      showImg(file)
+    }
+  }
+
+  /**
    * 展示图片
    */
   const showImg = (img: any) => {
@@ -625,7 +654,6 @@ function fileFn(): any {
       dirPath: filePath.value,
       dirName: item.dirName
     }).then((res: any) => {
-      console.log(res)
       if (res.code === 200) {
         ElMessage.success('文件删除成功')
         selectFileDirOrFileFun()
@@ -642,7 +670,6 @@ function fileFn(): any {
       fileName: item.fileName,
       id: item.id,
     }).then((res: any) => {
-
       if (res.code === 200) {
         ElMessage.success('文件删除成功')
         selectFileDirOrFileFun()
@@ -677,9 +704,11 @@ function fileFn(): any {
     changeUpload,
     refreshDir,
     createDir,
+    openDir,
     selectFileDirOrFileFun,
     changePath,
     openFileDirFun,
+    openFileFun,
     showImg,
     deleteFileDirFun,
     deleteFileFun,
@@ -737,6 +766,7 @@ function fileFn(): any {
 }
 
 .show_icon {
+  background-color: var(--el-color-primary);
   display: none;
   position: absolute;
   left: 40px;

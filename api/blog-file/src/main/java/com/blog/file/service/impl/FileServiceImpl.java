@@ -44,7 +44,12 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void createDir(FileCategoryVo fileCategoryVo) throws ServiceException {
-        uploadFileService.createDir(fileCategoryVo.getDirPath() + "/" + fileCategoryVo.getDirName());
+        if (StringUtils.isEmpty(fileCategoryVo.getDirPath())) {
+            uploadFileService.createDir("/" + fileCategoryVo.getDirName());
+        } else {
+            uploadFileService.createDir(fileCategoryVo.getDirPath() + "/" + fileCategoryVo.getDirName());
+        }
+
     }
 
 

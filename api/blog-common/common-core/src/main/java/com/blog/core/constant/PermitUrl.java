@@ -25,7 +25,8 @@ public class PermitUrl {
             "/result",
             "/mq/**",
             "/data",
-            "/setting/id"
+            "/setting/id",
+            "/upload/images/**"
     };
 
     private static final String[] contentPermitUrl = {

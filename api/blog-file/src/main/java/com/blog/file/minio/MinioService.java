@@ -48,12 +48,14 @@ public class MinioService {
         fileUploadLogMapper.insert(fileUploadLog);
         try {
             InputStream inputStream = file.getInputStream();
-            minioClient.putObject(PutObjectArgs.builder()
+            ObjectWriteResponse response = minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
                     .object(path)
                     .stream(inputStream, file.getSize(), -1)
                     .contentType(file.getContentType())
                     .build());
+
+            log.info("img_url: {}", response.toString());
 
             // /files 为nginx代理路径
             String fileUrl = ip + "/files/" + bucket + path;

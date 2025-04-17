@@ -8,14 +8,31 @@ import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.AddGroup;
 import com.blog.file.service.ImportService;
 import com.blog.file.service.UploadFileService;
+import io.minio.GetObjectArgs;
+import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.MinioClient;
+import io.minio.errors.*;
+import io.minio.http.Method;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: lxk
@@ -34,6 +51,9 @@ public class UploadFileController {
     @Resource
     private ImportService importService;
 
+    @Resource
+    private MinioClient minioClient;
+
     /**
      * 上传单个文件
      *
@@ -44,38 +64,63 @@ public class UploadFileController {
     @PreAuthorize("hasAnyAuthority('sys:file:user:upload')")
     public Result uploadFile(@Validated(value = {AddGroup.class}) FileUploadVo uploadVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(fileUploadService.uploadService(uploadVo));
+    }
 
-//
-//
-//        MultipartFile[] files = uploadVo.getFiles();
-//
-//        List<String> typeList = FileTypeEnum.getTypeListByTypeName(uploadVo.getFileTypeCode());
-//        for (MultipartFile file : files) {
-//            String fileName = file.getOriginalFilename();
-//            if (fileName != null && !fileName.equals("")) {
-//                String fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-//                assert typeList != null;
-//                if (!typeList.contains(fileSuffix)) {
-//                    throw new ServiceException(ErrorMessage.FILE_TYPE_ERROR_SUFFIX);
-//                }
-//            }
-//        }
-//
-//
-//        try {
-//            // 基础路径按照用户id创建文件夹
-//            String path = "/" + userId;
-//            if (uploadVo.getFilePathCode().equals(FilePathEnum.USER_PATH.getFilePathCode())) {
-//                // 上传用户个人文件拼接附加路径
-//                path = path + uploadVo.getAddPath();
-//            } else {
-//                path = path + filePath + FileTypeEnum.getTypePathByTypeName(uploadVo.getFileTypeCode());
-//            }
-//            return fileUploadService.upload(files, userId, path);
-//        } catch (Exception e) {
-//            log.error(ErrorMessage.UNKNOWN_ERROR.getDesc(), e);
-//            throw new ServiceException(ErrorMessage.UNKNOWN_ERROR);
-//        }
+//    @GetMapping("/images/**")
+//    public String getImageUrl(HttpServletRequest request) {
+//        return request.getRequestURI().split("/images/")[1];
+////        String objectName = request.getRequestURI().split("/images/")[1];
+////        try {
+////            String url = minioClient.getPresignedObjectUrl(
+////                    GetPresignedObjectUrlArgs.builder()
+////                            .method(Method.GET)
+////                            .bucket("blog")
+////                            .object(objectName)
+////                            .expiry(5, TimeUnit.MINUTES)
+////                            .build()
+////            );
+////            return ResponseEntity.ok(url);
+////        } catch (Exception e) {
+////            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating URL");
+////        }
+//    }
+
+    // http://localhost:60001/file/upload/images/1/user/2025-04-13_19:22:01_3ced7e_1.jpg
+    @GetMapping("/images/**")
+    public ResponseEntity<StreamingResponseBody> getImageUr2l(HttpServletRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String objectName = URLDecoder.decode(request.getRequestURI().split("/images/")[1], StandardCharsets.UTF_8);
+
+        InputStream stream = minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket("blog")
+                        .object(objectName)
+                        .build()
+        );
+
+        // 3. 动态设置Content-Type
+        String contentType = determineContentType(objectName); // 实现此方法
+        if (contentType == null || contentType.isEmpty()) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+
+        // 4. 构建流式响应
+        // 流在此处自动关闭
+        StreamingResponseBody body = stream::transferTo;
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .body(body);
+    }
+
+    // 根据文件名解析Content-Type
+    private String determineContentType(String filename) {
+        String extension = filename.substring(filename.lastIndexOf(".") + 1);
+        return switch (extension.toLowerCase()) {
+            case "jpg", "jpeg" -> MediaType.IMAGE_JPEG_VALUE;
+            case "png" -> MediaType.IMAGE_PNG_VALUE;
+            case "gif" -> MediaType.IMAGE_GIF_VALUE;
+            default -> MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        };
     }
 
     @PostMapping("/diary/import")

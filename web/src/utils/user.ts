@@ -40,8 +40,7 @@ function user() {
 
   const refreshTokenFun = () => {
     if (!isLogin.value) {
-      if (store.userLocal.refresh_token !== null && store.userLocal.refresh_token !== undefined) {
-        console.log("刷新token ... ")
+      if (store.userLocal.refresh_token !== null && store.userLocal.refresh_token !== undefined && store.userLocal.refresh_token !== '') {
         userTokenApi({
           // 客户端id
           clientId: 'dianshang',

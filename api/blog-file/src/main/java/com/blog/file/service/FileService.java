@@ -18,7 +18,7 @@ public interface FileService {
 
     List<FileCategory> selectFileDir(FileCategoryVo fileCategoryVo);
 
-    List<FileCategoryData> selectFile(FileCategoryVo fileCategoryVo);
+    List<FileCategoryData> selectFile(FileCategoryVo fileCategoryVo) throws ServiceException;
 
     void createDir(FileCategoryVo fileDataVo) throws ServiceException;
 

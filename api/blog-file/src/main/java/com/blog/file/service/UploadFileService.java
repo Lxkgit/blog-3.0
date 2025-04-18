@@ -15,9 +15,9 @@ public interface UploadFileService {
 
     FileCategoryData uploadService(FileUploadVo uploadVo) throws ServiceException;
 
-    void createDir(String path) throws ServiceException;
-
-    void deleteFileDir(String path, String dirName) throws ServiceException;
-
     void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException;
+
+    String authFile(String path, Integer time) throws ServiceException;
+
+    Integer createFileCategory(String path);
 }

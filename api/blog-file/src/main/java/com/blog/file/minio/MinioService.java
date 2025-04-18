@@ -5,6 +5,7 @@ import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileUploadLogMapper;
 import io.minio.*;
+import io.minio.http.Method;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description Minio服务
@@ -26,6 +28,9 @@ public class MinioService {
 
     @Value("${minio.ip}")
     private String ip;
+
+    @Value("${minio.port}")
+    private Integer port;
 
     @Value("${minio.bucket}")
     private String bucket;
@@ -93,8 +98,31 @@ public class MinioService {
                             .object(path + "/" + fileName)
                             .build());
         } catch (Exception e) {
+            log.error(e.getMessage());
             throw new ServiceException(e.getMessage());
         }
+    }
+
+    /**
+     *
+     * @param path
+     * @param time
+     * @return
+     */
+    public String authFile(String path, Integer time) throws ServiceException {
+        try  {
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(bucket)
+                            .object(path)
+                            .expiry(time, TimeUnit.MINUTES)
+                            .build());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ServiceException(e.getMessage());
+        }
+
     }
 
 }

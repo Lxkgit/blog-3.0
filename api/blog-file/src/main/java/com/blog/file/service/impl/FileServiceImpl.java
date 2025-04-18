@@ -10,11 +10,16 @@ import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
+import com.blog.file.minio.MinioService;
 import com.blog.file.netty.service.NettyServer;
 import com.blog.file.service.FileService;
 import com.blog.file.service.UploadFileService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,39 +33,82 @@ import java.util.*;
 @Service
 public class FileServiceImpl implements FileService {
 
+    private static final Logger log = LoggerFactory.getLogger(FileServiceImpl.class);
     @Resource
     private FileCategoryMapper fileCategoryMapper;
 
     @Resource
     private FileCategoryDataMapper fileCategoryDataMapper;
 
-
     @Resource
     private UploadFileService uploadFileService;
 
     @Resource
     private NettyServer nettyServer;
-
+    @Autowired
+    private MinioService minioService;
 
     @Override
     public void createDir(FileCategoryVo fileCategoryVo) throws ServiceException {
         if (StringUtils.isEmpty(fileCategoryVo.getDirPath())) {
-            uploadFileService.createDir("/" + fileCategoryVo.getDirName());
+            createDir("/" + fileCategoryVo.getDirName());
         } else {
-            uploadFileService.createDir(fileCategoryVo.getDirPath() + "/" + fileCategoryVo.getDirName());
+            createDir(fileCategoryVo.getDirPath() + "/" + fileCategoryVo.getDirName());
         }
-
     }
 
+    /**
+     * 创建目录
+     * @param path 目录
+     */
+    public void createDir(String path) {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+        String createDir = "/" + userId + path;
+        uploadFileService.createFileCategory(createDir);
+    }
 
     @Override
     public void deleteFileDir(FileCategoryVo fileCategoryVo) throws ServiceException {
-        uploadFileService.deleteFileDir(fileCategoryVo.getDirPath(), fileCategoryVo.getDirName());
+        deleteFileDir(fileCategoryVo.getDirPath(), fileCategoryVo.getDirName());
     }
+
+    /**
+     * 删除目录
+     * @param path 目录
+     */
+    private void deleteFileDir(String path, String dirName) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+        String allPath = "/" + userId + path;
+        deleteFileCategory(allPath, dirName);
+    }
+
+    private void deleteFileCategory(String path, String dirName) throws ServiceException {
+        Integer userId = SecurityUtil.getLoginUser().getId();
+        LambdaQueryWrapper<FileCategory> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(FileCategory::getUserId, userId);
+        wrapper.eq(FileCategory::getDirName, dirName);
+        wrapper.eq(FileCategory::getDirPath, path + "/" + dirName);
+        FileCategory fileCategory = fileCategoryMapper.selectOne(wrapper);
+        if (fileCategory == null) {
+            throw new ServiceException("目录不存在");
+        }
+        LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
+        dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
+        List<FileCategoryData> fileCategoryDataList = fileCategoryDataMapper.selectList(dataWrapper);
+        if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
+            throw new ServiceException("当前目录下存在未删除文件");
+        }
+        fileCategoryMapper.deleteById(fileCategory.getId());
+    }
+
 
     @Override
     public void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException {
         uploadFileService.deleteFile(fileCategoryData);
+        LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(FileCategoryData::getId, fileCategoryData.getId());
+        wrapper.eq(FileCategoryData::getUserId, SecurityUtil.getLoginUser().getId());
+        fileCategoryDataMapper.delete(wrapper);
     }
 
     /**
@@ -78,12 +126,15 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<FileCategoryData> selectFile(FileCategoryVo fileDataVo) {
+    public List<FileCategoryData> selectFile(FileCategoryVo fileDataVo) throws ServiceException {
         FileCategory fileCategory = getFileDir(fileDataVo);
         LambdaQueryWrapper<FileCategoryData> dateWrapper = new LambdaQueryWrapper<>();
         dateWrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
-        fileCategoryDataMapper.selectList(dateWrapper);
-        return fileCategoryDataMapper.selectList(dateWrapper);
+        List<FileCategoryData> fileList = fileCategoryDataMapper.selectList(dateWrapper);
+        for (FileCategoryData fileCategoryData : fileList) {
+            fileCategoryData.setFileUrl(authFile(fileCategoryData.getFileUrl()));
+        }
+        return fileList;
     }
 
     /**
@@ -103,6 +154,17 @@ public class FileServiceImpl implements FileService {
         wrapper.eq(FileCategory::getUserId, userId);
         return fileCategoryMapper.selectOne(wrapper);
     }
+
+    public String authFile(String path) throws ServiceException {
+        String old = path.substring("http://123.207.202.131/files/blog/".length());
+        String newUrl = minioService.authFile(old, 60);
+        log.info("newUrl:{}", newUrl);
+        // http://123.207.202.131/files/blog/1/user/2025-04-13_19%3A22%3A01_60e6fd_0.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20250418%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250418T075923Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cb58b4ca092dad8e15d169375a411a97180192fcaff430257d6b3fc2c34c838a
+        return newUrl.replace("http://123.207.202.131:9000/", "http://123.207.202.131/files/");
+    }
+
+
+
 
 
 //

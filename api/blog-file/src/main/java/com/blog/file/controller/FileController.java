@@ -88,7 +88,7 @@ public class FileController {
      */
     @GetMapping("/select/file")
     @PreAuthorize("hasAnyAuthority('sys:file:user:select')")
-    public Result selectFile(@Validated FileCategoryVo fileCategoryVo) {
+    public Result selectFile(@Validated FileCategoryVo fileCategoryVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(fileService.selectFile(fileCategoryVo));
     }
 

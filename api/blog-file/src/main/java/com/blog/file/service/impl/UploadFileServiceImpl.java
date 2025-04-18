@@ -92,35 +92,14 @@ public class UploadFileServiceImpl implements UploadFileService {
         return null;
     }
 
-    /**
-     * 创建目录
-     * @param path 目录
-     */
-    @Override
-    public void createDir(String path) {
-        Integer userId = SecurityUtil.getLoginUser().getId();
-        String createDir = "/" + userId + path;
-        createFileCategory(createDir);
-    }
-
-    /**
-     * 删除目录
-     * @param path 目录
-     */
-    @Override
-    public void deleteFileDir(String path, String dirName) throws ServiceException {
-        Integer userId = SecurityUtil.getLoginUser().getId();
-        String allPath = "/" + userId + path;
-        deleteFileCategory(allPath, dirName);
-    }
-
     @Override
     public void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException {
         minioService.deleteFile(fileCategoryData.getDirPath(), fileCategoryData.getFileName());
-        LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(FileCategoryData::getId, fileCategoryData.getId());
-        wrapper.eq(FileCategoryData::getUserId, SecurityUtil.getLoginUser().getId());
-        fileCategoryDataMapper.delete(wrapper);
+    }
+
+    @Override
+    public String authFile(String path, Integer time) throws ServiceException {
+        return minioService.authFile(path, time);
     }
 
     /**
@@ -129,7 +108,7 @@ public class UploadFileServiceImpl implements UploadFileService {
      * @param path 文件上传路径
      * @return 文件直属目录id
      */
-    private Integer createFileCategory(String path) {
+    public Integer createFileCategory(String path) {
         Integer userId = SecurityUtil.getLoginUser().getId();
         String userName = SecurityUtil.getLoginUser().getUsername();
         String[] pathArray = path.split("/");
@@ -156,23 +135,6 @@ public class UploadFileServiceImpl implements UploadFileService {
         return resultFileCategoryId;
     }
 
-    private void deleteFileCategory(String path, String dirName) throws ServiceException {
-        Integer userId = SecurityUtil.getLoginUser().getId();
-        LambdaQueryWrapper<FileCategory> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(FileCategory::getUserId, userId);
-        wrapper.eq(FileCategory::getDirName, dirName);
-        wrapper.eq(FileCategory::getDirPath, path + "/" + dirName);
-        FileCategory fileCategory = fileCategoryMapper.selectOne(wrapper);
-        if (fileCategory == null) {
-            throw new ServiceException("目录不存在");
-        }
-        LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
-        dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
-        List<FileCategoryData> fileCategoryDataList = fileCategoryDataMapper.selectList(dataWrapper);
-        if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
-            throw new ServiceException("当前目录下存在未删除文件");
-        }
-        fileCategoryMapper.deleteById(fileCategory.getId());
-    }
+
 
 }

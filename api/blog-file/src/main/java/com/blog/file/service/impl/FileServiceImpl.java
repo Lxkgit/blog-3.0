@@ -159,8 +159,9 @@ public class FileServiceImpl implements FileService {
         String old = path.substring("http://123.207.202.131/files/blog/".length());
         String newUrl = minioService.authFile(old, 60);
         log.info("newUrl:{}", newUrl);
-        // http://123.207.202.131/files/blog/1/user/2025-04-13_19%3A22%3A01_60e6fd_0.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20250418%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250418T075923Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cb58b4ca092dad8e15d169375a411a97180192fcaff430257d6b3fc2c34c838a
-        return newUrl.replace("http://123.207.202.131:9000/", "http://123.207.202.131/files/");
+        // 手动添加 Nginx 路径前缀
+//        return newUrl.replace("http://123.207.202.131:9000/", "http://123.207.202.131/files/");
+        return newUrl;
     }
 
 

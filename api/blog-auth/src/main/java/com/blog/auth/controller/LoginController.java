@@ -7,6 +7,8 @@ import com.blog.core.domain.auth.vo.Oauth2Vo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.utils.HttpUtils;
+import com.blog.redis.constant.AuthRedisConstant;
+import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -30,8 +32,44 @@ public class LoginController {
     private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
     @Resource
+    private RedisService redisService;
+
+    @Resource
     private LoginService loginService;
 
+    /**
+     * 登录
+     *
+     * @param loginVo
+     * @return
+     */
+    @PostMapping("/doLogin")
+    public Result doLogin(@RequestBody LoginVo loginVo) {
+        return loginService.login(loginVo);
+    }
+
+    /**
+     * 退出登陆
+     */
+    @PostMapping("/tuiChu")
+    public Result tuiChu(HttpServletRequest request) {
+        // 获取当前的会话对象
+        String rzId = request.getHeader("rzId");
+        if (StringUtils.isEmpty(rzId)) {
+            return ResultFactory.buildFailResult("rzId不能为空");
+        }
+        loginService.tuiChu(rzId);
+        return ResultFactory.buildSuccessResult("退出成功");
+    }
+
+    /**
+     * 获取公钥
+     * @return
+     */
+    @GetMapping("/publicKey")
+    public Result publicKey() {
+        return ResultFactory.buildSuccessResult(redisService.getString(AuthRedisConstant.PUBLIC_KEY));
+    }
     /**
      * 资源服务 获取用户账号
      *
@@ -73,31 +111,6 @@ public class LoginController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.info("接口调用 ... ");
         return authentication;
-    }
-
-    /**
-     * 登录
-     *
-     * @param loginVo
-     * @return
-     */
-    @PostMapping("/doLogin")
-    public Result doLogin(@RequestBody LoginVo loginVo) {
-        return loginService.login(loginVo);
-    }
-
-    /**
-     * 退出登陆
-     */
-    @PostMapping("/tuiChu")
-    public Result tuiChu(HttpServletRequest request) {
-        // 获取当前的会话对象
-        String rzId = request.getHeader("rzId");
-        if (StringUtils.isEmpty(rzId)) {
-            return ResultFactory.buildFailResult("rzId不能为空");
-        }
-        loginService.tuiChu(rzId);
-        return ResultFactory.buildSuccessResult("退出成功");
     }
 
     /**

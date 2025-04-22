@@ -1,5 +1,10 @@
 import api from "@/api/api"
 
+export const publicKeyApi = () => {
+  const uri = "/auth/publicKey"
+  return api.get(uri)
+}
+
 // 用户登录接口
 export const userLoginApi = (param: any) => {
   const uri = "/auth/doLogin"

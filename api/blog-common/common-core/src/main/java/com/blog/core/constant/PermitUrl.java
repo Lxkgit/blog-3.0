@@ -15,6 +15,7 @@ public class PermitUrl {
     private static final String[] basePermitUrl = {};
 
     private static final String[] authPermitUrl = {
+            "/publicKey",
             "/user/select/id"
     };
 

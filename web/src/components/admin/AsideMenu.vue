@@ -1,5 +1,5 @@
 <template>
-  <div  :class="{ 'side_bar_open': store.sideBar }">
+  <div :class="{ 'side_bar_open': store.sideBar }">
     <div @click="store.sideBar = !store.sideBar" style="height: 40px; display: flex;
     align-items: center; padding-left: 25px; border-right: solid 1px var(--el-menu-border-color); border-bottom: solid 1px var(--el-menu-border-color); background-color: var(--el-menu-bg-color);
     border-top: solid 1px var(--el-menu-border-color);">
@@ -10,10 +10,11 @@
         <MyIcon type="icon-outdent" />
       </el-icon>
     </div>
-    <el-menu :collapse="store.sideBar" :collapse-transition="true" width="60px" style="height: calc(100vh - 138px);" class="el-menu-vertical-demo">
+    <el-menu :collapse="store.sideBar" :collapse-transition="true" width="60px" style="height: calc(100vh - 138px);"
+      class="el-menu-vertical-demo">
       <el-menu-item index="/admin/index" @click="router.push('/admin/index')">
         <el-icon>
-          <MyIcon type="icon-user"/>
+          <MyIcon type="icon-user" />
         </el-icon>
         <span class="menu-icon-text">个人中心</span>
       </el-menu-item>
@@ -33,7 +34,7 @@ import { userMenuApi } from "@/api/auth"
 let adminMenus: any = reactive({ data: [] })
 const getMenuFun = () => {
   userMenuApi(2).then((res: any) => {
-    if(res.code === 200) {
+    if (res.code === 200) {
       adminMenus.data = res.result
     }
   })
@@ -57,5 +58,4 @@ onMounted(() => {
 .el-menu {
   height: 100%;
 }
-
 </style>

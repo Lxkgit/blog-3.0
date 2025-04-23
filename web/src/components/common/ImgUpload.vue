@@ -1,44 +1,21 @@
 <template>
   <div class="tool-img-item">
-    <el-upload
-      v-model:file-list="fileList.data"
-      list-type="picture-card"
-      :on-preview="handlePictureCardPreview"
-      :on-remove="handleRemove"
-      :auto-upload="false"
-      :class="{ img_upload: fileList.data.length >= imgNumber }"
-      :on-change="changeUpload"
-    >
+    <el-upload v-model:file-list="fileList.data" list-type="picture-card" :on-preview="handlePictureCardPreview"
+      :on-remove="handleRemove" :auto-upload="false" :class="{ img_upload: fileList.data.length >= imgNumber }"
+      :on-change="changeUpload">
       <MyIcon type="icon-plus" />
     </el-upload>
-    <el-image-viewer
-      v-if="imgViewerDialog"
-      :initial-index="imgNum"
-      :url-list="dialogImageUrl.data"
-      :disabled="true"
-      @close="imgViewerDialog = false"
-    >
+    <el-image-viewer v-if="imgViewerDialog" :initial-index="imgNum" :url-list="dialogImageUrl.data" :disabled="true"
+      @close="imgViewerDialog = false">
     </el-image-viewer>
     <el-dialog title="图片裁剪" v-model="imgCroppingDialog">
       <div style="height: 400px">
-        <VueCropper
-          ref="cropperRef"
-          :img="option.img"
-          :output-size="option.outputSize"
-          :output-type="option.outputType"
-          :info="option.info"
-          :can-scale="option.canScale"
-          :auto-crop="option.autoCrop"
-          :fixedNumber="option.fixedNumber"
-          :auto-crop-width="option.autoCropWidth"
-          :auto-crop-height="option.autoCropHeight"
-          :full="option.full"
-          :fixed-box="option.fixedBox"
-          :can-move="option.canMove"
-          :can-move-box="option.canMoveBox"
-          :original="option.original"
-          :center-box="option.centerBox"
-        />
+        <VueCropper ref="cropperRef" :img="option.img" :output-size="option.outputSize" :output-type="option.outputType"
+          :info="option.info" :can-scale="option.canScale" :auto-crop="option.autoCrop"
+          :fixedNumber="option.fixedNumber" :auto-crop-width="option.autoCropWidth"
+          :auto-crop-height="option.autoCropHeight" :full="option.full" :fixed-box="option.fixedBox"
+          :can-move="option.canMove" :can-move-box="option.canMoveBox" :original="option.original"
+          :center-box="option.centerBox" />
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -144,7 +121,7 @@ onMounted(() => {
 })
 
 function imgUpload() {
-  const handleRemove = (file: any) => {}
+  const handleRemove = (file: any) => { }
   // 限制图片大小
   const changeUpload = (file: any, fileLists: any) => {
     if (props.cropper == 0) {

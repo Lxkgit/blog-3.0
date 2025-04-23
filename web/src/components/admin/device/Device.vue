@@ -2,8 +2,8 @@
 
   <div style="width: 100%; height: 100%; display: flex; flex-flow: wrap;overflow-y: auto; align-items:flex-start;"
     @contextmenu.prevent="openMenu($event, null)">
-    <el-card v-for="(device, id) in deviceList.data" :key="id"
-      @contextmenu.prevent.stop="openMenu($event, device)" style="
+    <el-card v-for="(device, id) in deviceList.data" :key="id" @contextmenu.prevent.stop="openMenu($event, device)"
+      style="
       margin: 18px 2%;
       width: 45%;
       height: 200px;

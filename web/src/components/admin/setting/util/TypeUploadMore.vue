@@ -4,14 +4,16 @@
       <h4>{{ title }}</h4>
       <div style="display: flex;">
         <span style="display: flex;width: 80px; align-items:center;">图片数量： </span>
-        <el-input-number style="display: inline-block;" size="small" v-model="imgNumber" :min="imgList.data.length" :max="5"  @change="" />
+        <el-input-number style="display: inline-block;" size="small" v-model="imgNumber" :min="imgList.data.length"
+          :max="5" @change="" />
       </div>
       <el-upload style="margin-top: 10px;" v-model:file-list="imgList.data" list-type="picture-card"
         :on-preview="handlePictureCardPreview" :on-remove="handleRemove" :auto-upload="false"
-        :class="{ 'img_upload': imgList.data.length >= imgNumber}" :on-change="changeUpload">
+        :class="{ 'img_upload': imgList.data.length >= imgNumber }" :on-change="changeUpload">
         <MyIcon type="icon-edit" />
       </el-upload>
-      <el-image-viewer v-if="dialogVisible" :initial-index="0" :url-list="dialogImageUrl.data" @close="dialogVisible = false">
+      <el-image-viewer v-if="dialogVisible" :initial-index="0" :url-list="dialogImageUrl.data"
+        @close="dialogVisible = false">
       </el-image-viewer>
     </div>
   </div>
@@ -70,7 +72,7 @@ const changeUpload = (file: any, fileLists: any) => {
   uploadApi(data).then((res: any) => {
     if (res.code === 200) {
       ElMessage.success({ message: '图片上传成功', type: 'success' });
-      uploadImgList.data.push({url: res.result[0]})
+      uploadImgList.data.push({ url: res.result[0] })
       updateBlogSettingFun()
     }
   })
@@ -78,7 +80,7 @@ const changeUpload = (file: any, fileLists: any) => {
 
 const updateBlogSettingFun = () => {
   let url: any = []
-  for(let i=0; i<uploadImgList.data.length; i++) {
+  for (let i = 0; i < uploadImgList.data.length; i++) {
     url.push(uploadImgList.data[i].url)
   }
   updateBlogSettingApi({
@@ -86,7 +88,7 @@ const updateBlogSettingFun = () => {
     valueList: url,
     num: url.length
   }).then((res: any) => {
-    if(res.code === 200) {
+    if (res.code === 200) {
       ElMessage({ message: '设置修改成功', type: 'success' })
     }
   })
@@ -100,7 +102,7 @@ const handlePictureCardPreview = (file: any) => {
 
 const handleRemove = (file: any) => {
   let url: any = []
-  for(let i=0; i<uploadImgList.data.length; i++) {
+  for (let i = 0; i < uploadImgList.data.length; i++) {
     if (file.idx !== uploadImgList.data[i].idx) {
       url.push(uploadImgList.data[i].url)
     }
@@ -111,7 +113,7 @@ const handleRemove = (file: any) => {
     valueList: url,
     num: url.length
   }).then((res: any) => {
-    if(res.code === 200) {
+    if (res.code === 200) {
       ElMessage({ message: '设置修改成功', type: 'success' })
     }
   })
@@ -122,7 +124,7 @@ const handleRemove = (file: any) => {
 /*隐藏上传按钮*/
 .img_upload .el-upload--picture-card {
   display: none !important;
-  
+
 }
 
 /*清除默认的正方形预览框*/
@@ -139,6 +141,7 @@ const handleRemove = (file: any) => {
   display: flex;
   flex-direction: column;
   width: 1200px;
+
   h4 {
     font-size: 15px;
     font-weight: 800;

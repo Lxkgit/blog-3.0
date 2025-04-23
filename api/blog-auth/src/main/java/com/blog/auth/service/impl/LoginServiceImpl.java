@@ -2,8 +2,11 @@ package com.blog.auth.service.impl;
 
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.auth.mapper.UserMapper;
 import com.blog.auth.service.LoginService;
 import com.blog.core.constant.Constant;
+import com.blog.core.domain.auth.entity.User;
 import com.blog.core.domain.auth.vo.LoginVo;
 import com.blog.core.domain.auth.vo.Oauth2Vo;
 import com.blog.core.exception.ServiceException;
@@ -37,6 +40,9 @@ public class LoginServiceImpl implements LoginService {
 
     @Resource
     private RedisService redisService;
+
+    @Resource
+    private UserMapper userMapper;
 
     /**
      * 登陆
@@ -85,6 +91,12 @@ public class LoginServiceImpl implements LoginService {
         JSONObject jsonObject = HttpUtils.doPost(url, map, vo);
         if (jsonObject != null) {
             jsonObject.put("rz_id", rzId);
+            LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(User::getUsername, vo.getUsername());
+            User user = userMapper.selectOne(wrapper);
+            if (user != null) {
+                jsonObject.put("user_id", user.getId());
+            }
         }
         return jsonObject;
     }

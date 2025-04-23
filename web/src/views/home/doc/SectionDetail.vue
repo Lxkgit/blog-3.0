@@ -10,7 +10,7 @@
             <template #default="{ node, data }">
               <span class="custom-tree-node">
                 <span>
-                  <el-tag v-if="data.docType === 1" class="mx-1" >文章</el-tag>
+                  <el-tag v-if="data.docType === 1" class="mx-1">文章</el-tag>
                   <el-tag v-else class="mx-1" size="small" type="success">目录</el-tag>
                 </span>
                 <span>{{ node.label }} </span>
@@ -110,9 +110,9 @@ onMounted(async () => {
     background: "rgba(255, 255, 255, 0.3)",
   });
   window.scrollTo({ top: 0 });
-  store.setOutline("");
+  store.outline = "";
   sectionID.value = router.currentRoute.value.params.id;
-  store.setMenuIndex("3");
+  store.menuIndex = "3";
   loading.close();
   await catalogueData();
   await getDocCatalogByIdFun();
@@ -120,7 +120,7 @@ onMounted(async () => {
 });
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", scroll());
-  store.setOutline("");
+  store.outline = "";
 });
 onBeforeRouteUpdate(async (to) => {
   // 开启加载中动画
@@ -130,7 +130,7 @@ onBeforeRouteUpdate(async (to) => {
     background: "rgba(255, 255, 255, 0.3)",
   });
   window.scrollTo({ top: 0 });
-  store.setOutline("");
+  store.outline = "";
   loading.close();
 });
 

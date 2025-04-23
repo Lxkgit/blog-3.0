@@ -49,8 +49,6 @@ watch(() => router, (newValue) => {
 
 onMounted(() => {
   refreshTokenFun()
-  // console.log(window.config.api)
-  // selectBlogSettingByIdFun()
   const is_dark = window.matchMedia('(prefers-color-scheme: dark)').matches
   if (is_dark) {
     setDark(is_dark)

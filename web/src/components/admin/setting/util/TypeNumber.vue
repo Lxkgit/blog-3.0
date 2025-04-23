@@ -21,7 +21,7 @@ let data = ref()
 onMounted(() => {
   if (props.model != null && props.model !== undefined) {
     data.value = props.model
-  } 
+  }
 })
 
 const updateBlogSettingFun = () => {
@@ -29,7 +29,7 @@ const updateBlogSettingFun = () => {
     id: props.id,
     num: data.value
   }).then((res: any) => {
-    if(res.code === 200) {
+    if (res.code === 200) {
       ElMessage({ message: '设置修改成功', type: 'success' })
     }
   })
@@ -37,13 +37,14 @@ const updateBlogSettingFun = () => {
 </script>
 
 <style scoped lang="scss">
-  .tool-number-item{
-    display: flex;
-    flex-direction: column;
-    h4{
-      font-size: 14px;
-      font-weight: bold;
-      margin: 6px 0;
-    }
+.tool-number-item {
+  display: flex;
+  flex-direction: column;
+
+  h4 {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 6px 0;
   }
+}
 </style>

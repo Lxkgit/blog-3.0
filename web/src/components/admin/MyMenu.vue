@@ -6,12 +6,8 @@
       </el-icon>
       <span>{{ item.menuName }}</span>
     </template>
-    <el-menu-item
-      v-for="(item2, index2) in item.children"
-      :key="index2"
-      :index="`${indexKey.toString()}-${index2.toString()}`"
-      @click="gotoSite(item2)"
-      >{{ item2.menuName }}
+    <el-menu-item v-for="(item2, index2) in item.children" :key="index2"
+      :index="`${indexKey.toString()}-${index2.toString()}`" @click="gotoSite(item2)">{{ item2.menuName }}
     </el-menu-item>
   </el-sub-menu>
   <el-menu-item v-else :index="indexKey.toString()" @click="gotoSite(item)">
@@ -49,5 +45,4 @@ const gotoSite = (item: any) => {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

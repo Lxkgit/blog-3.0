@@ -17,6 +17,7 @@ function user() {
 
   onMounted(() => {
     isLogin.value = store.isLogin
+    userId.value = store.userSession.user_id
   })
 
   const userLoginFun = (param: any) => {
@@ -35,7 +36,6 @@ function user() {
       })
       .catch((res) => {
         //发生错误时执行的代码
-        console.log(res)
         ElMessage.error('账号或密码错误！')
       })
   }
@@ -57,10 +57,11 @@ function user() {
           //把token放入Cookie中
           store.userSession.access_token = res.result.access_token
           store.userSession.rz_id = res.result.rz_id
+          store.userSession.user_id = res.result.user_id
           store.userLocal.refresh_token = res.result.refresh_token
           store.isLogin = true
           userInfoFun()
-          
+          location.reload()
         })
       }
     }
@@ -78,9 +79,11 @@ function user() {
       clientSecret: '123456',
       // 授权码获取token
       grantType: 'authorization_code',
+      username: store.userLocal.username
     }).then((res: any) => {
       //把token放入Cookie中
       store.userSession.access_token = res.result.access_token
+      store.userSession.user_id = res.result.user_id
       store.userLocal.refresh_token = res.result.refresh_token
       store.isLogin = true
       userInfoFun()

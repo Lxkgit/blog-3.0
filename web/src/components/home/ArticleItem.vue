@@ -129,5 +129,4 @@ const toDetail = (detailID: any) => {
 .el-divider--horizontal {
   margin: 5px 0 !important;
 }
-
 </style>

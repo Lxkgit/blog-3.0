@@ -62,7 +62,7 @@ const changeUpload = (file: any, fileLists: any) => {
     if (res.code === 200) {
       ElMessage.success({ message: '图片上传成功', type: 'success' });
       fileList.data = []
-      fileList.data.push({url: res.result[0]})
+      fileList.data.push({ url: res.result[0] })
       updateBlogSettingFun(res.result.fileUrl)
     }
   })
@@ -73,7 +73,7 @@ const updateBlogSettingFun = (url: any) => {
     id: props.id,
     valueList: [url]
   }).then((res: any) => {
-    if(res.code === 200) {
+    if (res.code === 200) {
       ElMessage({ message: '设置修改成功', type: 'success' })
     }
   })
@@ -90,7 +90,7 @@ const handleRemove = (file: any) => {
     id: props.id,
     valueList: []
   }).then((res: any) => {
-    if(res.code === 200) {
+    if (res.code === 200) {
       ElMessage({ message: '设置修改成功', type: 'success' })
     }
   })

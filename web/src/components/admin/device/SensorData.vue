@@ -7,12 +7,14 @@
       </el-table-column>
     </el-table>
     <div style="margin: 20px 0 50px 0">
-      <el-pagination v-model:current-page="page" background style="float:right;" layout="total, prev, pager, next, jumper" @current-change="selectSensorDataPageFun" :page-size="size" :total="total">
+      <el-pagination v-model:current-page="page" background style="float:right;"
+        layout="total, prev, pager, next, jumper" @current-change="selectSensorDataPageFun" :page-size="size"
+        :total="total">
       </el-pagination>
     </div>
   </el-card>
 </template>
-  
+
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { selectSensorDataListApi } from '@/api/file';
@@ -74,7 +76,7 @@ function sensorFun() {
   };
 }
 </script>
-  
+
 <style scoped>
 .title_style {
   display: flex;

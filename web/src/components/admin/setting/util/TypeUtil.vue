@@ -4,10 +4,14 @@
       <el-divider v-if="item.type === 0" content-position="left">
         {{ item.title }}
       </el-divider>
-      <TypeInput v-else-if="item.type === 1" :title="item.title" :id="item.id" :model.sync="item.value" :type="item.type" />
-      <TypeNumber v-else-if="item.type === 2" :title="item.title" :id="item.id" :model.sync="item.num" :type="item.type" />
-      <TypeSwitch v-else-if="item.type === 3" :title="item.title" :id="item.id" :model.sync="item.bool" :type="item.type" />
-      <TypeText v-else-if="item.type === 4" :title="item.title" :id="item.id" :model.sync="item.value" :type="item.type" />
+      <TypeInput v-else-if="item.type === 1" :title="item.title" :id="item.id" :model.sync="item.value"
+        :type="item.type" />
+      <TypeNumber v-else-if="item.type === 2" :title="item.title" :id="item.id" :model.sync="item.num"
+        :type="item.type" />
+      <TypeSwitch v-else-if="item.type === 3" :title="item.title" :id="item.id" :model.sync="item.bool"
+        :type="item.type" />
+      <TypeText v-else-if="item.type === 4" :title="item.title" :id="item.id" :model.sync="item.value"
+        :type="item.type" />
       <TypeUpload v-else-if="item.type === 5" :title="item.title" :id="item.id" :model.sync="item.valueList"
         :type="item.type" />
       <TypeUploadMore v-else-if="item.type === 6" :title="item.title" :id="item.id" :model.sync="item.valueList"

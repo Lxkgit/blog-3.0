@@ -124,7 +124,7 @@ const webNotice: any = ref({})
 // 推荐阅读文章列表
 const recommend: any = ref([])
 // 博客数据
-const blogData: any = reactive({data: {}})
+const blogData: any = reactive({ data: {} })
 async function recommendData() {
   const params = {
     page: 1,
@@ -145,7 +145,7 @@ mitter.on("SYSTEM_DATA", (data: any) => {
 })
 
 //Vue3中的写法
-onUnmounted(()=>{
+onUnmounted(() => {
   mitter.off("SYSTEM_DATA")
 })
 
@@ -196,10 +196,10 @@ const toDetail = (detailID: any) => {
 
 const selectBlogDataFun = () => {
   selectBlogDataApi().then((res: any) => {
-      if(res.code === 200) {
-        blogData.data = res.result
-        runTime(res.result.deploymentTime)
-      }
+    if (res.code === 200) {
+      blogData.data = res.result
+      runTime(res.result.deploymentTime)
+    }
   })
 }
 
@@ -358,6 +358,4 @@ onMounted(() => {
 .el-card {
   margin-bottom: 15px;
 }
-
 </style>
-

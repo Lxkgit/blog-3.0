@@ -20,7 +20,7 @@
         </div>
 
         <div style="flex: 1;">
-          
+
           <div>
             <span>设备位置：</span> <span>{{ device.devicePosition }}</span>
           </div>
@@ -64,7 +64,7 @@
         </div>
 
         <div style="flex: 1;">
-          
+
           <div>
             <span>单片机类型：</span> <span>{{ chip.chipType }}</span>
           </div>

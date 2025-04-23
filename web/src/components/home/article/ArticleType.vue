@@ -3,36 +3,23 @@
     <el-card>
       <div style="width: auto; display: flex">
         <div style="width: 10%">
-          <span
-            class="select_article_type"
-            style="cursor: pointer; align-items: center; justify-content: center"
-            :key="0"
-            :style="selectKey === 0 ? 'color: var(--el-color-primary);' : ''"
-            @click="selectArticleTypeFun(null, 0)"
-            >全部分类</span
-          >
+          <span class="select_article_type" style="cursor: pointer; align-items: center; justify-content: center"
+            :key="0" :style="selectKey === 0 ? 'color: var(--el-color-primary);' : ''"
+            @click="selectArticleTypeFun(null, 0)">全部分类</span>
         </div>
         <div style="width: 90%">
           <ul style="list-style: none; display: inline">
-            <li
-              class="select_article_type"
-              v-for="item in articleTypeList.value"
-              style="margin-left: 8px; cursor: pointer; float: left"
-              :key="item.id"
+            <li class="select_article_type" v-for="item in articleTypeList.value"
+              style="margin-left: 8px; cursor: pointer; float: left" :key="item.id"
               :style="selectKey === item.id ? 'color: var(--el-color-primary);' : ''"
-              @click="selectArticleTypeFun(item, 0)"
-            >
+              @click="selectArticleTypeFun(item, 0)">
               {{ item.typeName }}
             </li>
           </ul>
         </div>
       </div>
       <div>
-        <div
-          class="select_article_type"
-          style="margin-left: 88%; cursor: pointer"
-          @click="showType = !showType"
-        >
+        <div class="select_article_type" style="margin-left: 88%; cursor: pointer" @click="showType = !showType">
           详细分类
           <MyIcon v-if="showType" type="icon-article" />
           <MyIcon v-else type="icon-setting" />
@@ -40,54 +27,33 @@
       </div>
       <div :style="{ display: showType ? 'flex' : 'none' }" style="width: auto">
         <div style="width: 10%">
-          <span
-            class="select_article_type"
-            style="cursor: pointer; align-items: center; justify-content: center"
-            :key="0"
-            :style="selectKey1 === 0 ? 'color: var(--el-color-primary);' : ''"
-            @click="selectArticleTypeFun(null, 1)"
-            >二级分类</span
-          >
+          <span class="select_article_type" style="cursor: pointer; align-items: center; justify-content: center"
+            :key="0" :style="selectKey1 === 0 ? 'color: var(--el-color-primary);' : ''"
+            @click="selectArticleTypeFun(null, 1)">二级分类</span>
         </div>
         <div style="width: 90%">
           <ul style="list-style: none; display: inline">
-            <li
-              class="select_article_type"
-              v-for="item in articleTypeList1.value"
-              style="margin-left: 8px; cursor: pointer; float: left"
-              :key="item.id"
+            <li class="select_article_type" v-for="item in articleTypeList1.value"
+              style="margin-left: 8px; cursor: pointer; float: left" :key="item.id"
               :style="selectKey1 === item.id ? 'color: var(--el-color-primary);' : ''"
-              @click="selectArticleTypeFun(item, 1)"
-            >
+              @click="selectArticleTypeFun(item, 1)">
               {{ item.typeName }}
             </li>
           </ul>
         </div>
       </div>
-      <div
-        :style="{ display: showType ? 'flex' : 'none' }"
-        style="cursor: pointer; width: auto"
-      >
+      <div :style="{ display: showType ? 'flex' : 'none' }" style="cursor: pointer; width: auto">
         <div style="width: 10%">
-          <span
-            class="select_article_type"
-            style="cursor: pointer; align-items: center; justify-content: center"
-            :key="0"
-            :style="selectKey2 === 0 ? 'color: var(--el-color-primary);' : ''"
-            @click="selectArticleTypeFun(null, 2)"
-            >三级分类</span
-          >
+          <span class="select_article_type" style="cursor: pointer; align-items: center; justify-content: center"
+            :key="0" :style="selectKey2 === 0 ? 'color: var(--el-color-primary);' : ''"
+            @click="selectArticleTypeFun(null, 2)">三级分类</span>
         </div>
         <div style="width: 90%">
           <ul style="list-style: none; display: inline">
-            <li
-              class="select_article_type"
-              v-for="item in articleTypeList2.value"
-              style="margin-left: 8px; cursor: pointer; float: left"
-              :key="item.id"
+            <li class="select_article_type" v-for="item in articleTypeList2.value"
+              style="margin-left: 8px; cursor: pointer; float: left" :key="item.id"
               :style="selectKey2 === item.id ? 'color: var(--el-color-primary);' : ''"
-              @click="selectArticleTypeFun(item, 2)"
-            >
+              @click="selectArticleTypeFun(item, 2)">
               {{ item.typeName }}
             </li>
           </ul>

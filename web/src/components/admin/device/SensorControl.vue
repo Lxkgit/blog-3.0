@@ -37,10 +37,9 @@
           <el-button style="margin: 0; padding: 8px;" @click="sendSensorControlFun(scope.row.id)" size="small" text>
             <MyIcon type="icon-send" title="发送命令" />
           </el-button>
-          <el-button style="margin: 0; padding: 8px;" @click="updateSensorControlFun(scope.row.id)" size="small"
-                    text>
-                    <MyIcon type="icon-edit" title="修改命令" />
-                  </el-button>
+          <el-button style="margin: 0; padding: 8px;" @click="updateSensorControlFun(scope.row.id)" size="small" text>
+            <MyIcon type="icon-edit" title="修改命令" />
+          </el-button>
           <el-button style="margin: 0; padding: 8px;" @click="deleteSensorControlFun(scope.row.id)" size="small" text>
             <MyIcon type="icon-delete" title="删除命令" />
           </el-button>
@@ -62,7 +61,7 @@
       </el-form-item>
 
       <template v-for="(item, id) in sensorControlForm.sensor[0].from">
-       
+
         <!-- 传感器控制 数字输入模板 -->
         <template v-if="item.type === 'input-number'">
           <el-form-item :label="item.label" :label-width="110">
@@ -170,7 +169,7 @@ function sensorControlFun() {
   // 传感器表单赋值
   const setSensorTemplateFrom = () => {
     for (let i = 0; i < sensorTemplateFrom.data.length; i++) {
-      if(props.sensor?.sensorType === sensorTemplateFrom.data[i].sensorType) {
+      if (props.sensor?.sensorType === sensorTemplateFrom.data[i].sensorType) {
         sensorControlForm.sensor[0].from = JSON.parse(sensorTemplateFrom.data[i].template);
         sensorControlForm.sensor[0].sensorType = props.sensor?.sensorType;
         sensorControlForm.sensor[0].sensorCode = props.sensor?.sensorCode;
@@ -220,8 +219,8 @@ function sensorControlFun() {
 
     sensorControlForm.sensor[0].id = props.sensor?.id
 
-     // 传感器命令组保存
-     saveSensorControlApi({
+    // 传感器命令组保存
+    saveSensorControlApi({
       id: sensorControlForm.id === 0 ? null : sensorControlForm.id,
       sensorId: props.sensor?.id,
       commandGroup: 0,
@@ -229,7 +228,7 @@ function sensorControlFun() {
       controlMessage: JSON.stringify(sensorControlForm.sensor)
     }).then((res: any) => {
       if (res.code === 200) {
-        if(sensorControlForm.id === 0) {
+        if (sensorControlForm.id === 0) {
           ElMessage.success('命令创建成功');
         } else {
           ElMessage.success('命令修改成功');
@@ -299,6 +298,4 @@ function sensorControlFun() {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

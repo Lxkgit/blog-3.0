@@ -13,9 +13,9 @@
 import {
   ElTree,
 } from 'element-plus'
-import NavMenu from "@/components/common/NavMenu.vue";
-import Footer from "@/components/common/Footer.vue"
-import BackTop from "@/components/common/BackTop.vue"
+import NavMenu from "@/components/home/NavMenu.vue";
+import Footer from "@/components/home/Footer.vue"
+import BackTop from "@/components/home/BackTop.vue"
 import { onBeforeRouteUpdate, useRouter } from "vue-router";
 import { onActivated, onMounted, ref } from "vue";
 import { systemStore } from "@/store/system";
@@ -64,60 +64,39 @@ const catalogList = ref([
 
 // 获取笔记目录数据
 async function catalogueData(catalogueID: any) {
-  // let data = await getCatalogueList(catalogueID)
-  // console.log("开始获取笔记目录了啊")
-  // console.log(data)
-  // catalogList.value = data.map((i, index) => {
-  //   return {
-  //     id: i['id'],
-  //     label: '第' + (index + 1) + '章：' + i['name'],
-  //     children: i['child'].map((j, index) => {
-  //       return {
-  //         id: j['section_id'],
-  //         label: (index + 1) + '. ' + j['name'],
-  //         children: NaN
-  //       }
-  //     })
-  //   }
-  // })
+
 }
 
 // 获取笔记名称
 async function titleData(catalogueID: any) {
-  // let note_data = await getNoteDetail(catalogueID)
-  // title.value = note_data.name
+
 }
 
 onMounted(async () => {
-  console.log("onmounted了啊")
   let catalogueID = router.currentRoute.value.params.id
   await catalogueData(catalogueID)
   await titleData(catalogueID)
-  store.setMenuIndex('3-' + router.currentRoute.value.params.id)
+  store.menuIndex = '3-' + router.currentRoute.value.params.id
 })
 onBeforeRouteUpdate(async (to) => {
-  console.log("onbefore了啊")
-  console.log(to.params.id)
   await catalogueData(to.params.id)
 });
 onActivated(() => {
-  store.setMenuIndex('3-' + router.currentRoute.value.params.id)
+  store.menuIndex = '3-' + router.currentRoute.value.params.id
 })
 </script>
 
-<style lang="scss">
+<style>
 .catalog {
   padding: 20px 10px;
   background-color: var(--el-bg-color-overlay);
+}
 
-  .el-tree {
-    .el-tree-node {
-      padding: 10px 0;
-    }
+.catalog .el-tree .el-tree-node {
+  padding: 10px 0;
+}
 
-    span {
-      font-size: 16px !important;
-    }
-  }
+.catalog .el-tree span {
+  font-size: 16px !important;
 }
 </style>

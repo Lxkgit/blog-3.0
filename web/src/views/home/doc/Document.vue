@@ -4,7 +4,8 @@
     <div style="margin-top: 20px; width: 15%; min-width: 250px;">
       <div style="padding-left: 40px; position: fixed;">
         <p>选择用户文档：</p>
-        <el-select v-model="selectUserId" class="m-2" placeholder="Select" style="margin-top: 20px;" @change="getDocCatalogTreeFun">
+        <el-select v-model="selectUserId" class="m-2" placeholder="Select" style="margin-top: 20px;"
+          @change="getDocCatalogTreeFun">
           <el-option v-for="item in userList.data" :key="item.id" :label="item.username" :value="item.id" />
         </el-select>
       </div>
@@ -54,9 +55,9 @@ let selectUserId: any = ref(0)
 const docList: any = reactive({ list: [] });
 
 onMounted(async () => {
-  store.setMenuIndex("3");
-  if(isLogin.value) {
-    selectUserId.value = Number(userId.value);
+  store.menuIndex = "3";
+  if (isLogin.value) {
+    selectUserId.value = 1;
   } else {
     selectUserId.value = 0;
   }
@@ -70,7 +71,7 @@ async function getDocCatalogTreeFun() {
     "typeLowerLimit": 0,
     "typeUpperLimit": 1,
     "type": 0,
-    "userId": selectUserId.value
+    "userId": userId.value
   }).then((res: any) => {
     if (res.code === 200) {
       docList.list = res.result;
@@ -79,9 +80,9 @@ async function getDocCatalogTreeFun() {
 }
 
 // 获取文档用户
-async function seleteDocUserListFun () {
+async function seleteDocUserListFun() {
   selectDocUserListApi().then((res: any) => {
-    if(res.code === 200) {
+    if (res.code === 200) {
       userList.data = res.result
     }
   })
@@ -89,7 +90,7 @@ async function seleteDocUserListFun () {
 
 </script>
 
-<style lang="scss">
+<style>
 .time {
   font-size: 12px;
   color: #999;

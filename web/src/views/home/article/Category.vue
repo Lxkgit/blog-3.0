@@ -19,15 +19,9 @@
               </li>
             </ul>
             <div class="paging">
-              <el-pagination
-                v-model:current-page="page"
-                v-model:page-size="size"
-                :page-sizes="[5, 10, 15, 20]"
-                layout="total, sizes, prev, pager, next, jumper"
-                @current-change="pageChange"
-                @size-change="sizeChange"
-                :total="total"
-              >
+              <el-pagination v-model:current-page="page" v-model:page-size="size" :page-sizes="[5, 10, 15, 20]"
+                layout="total, sizes, prev, pager, next, jumper" @current-change="pageChange" @size-change="sizeChange"
+                :total="total">
               </el-pagination>
             </div>
           </el-card>
@@ -127,7 +121,7 @@ onMounted(() => {
 });
 
 onActivated(() => {
-  store.setMenuIndex("2");
+  store.menuIndex = "2"
 });
 </script>
 
@@ -145,5 +139,4 @@ onActivated(() => {
   padding: 0;
   margin: 0;
 }
-
 </style>

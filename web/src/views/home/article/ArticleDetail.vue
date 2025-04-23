@@ -119,11 +119,11 @@ let { userId, isLogin } = user();
 // 引入公共模块
 let { articleID, sitename, toDetail, toCategory } = publicFn()
 // 引入文章内容模块
-let { articleData, context, recommendList, getArticleData, getContextData, getGuessLikeData } = article()
+let { articleData, context, recommendList, getArticleData } = article()
 // 引入markdown模块
 let { rollTo, scrollTop, scroll } = markdown()
 // 调用动作菜单模块
-let { likeClick, isCollect, getArticleHistoryData, collectClick, postArticleHistoryData } = action(articleID, articleData)
+let { likeClick, isCollect, getArticleHistoryData, collectClick } = action(articleID, articleData)
 
 onMounted(async () => {
   // 开启加载中动画
@@ -133,13 +133,10 @@ onMounted(async () => {
     background: 'rgba(255, 255, 255, 0.3)',
   })
   window.scrollTo({ top: 0 })
-  store.setOutline("")
+  store.outline = ""
   articleID.value = router.currentRoute.value.params.id
   await getArticleData(articleID.value)
   loading.close()
-  // await getContextData(articleID.value)
-  // await getGuessLikeData(articleID.value)
-  // await postArticleHistoryData(articleID.value)
   window.addEventListener('scroll', scroll())
 })
 
@@ -155,7 +152,7 @@ onBeforeRouteUpdate(async (to) => {
     background: 'rgba(255, 255, 255,0.3)',
   })
   window.scrollTo({ top: 0 })
-  store.setOutline("")
+  store.outline = ""
   await getArticleData(to.params.id)
   loading.close()
 });
@@ -205,14 +202,9 @@ function article() {
     articleData.data = detail_data.result
   }
 
-  // 获取文章上下篇
-  async function getContextData(DetailID: any) {
-  }
 
-  // 获取猜你喜欢
-  async function getGuessLikeData(DetailID: any) {
-  }
-  return { articleData, context, recommendList, getArticleData, getContextData, getGuessLikeData }
+
+  return { articleData, context, recommendList, getArticleData }
 }
 
 // markdown模块
@@ -268,24 +260,24 @@ function action(articleID: any, articleData: any) {
 
   }
   // 添加文章浏览记录表单
-  const articleHistoryForm = reactive({
-    article_id: '',
-    user: ''
-  })
+  // const articleHistoryForm = reactive({
+  //   article_id: '',
+  //   user: ''
+  // })
 
   // 添加文章浏览记录
-  async function postArticleHistoryData(article_id: any) {
-    if (isLogin.value === true) {
-      articleHistoryForm.article_id = article_id
-      articleHistoryForm.user = userId.value
-    }
-  }
+  // async function postArticleHistoryData(article_id: any) {
+  //   if (isLogin.value === true) {
+  //     articleHistoryForm.article_id = article_id
+  //     articleHistoryForm.user = userId.value
+  //   }
+  // }
 
   onMounted(() => {
     getArticleHistoryData()
   })
   return {
-    likeClick, isCollect, getArticleHistoryData, collectClick, postArticleHistoryData
+    likeClick, isCollect, getArticleHistoryData, collectClick
   }
 }
 </script>
@@ -325,11 +317,11 @@ function action(articleID: any, articleData: any) {
   margin-left: 10px;
 }
 
-.detail .detail-page .detail-center .main .info > span {
+.detail .detail-page .detail-center .main .info>span {
   margin: 0 2%;
 }
 
-.detail .detail-page .detail-center .main .info > span .anticon {
+.detail .detail-page .detail-center .main .info>span .anticon {
   margin-right: 10px;
 }
 
@@ -360,27 +352,27 @@ function action(articleID: any, articleData: any) {
   margin-left: 10px;
 }
 
-.detail .detail-page .detail-center .guess > div {
+.detail .detail-page .detail-center .guess>div {
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 10px;
 }
 
-.detail .detail-page .detail-center .guess > div:hover span {
+.detail .detail-page .detail-center .guess>div:hover span {
   opacity: 0.3;
 }
 
-.detail .detail-page .detail-center .guess > div span {
+.detail .detail-page .detail-center .guess>div span {
   text-align: center;
   flex: 1;
 }
 
-.detail .detail-page .detail-center .guess > div span:hover {
+.detail .detail-page .detail-center .guess>div span:hover {
   opacity: 1;
 }
 
-.detail .detail-page .detail-center .guess > div span p {
+.detail .detail-page .detail-center .guess>div span p {
   font-size: 14px;
   color: var(--el-text-color-secondary);
   margin: 10px 0px;
@@ -395,17 +387,17 @@ function action(articleID: any, articleData: any) {
   justify-content: center;
 }
 
-.detail .detail-page .detail-center .comments .input-field > span:nth-child(1) {
+.detail .detail-page .detail-center .comments .input-field>span:nth-child(1) {
   width: 10%;
   padding-top: 10px;
   text-align: center;
 }
 
-.detail .detail-page .detail-center .comments .input-field > span:nth-child(2) {
+.detail .detail-page .detail-center .comments .input-field>span:nth-child(2) {
   width: 80%;
 }
 
-.detail .detail-page .detail-center .comments .input-field > span:nth-child(3) {
+.detail .detail-page .detail-center .comments .input-field>span:nth-child(3) {
   width: 10%;
   padding-top: 85px;
   text-align: center;
@@ -434,5 +426,4 @@ function action(articleID: any, articleData: any) {
   padding: 20px 0px;
   background-color: var(--el-bg-color-overlay);
 }
-
 </style>

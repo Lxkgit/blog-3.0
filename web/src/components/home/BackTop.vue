@@ -25,5 +25,4 @@ let { MyIcon } = icon()
   opacity: 1;
   color: var(--el-color-primary);
 }
-
 </style>

@@ -1,21 +1,12 @@
 <template>
   <div class="login-register">
-    <div
-      :class="
-        (component === 'Login' ? '' : 'right-panel-active') +
-        ' container animate__animated animate__zoomIn'
-      "
-    >
+    <div :class="(component === 'Login' ? '' : 'right-panel-active') +
+      ' container animate__animated animate__zoomIn'
+      ">
       <div class="form-container sign-up-container">
         <div>
           <h1>用户注册</h1>
-          <el-form
-            class="registerForm"
-            ref="registerRef"
-            :model="registerForm"
-            label-width="0"
-            :rules="registerRules"
-          >
+          <el-form class="registerForm" ref="registerRef" :model="registerForm" label-width="0" :rules="registerRules">
             <el-form-item prop="username">
               <el-input v-model="registerForm.username" placeholder="请输入用户名">
                 <template #prefix>
@@ -24,24 +15,14 @@
               </el-input>
             </el-form-item>
             <el-form-item prop="password1">
-              <el-input
-                v-model="registerForm.password1"
-                type="password"
-                placeholder="请输入密码"
-                show-password
-              >
+              <el-input v-model="registerForm.password1" type="password" placeholder="请输入密码" show-password>
                 <template #prefix>
                   <MyIcon type="icon-password" />
                 </template>
               </el-input>
             </el-form-item>
             <el-form-item prop="password2">
-              <el-input
-                v-model="registerForm.password2"
-                type="password"
-                placeholder="请再次输入密码"
-                show-password
-              >
+              <el-input v-model="registerForm.password2" type="password" placeholder="请再次输入密码" show-password>
                 <template #prefix>
                   <MyIcon type="icon-password" />
                 </template>
@@ -60,18 +41,13 @@
                   <MyIcon type="icon-code" />
                 </template>
                 <template #suffix>
-                  <VerifyCodeBtn
-                    :btnDisabled="codeBtnDisabled"
-                    @pass="registerPass"
-                  ></VerifyCodeBtn>
+                  <VerifyCodeBtn :btnDisabled="codeBtnDisabled" @pass="registerPass"></VerifyCodeBtn>
                 </template>
               </el-input>
             </el-form-item>
 
             <el-form-item>
-              <el-button class="register-btn" type="primary" @click="registerUserFun" round
-                >立即注册</el-button
-              >
+              <el-button class="register-btn" type="primary" @click="registerUserFun" round>立即注册</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -79,13 +55,7 @@
       <div class="form-container sign-in-container">
         <div>
           <h1>用户登录</h1>
-          <el-form
-            class="loginForm"
-            :model="loginForm"
-            ref="loginRef"
-            label-width="0"
-            :rules="loginRules"
-          >
+          <el-form class="loginForm" :model="loginForm" ref="loginRef" label-width="0" :rules="loginRules">
             <el-form-item prop="username">
               <el-input v-model="loginForm.username" placeholder="请输入用户名">
                 <template #prefix>
@@ -94,24 +64,14 @@
               </el-input>
             </el-form-item>
             <el-form-item prop="password">
-              <el-input
-                v-model="loginForm.password"
-                type="password"
-                placeholder="请输入密码"
-                show-password
-              >
+              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password>
                 <template #prefix>
                   <MyIcon type="icon-password" />
                 </template>
               </el-input>
             </el-form-item>
-            <!-- <el-form-item>
-              <VerifyImgBtn :isPassing="isPassing" @verifyPass="verifyPass" :btnType="btnType"></VerifyImgBtn>
-            </el-form-item> -->
             <el-form-item class="login-setting">
-              <span class="remember"
-                ><el-checkbox v-model="remember" label="保持登录"></el-checkbox
-              ></span>
+              <span class="remember"><el-checkbox v-model="remember" label="保持登录"></el-checkbox></span>
               <span class="forget pointer" @click="router.push('/setPassword')">忘记密码</span>
             </el-form-item>
             <el-form-item class="login-btn">
@@ -159,10 +119,10 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { systemStore } from '@/store/system'
 import RSAUtil from '@/utils/RSAUtil'
-
-// import { getUserVerifyCodeApi, registerUserApi } from "@/api/user"
 import mitter from '@/utils/mitt'
 import user from '@/utils/user'
+
+
 const { encryptPassword } = RSAUtil()
 const { userLoginFun } = user()
 const store = systemStore()
@@ -175,10 +135,7 @@ let { switchLogin, switchRegister, bgiURL, component, sitename } = publicFn()
 let { loginForm, loginRules, remember, isPassing, verifyPass, btnType, otherLogin } = loginFn()
 // 引入注册模块
 let { registerForm, registerRules, codeBtnDisabled, registerPass, registerUserFun } = registerFn()
-// onActivated(() => {
 
-// })
-// 登录表单对象
 const loginRef: any = ref(null)
 // 登录表单提交事件
 const loginSubmit = async () => {
@@ -191,7 +148,6 @@ const loginSubmit = async () => {
           password: password,
         })
       } else {
-        console.log('滑块验证了吗')
         btnType.value = 'danger'
         ElMessage.error('请检查表单内容后再登录')
         return false
@@ -199,9 +155,6 @@ const loginSubmit = async () => {
     })
   }
 }
-
-// // 注册表单对象
-// const registerRef = ref(null)
 
 // 公共模块
 function publicFn() {
@@ -226,9 +179,7 @@ function publicFn() {
   })
   // 其他页面调用，默认跳转
   onMounted(() => {
-    // if (router.currentRoute.value.query.component) {
-    //   component.value = router.currentRoute.value.query.component
-    // }
+ 
   })
   return { switchLogin, switchRegister, bgiURL, component, sitename }
 }
@@ -269,7 +220,7 @@ function loginFn(): any {
     isPassing.value = true
   }
   // 第三方登录
-  const otherLogin = (kind: any) => {}
+  const otherLogin = (kind: any) => { }
   return { loginForm, remember, isPassing, verifyPass, btnType, otherLogin, loginRules }
 }
 
@@ -289,7 +240,7 @@ function registerFn() {
     if (!value) {
       return callback(new Error('请输入用户名'))
     }
-    setTimeout(() => {}, 500)
+    setTimeout(() => { }, 500)
   }
   // 联系方式验证
   const checkEmail = (rule: any, value: any, callback: any) => {
@@ -360,14 +311,7 @@ function registerFn() {
   const codeBtnDisabled = ref(true)
   // 获取注册验证码通过事件
   const registerPass = () => {
-    // getUserVerifyCodeApi(registerForm.email).then((res: any) => {
-    //   if (res.code === 200) {
-    //     ElMessage({
-    //       message: '验证码发送成功！',
-    //       type: 'success',
-    //     })
-    //   }
-    // })
+
   }
   // 注册表单提交事件
   const registerUserFun = () => {
@@ -424,7 +368,7 @@ function registerFn() {
   transition: all 0.6s ease-in-out;
 }
 
-.login-register .container .form-container > div {
+.login-register .container .form-container>div {
   background: #2d3436;
   display: flex;
   flex-direction: column;
@@ -434,51 +378,51 @@ function registerFn() {
   text-align: center;
 }
 
-.login-register .container .form-container > div h1 {
+.login-register .container .form-container>div h1 {
   color: var(--el-color-primary);
   margin-bottom: 30px;
 }
 
-.login-register .container .form-container > div .loginForm {
+.login-register .container .form-container>div .loginForm {
   width: 300px;
 }
 
-.login-register .container .form-container > div .loginForm .login-setting {
+.login-register .container .form-container>div .loginForm .login-setting {
   color: var(--el-text-color-secondary);
 }
 
-.login-register .container .form-container > div .loginForm .login-setting .remember {
+.login-register .container .form-container>div .loginForm .login-setting .remember {
   float: left;
 }
 
-.login-register .container .form-container > div .loginForm .login-setting .remember .el-checkbox {
+.login-register .container .form-container>div .loginForm .login-setting .remember .el-checkbox {
   color: var(--el-text-color-secondary);
 }
 
-.login-register .container .form-container > div .loginForm .login-setting .forget {
+.login-register .container .form-container>div .loginForm .login-setting .forget {
   float: right;
   margin-left: 165px;
 }
 
-.login-register .container .form-container > div .loginForm .login-btn button {
+.login-register .container .form-container>div .loginForm .login-btn button {
   margin: 0 auto;
 }
 
-.login-register .container .form-container > div .other-login {
+.login-register .container .form-container>div .other-login {
   display: contents;
 }
 
-.login-register .container .form-container > div .other-login .el-divider {
+.login-register .container .form-container>div .other-login .el-divider {
   background-color: var(--el-border-color);
 }
 
-.login-register .container .form-container > div .other-login .other-logo span {
+.login-register .container .form-container>div .other-login .other-logo span {
   font-size: 35px;
   margin: 0 7px;
   opacity: 1;
 }
 
-.login-register .container .form-container > div .registerForm {
+.login-register .container .form-container>div .registerForm {
   width: 300px;
 }
 

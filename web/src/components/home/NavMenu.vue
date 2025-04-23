@@ -1,17 +1,10 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
-  <transition
-    enter-active-class="animate__animated animate__fadeInDown"
-    leave-active-class="animate__animated animate__fadeOutUp"
-    mode="in-out"
-  >
-    <header class="navigation-show" >
+  <transition enter-active-class="animate__animated animate__fadeInDown"
+    leave-active-class="animate__animated animate__fadeOutUp" mode="in-out">
+    <header class="navigation-show">
       <span v-show="props.kind === 'front'" class="left">
-        <el-image
-          style="width: 40px; height: 40px"
-          :src="siteConfig.logo"
-          :fit="'fill'"
-        ></el-image>
+        <el-image style="width: 40px; height: 40px" :src="siteConfig.logo" :fit="'fill'"></el-image>
         <span>{{ siteConfig.name }}</span>
       </span>
       <span class="middle">
@@ -43,12 +36,8 @@
           </span>
         </el-tooltip>
         <el-tooltip class="item" effect="dark" content="搜索" placement="bottom">
-          <span
-            class="search hvr-grow"
-            :style="{ color: menuIndex === '7' ? 'var(--el-color-primary)' : '' }"
-            @click="router.push('/search')"
-            style="cursor: pointer"
-          >
+          <span class="search hvr-grow" :style="{ color: menuIndex === '7' ? 'var(--el-color-primary)' : '' }"
+            @click="router.push('/search')" style="cursor: pointer">
             <MyIcon type="icon-search" />
           </span>
         </el-tooltip>
@@ -78,56 +67,27 @@
           </div>
         </span>
       </span>
-      <el-drawer
-        title="系统设置"
-        v-model="drawer"
-        :direction="'rtl'"
-        :size="'25%'"
-        :before-close="handleClose"
-        destroy-on-close
-      >
+      <el-drawer title="系统设置" v-model="drawer" :direction="'rtl'" :size="'25%'" :before-close="handleClose"
+        destroy-on-close>
         <span>
           <el-divider></el-divider>
           <div class="display">
             <h4>显示模式</h4>
             <span>
-              <img
-                :class="isDark === true ? '' : 'img-active'"
-                src="~@/assets/images/light.png"
-                alt=""
-              />
-              <img
-                :class="isDark === false ? '' : 'img-active'"
-                src="~@/assets/images/dark.png"
-                alt=""
-              />
+              <img :class="isDark === true ? '' : 'img-active'" src="~@/assets/images/light.png" alt="" />
+              <img :class="isDark === false ? '' : 'img-active'" src="~@/assets/images/dark.png" alt="" />
             </span>
-            <el-switch
-              style="display: block"
-              v-model="isDarkSwitch"
-              active-color="#303133"
-              inactive-color="#f5f7fa"
-              active-text="深色模式"
-              inactive-text="浅色模式"
-              @change="setDarkMode"
-            />
+            <el-switch style="display: block" v-model="isDarkSwitch" active-color="#303133" inactive-color="#f5f7fa"
+              active-text="深色模式" inactive-text="浅色模式" @change="setDarkMode" />
           </div>
           <el-divider></el-divider>
           <div class="color">
             <h4>主题色</h4>
             <div>
-              <el-tooltip
-                v-for="(item, index) in themeList"
-                :key="index"
-                effect="dark"
-                :content="item.name"
-                placement="top"
-              >
-                <span
-                  :style="{ backgroundColor: item.value }"
-                  :class="colorValue === item.value ? 'color-active' : ''"
-                  @click="colorChoose(item.value)"
-                ></span>
+              <el-tooltip v-for="(item, index) in themeList" :key="index" effect="dark" :content="item.name"
+                placement="top">
+                <span :style="{ backgroundColor: item.value }" :class="colorValue === item.value ? 'color-active' : ''"
+                  @click="colorChoose(item.value)"></span>
               </el-tooltip>
             </div>
           </div>
@@ -136,12 +96,7 @@
             <h4>导航菜单</h4>
             菜单显示模式：
             <el-select v-model="navValue" @change="navChange">
-              <el-option
-                v-for="item in navigationList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              >
+              <el-option v-for="item in navigationList" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </div>
@@ -171,9 +126,12 @@ import color from "@/utils/color";
 import theme from "@/utils/theme";
 import navigation from "@/utils/navigation";
 import Cookies from 'js-cookie';
+import { storeToRefs } from 'pinia';
 
 const store = systemStore();
 const tagStore = tagsStore();
+
+const { activeTag } = storeToRefs(tagStore)
 const { isDark, setDark } = dark();
 const { setTheme } = theme();
 let { navigationList, setNavigation, navigationType } = navigation();
@@ -424,5 +382,4 @@ header .nav-style .el-select {
   width: 100%;
   z-index: 5;
 }
-
 </style>

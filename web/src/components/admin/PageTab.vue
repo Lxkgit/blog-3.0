@@ -1,32 +1,19 @@
 <template>
-  <transition
-    enter-active-class="animate__animated animate__fadeInDown"
-    leave-active-class="animate__animated animate__fadeOutUp"
-    mode="in-out"
-  >
+  <transition enter-active-class="animate__animated animate__fadeInDown"
+    leave-active-class="animate__animated animate__fadeOutUp" mode="in-out">
     <header id="tags_view_container" class="tags_view_container">
       <div class="tags_view_wrapper">
-        <span
-          style="
+        <span style="
             float: left;
             width: 57px;
             box-sizing: border-box;
             line-height: 38px;
             text-align: center;
-          "
-        >
+          ">
           <MyIcon type="icon-home3" @click="router.push('/')" />
         </span>
-        <router-link
-          v-for="(item, index) in store.tags"
-          :key="index"
-          ref="tag"
-          tag="span"
-          class="tags_view_item"
-          :class="{ active: item.active }"
-          :to="item.path"
-          @contextmenu.prevent="openMenu(item.path, index, $event)"
-        >
+        <router-link v-for="(item, index) in store.tags" :key="index" ref="tag" tag="span" class="tags_view_item"
+          :class="{ active: item.active }" :to="item.path" @contextmenu.prevent="openMenu(item.path, index, $event)">
           {{ item.title }}
           <!--这里加prevent.stop是为了避免跳转路由-->
           <i v-if="item.close" @click.prevent.stop="closeTag(index)">
@@ -34,11 +21,7 @@
           </i>
         </router-link>
       </div>
-      <ul
-        v-if="visible"
-        :style="{ left: left + 'px', top: top + 'px' }"
-        class="contextmenu"
-      >
+      <ul v-if="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
         <li @click="refresh">刷新</li>
         <li @click="closeMenu()">关闭菜单</li>
         <li @click="closeTag()">关闭标签</li>
@@ -82,7 +65,7 @@ const closeTag = (index?: any) => {
   } else {
     if (store.tags[index].active) {
       let nextIndex = 0;
-      if(index === store.tags.length - 1) {
+      if (index === store.tags.length - 1) {
         nextIndex = store.tags.length - 2
       } else {
         if (store.tags[index].open === 1) {
@@ -243,5 +226,4 @@ const refresh = () => {
   background-color: #b4bccc;
   color: #fff;
 }
-
 </style>

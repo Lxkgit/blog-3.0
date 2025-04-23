@@ -322,7 +322,7 @@ function sensorControlFun() {
       controlMessage: JSON.stringify(sensorControlForm.sensor)
     }).then((res: any) => {
       if (res.code === 200) {
-        if(sensorControlForm.id === 0) {
+        if (sensorControlForm.id === 0) {
           ElMessage.success('命令创建成功');
         } else {
           ElMessage.success('命令修改成功');

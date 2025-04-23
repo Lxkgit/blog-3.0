@@ -11,14 +11,8 @@
             <template #default>
               <el-carousel width="900px" height="500px" :interval="5000">
                 <el-carousel-item v-for="carousel in carouselList" :key="carousel.id">
-                  <el-image
-                    class="pointer"
-                    style="width: 900px; height: 500px"
-                    :src="carousel.img"
-                    :fit="'fill'"
-                    :key="carousel.id"
-                    @click="toCarousel(carousel.url)"
-                  >
+                  <el-image class="pointer" style="width: 900px; height: 500px" :src="carousel.img" :fit="'fill'"
+                    :key="carousel.id" @click="toCarousel(carousel.url)">
                     <template #placeholder>
                       <Loading type="image"></Loading>
                     </template>
@@ -40,13 +34,8 @@
                 <ArticleItem :article="item"></ArticleItem>
               </li>
             </ul>
-            <p
-              class="isLoading"
-              v-if="loading"
-              v-loading="loading"
-              element-loading-text="玩命加载中"
-              element-loading-background="#ffffff"
-            ></p>
+            <p class="isLoading" v-if="loading" v-loading="loading" element-loading-text="玩命加载中"
+              element-loading-background="#ffffff"></p>
             <p v-if="!noMore && article.count">
               <el-divider>我是有底线的</el-divider>
             </p>
@@ -155,7 +144,7 @@ onUnmounted(() => {
   window.removeEventListener('scroll', scrollHandle, false)
 })
 onActivated(() => {
-  store.setMenuIndex('1')
+  store.menuIndex = '1'
 })
 </script>
 

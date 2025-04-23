@@ -1,11 +1,9 @@
 <template>
-  <div
-      :class="'outline  animate__animated animate__'+ (outlineShow===true?'fadeInRight':'fadeOutRight')">
+  <div :class="'outline  animate__animated animate__' + (outlineShow === true ? 'fadeInRight' : 'fadeOutRight')">
     <div v-if="titleList.length !== 0">
-      <p class="pointer" v-for="(anchor,index) in titleList" :key="anchor.lineIndex"
-         :style="{ padding: `0px 0 0px ${anchor.indent * 15}px` }"
-         @click="rollTo(anchor,index)" :class="index===heightTitle?'title-active':''"
-      >
+      <p class="pointer" v-for="(anchor, index) in titleList" :key="anchor.lineIndex"
+        :style="{ padding: `0px 0 0px ${anchor.indent * 15}px` }" @click="rollTo(anchor, index)"
+        :class="index === heightTitle ? 'title-active' : ''">
         {{ anchor.title }}
       </p>
     </div>
@@ -17,8 +15,8 @@
 
 <script setup lang="ts">
 
-import {computed, ref, watch} from "vue";
-import {systemStore} from "@/store/system";
+import { computed, ref, watch } from "vue";
+import { systemStore } from "@/store/system";
 import {
   ElTooltip,
   ElEmpty,
@@ -50,18 +48,18 @@ const rollTo = (anchor: any, index: any) => {
 }
 // 监听页面滚动
 watch(
-    () => props.scrollTop,
-    (value) => {
-      if (titleList.value) {
-        const absList: any = [] // 各个h标签与当前距离绝对值
-        titleList.value.forEach((item: any) => {
-          absList.push(Math.abs(item.height - value))
-        })
-        // 屏幕滚动距离与标题具体最近的index高亮
-        heightTitle.value = absList.indexOf(Math.min.apply(null, absList))
-        // console.log("距离最近的标题index", heightTitle.value)
-      }
+  () => props.scrollTop,
+  (value) => {
+    if (titleList.value) {
+      const absList: any = [] // 各个h标签与当前距离绝对值
+      titleList.value.forEach((item: any) => {
+        absList.push(Math.abs(item.height - value))
+      })
+      // 屏幕滚动距离与标题具体最近的index高亮
+      heightTitle.value = absList.indexOf(Math.min.apply(null, absList))
+      // console.log("距离最近的标题index", heightTitle.value)
     }
+  }
 )
 </script>
 

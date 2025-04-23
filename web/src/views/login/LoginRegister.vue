@@ -158,15 +158,17 @@ import { onBeforeMount, onMounted, reactive, ref, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { systemStore } from '@/store/system'
+import RSAUtil from '@/utils/RSAUtil'
 
 // import { getUserVerifyCodeApi, registerUserApi } from "@/api/user"
 import mitter from '@/utils/mitt'
 import user from '@/utils/user'
-
+const { encryptPassword } = RSAUtil()
 const { userLoginFun } = user()
 const store = systemStore()
 const router = useRouter()
 let { MyIcon } = icon()
+
 // 引入公共模块
 let { switchLogin, switchRegister, bgiURL, component, sitename } = publicFn()
 // 引入登录模块
@@ -179,13 +181,14 @@ let { registerForm, registerRules, codeBtnDisabled, registerPass, registerUserFu
 // 登录表单对象
 const loginRef: any = ref(null)
 // 登录表单提交事件
-const loginSubmit = () => {
+const loginSubmit = async () => {
   if (loginRef.value !== null) {
+    let password = await encryptPassword(loginForm.password)
     loginRef.value.validate((valid: any) => {
       if (valid && isPassing.value) {
         userLoginFun({
           username: loginForm.username,
-          password: loginForm.password,
+          password: password,
         })
       } else {
         console.log('滑块验证了吗')
@@ -207,20 +210,8 @@ function publicFn() {
   // 当前组件名称
   const component: any = ref('Login')
 
-  // 获取背景图片
-  async function getBgiURLData() {
-    // const { url } = await getBgiUrl()
-    // bgiURL.value = 'url(' + url + ')'
-  }
-
   // 站点名称
   const sitename = ref('GSZero个人小站')
-
-  // 获取站点名称
-  async function getSiteConfigData() {
-    // let siteConfig_data = await getSiteConfig()
-    // sitename.value = siteConfig_data.name
-  }
 
   // 切换登录页事件
   const switchLogin = () => {
@@ -231,8 +222,7 @@ function publicFn() {
     component.value = 'Register'
   }
   onBeforeMount(() => {
-    getBgiURLData()
-    getSiteConfigData()
+
   })
   // 其他页面调用，默认跳转
   onMounted(() => {

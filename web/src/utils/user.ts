@@ -26,6 +26,8 @@ function user() {
           message: '登录成功！',
           type: 'success',
         })
+        store.userLocal.username = param.username
+        store.userLocal.password = param.password
         store.userSession.rz_id = res.result
         //从路由拿到参数
         const target = router.currentRoute.value.query.target
@@ -48,13 +50,17 @@ function user() {
           clientSecret: '123456',
           // 授权码获取token
           grantType: 'refresh_token',
+          username: store.userLocal.username,
+          password: store.userLocal.password,
           refreshToken: store.userLocal.refresh_token,
         }).then((res: any) => {
           //把token放入Cookie中
           store.userSession.access_token = res.result.access_token
+          store.userSession.rz_id = res.result.rz_id
           store.userLocal.refresh_token = res.result.refresh_token
           store.isLogin = true
           userInfoFun()
+          
         })
       }
     }

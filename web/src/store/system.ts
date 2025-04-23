@@ -13,7 +13,9 @@ export const systemStore = defineStore('system', {
     keepLogin: false,
     // 保持登录用户信息(localStorage)
     userLocal: {
-      refresh_token: ""
+      refresh_token: "",
+      username: "",
+      password: ""
     },
     userInfo: {},
     // 临时登录用户信息(sessionStorage)

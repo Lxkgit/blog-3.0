@@ -7,6 +7,7 @@
     "composite": true,
     "baseUrl": ".",
     "outDir": "./dist/",
+    "lib": ["ES2015", "DOM"],  // 添加 ES2015 支持 Promise
     "paths": {
       "@/*": ["./src/*"]
     },

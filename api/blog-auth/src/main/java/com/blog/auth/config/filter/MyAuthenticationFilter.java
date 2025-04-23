@@ -68,23 +68,6 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
                 SecurityUtil.setLoginUser(jwt);
             }
 
-//                byte[] decoded =
-//                // 使用KeyFactory生成RSAPrivateKey
-//                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-//                PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
-//                PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
-//
-//
-//                Cipher cipher = Cipher.getInstance("RSA");
-//                cipher.init(Cipher.DECRYPT_MODE, privateKey);
-//
-////                byte[] jwtByte = Base64.getDecoder().decode(jwt);
-//                byte[] decryptedBytes = cipher.doFinal(jwt.getBytes());
-//
-//                // 4. 将解密后的字节数组转为明文
-//                String decryptedToken = new String(decryptedBytes, StandardCharsets.UTF_8);
-//                System.out.println("解密后的 Token: " + decryptedToken);
-
         } catch (Exception e) {
             log.error(e.getMessage());
         }

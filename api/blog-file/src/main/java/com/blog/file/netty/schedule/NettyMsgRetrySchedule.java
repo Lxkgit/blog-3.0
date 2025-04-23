@@ -40,7 +40,7 @@ public class NettyMsgRetrySchedule {
             long interval = (date.getTime() - value.getDate().getTime()) / 1000;
             // 删除重发太多次的消息
             if (value.getRetryCount() > Constant.NETTY_MSG_RETRY_COUNT) {
-                JSONObject jsonObject = (JSONObject) JSONObject.parse(value.getMsg());
+                JSONObject jsonObject = JSONObject.parse(value.getMsg());
                 nettyServer.removeNettyRetryMap(jsonObject.getString("requestId"));
             }
             // 五分钟没收到响应的数据重新发送

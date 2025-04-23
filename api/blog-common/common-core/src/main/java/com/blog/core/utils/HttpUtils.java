@@ -26,7 +26,7 @@ public class HttpUtils {
      * @param params key-value格式
      * @return
      */
-    public static Result doPost(String url, Map<String, String> params, Oauth2Vo vo) {
+    public static JSONObject doPost(String url, Map<String, String> params, Oauth2Vo vo) {
         try {
             CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -52,9 +52,9 @@ public class HttpUtils {
                 }
             });
             if (result != null) {
-                return ResultFactory.buildSuccessResult(JSONObject.parseObject(result));
+                return JSONObject.parseObject(result);
             } else {
-                return ResultFactory.buildFailResult("接口请求失败");
+                return null;
             }
         } catch (Exception e) {
             log.error("post请求异常:{}", e.getMessage(), e);

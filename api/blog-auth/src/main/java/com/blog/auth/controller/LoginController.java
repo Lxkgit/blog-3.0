@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.blog.auth.service.LoginService;
 import com.blog.core.domain.auth.vo.LoginVo;
 import com.blog.core.domain.auth.vo.Oauth2Vo;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.core.utils.HttpUtils;
 import com.blog.redis.constant.AuthRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 public class LoginController {
@@ -44,8 +42,19 @@ public class LoginController {
      * @return
      */
     @PostMapping("/doLogin")
-    public Result doLogin(@RequestBody LoginVo loginVo) {
+    public Result doLogin(@RequestBody LoginVo loginVo) throws ServiceException {
         return loginService.login(loginVo);
+    }
+
+    /**
+     * 拿着授权码,手动获取token
+     *
+     * @param vo
+     * @return
+     */
+    @PostMapping("/getToken")
+    public Result getToken(@RequestBody Oauth2Vo vo) throws ServiceException {
+        return ResultFactory.buildSuccessResult(loginService.getToken(vo));
     }
 
     /**
@@ -68,7 +77,8 @@ public class LoginController {
      */
     @GetMapping("/publicKey")
     public Result publicKey() {
-        return ResultFactory.buildSuccessResult(redisService.getString(AuthRedisConstant.PUBLIC_KEY));
+        String publicKey = redisService.getString(AuthRedisConstant.PUBLIC_KEY).toString();
+        return ResultFactory.buildSuccessResult(publicKey);
     }
     /**
      * 资源服务 获取用户账号
@@ -113,29 +123,5 @@ public class LoginController {
         return authentication;
     }
 
-    /**
-     * 拿着授权码,手动获取token
-     *
-     * @param vo
-     * @return
-     */
-    @PostMapping("/getToken")
-    public Result getToken(@RequestBody Oauth2Vo vo) {
-        //拼接获取token的路径
-        String url = "http://auth-server:60001/auth/oauth2/token";
-        Map<String, String> map = new HashMap<>();
 
-        if ("authorization_code".equals(vo.getGrantType())) {
-            map.put("code", vo.getCode());
-            map.put("client_id", vo.getClientId());
-            map.put("redirect_uri", vo.getRedirectUri());
-            map.put("grant_type", vo.getGrantType());
-        } else if ("refresh_token".equals(vo.getGrantType())) {
-            map.put("client_id", vo.getClientId());
-            map.put("grant_type", vo.getGrantType());
-            map.put("refresh_token", vo.getRefreshToken());
-            map.put("client_secret", vo.getClientSecret());
-        }
-        return HttpUtils.doPost(url, map, vo);
-    }
 }

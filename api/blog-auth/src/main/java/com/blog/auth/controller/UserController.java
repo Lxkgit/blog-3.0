@@ -63,4 +63,10 @@ public class UserController {
         return ResultFactory.buildSuccessResult(userService.selectUserById(userId));
     }
 
+    @PostMapping("/permission/update")
+    public Result updateUserPermission(@RequestBody UserVo userVo) {
+        userService.updateUserPermission(userVo);
+        return ResultFactory.buildSuccessResult();
+    }
+
 }

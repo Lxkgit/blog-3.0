@@ -63,7 +63,8 @@ public class MinioService {
             log.info("img_url: {}", response.toString());
 
             // /files 为nginx代理路径
-            String fileUrl = ip + "/files/" + bucket + path;
+//            String fileUrl = ip + "/files/" + bucket + path;
+            String fileUrl = ip + ":9000/" + bucket + path;
             // 文件上传成功
             FileUploadLog fileLog = new FileUploadLog();
             fileLog.setId(fileUploadLog.getId());

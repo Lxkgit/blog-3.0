@@ -37,7 +37,7 @@ export const updateRolePerApi = (rolePer: any) => {
 
 // 用户列表接口
 export const userListApi = (page: any, size: any) => {
-  const uri = "/auth/user/list?page=" + page + "&size=" + size
+  const uri = "/auth/user/list?pageNum=" + page + "&pageSize=" + size
   return api.get(uri)
 }
 

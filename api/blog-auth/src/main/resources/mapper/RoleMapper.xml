@@ -17,7 +17,7 @@
     </sql>
 
     <!--查看用户对应的角色-->
-    <select id="selectUserRole" resultType="com.blog.core.domain.auth.entity.Role">
+    <select id="selectUserRoles" resultType="com.blog.core.domain.auth.entity.Role">
         SELECT <include refid="BaseResultSql"></include>
         from sys_role
         WHERE id in (SELECT role_id from sys_user_role WHERE user_id = #{userId})
@@ -38,5 +38,12 @@
         WHERE role_id = #{roleId}
     </delete>
 
+    <insert id="insertRoleMenus">
+        insert into sys_menu_role (`role_id`, `menu_id`)
+        VALUES
+        <foreach collection="menuIds" item="item" index="index" separator=",">
+            (#{roleId}, #{item})
+        </foreach>
+    </insert>
 
 </mapper>

@@ -22,26 +22,26 @@
         <el-table-column prop="email" label="邮箱地址" width="180" />
         <el-table-column prop="sysRole" label="角色" width="240">
           <template #default="scope">
-            <el-tag
-              v-for="role in scope.row.sysRole"
-              style="margin-right: 2px; margin-bottom: 2px"
-            >
-              {{ role.roleName }}
-            </el-tag>
+            <div v-for="(role, index) in scope.row.roleList" :key="index" style="display: inline;">
+              <el-tag  style="margin-right: 2px; margin-bottom: 2px">
+                {{ role.roleName }}
+              </el-tag>
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="status" label="账号状态" width="100">
           <template #default="scope">
-            <el-tag v-if="scope.row.status === 1" class="ml-2" type="success">{{
+            <el-tag v-if="scope.row.status === '1'" class="ml-2" type="success">{{
               userStatus(scope.row.status)
             }}</el-tag>
-            <el-tag v-else class="ml-2" type="error">{{
+            <el-tag v-else class="ml-2" type="warning">{{
               userStatus(scope.row.status)
             }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="updateTime" label="最近登录" />
         <el-table-column prop="createTime" label="创建日期" width="162" />
+        <el-table-column prop="updateTime" label="最近登录" />
+
         <el-table-column fixed="right" label="操作" width="100">
           <template #default="scope">
             <el-button
@@ -90,7 +90,7 @@
                 userDate.data.headImg === null ||
                 userDate.data.headImg === undefined ||
                 userDate.data.headImg === ''
-                  ? []
+                  ? ['http://123.207.202.131:9000/blog/1/other/img/2025-04-26_22:17:02_c9a149_5.png']
                   : [userDate.data.headImg]
               "
               :num="1"
@@ -134,8 +134,8 @@
         </el-form-item>
         <el-form-item label="账号状态：" label-width="100">
           <el-select v-model="userDate.data.status">
+            <el-option label="禁用" :value="0" key="0" />
             <el-option label="正常" :value="1" key="1" />
-            <el-option label="禁用" :value="2" key="2" />
           </el-select>
         </el-form-item>
         <el-form-item label="最近登录" label-width="100">
@@ -272,9 +272,12 @@ function userFn(): any {
    * 上传用户头像回调方法
    */
   const userHeadUpload = (upload: any) => {
-    console.log("-----++-")
-    console.log(upload)
-    userDate.data.headImg = upload[0];
+    if(upload !== null && upload !== undefined) {
+      console.log('---')
+      console.log(upload.fileUrl)
+      console.log(userDate.data)
+      userDate.data.headImg = upload.fileUrl;
+    }
   };
 
   /**

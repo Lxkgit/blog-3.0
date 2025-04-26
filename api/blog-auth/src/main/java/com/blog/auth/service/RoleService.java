@@ -56,4 +56,10 @@ public interface RoleService {
      * @return
      */
     Map<String, List<Integer>> selectRolePermission(RoleVo roleVo);
+
+    /**
+     * 更新角色权限
+     * @param roleVo
+     */
+    void updateRolePermission(RoleVo roleVo);
 }

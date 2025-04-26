@@ -91,10 +91,6 @@
                   size="small"
                   text
                 >
-                <!-- @click="
-                    deleteBtnPopoverById = true
-                    selectRow = scope.$index
-                  " -->
                   <MyIcon type="icon-delete" />
                 </el-button>
               </template>

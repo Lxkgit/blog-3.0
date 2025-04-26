@@ -34,9 +34,30 @@ public class User {
     private String nickname;
 
     /**
+     * 用户头像
+     */
+    private String headImg;
+
+    /**
+     * 邮箱地址
+     */
+    private String email;
+
+    /**
+     * 状态（1有效,0无效）
+     */
+    private String status;
+
+    /**
      * 创建日期
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    /**
+     * 最近修改时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
 
 }

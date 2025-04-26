@@ -18,7 +18,7 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @param userId 用户id
      * @return 角色权限列表
      */
-    List<Role> selectUserRole(@Param("userId") Integer userId);
+    List<Role> selectUserRoles(@Param("userId") Integer userId);
 
     /**
      * 删除角色关联的用户
@@ -34,5 +34,5 @@ public interface RoleMapper extends BaseMapper<Role> {
      */
     void deleteRoleMenu(@Param("roleId") Integer roleId);
 
-
+    void insertRoleMenus(@Param("roleId") Integer roleId, @Param("menuIds") List<Integer> menuIds);
 }

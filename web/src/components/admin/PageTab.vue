@@ -12,7 +12,7 @@
           ">
           <MyIcon type="icon-home3" @click="router.push('/')" />
         </span>
-        <router-link v-for="(item, index) in store.tags" :key="index" ref="tag" tag="span" class="tags_view_item"
+        <router-link v-for="(item, index) in store.tags" :key="index" ref="tag" class="tags_view_item"
           :class="{ active: item.active }" :to="item.path" @contextmenu.prevent="openMenu(item.path, index, $event)">
           {{ item.title }}
           <!--这里加prevent.stop是为了避免跳转路由-->

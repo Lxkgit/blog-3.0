@@ -158,7 +158,7 @@ public class FileServiceImpl implements FileService {
     public String authFile(String path) throws ServiceException {
         String old = path.substring("http://123.207.202.131/files/blog/".length());
         String newUrl = minioService.authFile(old, 60);
-        log.info("newUrl:{}", newUrl);
+//        log.info("newUrl:{}", newUrl);
         // 手动添加 Nginx 路径前缀
 //        return newUrl.replace("http://123.207.202.131:9000/", "http://123.207.202.131/files/");
         return newUrl;

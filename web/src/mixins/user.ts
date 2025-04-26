@@ -7,11 +7,11 @@ export default function () {
   const userStatus = (type: any) => {
     let val = ''
     switch (type) {
-      case 1:
-        val = '正常'
-        break
-      case 2:
+      case "0":
         val = '禁用'
+        break
+      case '1':
+        val = '正常'
         break
       default:
         val = ''

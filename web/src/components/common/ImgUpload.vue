@@ -126,7 +126,7 @@ function imgUpload() {
   const changeUpload = (file: any, fileLists: any) => {
     if (props.cropper == 0) {
       const data = new FormData()
-      data.append('files', file.raw)
+      data.append('file', file.raw)
       data.append('fileTypeCode', props.fileTypeCode)
       data.append('filePathCode', props.filePathCode)
       uploadApi(data).then((res: any) => {
@@ -219,7 +219,7 @@ function cropper() {
       for (let i = 0; i < fileNameArr.length - 1; i++) {
         fileName = fileName + fileNameArr[i]
       }
-      data.append('files', blobToFile(blob, fileName + '.' + option.outputType))
+      data.append('file', blobToFile(blob, fileName + '.' + option.outputType))
       data.append('fileTypeCode', props.fileTypeCode)
       data.append('filePathCode', props.filePathCode)
       uploadApi(data).then((res: any) => {
@@ -262,18 +262,16 @@ function cropper() {
   border: 0 !important;
   outline: none;
 }
-</style>
 
-<style scoped lang="scss">
 /*侧边栏设置的相关设置*/
 .tool-img-item {
   display: flex;
   flex-direction: column;
+}
 
-  h4 {
-    font-size: 15px;
-    font-weight: 800;
-    margin: 5px 0;
-  }
+.tool-img-item h4 {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 5px 0;
 }
 </style>

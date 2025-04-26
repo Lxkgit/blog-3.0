@@ -96,16 +96,23 @@ export const tagsStore = defineStore('tag', () => {
         }
 
     }
-}, {
-    persist: {
-        storage: sessionStorage
-        // enabled: true,
-        // strategies: [
-        //     {
-        //         key: 'tags',
-        //         storage: sessionStorage,
-        //         paths: ['tags']
-        //     }
-        // ]
+
+    return {
+      tags,
+      sideBar,
+      selectedTag,
+
+      addTag,
+      delTag,
+      delTagByPath,
+      activeTag,
+      delAllTags,
+      delOtherTags,
+      saveTags,
+      restoreTags
     }
+}, {
+  persist:  {
+    storage: localStorage
+  }
 })

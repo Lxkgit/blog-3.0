@@ -46,7 +46,7 @@ public class MenuServiceImpl implements MenuService {
     public List<MenuVo> selectMenuListByUser(MenuVo menuVo) {
         Integer userId = SecurityUtil.getLoginUser().getId();
         // 查询用户对应角色
-        List<Role> roleList = roleMapper.selectUserRole(userId);
+        List<Role> roleList = roleMapper.selectUserRoles(userId);
 
         // 查询角色的全部菜单
         List<Menu> menuList = menuMapper.selectRoleMenuByRoleIds(roleList.stream().map(Role::getId).toList(), menuVo.getMenuType());

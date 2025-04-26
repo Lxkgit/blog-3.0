@@ -301,7 +301,7 @@ function roleFn(): any {
     } else {
       updateRolePerApi({
         id: roleId.value,
-        perIds: rolePer.value,
+        menuIds: rolePer.value,
       }).then((res: any) => {
         if (res.code === 200) {
           ElMessage({
@@ -369,7 +369,7 @@ function roleFn(): any {
    * 获取当前用户拥有权限的菜单
    */
   const selectRolePerListFun = (roleId: any, menuType: any) => {
-    selectRolePerListApi(roleId, menuType).then((res: any) => {
+    selectRolePerListApi(roleId).then((res: any) => {
       if (res.code === 200) {
         roleMenu.value = res.result.perIds;
         rolePer.value = res.result.perIds;

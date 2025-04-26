@@ -15,4 +15,5 @@ public interface UserService {
     UserVo selectUserByUsername(String username);
     void updateUser(UserVo userVo, Integer perFlag);
     MyPage<UserVo> selectUserByPage(UserVo userVo);
+    void updateUserPermission(UserVo userVo);
 }

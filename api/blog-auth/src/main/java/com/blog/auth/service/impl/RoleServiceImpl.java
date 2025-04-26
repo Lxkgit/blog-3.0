@@ -11,7 +11,9 @@ import com.blog.core.result.MyPage;
 import com.blog.core.result.MyPageUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -44,8 +46,7 @@ public class RoleServiceImpl implements RoleService {
         LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<>();
         PageHelper.startPage(role.getPageNum(), role.getPageSize());
         List<Role> roles = roleMapper.selectList(queryWrapper);
-        Long count  = roleMapper.selectCount(queryWrapper);
-        return MyPageUtils.pageUtil(roles, role.getPageNum(), role.getPageSize(), count);
+        return MyPageUtils.pageUtil(roles, role.getPageNum(), role.getPageSize(), new PageInfo<>(roles).getTotal());
     }
 
     @Override
@@ -77,5 +78,13 @@ public class RoleServiceImpl implements RoleService {
         Map<String, List<Integer>> resultMap = new HashMap<>();
         resultMap.put("perIds", menuList.stream().map(Menu::getId).toList());
         return resultMap;
+    }
+
+    @Override
+    public void updateRolePermission(RoleVo roleVo) {
+        roleMapper.deleteRoleMenu(roleVo.getId());
+        if (CollectionUtils.isNotEmpty(roleVo.getMenuIds())) {
+            roleMapper.insertRoleMenus(roleVo.getId(), roleVo.getMenuIds());
+        }
     }
 }

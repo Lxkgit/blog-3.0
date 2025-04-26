@@ -4,7 +4,7 @@
 
 
     <!--为用户分配角色-->
-    <insert id="addUserRole">
+    <insert id="insertUserRoles">
         INSERT INTO `sys_user_role` (`role_id`, `user_id`)
         VALUES
         <foreach collection="roleIds" item="item" index="index" separator=",">
@@ -23,5 +23,6 @@
         SELECT role_id from sys_user_role
         WHERE user_id=#{userId}
     </select>
+
 
 </mapper>

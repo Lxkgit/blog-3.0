@@ -1,6 +1,7 @@
 package com.blog.core.domain.auth.vo;
 
 import com.blog.core.domain.auth.entity.Menu;
+import com.blog.core.domain.auth.entity.Role;
 import com.blog.core.domain.auth.entity.User;
 import com.blog.core.valication.group.SelectListGroup;
 import jakarta.validation.constraints.Max;
@@ -15,7 +16,13 @@ import java.util.List;
 @Setter
 public class UserVo extends User {
 
-    private List<Menu> menu;
+
+    private List<Integer> roleIds;
+
+    /**
+     * 用户角色信息
+     */
+    private List<Role> roleList;
 
     /**
      * 页大小

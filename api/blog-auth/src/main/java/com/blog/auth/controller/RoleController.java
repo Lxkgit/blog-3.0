@@ -93,7 +93,7 @@ public class RoleController {
     @PostMapping("/permission/update")
     @PreAuthorize("hasAnyAuthority('sys:role:permission:update')")
     public Result updateRolePermission(@RequestBody RoleVo roleVo) {
-
+        roleService.updateRolePermission(roleVo);
         return ResultFactory.buildSuccessResult();
 
     }

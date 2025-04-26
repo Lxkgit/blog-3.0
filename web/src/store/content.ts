@@ -1,21 +1,28 @@
 import { defineStore } from "pinia";
 
 
-export const contentStore = defineStore('content', {
-    state: () => ({
-        article: {},
-        docContent: {}
-    }),
-    actions: {
-       setArticle(article: any) {
-            this.article = article
-       },
-       setDocContent(docContent: any) {
-            this.docContent = docContent
-       }
-    },
-    persist: {
-        enabled: true,
-        storage: localStorage
-    }
+export const contentStore = defineStore('content', () => {
+
+  let  article = {}
+  let docContent = {}
+
+  function setArticle(article: any) {
+    this.article = article
+  }
+
+  function setDocContent(docContent: any) {
+    this.docContent = docContent
+  }
+
+  return {
+    article,
+    docContent,
+
+    setArticle,
+    setDocContent
+  }
+},{
+  persist:  {
+    storage: localStorage
+  }
 })

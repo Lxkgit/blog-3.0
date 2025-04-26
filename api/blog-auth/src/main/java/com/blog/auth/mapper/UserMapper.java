@@ -23,8 +23,7 @@ public interface UserMapper extends BaseMapper<User> {
      *
      * @return
      */
-    Integer addUserRole(@Param("userId") Integer userId,
-                        @Param("roleIds") List<Integer> roleIds);
+    Integer insertUserRoles(@Param("userId") Integer userId, @Param("roleIds") List<Integer> roleIds);
 
     /**
      * 查看用户对应的角色id

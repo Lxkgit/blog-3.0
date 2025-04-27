@@ -174,10 +174,20 @@ export const systemStore = defineStore('system', () => {
   }
 
 }, {
-  // persist: true,
-  persist:  {
-    storage: localStorage
-  }
+  persist: [
+    {
+      storage: sessionStorage,
+      pick: ['userSession.access_token', 'userSession.rz_id']
+    },
+    {
+      storage: localStorage,
+      pick: ['userLocal']
+    }
+  ]
+  // persist: true
+  // persist:  {
+  //   storage: localStorage
+  // }
 
   // persist:  [
   //   {

@@ -106,7 +106,7 @@ import timeFormat from "@/utils/timeFormat";
 import icon from "@/utils/icon";
 import color from "@/utils/color";
 import user from "@/utils/user";
-import { systemStore } from "@/store/system";
+import { systemStore } from "@/store/system.ts";
 import { getArticleByIdApi } from "@/api/content"
 
 const store = systemStore()

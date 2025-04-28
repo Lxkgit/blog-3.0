@@ -80,7 +80,7 @@ import { onMounted, reactive, ref, onBeforeUnmount } from "vue";
 import { onBeforeRouteUpdate, useRouter } from "vue-router";
 import timeFormat from "@/utils/timeFormat";
 import icon from "@/utils/icon";
-import { systemStore } from "@/store/system";
+import { systemStore } from "@/store/system.ts";
 import user from "@/utils/user";
 import { getDocCatalogTreeApi, getDocCatalogByIdApi, getDocContentByIdApi } from "@/api/content";
 

@@ -48,7 +48,6 @@ watch(() => router, (newValue) => {
 // })
 
 onMounted(() => {
-  store.isDark = false
   refreshTokenFun()
   const is_dark = window.matchMedia('(prefers-color-scheme: dark)').matches
   if (is_dark) {

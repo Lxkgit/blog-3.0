@@ -1,15 +1,16 @@
 import { defineStore } from "pinia";
+import { ref } from 'vue'
 
 export const systemStore = defineStore('system', () => {
 
   // markdown目录(sessionStorage)
-  let outline = {}
+  let outline = ref({})
 
   // markdown目录是否显示
-  let outlineShow = true
+  let outlineShow = ref(true)
 
   // 登录后跳转页
-  let nextPath = '/admin'
+  let nextPath = ref('/admin')
 
   // 是否保持登录
   let keepLogin: false
@@ -21,46 +22,46 @@ export const systemStore = defineStore('system', () => {
       password: ""
   }
 
-  let userInfo = {}
+  let userInfo = ref({})
 
   // 临时登录用户信息(sessionStorage)
-  let userSession = {
+  let userSession = ref({
       rz_id: "",
       user_id: "",
       access_token: ""
-  }
+  })
 
   // 个人中心导航栏是否折叠
-  let asideMenuFold = false
+  let asideMenuFold = ref(false)
 
   // 默认主题色
-  let theme = '#409eff'
+  let theme = ref('#409eff')
 
   // 导航栏样式
-  let navigation = 'auto'
+  let navigation = ref('auto')
 
   // 当前激活的导航栏菜单id
-  let menuIndex = "1"
+  let menuIndex = ref("1")
 
   // 是否开启深色模式
-  let isDark = false
+  let isDark = ref(false)
 
   // 用户是否登录
-  let isLogin = false
+  let isLogin = ref(false)
 
-  let sideBar = false
+  let sideBar = ref(false)
 
   // 是否获取过socket信息
-  let socketFlag = false
+  let socketFlag = ref(false)
 
   // 全局socket
-  let globalSocket = false
+  let globalSocket = ref(false)
 
   // 用户socket
-  let userSocket = false
+  let userSocket = ref(false)
 
   // 服务器IP
-  let serviceIP =  ""
+  let serviceIP =  ref("")
 
   // 设置markdown目录内容
   function setOutline(value: any) {
@@ -172,38 +173,15 @@ export const systemStore = defineStore('system', () => {
     setUserSocket,
     setServiceIP
   }
-
 }, {
   persist: [
     {
       storage: sessionStorage,
-      pick: ['userSession.access_token', 'userSession.rz_id']
+      pick: ['userSession', 'isLogin']
     },
     {
       storage: localStorage,
       pick: ['userLocal']
     }
   ]
-  // persist: true
-  // persist:  {
-  //   storage: localStorage
-  // }
-
-  // persist:  [
-  //   {
-  //     pick: ['userLocal'],
-  //     storage: localStorage,
-  //     key: 'userLocal'
-  //   },
-  //   {
-  //     pick: ['userSession'],
-  //     storage: sessionStorage,
-  //     key: 'userSession'
-  //   },
-  //   {
-  //     pick: ['userInfo'],
-  //     storage: sessionStorage,
-  //     key: 'userInfo'
-  //   }
-  // ]
 })

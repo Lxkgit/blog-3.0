@@ -28,7 +28,7 @@ import MyMenu from "@/components/admin/MyMenu.vue"
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import icon from "@/utils/icon";
-import { systemStore } from "@/store/system";
+import { systemStore } from "@/store/system.ts";
 import { userMenuApi } from "@/api/auth"
 
 let adminMenus: any = reactive({ data: [] })

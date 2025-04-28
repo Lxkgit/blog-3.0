@@ -61,9 +61,10 @@ import Aside from '@/components/home/Aside.vue'
 
 import { computed, onActivated, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { getArticleListApi } from '@/api/content'
-import { systemStore } from '@/store/system'
+import { systemStore } from '@/store/system.ts'
 
 const store = systemStore()
+
 //轮播图
 const carouselList: any = ref([])
 

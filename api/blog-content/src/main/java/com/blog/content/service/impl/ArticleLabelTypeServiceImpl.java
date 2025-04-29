@@ -12,6 +12,7 @@ import com.blog.core.domain.content.article.vo.ArticleLabelTypeVo;
 import com.blog.core.domain.content.article.vo.ArticleLabelVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
+import com.blog.core.utils.SecurityUtil;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
     @Override
     public Integer saveArticleLabelType(ArticleLabelTypeVo articleLabelTypeVo) {
         articleLabelTypeVo.setId(null);
+        articleLabelTypeVo.setUserId(SecurityUtil.getLoginUser().getId());
         articleLabelTypeVo.setLabelNum(0);
         articleLabelTypeVo.setCreateTime(new Date());
         articleLabelTypeVo.setUpdateTime(new Date());

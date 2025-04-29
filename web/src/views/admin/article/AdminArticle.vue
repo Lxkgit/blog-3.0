@@ -80,18 +80,11 @@
               <p>删除所选文章？</p>
               <div style="text-align: right; margin: 0">
                 <el-button size="small" text @click="deleteBtnPopoverById = false">取消</el-button>
-                <el-button size="small" type="primary" @click="deleteArticle(scope.row.id)"
-                  >删除</el-button
-                >
+                <el-button size="small" type="primary" @click="deleteArticle(scope.row.id)">删除</el-button>
               </div>
               <template #reference>
-                <el-button
-                  style="margin: 0; padding: 8px"
-
-                  size="small"
-                  text
-                >
-                  <MyIcon type="icon-delete" />
+                <el-button style="margin: 0; padding: 8px" size="small" text>
+                  <MyIcon type="icon-delete" @click="deleteBtnPopoverById = true"/>
                 </el-button>
               </template>
             </el-popover>

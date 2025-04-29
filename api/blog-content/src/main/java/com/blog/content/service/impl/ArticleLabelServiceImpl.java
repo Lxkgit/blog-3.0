@@ -10,6 +10,7 @@ import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.domain.content.article.vo.ArticleLabelVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
+import com.blog.core.utils.SecurityUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +48,7 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveArticleLabel(ArticleLabelVo articleLabelVo) throws ServiceException {
         articleLabelVo.setId(null);
+        articleLabelVo.setUserId(SecurityUtil.getLoginUser().getId());
         articleLabelVo.setArticleNum(0);
         articleLabelVo.setCreateTime(new Date());
         articleLabelVo.setUpdateTime(new Date());

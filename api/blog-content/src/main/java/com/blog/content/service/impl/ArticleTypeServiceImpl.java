@@ -11,6 +11,7 @@ import com.blog.core.domain.content.article.entity.ArticleType;
 import com.blog.core.domain.content.article.vo.ArticleTypeVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
+import com.blog.core.utils.SecurityUtil;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ public class ArticleTypeServiceImpl implements ArticleTypeService {
     public Integer saveArticleType(ArticleTypeVo articleTypeVo) {
         articleTypeVo.setId(null);
         articleTypeVo.setNum(0);
+        articleTypeVo.setCreateUser(SecurityUtil.getLoginUser().getId());
         articleTypeVo.setCreateTime(new Date());
         articleTypeVo.setUpdateTime(new Date());
         articleTypeMapper.insert(articleTypeVo);

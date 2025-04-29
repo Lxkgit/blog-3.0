@@ -9,8 +9,10 @@ import com.blog.auth.service.MenuService;
 import com.blog.core.domain.auth.entity.Menu;
 import com.blog.core.domain.auth.entity.Role;
 import com.blog.core.domain.auth.vo.MenuVo;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.SecurityUtil;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -43,16 +45,22 @@ public class MenuServiceImpl implements MenuService {
      * @return 返回用户菜单树结构
      */
     @Override
-    public List<MenuVo> selectMenuListByUser(MenuVo menuVo) {
+    public List<MenuVo> selectMenuListByUser(MenuVo menuVo) throws ServiceException {
         Integer userId = SecurityUtil.getLoginUser().getId();
         // 查询用户对应角色
         List<Role> roleList = roleMapper.selectUserRoles(userId);
 
-        // 查询角色的全部菜单
-        List<Menu> menuList = menuMapper.selectRoleMenuByRoleIds(roleList.stream().map(Role::getId).toList(), menuVo.getMenuType());
-        List<MenuVo> menuVoList = BeanUtil.copyToList(menuList, MenuVo.class);
+        List<Integer> roleIdList = roleList.stream().map(Role::getId).toList();
+        if (CollectionUtils.isNotEmpty(roleIdList)) {
+            // 查询角色的全部菜单
+            List<Menu> menuList = menuMapper.selectRoleMenuByRoleIds(roleIdList, menuVo.getMenuType());
+            List<MenuVo> menuVoList = BeanUtil.copyToList(menuList, MenuVo.class);
 
-        return setMenuTree(menuVoList);
+            return setMenuTree(menuVoList);
+        } else {
+            throw new ServiceException("角色无菜单权限");
+        }
+
     }
 
     /**

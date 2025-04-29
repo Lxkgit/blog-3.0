@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, watch } from 'vue'
 import { ElImageViewer, ElMessage } from 'element-plus'
 import { VueCropper } from 'vue-cropper'
 import 'vue-cropper/dist/index.css'
@@ -99,9 +99,11 @@ onMounted(() => {
       fileList.data = []
     } else {
       fileList.data = []
+      console.log(props.imgList)
       for (let i = 0; i < props.imgList.length; i++) {
         fileList.data.push({ url: props.imgList[i] })
       }
+      console.log(fileList.data)
     }
   }
   if (props.cropper === 1) {
@@ -119,6 +121,20 @@ onMounted(() => {
     }
   }
 })
+
+watch(() => props.imgList, (newVal) => {
+  if (newVal !== null && newVal !== undefined) {
+    if (newVal.length === 0) {
+      fileList.data = []
+    } else {
+      fileList.data = []
+      for (let i = 0; i < newVal.length; i++) {
+        fileList.data.push({ url: newVal[i] })
+      }
+    }
+  }
+});
+
 
 function imgUpload() {
   const handleRemove = (file: any) => { }
@@ -234,6 +250,7 @@ function cropper() {
           fileList.data = fileList.data.filter(function (item: any) {
             return item.status !== 'ready'
           })
+          console.log("图片上传成功 ... ")
           emit('upload', res.result)
         }
       })

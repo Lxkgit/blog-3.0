@@ -12,13 +12,8 @@
           <el-input v-model="article.data.contentMemo" maxlength="300" placeholder="请输入文章描述" show-word-limit type="textarea" />
         </el-form-item>
         <el-form-item label="文章封面">
-          <ImgUpload @upload="imgUpload" :imgList="
-              article.data.contentImg === null ||
-              article.data.contentImg === undefined ||
-              article.data.contentImg === ''
-                ? []
-                : [article.data.contentImg]
-            " :num="1" fileTypeCode="1" filePathCode="1" :cropper="1" :autoCropWidth="270" :autoCropHeight="180" />
+          <ImgUpload @upload="imgUpload" :imgList="article.data.contentImg === null || article.data.contentImg === undefined || article.data.contentImg === '' ? [] : [article.data.contentImg]"
+                :num="1" fileTypeCode="1" filePathCode="1" :cropper="1" :autoCropWidth="270" :autoCropHeight="180" />
         </el-form-item>
         <el-form-item label="文章类型">
           <el-tree-select style="font-size: 18px; width: 200px" v-model="type" :data="typeList" :check-strictly="true" @change="selectType" />
@@ -195,7 +190,8 @@ function articleFn() {
 
   // 文章封面上传
   const imgUpload = (upload: any) => {
-    article.data.contentImg = upload[0];
+    console.log("图片上传成功回调 ... ")
+    article.data.contentImg = upload.fileUrl;
   };
 
   // 保存文章方法
@@ -257,7 +253,6 @@ function articleFn() {
 
   // 定时保存文章方法
   const updateArticleFun = () => {
-    console.log('自动保存 ... ');
     if (saveFlag === true) {
       saveFlag = false;
       let labelId = '';

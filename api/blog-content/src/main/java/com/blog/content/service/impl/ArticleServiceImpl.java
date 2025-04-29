@@ -77,6 +77,7 @@ public class ArticleServiceImpl implements ArticleService {
         // 初始化对象，防止页面携带数据
         articleVo.setId(null);
         articleVo.setUserId(userId);
+        articleVo.setUpdateTime(new Date());
         articleVo.setCreateTime(new Date());
         articleVo.setBrowseCount(0);
         articleVo.setLikeCount(0);

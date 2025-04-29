@@ -108,6 +108,7 @@ public class DiaryServiceImpl implements DiaryService {
      */
     @Override
     public Integer updateDiary(DiaryVo diaryVo) {
+        diaryVo.setUserId(SecurityUtil.getLoginUser().getId());
         diaryVo.setUpdateTime(new Date());
         diaryMapper.updateDiary(diaryVo);
         return diaryVo.getId();

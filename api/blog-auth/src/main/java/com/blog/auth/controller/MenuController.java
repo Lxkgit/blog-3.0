@@ -3,6 +3,7 @@ package com.blog.auth.controller;
 
 import com.blog.auth.service.MenuService;
 import com.blog.core.domain.auth.vo.MenuVo;
+import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import jakarta.annotation.Resource;
@@ -36,7 +37,7 @@ public class MenuController {
      * @return
      */
     @GetMapping("/list/user")
-    public Result getSysMenuList(MenuVo menuVo){
+    public Result getSysMenuList(MenuVo menuVo) throws ServiceException {
         List<MenuVo> list = menuService.selectMenuListByUser(menuVo);
         return ResultFactory.buildSuccessResult(list);
     }

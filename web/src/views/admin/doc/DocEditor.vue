@@ -49,8 +49,8 @@ let { getNowTime } = data();
 let { docCatalog, docContent, getDocContentByIdFun, saveDocContentFun, saveArticleDialogFun, updateDocContentFun } = docFun()
 
 onMounted(() => {
-  if (cStore.getDocContent !== "null") {
-    docCatalog.data = cStore.getDocContent;
+  if (cStore.docContent !== "" && cStore.docContent !== null && cStore.docContent !== undefined) {
+    docCatalog.data = cStore.docContent;
     getDocContentByIdFun(docCatalog.data.id);
   }
 
@@ -150,11 +150,4 @@ function docFun() {
     updateDocContentFun
   }
 }
-
-
-
-
-
-
-
 </script>

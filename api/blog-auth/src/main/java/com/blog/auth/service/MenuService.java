@@ -5,6 +5,7 @@ package com.blog.auth.service;
 
 
 import com.blog.core.domain.auth.vo.MenuVo;
+import com.blog.core.exception.ServiceException;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
 
 public interface MenuService {
 
-    List<MenuVo> selectMenuListByUser(MenuVo menuVo);
+    List<MenuVo> selectMenuListByUser(MenuVo menuVo) throws ServiceException;
 
     List<MenuVo> selectAllMenu(MenuVo menuVo);
 }

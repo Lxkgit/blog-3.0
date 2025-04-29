@@ -16,7 +16,7 @@ import "@/assets/style/hover-min.css"
 const app = createApp(App)
 app.use(store)
 app.use(router)
-app.use(ElementPlus, { size: 'small', zIndex: 3000 })
+app.use(ElementPlus, { size: 'default', zIndex: 3000 })
 app.mount('#app')
 // 自定义指令-动态title
 app.directive('title', {

@@ -66,13 +66,13 @@ onMounted(() => {
 // 限制图片大小
 const changeUpload = (file: any, fileLists: any) => {
   const data = new FormData()
-  data.append('files', file.raw)
+  data.append('file', file.raw)
   data.append('fileTypeCode', "1")
   data.append('filePathCode', "2")
   uploadApi(data).then((res: any) => {
     if (res.code === 200) {
       ElMessage.success({ message: '图片上传成功', type: 'success' });
-      uploadImgList.data.push({ url: res.result[0] })
+      uploadImgList.data.push({ url: res.result.fileUrl })
       updateBlogSettingFun()
     }
   })

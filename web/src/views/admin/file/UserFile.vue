@@ -4,7 +4,7 @@
       <span>个人云盘</span>
     </div>
     <el-card style="margin: 18px 2%; width: 95%; color: #606266">
-      <div style="display: flex; font-size: 14px">
+      <div style="display: flex; font-size: 14px; justify-content: flex-start; align-items: flex-start;">
         <el-upload :auto-upload="false" multiple :show-file-list="false" :on-change="changeUpload">
           <el-button type="success" size="small" text>上传文件</el-button>
         </el-upload>
@@ -30,6 +30,9 @@
             </div>
           </div>
         </div>
+        <div style="margin-left: auto; margin-right: 20px;">
+          <el-switch v-model="switchFlag" class="mb-2" style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="列表" inactive-text="卡片"/>
+        </div>
       </div>
       <el-divider content-position="left">文件目录</el-divider>
       <div
@@ -40,12 +43,12 @@
           height: 630px;
           overflow: auto;
           margin: 10px;
-          height: calc(100vh - 330px);
+          height: calc(100vh - 335px);
         "
         @contextmenu.prevent="openMenu($event)"
       >
         <div style="display: flex">
-          <div v-if="true" style="width: 79vw" @contextmenu.prevent.stop="openMenu($event)">
+          <div v-if="switchFlag" style="width: 79vw" @contextmenu.prevent.stop="openMenu($event)">
             <!-- 表头 -->
             <ul class="table-header">
               <li
@@ -373,6 +376,7 @@ import { ElImageViewer } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
 let {
+  switchFlag,
   createFileFormRef,
   createFileRules,
   filePath,
@@ -422,6 +426,7 @@ function fileFn(): any {
   // 创建目录表单
   const createFileFormRef: any = ref(null)
 
+  let switchFlag = ref(true)
   let filePath: any = ref('/user')
   let filePathArr = ref(['/user'])
   let dirList: any = reactive({ data: [] })
@@ -622,7 +627,7 @@ function fileFn(): any {
 
   /**
    * 打开文件
-   * @param file 文件 
+   * @param file 文件
    */
   const openFileFun = (file: any) => {
     if(fileTypeEnum(file.fileType).key === 1) {
@@ -690,6 +695,7 @@ function fileFn(): any {
   }
 
   return {
+    switchFlag,
     createFileFormRef,
     createFileRules,
     filePath,

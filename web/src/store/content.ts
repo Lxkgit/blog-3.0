@@ -1,28 +1,33 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia'
 
+export const contentStore = defineStore(
+  'content',
+  () => {
+    let article = {}
+    let docContent = {}
 
-export const contentStore = defineStore('content', () => {
+    function setArticle(article: any) {
+      this.article = article
+    }
 
-  let  article = {}
-  let docContent = {}
+    function setDocContent(docContent: any) {
+      this.docContent = docContent
+    }
 
-  function setArticle(article: any) {
-    this.article = article
-  }
+    return {
+      article,
+      docContent,
 
-  function setDocContent(docContent: any) {
-    this.docContent = docContent
-  }
-
-  return {
-    article,
-    docContent,
-
-    setArticle,
-    setDocContent
-  }
-},{
-  persist:  {
-    storage: localStorage
-  }
-})
+      setArticle,
+      setDocContent,
+    }
+  },
+  {
+    persist: [
+      {
+        storage: sessionStorage,
+        pick: ['article', 'docContent'],
+      },
+    ],
+  },
+)

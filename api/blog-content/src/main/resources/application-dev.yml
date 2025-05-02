@@ -1,26 +1,35 @@
 server:
-  port: 60002
+  port: 60003
   servlet:
     context-path: /content
 
+jasypt:
+  encryptor:
+    password: gszero
+
 spring:
   application:
-    name: content
-  redis:
-    database: 0
-    host: ${devServiceIp}
-    port: 6379
-    password: redis-960
-    jedis:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
+    name: blog-content
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${devServiceIp}:3306/blog_content?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://${devServiceIp}:3306/blog_content?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
     username: root
-    password: root
+    password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)
+  data:
+    redis:
+      database: 0
+      host: ${devServiceIp}
+      port: 6379
+      password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          #访问授权服务器 在OIDC中是一个非常重要的标识符，有助于标识身份提供者和验证ID Token
+          issuer-uri: http://auth-server:60002/auth
 
 rocketmq:
   name-server: ${devServiceIp}:9876 # 访问地址
@@ -36,13 +45,25 @@ rocketmq:
     topics: BLOG_USER_DATA~*;BLOG_SYSTEM_DATA~*;
     consumeThreadMin: 20
     consumeThreadMax: 64
+    #设置一次消费消息的条数，默认为1条
+    consumeMessageBatchMaxSize: 1
 
-mybatis:
-  mapper-locations: classpath:/mapper/*.xml
+easy-es:
+  enable: true
+  address : ${devServiceIp}:9200
+  schema: http
+  username: elastic
+  password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
 
-security:
-  oauth2:
-    resource:
-      id: blog-content
-      user-info-uri: http://${devServiceIp}:60001/auth/user-me
-      prefer-token-info: false
+xxl:
+  job:
+    admin:
+      addresses: http://${devServiceIp}:8080/xxl-job-admin
+    accessToken: default_token
+    executor:
+      appname: ${spring.application.name}
+      address:
+      ip:
+      port: 60023
+      logpath: /opt/docker/xxlJob/logs
+      logretentiondays: 10

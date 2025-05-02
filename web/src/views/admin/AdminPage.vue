@@ -20,7 +20,7 @@ import AdminMenu from "@/components/admin/AdminMenu.vue";
 import AsideMenu from "@/components/admin/AsideMenu.vue";
 import PageTab from "@/components/admin/PageTab.vue"
 import { computed } from "vue";
-import { systemStore } from "@/store/system.ts";
+import { systemStore } from "@/store/system";
 const store = systemStore()
 // 个人中心导航栏是否折叠
 const isCollapse = computed(() => store.asideMenuFold)

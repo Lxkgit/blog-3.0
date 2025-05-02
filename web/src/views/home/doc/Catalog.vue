@@ -18,7 +18,7 @@ import Footer from "@/components/home/Footer.vue"
 import BackTop from "@/components/home/BackTop.vue"
 import { onBeforeRouteUpdate, useRouter } from "vue-router";
 import { onActivated, onMounted, ref } from "vue";
-import { systemStore } from "@/store/system.ts";
+import { systemStore } from "@/store/system";
 // import {getCatalogueList, getNoteDetail} from "@/api/blog";
 
 const store = systemStore()

@@ -58,7 +58,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="selfPage">个人中心</el-dropdown-item>
-                <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
+                <el-dropdown-item @click="userLogoutFun">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -131,7 +131,7 @@ import { storeToRefs } from 'pinia';
 const store = systemStore();
 const tagStore = tagsStore();
 
-const { activeTag } = storeToRefs(tagStore)
+// const { activeTag } = storeToRefs(tagStore)
 const { isDark, setDark } = dark();
 const { setTheme } = theme();
 let { navigationList, setNavigation, navigationType } = navigation();
@@ -139,7 +139,7 @@ const router = useRouter();
 
 let { MyIcon } = icon();
 // 引入用户信息模块
-let { isLogin, userName, logout } = user();
+let { isLogin, userName, userLogoutFun } = user();
 const { themeList } = color();
 const props = defineProps({
   // 导航栏类型(前台后台)

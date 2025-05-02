@@ -30,7 +30,7 @@
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
+                <el-dropdown-item @click="userLogoutFun">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -46,8 +46,7 @@
               <img :class="isDark === true ? '' : 'img-active'" src="~@/assets/images/light.png" alt="">
               <img :class="isDark === false ? '' : 'img-active'" src="~@/assets/images/dark.png" alt="">
             </span>
-            <el-switch style="display: block" v-model="isDarkSwitch" active-color="#303133" inactive-color="#f5f7fa"
-              active-text="深色模式" inactive-text="浅色模式" @change="setDarkMode" />
+            <el-switch v-model="isDarkSwitch" style="display: block" active-color="#303133" inactive-color="#f5f7fa" active-text="深色模式" inactive-text="浅色模式" @change="setDarkMode" />
           </div>
           <el-divider></el-divider>
           <div class="color">
@@ -103,7 +102,7 @@ const router = useRouter()
 
 let { MyIcon } = icon()
 // 引入用户信息模块
-let { isLogin, userName, logout } = user();
+let { isLogin, userName, userLogoutFun } = user();
 let { themeList } = color()
 const props = defineProps({
   // 导航栏类型(前台后台)
@@ -161,17 +160,15 @@ const navValue = ref('')
 
 // 设置-导航菜单样式切换事件
 const navChange = (value: any) => {
-  console.log(value)
   setNavigation(value)
 }
 onMounted(() => {
   isLogin.value = store.isLogin
-  userName = store.userInfo.name
   asideMenuFold.value = store.asideMenuFold
   if (isLogin.value === true) {
     getPhotoData()
   } else {
-    // router.push({ path: '/' })
+
   }
   colorValue.value = store.theme
   navValue.value = store.navigation

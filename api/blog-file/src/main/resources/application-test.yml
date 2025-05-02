@@ -1,4 +1,3 @@
-devServiceIp: 123.207.202.131
 server:
   port: 60004
   servlet:

@@ -10,7 +10,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     Action: typeof import('./src/components/home/doc/Action.vue')['default']
     AdminMenu: typeof import('./src/components/admin/AdminMenu.vue')['default']
-    AdminRole: typeof import('./src/components/admin/auth/AdminRole.vue')['default']
     ArticleItem: typeof import('./src/components/home/ArticleItem.vue')['default']
     ArticleType: typeof import('./src/components/home/article/ArticleType.vue')['default']
     Aside: typeof import('./src/components/home/Aside.vue')['default']
@@ -77,7 +76,6 @@ declare module 'vue' {
     Footer: typeof import('./src/components/home/Footer.vue')['default']
     ImgUpload: typeof import('./src/components/common/ImgUpload.vue')['default']
     Loading: typeof import('./src/components/common/Loading.vue')['default']
-    Login: typeof import('./src/components/login/index.vue')['default']
     MarkDown: typeof import('./src/components/common/MarkDown.vue')['default']
     MarkDownEditor: typeof import('./src/components/common/MarkDownEditor.vue')['default']
     MyMenu: typeof import('./src/components/admin/MyMenu.vue')['default']

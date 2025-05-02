@@ -23,7 +23,9 @@ export const systemStore = defineStore(
       password: '',
     })
 
-    let userInfo = ref({})
+    let userInfo = ref({
+      name: ''
+    })
 
     // 临时登录用户信息(sessionStorage)
     let userSession = ref({

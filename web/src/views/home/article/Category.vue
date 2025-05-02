@@ -45,7 +45,7 @@ import BackTop from "@/components/home/BackTop.vue";
 import ArticleType from "@/components/home/article/ArticleType.vue";
 import { onActivated, onMounted, reactive, ref } from "vue";
 import { onBeforeRouteUpdate, useRouter } from "vue-router";
-import { systemStore } from "@/store/system.ts";
+import { systemStore } from "@/store/system";
 import { getArticleListApi, getArticleTypeByIdApi } from "@/api/content";
 
 const store = systemStore();

@@ -8,9 +8,9 @@ function user() {
   // let { openSocketUser, closeWebSocketUser } = socketUser()
   const store = systemStore()
   let isLogin = ref(false)
-  const userId = ref()
-  const userToken = ref()
-  const userName = ref()
+  let userId = ref()
+  let userToken = ref()
+  let userName = ref()
   const router = useRouter()
 
   onActivated(() => {})
@@ -40,36 +40,6 @@ function user() {
       })
   }
 
-  const refreshTokenFun = () => {
-    console.log("refreshToken ... ")
-    console.log(isLogin.value)
-    if (!isLogin.value) {
-      if (store.userLocal.refresh_token !== null && store.userLocal.refresh_token !== undefined && store.userLocal.refresh_token !== '') {
-        console.log("refreshToken ... ")
-        userTokenApi({
-          // 客户端id
-          clientId: 'dianshang',
-          // 客户端密码
-          clientSecret: '123456',
-          // 授权码获取token
-          grantType: 'refresh_token',
-          username: store.userLocal.username,
-          password: store.userLocal.password,
-          refreshToken: store.userLocal.refresh_token,
-        }).then((res: any) => {
-          //把token放入Cookie中
-          store.userSession.access_token = res.result.access_token
-          store.userSession.rz_id = res.result.rz_id
-          store.userSession.user_id = res.result.user_id
-          store.userLocal.refresh_token = res.result.refresh_token
-          store.isLogin = true
-          userInfoFun()
-          location.reload()
-        })
-      }
-    }
-  }
-
   const userTokenFun = (code: any) => {
     userTokenApi({
       // 授权码
@@ -95,6 +65,33 @@ function user() {
     })
   }
 
+  const refreshTokenFun = () => {
+    if (!isLogin.value) {
+      if (store.userLocal.refresh_token !== null && store.userLocal.refresh_token !== undefined && store.userLocal.refresh_token !== '') {
+        userTokenApi({
+          // 客户端id
+          clientId: 'dianshang',
+          // 客户端密码
+          clientSecret: '123456',
+          // 授权码获取token
+          grantType: 'refresh_token',
+          username: store.userLocal.username,
+          password: store.userLocal.password,
+          refreshToken: store.userLocal.refresh_token,
+        }).then((res: any) => {
+          //把token放入Cookie中
+          store.userSession.access_token = res.result.access_token
+          store.userSession.rz_id = res.result.rz_id
+          store.userSession.user_id = res.result.user_id
+          store.userLocal.refresh_token = res.result.refresh_token
+          store.isLogin = true
+          userInfoFun()
+          location.reload()
+        })
+      }
+    }
+  }
+  
   const userInfoFun = () => {
     userInfoApi().then((res: any) => {
       store.userInfo = res.result
@@ -103,11 +100,11 @@ function user() {
 
   // 个人中心-退出登录
   const userLogoutFun = () => {
-    userLogoutApi({}, { headers: { rzId: store.userSession.rz_id } }).then((res: any) => {
-      if (res.code === 200) {
-        router.push('/home')
-      }
-    })
+    // userLogoutApi({}, { headers: { rzId: store.userSession.rz_id } }).then((res: any) => {
+    //   if (res.code === 200) {
+    //     router.push('/home')
+    //   }
+    // })
   }
 
   return {

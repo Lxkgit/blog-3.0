@@ -1,9 +1,10 @@
 {
   // "extends": "@vue/tsconfig/tsconfig.web.json",
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
-  "exclude": ["src/**/__tests__/*", "src/**/*.spec.ts", "src/**/*.test.ts"],
+  "exclude": ["src/**/__tests__/*", "src/**/*.spec.ts", "src/**/*.test.ts", "node_modules"],
   "compilerOptions": {
-    // "typeRoots": ["./node_modules/@types", "./types"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "allowJs": true,
     "composite": true,
     "baseUrl": ".",

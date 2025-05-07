@@ -77,8 +77,7 @@
               <img :class="isDark === true ? '' : 'img-active'" src="~@/assets/images/light.png" alt="" />
               <img :class="isDark === false ? '' : 'img-active'" src="~@/assets/images/dark.png" alt="" />
             </span>
-            <el-switch style="display: block" v-model="isDarkSwitch" active-color="#303133" inactive-color="#f5f7fa"
-              active-text="深色模式" inactive-text="浅色模式" @change="setDarkMode" />
+            <el-switch v-model="isDarkSwitch" style="display: block" active-color="#303133" inactive-color="#f5f7fa" active-text="深色模式" inactive-text="浅色模式" @change="setDarkMode" />
           </div>
           <el-divider></el-divider>
           <div class="color">

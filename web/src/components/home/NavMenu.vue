@@ -198,13 +198,13 @@ const handleClose = () => {
 };
 // 设置-显示模式默认值
 
-const isDarkSwitch = ref(false);
+const isDarkSwitch:any = ref(false);
 // // 设置-切换是否设置暗黑模式
 const setDarkMode = () => {
   setDark(isDarkSwitch.value);
 };
 // 设置-侧边菜单显示是否折叠
-const asideMenuFold = ref(false);
+const asideMenuFold: any = ref(false);
 // 设置-侧边菜单显示折叠切换事件
 const asideMenuFoldChange = () => {
   store.setAsideMenuFold(asideMenuFold.value);

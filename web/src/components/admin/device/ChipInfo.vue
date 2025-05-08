@@ -420,9 +420,9 @@ function sensorControlFun() {
 
 
 // 页面第一层tab标签
-const activeTab = ref('sensorControl')
+const activeTab: any = ref('sensorControl')
 // 传感器控制页面tab标签
-const sensorControlActiveTab = ref('sensorControl')
+const sensorControlActiveTab: any = ref('sensorControl')
 
 // 页面第一层tab标签点击事件
 const activeTabHandleClick = (tab: TabsPaneContext, event: Event) => {

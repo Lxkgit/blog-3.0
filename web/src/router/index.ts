@@ -174,6 +174,16 @@ const router = createRouter({
           },
         },
         {
+          path: 'tool/calendar',
+          name: 'Calendar',
+          component: () => import('@/views/admin/tool/Calendar.vue'),
+          meta: {
+            title: '日历',
+            keepAlive: false,
+            isAuth: true,
+          },
+        },
+        {
           path: 'file',
           name: 'File',
           component: () => import('@/views/admin/file/UserFile.vue'),

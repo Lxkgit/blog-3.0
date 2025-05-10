@@ -1,4 +1,3 @@
-<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
   <transition enter-active-class="animate__animated animate__fadeInDown"
     leave-active-class="animate__animated animate__fadeOutUp" mode="in-out">

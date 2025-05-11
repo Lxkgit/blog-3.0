@@ -71,8 +71,8 @@ reLoad() {
 
 # docker 镜像文件下载
 dockerLoad() {
-	echo "开始下载 openjdk:8 镜像文件..."
-	command="docker pull openjdk:8"
+	echo "开始下载 openjdk:17 镜像文件..."
+	command="docker pull openjdk:17"
 	reLoad
 
 	echo "开始下载 mysql:8.0.20 镜像文件..."
@@ -180,7 +180,7 @@ addVirtualMemory() {
 # 安装jdk
 jdk() {
 	echo "正在启动jdk..."
-	docker run -d -it --name jdk --privileged=true --restart=always --network blog_network --ip 172.18.0.2 openjdk:8
+	docker run -d -it --name jdk --privileged=true --restart=always --network blog_network --ip 172.18.0.2 openjdk:17
 }
 
 # 修改 MySQL 配置文件
@@ -251,7 +251,6 @@ updateNginxConf(){
 
 # 安装 nginx
 nginx() {
-
 	# nginx 目录创建
 	mkdir -p /opt/docker/nginx/conf.d
 	mkdir -p /opt/docker/nginx/html
@@ -317,7 +316,6 @@ updateElasticsearchConf() {
 
 # 安装 elasticsearch
 elasticsearch() {
-
 	mkdir -p /opt/docker/elasticsearch/data
 	mkdir -p /opt/docker/elasticsearch/plugins
 	mkdir -p /opt/docker/elasticsearch/config
@@ -357,20 +355,29 @@ importMinio() {
 
 # 启动 minio
 minio() {
-	
 	echo "正在启动minio..."
 	createMinioDir
-	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio server /data --console-address ":9001"
+	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_SERVER_URL=http://172.18.0.11/files" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio server /data --console-address ":9001"
 	importMinio
 }
 
 # 启动 xxlJob 
 xxlJob() {
-	
 	mkdir -p /opt/docker/xxlJob/logs
 	echo "正在启动xxlJob..."
 	docker run --name xxljob --network blog_network --ip 172.18.0.12 -p 8080:8080 --restart=always --privileged=true -e PARAMS="--spring.datasource.username=root --spring.datasource.password=${mysqlPassword} --spring.datasource.url=jdbc:mysql://172.18.0.3:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai" -v /opt/docker/xxlJob/logs:/data/applogs -d xuxueli/xxl-job-admin:2.5.0
+}
 
+jar() {
+  mv /opt/package/jar/* /opt/docker/files/jar
+  mv /opt/package/conf/Dockerfile /opt/docker/files/jar
+  # 等待nacos启动
+  echo "3分钟后启动博客服务..."
+  sleep 3m
+  echo "正在启动博客服务..."
+  cd /opt/docker/files/jar
+  docker build -t blog:3.0 .
+  docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 9092:9092 -p 21:21 -v /opt/docker/files:/opt/docker/files -v /opt/files:/opt/files blog:3.0
 }
 
 # 主函数
@@ -393,7 +400,9 @@ main() {
 	elasticsearch
 	minio
 	xxlJob
-	
+
+	jar
+
 	timer_end=`date "+%Y-%m-%d %H:%M:%S"`
 	duration=`echo $(($(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}"))) | awk '{t=split("60 s 60 m 24 h 999 d",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}'`
 	echo "脚本执行完成 耗时： $duration "

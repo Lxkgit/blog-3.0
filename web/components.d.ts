@@ -15,7 +15,6 @@ declare module 'vue' {
     Aside: typeof import('./src/components/home/Aside.vue')['default']
     AsideMenu: typeof import('./src/components/admin/AsideMenu.vue')['default']
     BackTop: typeof import('./src/components/home/BackTop.vue')['default']
-    Calendar: typeof import('./src/components/admin/tool/Calendar.vue')['default']
     Callback: typeof import('./src/components/login/Callback.vue')['default']
     Chip: typeof import('./src/components/admin/device/Chip.vue')['default']
     ChipInfo: typeof import('./src/components/admin/device/ChipInfo.vue')['default']

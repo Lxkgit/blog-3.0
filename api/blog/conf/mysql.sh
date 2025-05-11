@@ -27,6 +27,26 @@ mysqlSQL() {
   use ${nacosSql};
   source /opt/docker/files/sql/${nacosSql}.sql;
 
+  drop database if exists ${blogAuthSql};
+  CREATE DATABASE  ${blogAuthSql} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  use ${blogAuthSql};
+  source /opt/docker/files/sql/${blogAuthSql}.sql;
+
+  drop database if exists ${blogContentSql};
+  CREATE DATABASE  ${blogContentSql} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  use ${blogContentSql};
+  source /opt/docker/files/sql/${blogContentSql}.sql;
+
+  drop database if exists ${blogFileSql};
+  CREATE DATABASE  ${blogFileSql} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  use ${blogFileSql};
+  source /opt/docker/files/sql/${blogFileSql}.sql;
+
+  drop database if exists ${blogGatewaySql};
+  CREATE DATABASE  ${blogGatewaySql} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  use ${blogGatewaySql};
+  source /opt/docker/files/sql/${blogGatewaySql}.sql;
+
   exit
 
 EOF

@@ -122,7 +122,7 @@
     </dependencies>
 
     <build>
-        <finalName>gateway</finalName>
+        <finalName>blog-gateway</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -339,8 +339,8 @@ importMinio() {
 	sleep 1m
 	mkdir -p /opt/docker/minio
 	cd /opt/docker/minio
-	mv /opt/package/file/mc /opt/docker/minio/
-	mv /opt/package/file/files.zip /opt/docker/minio/
+	mv /opt/package/files/mc /opt/docker/minio/
+	mv /opt/package/files/files.zip /opt/docker/minio/
 	unzip /opt/docker/minio/files.zip
 	chmod +x mc
 	./mc alias set local http://172.18.0.11:9000 minio ${minioPassword}
@@ -369,6 +369,7 @@ xxlJob() {
 }
 
 jar() {
+  mkdir -p /opt/docker/files/jar
   mv /opt/package/jar/* /opt/docker/files/jar
   mv /opt/package/conf/Dockerfile /opt/docker/files/jar
   # 等待nacos启动

@@ -240,7 +240,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <devServiceIp>127.0.0.1</devServiceIp>
+                <nacosIp>127.0.0.1</nacosIp>
                 <env>dev</env>
             </properties>
         </profile>
@@ -251,19 +251,19 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <devServiceIp>123.207.202.131</devServiceIp>
+                <nacosIp>123.207.202.131</nacosIp>
                 <env>test</env>
             </properties>
         </profile>
 
         <profile>
-            <id>prod</id>
+            <id>pro</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <devServiceIp>49.232.129.253</devServiceIp>
-                <env>prod</env>
+                <nacosIp>172.18.0.7</nacosIp>
+                <env>pro</env>
             </properties>
         </profile>
     </profiles>

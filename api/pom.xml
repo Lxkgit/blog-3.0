@@ -251,7 +251,7 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <nacosIp>123.207.202.131</nacosIp>
+                <devServiceIp>123.207.202.131</devServiceIp>
                 <env>test</env>
             </properties>
         </profile>

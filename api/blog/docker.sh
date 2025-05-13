@@ -332,8 +332,8 @@ importMinio() {
 	sleep 1m
 	# minio 导入文件
 	mkdir -p /opt/docker/minio/blog
-	mv /opt/package/files/files.zip /opt/docker/minio/blog
-	unzip /opt/docker/minio/blog/files.zip
+	mv /opt/package/files/files.zip /opt/docker/minio/
+	unzip /opt/docker/minio/files.zip -d /opt/docker/minio/blog
 
 	# minio 数据导入
 	mv /opt/package/files/mc /opt/docker/minio/

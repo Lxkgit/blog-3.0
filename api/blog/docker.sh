@@ -223,14 +223,6 @@ mysql() {
 	updateSqlFile
 }
 
-# redis 配置文件修改
-updateRedisConf() {
-	echo "开始修改Redis配置文件..."
-	# redis 配置
-	mv /opt/package/conf/redis.conf /opt/docker/redis/conf
-	sed -i "s/requirepass/requirepass ${redisPassword}/g" /opt/docker/redis/conf/redis.conf
-}
-
 # 创建 ftp 工作目录
 createFtpDir() {
 	mkdir -p /opt/docker/files/ftp
@@ -243,12 +235,6 @@ ftp() {
   docker run -d --name vsftpd --privileged=true --restart=always --network blog_network --ip 172.18.0.4 -p 61120:20 -p 61121:21 -p 61110-61119:61110-61119 -e FTP_USER=${ftpUsername} -e FTP_PASS=${ftpPassword} -e PASV_MIN_PORT=61110 -e PASV_MAX_PORT=61119 -v /opt/docker/files/ftp:/home/vsftpd fauria/vsftpd
 }
 
-# 修改 nginx 配置文件
-updateNginxConf(){
-	# nginx 配置文件
-	mv /opt/package/conf/nginx.conf /opt/docker/nginx/conf
-}
-
 # 安装 nginx
 nginx() {
 	# nginx 目录创建
@@ -257,10 +243,23 @@ nginx() {
 	mkdir -p /opt/docker/nginx/html/assets
 	mkdir -p /opt/docker/nginx/logs
 	mkdir -p /opt/docker/nginx/conf
-	
-	updateNginxConf
+
+	# nginx 配置文件
+  mv /opt/package/conf/nginx.conf /opt/docker/nginx/conf
+
+  # web页面相关
+  mv /opt/package/web/dist/* /opt/docker/nginx/html
+
 	echo "正在启动nginx..."
 	docker run -d --name nginx --privileged=true --restart=always --network blog_network --ip 172.18.0.5 -p 80:80 -v /opt/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v /opt/docker/nginx/html/:/opt/docker/nginx/html/ -v /opt/docker/nginx/logs/:/var/log/nginx/  -v /opt/docker/files/:/opt/docker/files/ nginx:1.20.2
+}
+
+# redis 配置文件修改
+updateRedisConf() {
+	echo "开始修改Redis配置文件..."
+	# redis 配置
+	mv /opt/package/conf/redis.conf /opt/docker/redis/conf
+	sed -i "s/requirepass/requirepass ${redisPassword}/g" /opt/docker/redis/conf/redis.conf
 }
 
 # 启动 redis
@@ -328,20 +327,17 @@ elasticsearch() {
 	nohup sudo docker exec elasticsearch bash /opt/docker/files/elasticsearch.sh >/opt/docker/files/es.log 2>&1
 }
 
-# 创建 minio 目录
-createMinioDir() {
-	# minio 文件存放位置
-	mkdir -p /opt/docker/files/minio
-}
-
 # minio 文件导入
 importMinio() {
 	sleep 1m
-	mkdir -p /opt/docker/minio
-	cd /opt/docker/minio
+	# minio 导入文件
+	mkdir -p /opt/docker/minio/blog
+	mv /opt/package/files/files.zip /opt/docker/minio/blog
+	unzip /opt/docker/minio/blog/files.zip
+
+	# minio 数据导入
 	mv /opt/package/files/mc /opt/docker/minio/
-	mv /opt/package/files/files.zip /opt/docker/minio/
-	unzip /opt/docker/minio/files.zip
+	cd /opt/docker/minio
 	chmod +x mc
 	./mc alias set local http://172.18.0.11:9000 minio ${minioPassword}
 	./mc mb local/blog
@@ -349,15 +345,13 @@ importMinio() {
 	./mc anonymous set download local/blog
 	
 	# 导入文件后删除数据
-	rm -rf /opt/docker/minio/files.zip
-	rm -rf /opt/docker/minio/files
+	rm -rf /opt/docker/minio/blog
 }
 
 # 启动 minio
 minio() {
 	echo "正在启动minio..."
-	createMinioDir
-	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_SERVER_URL=http://172.18.0.11/files" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio server /data --console-address ":9001"
+	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio server /data --console-address ":9001"
 	importMinio
 }
 
@@ -372,10 +366,12 @@ jar() {
   mkdir -p /opt/docker/files/jar
   mv /opt/package/jar/* /opt/docker/files/jar
   mv /opt/package/conf/Dockerfile /opt/docker/files/jar
+  sed -i 's/\r$//' /opt/docker/files/jar/run.sh
+  chmod +x /opt/docker/files/jar/run.sh
+
   # 等待nacos启动
   echo "3分钟后启动博客服务..."
   sleep 3m
-  echo "正在启动博客服务..."
   cd /opt/docker/files/jar
   docker build -t blog:3.0 .
   docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 9092:9092 -p 21:21 -v /opt/docker/files:/opt/docker/files -v /opt/files:/opt/files blog:3.0

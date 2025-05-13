@@ -262,7 +262,7 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <nacosIp>172.18.0.7</nacosIp>
+                <devServiceIp>172.18.0.7</devServiceIp>
                 <env>pro</env>
             </properties>
         </profile>

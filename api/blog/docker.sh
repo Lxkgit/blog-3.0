@@ -341,7 +341,7 @@ importMinio() {
 	chmod +x mc
 	./mc alias set local http://172.18.0.11:9000 minio ${minioPassword}
 	./mc mb local/blog
-	./mc mirror --overwrite /opt/docker/minio/files/ local/blog
+	./mc mirror --overwrite /opt/docker/minio/blog/ local/blog
 	./mc anonymous set download local/blog
 	
 	# 导入文件后删除数据
@@ -365,10 +365,9 @@ xxlJob() {
 jar() {
   mkdir -p /opt/docker/files/jar
   mv /opt/package/jar/* /opt/docker/files/jar
-  mv /opt/package/conf/Dockerfile /opt/docker/files/jar
   sed -i 's/\r$//' /opt/docker/files/jar/run.sh
   chmod +x /opt/docker/files/jar/run.sh
-
+  mkdir -p /opt/docker/files/log
   # 等待nacos启动
   echo "3分钟后启动博客服务..."
   sleep 3m

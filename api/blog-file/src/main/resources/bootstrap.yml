@@ -4,5 +4,5 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: ${nacosIp}:8848
+        server-addr: ${devServiceIp}:8848
         namespace: ${spring.profiles.active}

@@ -13,7 +13,7 @@ function user() {
   let userName = ref()
   const router = useRouter()
 
-  onActivated(() => {})
+  onActivated(() => { })
 
   onMounted(() => {
     isLogin.value = store.isLogin
@@ -23,10 +23,7 @@ function user() {
   const userLoginFun = (param: any) => {
     userLoginApi(param)
       .then((res: any) => {
-        ElMessage({
-          message: '登录成功！',
-          type: 'success',
-        })
+        ElMessage({ message: '登录成功！', type: 'success' })
         store.userLocal.username = param.username
         store.userLocal.password = param.password
         store.userSession.rz_id = res.result
@@ -45,7 +42,7 @@ function user() {
       // 授权码
       code: code,
       // 回调地址
-      redirectUri: 'http://localhost:5173/callback',
+      redirectUri: store.callback.callbackUrl,
       // 客户端id
       clientId: 'dianshang',
       // 客户端密码
@@ -91,7 +88,7 @@ function user() {
       }
     }
   }
-  
+
   const userInfoFun = () => {
     userInfoApi().then((res: any) => {
       store.userInfo = res.result

@@ -167,6 +167,8 @@ const toLogin = () => {
   callbackUrlApi().then((res: any) => {
       if(res.code === 200) {
         let target = res.result.serviceIp + '/auth/oauth2/authorize?response_type=code&client_id=dianshang&scope=openid&redirect_uri=' + res.result.callbackUrl
+        store.callback.serviceIp = res.result.serviceIp
+        store.callback.callbackUrl = res.result.callbackUrl
         if (rzId) {
           //如果认证id不为空 带着认证id
           target = target + '&rzId=' + rzId;
@@ -236,7 +238,6 @@ onActivated(() => {
 });
 
 onMounted(() => {
-  console.log("--" + isLogin.value)
   asideMenuFold.value = store.asideMenuFold;
   // if (isLogin.value === true) {
   //   getPhotoData();

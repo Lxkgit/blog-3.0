@@ -27,6 +27,11 @@ export const systemStore = defineStore(
       name: ''
     })
 
+    let callback = ref({
+      serviceIp: '',
+      callbackUrl: ''
+    })
+
     // 临时登录用户信息(sessionStorage)
     let userSession = ref({
       rz_id: '',
@@ -147,6 +152,7 @@ export const systemStore = defineStore(
       keepLogin,
       userLocal,
       userInfo,
+      callback,
       userSession,
       asideMenuFold,
       theme,
@@ -186,7 +192,7 @@ export const systemStore = defineStore(
           'outlineShow',
           'nextPath',
           'keepLogin',
-          'userLocal',
+          'callback',
           'userInfo',
           'userSession',
           'asideMenuFold',

@@ -373,7 +373,7 @@ jar() {
   sleep 3m
   cd /opt/docker/files/jar
   docker build -t blog:3.0 .
-  docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 60002:60002 -p 9092:9092 -p 21:21 -v /opt/docker/files:/opt/docker/files -v /opt/files:/opt/files blog:3.0
+  docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 60002:60002 -p 59991:59991 -p 9092:9092 -p 21:21 -v /opt/docker/files:/opt/docker/files -v /opt/files:/opt/files blog:3.0
 }
 
 # 主函数

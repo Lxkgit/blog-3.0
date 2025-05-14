@@ -5,6 +5,16 @@ export const publicKeyApi = () => {
   return api.get(uri)
 }
 
+export const callbackUrlApi = () => {
+  const uri = "/auth/redirect"
+  return api.get(uri)
+}
+
+export const getRzIdApi = (param: any) => {
+  const uri = "/auth/oauth2/authorize?" + param
+  return api.get(uri)
+}
+
 // 用户登录接口
 export const userLoginApi = (param: any) => {
   const uri = "/auth/doLogin"

@@ -244,7 +244,7 @@ public class SecurityConfig {
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
                 // 关键：设置 issuer 包含上下文路径
-                .issuer("http://auth-server:60002/auth")
+                .issuer("http://127.0.0.1:60002/auth")
                 // 端点路径不需要包含 /auth，Spring 会自动附加 context-path
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenEndpoint("/oauth2/token")

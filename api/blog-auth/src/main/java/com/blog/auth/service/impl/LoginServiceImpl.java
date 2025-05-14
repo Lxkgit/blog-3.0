@@ -72,7 +72,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public JSONObject getToken(Oauth2Vo vo) throws ServiceException {
         //拼接获取token的路径
-        String url = "http://auth-server:60001/auth/oauth2/token";
+        String url = "http://127.0.0.1:60001/auth/oauth2/token";
         Map<String, String> map = new HashMap<>();
 
         String rzId = "";

@@ -16,6 +16,7 @@ public class PermitUrl {
 
     private static final String[] authPermitUrl = {
             "/publicKey",
+            "/redirect",
             "/user/select/id"
     };
 

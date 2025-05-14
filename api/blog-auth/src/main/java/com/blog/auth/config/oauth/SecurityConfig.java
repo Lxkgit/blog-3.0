@@ -6,7 +6,6 @@ import com.blog.auth.config.oauth.point.MyLoginUrlAuthenticationEntryPoint;
 import com.blog.auth.config.oauth.repository.RedisSecurityContextRepository;
 import com.blog.auth.mapper.UserMapper;
 import com.blog.auth.entity.MyUserDetails;
-import com.blog.core.constant.Constant;
 import com.blog.core.constant.PermitUrl;
 import com.blog.core.domain.auth.entity.User;
 import com.blog.redis.constant.AuthRedisConstant;
@@ -19,6 +18,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -86,6 +86,9 @@ public class SecurityConfig {
     @Resource
     private RedisService redisService;
 
+    @Value("${redirect.login}")
+    private String loginPage;
+
     //密码加密
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -119,7 +122,7 @@ public class SecurityConfig {
         //异常处理
         http.exceptionHandling(x -> x.defaultAuthenticationEntryPointFor(
                 //自定义未登录地址,地址为前端vue的地址，当没有登陆的时候，自动跳转到前端登陆界面
-                new MyLoginUrlAuthenticationEntryPoint("http://localhost:5173/login"),
+                new MyLoginUrlAuthenticationEntryPoint(loginPage),
                 //只有带有 "text/html" 媒体类型的请求需要进行身份验证
                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
         ));

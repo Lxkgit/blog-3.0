@@ -67,3 +67,8 @@ xxl:
       port: 60022
       logpath: /opt/docker/xxlJob/logs
       logretentiondays: 10
+
+redirect:
+  login: http://49.232.129.253/login
+  callback: http://49.232.129.253/callback
+  serviceIp: http://49.232.129.253/api

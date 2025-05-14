@@ -13,6 +13,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class LoginController {
@@ -34,6 +37,12 @@ public class LoginController {
 
     @Resource
     private LoginService loginService;
+
+    @Value("${redirect.callback}")
+    private String callbackUrl;
+
+    @Value("${redirect.serviceIp}")
+    private String serviceIp;
 
     /**
      * 登录
@@ -73,6 +82,7 @@ public class LoginController {
 
     /**
      * 获取公钥
+     *
      * @return
      */
     @GetMapping("/publicKey")
@@ -80,6 +90,19 @@ public class LoginController {
         String publicKey = redisService.getString(AuthRedisConstant.PUBLIC_KEY).toString();
         return ResultFactory.buildSuccessResult(publicKey);
     }
+
+    /**
+     * 获取重定向地址
+     * @return
+     */
+    @GetMapping("/redirect")
+    private Result redirect() {
+        Map<String, String> map = new HashMap<>();
+        map.put("callbackUrl", callbackUrl);
+        map.put("serviceIp", serviceIp);
+        return ResultFactory.buildSuccessResult(map);
+    }
+
     /**
      * 资源服务 获取用户账号
      *

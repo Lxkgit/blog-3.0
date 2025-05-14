@@ -112,6 +112,7 @@
 </template>
 
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
 import { computed, onMounted, reactive, ref, onActivated } from "vue";
 import icon from "@/utils/icon";
 import { ArrowDown, ArrowUp } from "@element-plus/icons-vue";
@@ -124,6 +125,7 @@ import color from "@/utils/color";
 import theme from "@/utils/theme";
 import navigation from "@/utils/navigation";
 import Cookies from 'js-cookie';
+import { getRzIdApi, callbackUrlApi } from '@/api/auth'
 import { storeToRefs } from 'pinia';
 
 const store = systemStore();
@@ -160,16 +162,21 @@ const selfPage = () => {
 
 // 跳转至登录页
 const toLogin = () => {
-  //获取cookie的值
+   //获取cookie的值
   let rzId = Cookies.get('rzId');
-  let target = 'http://auth-server:60001/auth/oauth2/authorize?response_type=code&client_id=dianshang&scope=openid&redirect_uri=http://localhost:5173/callback'
-  if (rzId) {
-    //如果认证id不为空 带着认证id
-    target = target + '&rzId=' + rzId;
-  }
-  //先登陆 在跳转到回调界面 获取授权码
-  window.location.href = target
-  // router.push({ path: "/loginRegister", query: { component: "Login" } });
+  callbackUrlApi().then((res: any) => {
+      if(res.code === 200) {
+        let target = res.result.serviceIp + '/auth/oauth2/authorize?response_type=code&client_id=dianshang&scope=openid&redirect_uri=' + res.result.callbackUrl
+        if (rzId) {
+          //如果认证id不为空 带着认证id
+          target = target + '&rzId=' + rzId;
+        }
+        //先登陆 在跳转到回调界面 获取授权码
+        window.location.href = target
+      } else {
+        ElMessage.error('获取登录信息失败')
+      }
+  })
 };
 
 // 个人中心-是否下拉状态

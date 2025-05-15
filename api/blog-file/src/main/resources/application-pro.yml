@@ -71,7 +71,7 @@ xxl:
 
 minio:
   # MinIO服务器地址
-  ip: http://172.18.0.11
+  ip: http://49.232.129.253
   port: 9000
   # MinIO服务器访问凭据
   username: minio

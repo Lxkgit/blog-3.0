@@ -62,9 +62,9 @@ public class ContentCountInit {
         log.info("开始初始化博客内容数据 ... ");
 
         // 初始化系统消息数据
-        initSystemData();
-
-        initUserData();
+//        initSystemData();
+//
+//        initUserData();
 
     }
 

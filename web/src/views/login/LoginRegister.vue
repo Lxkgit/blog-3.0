@@ -114,7 +114,7 @@
 
 <script setup name="LoginRegister" lang="ts">
 import icon from '@/utils/icon'
-import { onBeforeMount, onMounted, reactive, ref, onActivated } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { systemStore } from '@/store/system'
@@ -135,6 +135,27 @@ let { switchLogin, switchRegister, bgiURL, component, sitename } = publicFn()
 let { loginForm, loginRules, remember, isPassing, verifyPass, btnType, otherLogin } = loginFn()
 // 引入注册模块
 let { registerForm, registerRules, codeBtnDisabled, registerPass, registerUserFun } = registerFn()
+
+
+onMounted(() => {
+  updateUrlTarget(router.currentRoute.value.query.target)
+})
+
+/**
+ * 修改重定向路由地址
+ * @param target 路由地址
+ */
+const updateUrlTarget = (target: any) => {
+  if (target.startsWith("http://172.18.0.13:60002")) {
+    let newTarget = target.replace("http://172.18.0.13:60002", store.callback.serviceIp);
+    router.push({
+      query: {
+        ...router.currentRoute.value.query, // 保留其他参数
+        target: newTarget                   // 覆盖目标参数
+      }
+    });
+  }
+}
 
 const loginRef: any = ref(null)
 // 登录表单提交事件
@@ -179,7 +200,7 @@ function publicFn() {
   })
   // 其他页面调用，默认跳转
   onMounted(() => {
- 
+
   })
   return { switchLogin, switchRegister, bgiURL, component, sitename }
 }

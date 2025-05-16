@@ -13,6 +13,7 @@ spring:
 
 # 自定义参数
 netty:
+  username: gszero
   # 树莓派类服务器设备注册码，需要在平台上申请
   deviceCode: 2ecfb95116de4967afe7710e11ac00b4
-  username: gszero
+

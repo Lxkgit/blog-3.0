@@ -78,14 +78,13 @@ public class NettyClient implements CommandLineRunner {
         log.warn("Netty连接关闭!!");
     }
 
-    public boolean sendMsg(String msg) {
+    public void sendMsg(String msg) {
         boolean active = channel.isActive();
         if (active) {
             channel.writeAndFlush(msg);
         } else {
             log.warn("channel active:{}", false);
         }
-        return active;
     }
 }
 

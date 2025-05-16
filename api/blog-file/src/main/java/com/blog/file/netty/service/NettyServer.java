@@ -135,7 +135,7 @@ public class NettyServer implements CommandLineRunner {
      * @param msg
      */
     private void addNettyRetryMap(ChannelId channelId, String msg) {
-        JSONObject jsonObject = (JSONObject) JSONObject.parse(msg);
+        JSONObject jsonObject = JSONObject.parse(msg);
         jsonObject.get("requestId");
         retryMap.put(jsonObject.get("requestId").toString(), new NettyMessageRetry(channelId, msg, new Date(), 0));
     }

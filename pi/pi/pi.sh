@@ -1,72 +1,7 @@
-#! /bin/bash
+#!/bin/bash
 
 # MySQL登陆密码
 mysqlPassword="MySql@Admin123*."
-
-createDir() {
-  echo "创建目录 ... "
-  mkdir -p /opt/docker/files/jar
-  mkdir -p /opt/docker/files/sql
-  mkdir -p /opt/docker/files/log
-
-  # MySQL目录
-  # MySQL 配置文件
-  mkdir -p /opt/docker/mysql/conf
-  # MySQL 导入数据日志
-  mkdir -p /opt/docker/mysql/logs
-
-  # 项目相关文件
-  mv /opt/package/jar/blog-pi.jar /opt/docker/files/jar
-  mv /opt/package/conf/run.sh /opt/docker/files/jar
-  mv /opt/package/conf/Dockerfile /opt/docker/files/jar
-
-  # MySQL数据文件
-  mv /opt/package/sql/blog_pi.sql /opt/docker/files/sql
-  # MySQL容器执行脚本
-  mv /opt/package/conf/mysql.sh /opt/docker/files
-  chmod +x /opt/docker/files/mysql.sh
-  # win和linux字符引起的错误
-  sed -i 's/\r$//' /opt/docker/files/jar/run.sh
-}
-
-util() {
-  apt-get update
-  apt-get install -y
-  apt-get install lrzsz
-}
-
-# conda 下载
-conda() {
-	echo "开始下载 Anacoda ... "
-	cd /opt/
-	wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
-	echo "开始安装 Anacoda ... "
-	sh Anaconda3-2024.10-1-Linux-x86_64.sh<<EOF
-
-q
-yes
-
-yes
-EOF
-	echo "export PATH=/opt/anaconda3/bin:\$PATH"  >> /etc/profile
-	echo "export PATH=/opt/anaconda3/bin:\$PATH"  >> ~/.bashrc
-
-	# 更新环境变量
-	source /etc/profile
-	source ~/.bashrc
-
-	# 安装conda后命令行前面base隐藏
-	conda config --set auto_activate_base False
-	echo "Anacoda 安装完成 ... "
-
-	py
-}
-
-# 构建 py 运行环境
-py() {
-	echo "安装python3.11 ... "
-	conda create --name py3 python=3.11 -y
-}
 
 # 安装并配置docker
 dockerStart() {
@@ -81,6 +16,45 @@ dockerStart() {
 	docker network create --subnet=172.18.0.0/24 blog_network
 }
 
+unzipPi() {
+  # 上传部署压缩包解压目录
+  mkdir -p /opt/package
+  mv ./pi.zip /opt/package
+  cd /opt/package
+  unzip pi.zip
+}
+
+# conda 下载
+installConda() {
+  cd /opt/package/soft
+	echo "开始安装 Anacoda ... "
+	sh Anaconda3-2024.10-1-Linux-aarch64.sh<<EOF
+
+q
+yes
+
+yes
+EOF
+	echo "export PATH=/root/anaconda3/bin:\$PATH"  >> /etc/profile
+	echo "export PATH=/root/anaconda3/bin:\$PATH"  >> ~/.bashrc
+
+	# 更新环境变量
+	source /etc/profile
+	source ~/.bashrc
+
+	# 安装conda后命令行前面base隐藏
+	conda config --set auto_activate_base False
+	echo "Anacoda 安装完成 ... "
+
+	createPythonEnv
+}
+
+# 构建 py 运行环境
+createPythonEnv() {
+	echo "安装python3.11 ... "
+	conda create --name py3 python=3.11 -y
+}
+
 # docker 镜像加载
 dockerLoad() {
   echo "docker 镜像加载 ... "
@@ -91,56 +65,60 @@ dockerLoad() {
 }
 
 # 安装jdk
-jdk() {
+installJdk() {
   echo "启动jdk ... "
   docker run -d -it --name jdk8 --privileged=true --restart=always --network blog_network --ip 172.18.0.2 openjdk:17
 }
 
-updateSqlFile() {
-  echo "开始修改MySQL数据恢复脚本文件..."
-  sed -i "s/mysqlPassword=/mysqlPassword=\"${mysqlPassword}\"/" /opt/docker/files/mysql.sh
-}
-
 # 安装MySQL
-mysql() {
+installMysql() {
+  # MySQL 配置文件
+  mkdir -p /opt/docker/mysql/conf
+  # MySQL 导入数据日志
+  mkdir -p /opt/docker/mysql/logs
   echo "启动mysql ... "
   docker run -d --name mysql --privileged=true --restart=always --network blog_network --ip 172.18.0.3 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=${mysqlPassword} -v /opt/docker/files:/opt/docker/files  mysql/mysql-server:8.0.32
+
+  # MySQL数据文件
+  mv /opt/package/sql/blog_pi.sql /opt/docker/files/sql
+  # MySQL容器执行脚本
+  mv /opt/package/conf/mysql.sh /opt/docker/files
+  sed -i 's/\r$//' /opt/docker/files/mysql.sh
+  chmod +x /opt/docker/files/mysql.sh
   # 导入sql数据
   nohup sudo docker exec mysql bash /opt/docker/files/mysql.sh >/opt/docker/mysql/logs/sql.log 2>&1
 }
 
-mqtt() {
+installMqtt() {
   echo "启动mqtt ... "
   docker run -d --name emqx --privileged=true --restart=always --network blog_network --ip 172.18.0.4 -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083 emqx/emqx:5.4.1
 }
 
-jar() {
+installJar() {
+  sleep 5m
   echo "启动pi项目 ... "
+  mkdir -p /opt/docker/files/jar
+  # 项目相关文件
+  mv /opt/package/jar/* /opt/docker/files/jar
+  # win和linux字符引起的错误
+  sed -i 's/\r$//' /opt/docker/files/jar/run.sh
   cd /opt/docker/files/jar
   docker build -t pi:1 .
   docker run -d --name pi --privileged=true --cap-add=SYS_ADMIN --restart=always --network blog_network --ip 172.18.0.5 -p 10201:10201 -p 9092:9092 -p 5005:5005 -v /opt/docker/files:/opt/docker/files pi:1
 }
 
-unzipPi() {
-  # 上传部署压缩包解压目录
-  mkdir -p /opt/package
-  mv ./pi.zip /opt/package
-  cd /opt/package
-  unzip pi.zip
-}
-
 main() {
   timer_start=`date "+%Y-%m-%d %H:%M:%S"`
-#  util
-  unzipPi
-  createDir
+
   dockerStart
+  unzipPi
+  installConda
   dockerLoad
-  jdk
-  updateSqlFile
-  mysql
-  mqtt
-  jar
+  installJdk
+  installMysql
+  installMqtt
+  installJar
+
   timer_end=`date "+%Y-%m-%d %H:%M:%S"`
   duration=`echo $(($(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}"))) | awk '{t=split("60 s 60 m 24 h 999 d",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}'`
   echo "脚本执行完成 耗时： $duration "

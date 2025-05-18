@@ -1,5 +1,5 @@
 
-# debian.sh 部署命令
+# pi.sh 部署命令
 
 ## 树莓派安装系统需要设置root账号密码
 sudo passwd root
@@ -8,6 +8,7 @@ sudo passwd root
 apt-get install lrzsz
 
 ## 执行脚本
-chmod +x debian.sh
-nohup sh debian.sh >my.log 2>&1 &
+chmod +x pi.sh
+nohup ./pi.sh >my.log 2>&1 &
+tail -f my.log
 

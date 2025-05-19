@@ -86,5 +86,9 @@ public class NettyClient implements CommandLineRunner {
             log.warn("channel active:{}", false);
         }
     }
+
+    public boolean getChannelActive() {
+        return channel.isActive();
+    }
 }
 

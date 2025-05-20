@@ -13,6 +13,13 @@ spring:
     username: root
     password: MySql@Admin123*.
 
+  data:
+    redis:
+      database: 0
+      host: 123.207.202.131
+      port: 6379
+      password: redis-960@*
+
 # 自定义参数
 netty:
   # 树莓派类服务器设备注册码，需要在平台上申请

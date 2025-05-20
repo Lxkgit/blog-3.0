@@ -60,12 +60,6 @@
             <version>${mybatis-plus.version}</version>
         </dependency>
 
-        <!-- SpringBoot Boot Redis -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-
         <!-- netty -->
         <dependency>
             <groupId>io.netty</groupId>
@@ -110,6 +104,12 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
+        <!-- redis 依赖包 -->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-redis</artifactId>
+            <version>3.0</version>
+        </dependency>
 
     </dependencies>
     <dependencyManagement>

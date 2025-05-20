@@ -413,7 +413,6 @@ public class RedisService {
      * @param values 值 可以是多个
      * @return 移除的个数
      */
-
     public Long removeSetByValue(String key, Object... values) {
         try {
             return redisTemplate.opsForSet().remove(key, values);
@@ -554,7 +553,6 @@ public class RedisService {
      * @param value 值
      * @return
      */
-
     public boolean updateListByIndex(String key, long index, Object value) {
         try {
             redisTemplate.opsForList().set(key, index, value);
@@ -573,7 +571,6 @@ public class RedisService {
      * @param value 值
      * @return 移除的个数
      */
-
     public Long removeListByValue(String key, long count, Object value) {
         try {
             return redisTemplate.opsForList().remove(key, count, value);

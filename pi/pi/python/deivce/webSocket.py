@@ -39,36 +39,40 @@ async def send_service_info(websocket):
 
 def get_computer_config():
     # 获取操作系统信息
+    # system: 操作系统名称（如 Linux, Windows, Darwin）
+    # node_name: 网络主机名（等同于命令行 hostname）
+    # machine: 硬件架构（如 x86_64, ARM64）
     os_info = platform.uname()
     system = os_info.system
     node_name = os_info.node
-    release = os_info.release
-    version = os_info.version
     machine = os_info.machine
-    processor = os_info.processor
 
     # 获取CPU信息
-    cpu_count = psutil.cpu_count()
-    cpu_freq = psutil.cpu_percent()
-    cpu_percent_total = psutil.cpu_percent()
+    # 获取逻辑 CPU 核心数
+    cpu_count = psutil.cpu_count(logical=False)
+    # 所有逻辑核心的占用率列表（每个元素为对应核心的百分比）
+    cpu_freq = psutil.cpu_percent(interval=0.1, percpu=True)
+    # 所有逻辑核心的平均占用率（总占用率）
+    cpu_percent_total = psutil.cpu_percent(interval=0.1)
 
     # 获取内存信息
+    # total_memory: 物理内存总量（字节）
+    # available_memory: 可用内存（不同系统计算方式不同，Linux 包括缓存/缓冲区）
     virtual_memory = psutil.virtual_memory()
     total_memory = virtual_memory.total
     available_memory = virtual_memory.available
 
     # 获取磁盘信息
+    # 获取所有磁盘分区的列表（如设备名、挂载点、文件系统类型）
     disk_info = psutil.disk_partitions()
+    # 获取根目录所在分区的磁盘使用情况（总容量、已用、可用空间）
     disk_usage = psutil.disk_usage('/')
 
     # 整理配置信息
     config = {
         'system': system,
         'node_name': node_name,
-        'release': release,
-        'version': version,
         'machine': machine,
-        'processor': processor,
         'cpu_count': cpu_count,
         'cpu_freq': cpu_freq,
         'cpu_percent_total': cpu_percent_total,

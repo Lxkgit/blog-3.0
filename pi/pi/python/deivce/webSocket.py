@@ -32,7 +32,7 @@ async def send_service_info(websocket):
                 'message': get_computer_config()
             }
             await websocket.send(json.dumps(msg))
-            await asyncio.sleep(30)
+            await asyncio.sleep(60)
         except websockets.ConnectionClosed:
             break  # 连接断开时退出循环
 

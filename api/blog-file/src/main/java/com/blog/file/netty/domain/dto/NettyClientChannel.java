@@ -23,7 +23,7 @@ public class NettyClientChannel {
     /**
      * netty注册id
      */
-    private String registerId;
+    private String deviceCode;
 
     /**
      * netty所属用户id
@@ -35,9 +35,9 @@ public class NettyClientChannel {
      */
     private Date date;
 
-    public NettyClientChannel(ChannelId channelId, String registerId, Integer userId, Date date) {
+    public NettyClientChannel(ChannelId channelId, String deviceCode, Integer userId, Date date) {
         this.channelId = channelId;
-        this.registerId = registerId;
+        this.deviceCode = deviceCode;
         this.userId = userId;
         this.date = date;
     }

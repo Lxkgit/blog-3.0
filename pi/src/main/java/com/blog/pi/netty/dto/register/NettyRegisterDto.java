@@ -26,7 +26,6 @@ public class NettyRegisterDto {
     /**
      * 设备注册码
      */
-    @Value("${netty.deviceCode}")
     private String deviceCode;
 
     /**

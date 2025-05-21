@@ -34,7 +34,7 @@ public class DeviceStatusSchedule {
      * 定时检测设备在离线，更新状态，推送页面
      * 每三分钟检测一次
      */
-    @Scheduled(cron = "0 0/3 * * * ?")
+    @Scheduled(cron = "0 0/5 * * * ?")
     public void updateDeviceStatus() {
         Date date = new Date();
         for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
@@ -42,7 +42,7 @@ public class DeviceStatusSchedule {
             long interval = (date.getTime() - channel.getDate().getTime())/1000;
             // 设备最近的心跳如果在三分钟之前则说明设备已经离线 移除数据(只能移除连接且注册过的通道)
             if (interval > Constant.DEVICE_WAIT_TIME) {
-                removeChannelByRegisterId(channel.getRegisterId(), deviceDAO);
+                removeChannelByRegisterId(channel.getDeviceCode(), deviceDAO);
             }
             // 移除连接但是没有注册的通道
             NettyServerHandler.channelMap.keySet().removeIf(key -> !containChannelId(key));
@@ -74,7 +74,7 @@ public class DeviceStatusSchedule {
         for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
             NettyClientChannel channel = entry.getValue();
             if (channel.getChannelId().equals(channelId)) {
-                return channel.getRegisterId();
+                return channel.getDeviceCode();
             }
         }
         return "";
@@ -82,15 +82,15 @@ public class DeviceStatusSchedule {
 
     /**
      * 根据客户端注册编码删除通道
-     * @param registerId
+     * @param deviceCode
      * @param deviceDAO
      */
-    public static void removeChannelByRegisterId(String registerId, DeviceMapper deviceDAO) {
+    public static void removeChannelByRegisterId(String deviceCode, DeviceMapper deviceDAO) {
         for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
             NettyClientChannel channel = entry.getValue();
-            if (channel.getRegisterId().equals(registerId)) {
+            if (channel.getDeviceCode().equals(deviceCode)) {
                 removeNettyChannel(entry, channel, deviceDAO);
-                log.info("netty通道 userId:【{}】 registerId:【{}】 已离线", channel.getUserId(), registerId);
+                log.info("netty通道 userId:【{}】 registerId:【{}】 已离线", channel.getUserId(), deviceCode);
             }
         }
     }
@@ -98,7 +98,7 @@ public class DeviceStatusSchedule {
     public static void removeNettyChannel(Map.Entry<String, NettyClientChannel> entry, NettyClientChannel channel, DeviceMapper deviceDAO) {
         QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<>();
         deviceQueryWrapper.eq("user_id", channel.getUserId());
-        deviceQueryWrapper.eq("device_code", channel.getRegisterId());
+        deviceQueryWrapper.eq("device_code", channel.getDeviceCode());
         Device deviceStatus = new Device();
         deviceStatus.setDeviceStatus(Constant.DEVICE_OFFLINE);
         deviceDAO.update(deviceStatus, deviceQueryWrapper);

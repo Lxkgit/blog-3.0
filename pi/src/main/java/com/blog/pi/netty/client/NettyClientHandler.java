@@ -58,6 +58,7 @@ public class NettyClientHandler extends ChannelDuplexHandler {
 
         // 组装netty注册消息类
         NettyRegisterDto nettyRegisterDto = new NettyRegisterDto();
+        nettyRegisterDto.setDeviceName("树莓派");
         nettyRegisterDto.setMemo("这个是设备备注信息");
         deviceInfoService.setRegisterMsg(nettyRegisterDto);
 

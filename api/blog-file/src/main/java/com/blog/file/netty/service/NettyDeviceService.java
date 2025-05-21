@@ -192,4 +192,9 @@ public class NettyDeviceService {
     public void SensorControl() {
 
     }
+
+    public void deviceInfo(String data, String deviceCode, Integer userId) {
+        JSONObject jsonObject = JSONObject.parseObject(data);
+
+    }
 }

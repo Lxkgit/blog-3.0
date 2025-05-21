@@ -2,22 +2,28 @@ package com.blog.file.netty.service;
 
 
 import com.alibaba.fastjson2.JSONObject;
+import com.blog.core.domain.file.device.entity.Device;
+import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.netty.domain.dto.NettyClientChannel;
 import com.blog.file.netty.domain.dto.NettyMessageRetry;
+import com.blog.redis.constant.FileRedisConstant;
+import com.blog.redis.constant.NettyRedisConstant;
+import com.blog.redis.service.RedisService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import jakarta.annotation.PreDestroy;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @description: Netty服务端
@@ -37,8 +43,11 @@ public class NettyServer implements CommandLineRunner {
 
     private final NettyServerInitializer nettyServerInitializer;
 
-    // netty 消息重发缓存
-    public static final Map<String, NettyMessageRetry> retryMap = new ConcurrentHashMap<>();
+    @Resource
+    private DeviceMapper deviceMapper;
+
+    @Resource
+    private RedisService redisService;
 
     @Value("${netty.port}")
     private Integer port;
@@ -90,10 +99,6 @@ public class NettyServer implements CommandLineRunner {
         log.warn("Netty服务关闭!!");
     }
 
-    public boolean channelWriteByChannelId(ChannelId channelId, String msg) {
-        return channelWriteByChannelId(channelId, msg, true);
-    }
-
     /**
      * netty消息发送
      *
@@ -102,7 +107,7 @@ public class NettyServer implements CommandLineRunner {
      * @param retry     是否重发 是：true
      * @return 消息是否发送成功
      */
-    public boolean channelWriteByChannelId(ChannelId channelId, String msg, boolean retry) {
+    public boolean channelWriteByChannelId(ChannelId channelId, String registerId, String msg, boolean retry) {
         ChannelHandlerContext ctx = NettyServerHandler.channelMap.get(channelId);
         if (ctx == null) {
             log.warn("通道: {} 不存在，消息发送异常", channelId);
@@ -110,12 +115,12 @@ public class NettyServer implements CommandLineRunner {
         }
         ctx.writeAndFlush(msg);
         if (retry) {
-            addNettyRetryMap(channelId, msg);
+            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, registerId, msg);
         }
         return true;
     }
 
-    public boolean channelWriteByRegisterId(String registerId, String msg) {
+    public boolean channelWriteByRegisterId(String registerId, String msg, boolean retry) {
         NettyClientChannel nettyClientChannel = NettyServerHandler.clientMap.get(registerId);
         if (nettyClientChannel == null) {
             log.warn("通道注册码【{}】不存在!!", registerId);
@@ -123,30 +128,9 @@ public class NettyServer implements CommandLineRunner {
         }
         ChannelId channelId = nettyClientChannel.getChannelId();
         if (channelId != null) {
-            return channelWriteByChannelId(channelId, msg);
+            return channelWriteByChannelId(channelId, registerId, msg, retry);
         }
         return false;
-    }
-
-    /**
-     * 新增重发消息
-     *
-     * @param channelId
-     * @param msg
-     */
-    private void addNettyRetryMap(ChannelId channelId, String msg) {
-        JSONObject jsonObject = JSONObject.parse(msg);
-        jsonObject.get("requestId");
-        retryMap.put(jsonObject.get("requestId").toString(), new NettyMessageRetry(channelId, msg, new Date(), 0));
-    }
-
-    /**
-     * 重发消息删除
-     *
-     * @param requestId
-     */
-    public void removeNettyRetryMap(String requestId) {
-        retryMap.remove(requestId);
     }
 
 

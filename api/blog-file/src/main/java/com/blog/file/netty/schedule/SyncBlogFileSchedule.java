@@ -46,7 +46,7 @@ public class SyncBlogFileSchedule {
         nettyResponse.setNettyPacketType(NettyPacketType.REQUEST.getValue());
         nettyResponse.setTopic(NettyTopicEnum.BLOG_FILE_SYNC.getTopic());
 
-        nettyServer.channelWriteByRegisterId(NettyConstant.NETTY_CLIENT1, JSONObject.toJSONString(nettyResponse));
+        nettyServer.channelWriteByRegisterId(NettyConstant.NETTY_CLIENT1, JSONObject.toJSONString(nettyResponse), true);
 
     }
 

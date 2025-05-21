@@ -7,4 +7,5 @@ package com.blog.redis.constant;
  */
 
 public class FileRedisConstant {
+
 }

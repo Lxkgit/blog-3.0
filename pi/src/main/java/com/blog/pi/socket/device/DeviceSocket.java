@@ -83,7 +83,7 @@ public class DeviceSocket {
                 // 发送 Netty 单片机设备注册消息
                 NettyPacket<String> nettyRequest = NettyPacket.buildRequest(message);
                 nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
-                nettyRequest.setTopic(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic());
+                nettyRequest.setTopic(NettyTopicEnum.DEVICE_INFO.getTopic());
                 nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
             } else if (DeviceSocketTopic.SOCKET_HEART.equals(topic)) {
 

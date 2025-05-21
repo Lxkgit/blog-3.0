@@ -105,7 +105,7 @@ public class SensorControlServiceImpl implements SensorControlService {
         NettyPacket<SensorCommandDto<SteeringEngine180Dto>> sensorCommandRequest = NettyPacket.buildRequest(commandVo);
         sensorCommandRequest.setTopic(NettyTopicEnum.BLOG_SENSOR_CONTROL.getTopic());
 
-        return nettyServer.channelWriteByRegisterId(sensor.getDeviceCode(), JSONObject.toJSONString(sensorCommandRequest));
+        return nettyServer.channelWriteByRegisterId(sensor.getDeviceCode(), JSONObject.toJSONString(sensorCommandRequest), true);
     }
 
     /**

@@ -45,7 +45,7 @@ public class NettyPacket<T> implements Serializable {
     /**
      * netty注册id
      */
-    private String deviceCode;
+    private String registerCode;
 
     /**
      * netty 消息内容
@@ -56,7 +56,7 @@ public class NettyPacket<T> implements Serializable {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
         nettyPacket.setRequestId(MyUUID.getRandomString());
         nettyPacket.setUsername("gszero");
-        nettyPacket.setDeviceCode("2ecfb95116de4967afe7710e11ac00b4");
+        nettyPacket.setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
         nettyPacket.setNettyPacketType(NettyPacketType.REQUEST.getValue());
         nettyPacket.setData(param);
         return nettyPacket;
@@ -66,9 +66,9 @@ public class NettyPacket<T> implements Serializable {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
         nettyPacket.setRequestId(requestId);
         nettyPacket.setUsername("gszero");
-        nettyPacket.setDeviceCode("2ecfb95116de4967afe7710e11ac00b4");
+        nettyPacket.setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
         nettyPacket.setNettyPacketType(NettyPacketType.RESPONSE.getValue());
-        nettyPacket.setDeviceCode((String) InitConfig.getRegisterConfig("netty", "registerId"));
+        nettyPacket.setRegisterCode((String) InitConfig.getRegisterConfig("netty", "registerId"));
         nettyPacket.setData(data);
         return nettyPacket;
     }

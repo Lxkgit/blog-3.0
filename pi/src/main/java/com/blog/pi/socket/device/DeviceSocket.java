@@ -73,7 +73,7 @@ public class DeviceSocket {
      */
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
-        log.info("服务端收到客户端的消息:{}", message);
+        log.info("web socket msg :{}", message);
         if (StringUtils.isNotEmpty(message)) {
             JSONObject jsonObject = JSON.parseObject(message);
             String topic = jsonObject.getString("topic");

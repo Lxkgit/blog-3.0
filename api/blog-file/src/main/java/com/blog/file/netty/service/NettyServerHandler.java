@@ -62,7 +62,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         } else {
             // 保存连接
             channelMap.put(channelId, ctx);
-            log.info("客户端【{}】连接Netty服务端!![clientIp:{} clientPort:{}]", channelId, clientIp, clientPort);
+            log.info("netty client【{}】 connected [clientIp:{} clientPort:{}]", channelId, clientIp, clientPort);
         }
     }
 

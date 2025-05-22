@@ -54,7 +54,7 @@ public class NettyClientHandler extends ChannelDuplexHandler {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        log.info("开始建立Netty连接!!");
+        log.info("netty register");
 
         // 组装netty注册消息类
         NettyRegisterDto nettyRegisterDto = new NettyRegisterDto();
@@ -67,7 +67,6 @@ public class NettyClientHandler extends ChannelDuplexHandler {
         nettyRequest.setNettyPacketType(NettyPacketType.REGISTER.getValue());
         nettyRequest.setTopic(NettyPacketType.REGISTER.getValue());
         String nettyRegister = JSONObject.toJSONString(nettyRequest);
-        log.info("Netty 注册消息：{}", nettyRegister);
         ctx.writeAndFlush(nettyRegister);
     }
 
@@ -76,7 +75,7 @@ public class NettyClientHandler extends ChannelDuplexHandler {
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        log.warn("Netty连接关闭!!");
+        log.warn("netty service close");
         reconnect(ctx);
     }
 
@@ -138,7 +137,7 @@ public class NettyClientHandler extends ChannelDuplexHandler {
     }
 
     private void reconnect(ChannelHandlerContext ctx) {
-        log.info("准备30s后断线重连!!");
+        log.info("netty reconnect after 30 seconds");
         ctx.channel().eventLoop().schedule(() -> nettyClient.run(), 30, TimeUnit.SECONDS);
     }
 }

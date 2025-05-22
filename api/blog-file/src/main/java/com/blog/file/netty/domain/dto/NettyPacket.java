@@ -58,7 +58,7 @@ public class NettyPacket<T> implements Serializable {
     public static <T> NettyPacket<T> buildRequest(T param) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
         nettyPacket.setRequestId(getOnlyId());
-        nettyPacket.setRegisterCode(NettyConstant.NETTY_SENDER);
+        nettyPacket.setRegisterCode(NettyConstant.NETTY_DEVICE_CODE);
         nettyPacket.setNettyPacketType(NettyPacketType.REQUEST.getValue());
         nettyPacket.setData(param);
         return nettyPacket;
@@ -67,7 +67,7 @@ public class NettyPacket<T> implements Serializable {
     public static <T> NettyPacket<T> buildResponse(String requestId, T data) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
         nettyPacket.setRequestId(requestId);
-        nettyPacket.setRegisterCode(NettyConstant.NETTY_SENDER);
+        nettyPacket.setRegisterCode(NettyConstant.NETTY_DEVICE_CODE);
         nettyPacket.setNettyPacketType(NettyPacketType.RESPONSE.getValue());
         nettyPacket.setData(data);
         return nettyPacket;

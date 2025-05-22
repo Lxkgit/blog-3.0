@@ -39,20 +39,19 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
         String topic = event.getNettyPacket().getTopic();
         String registerId = event.getNettyPacket().getRegisterCode();
         String data = event.getNettyPacket().getData().toString();
-        log.info("channelId:【{}】 nettyPacketType:【{}】 requestId:【{}】 topic:【{}】 registerId:【{}】 data:【{}】", channelId, nettyPacketType, requestId, topic, registerId, data);
+        log.info("channelId:{} nettyPacketType:{} requestId:{} topic:{} registerId:{} data:{}", channelId, nettyPacketType, requestId, topic, registerId, data);
         if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
-//            log.info(data);
+            // 服务器不会下发心跳信息，客户端心跳信息也不会响应
         } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
-            // 处理服务端请求
-            // 处理文件下载同步
             if (topic.equals(NettyTopicEnum.BLOG_FILE_SYNC.getTopic())) {
+                // 处理文件下载同步
                 syncBlogFileService.syncBlogFile(data, requestId);
             } else if (topic.equals(NettyTopicEnum.BLOG_SENSOR_CONTROL.getTopic())) {
+                // 处理服务器控制命令
                 sensorControlService.sendCommand(data, requestId);
             }
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
-            // 处理服务端数据响应
-
+            // 处理netty消息发送后服务端响应数据
 
         } else {
             log.warn("unknown NettyPacketType!! channelId:{} event:{}", channelId, JSONObject.toJSONString(event));

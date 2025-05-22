@@ -36,18 +36,18 @@ public class DeviceStatusSchedule {
      */
     @Scheduled(cron = "0 0/5 * * * ?")
     public void updateDeviceStatus() {
-        Date date = new Date();
-        for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
-            NettyClientChannel channel = entry.getValue();
-            long interval = (date.getTime() - channel.getDate().getTime())/1000;
-            // 设备最近的心跳如果在三分钟之前则说明设备已经离线 移除数据(只能移除连接且注册过的通道)
-            if (interval > Constant.DEVICE_WAIT_TIME) {
-                removeChannelByRegisterId(channel.getDeviceCode(), deviceDAO);
-            }
-            // 移除连接但是没有注册的通道
-            NettyServerHandler.channelMap.keySet().removeIf(key -> !containChannelId(key));
-            log.info("channelId: 连接通道数量:{}, client: 绑定通道数量:{}", NettyServerHandler.channelMap.size(), NettyServerHandler.clientMap.size());
-        }
+//        Date date = new Date();
+//        for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
+//            NettyClientChannel channel = entry.getValue();
+//            long interval = (date.getTime() - channel.getDate().getTime())/1000;
+//            // 设备最近的心跳如果在三分钟之前则说明设备已经离线 移除数据(只能移除连接且注册过的通道)
+//            if (interval > Constant.DEVICE_WAIT_TIME) {
+//                removeChannelByRegisterId(channel.getDeviceCode(), deviceDAO);
+//            }
+//            // 移除连接但是没有注册的通道
+//            NettyServerHandler.channelMap.keySet().removeIf(key -> !containChannelId(key));
+//            log.info("channelId: 连接通道数量:{}, client: 绑定通道数量:{}", NettyServerHandler.channelMap.size(), NettyServerHandler.clientMap.size());
+//        }
     }
 
     /**

@@ -15,8 +15,8 @@ import java.util.Date;
  */
 
 @Data
-@TableName("device_heartbeat")
-public class DeviceHeartbeat {
+@TableName("device_info")
+public class DeviceInfo {
 
     /**
      * 自增id

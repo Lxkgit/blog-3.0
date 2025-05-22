@@ -42,6 +42,8 @@ public class NettyDeviceService {
     @Resource
     private ChipSensorMapper chipSensorDAO;
 
+    @Resource
+    private DeviceInfoMapper deviceInfoMapper;
     /**
      * 传感器设备主动注册
      * @param data
@@ -194,7 +196,11 @@ public class NettyDeviceService {
     }
 
     public void deviceInfo(String data, String deviceCode, Integer userId) {
-        JSONObject jsonObject = JSONObject.parseObject(data);
-
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setDeviceCode(deviceCode);
+        deviceInfo.setUserId(userId);
+        deviceInfo.setDeviceJson(data);
+        deviceInfo.setCreateTime(new Date());
+        deviceInfoMapper.insert(deviceInfo);
     }
 }

@@ -6,11 +6,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.file.netty.domain.dto.NettyClientChannel;
+import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.register.NettyRegisterDto;
 import com.blog.file.netty.domain.enums.NettyPacketType;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.file.mapper.DeviceMapper;
-import com.blog.file.mapper.DeviceHeartbeatMapper;
+import com.blog.file.mapper.DeviceInfoMapper;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.netty.event.NettyPacketEvent;
 import com.blog.file.netty.service.*;
@@ -50,7 +51,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     private UserDeviceMapper userDeviceDAO;
 
     @Resource
-    private DeviceHeartbeatMapper deviceHeartbeatDAO;
+    private DeviceInfoMapper deviceInfoMapper;
 
     @Resource
     private NettyUserService nettyUserService;
@@ -68,26 +69,20 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         Integer userId = Integer.parseInt(registerCode.split(":")[0]);
         String deviceCode = registerCode.split(":")[1];
         String data = event.getNettyPacket().getData().toString();
-        log.info("channelId:【{}】 nettyPacketType:【{}】 topic:【{}】 deviceCode:【{}】 data:【{}】",
-                channelId, nettyPacketType, topic, deviceCode, data);
+        log.info("channelId:{} requestId：{} nettyPacketType:{} topic:{} deviceCode:{} data:{}",
+                channelId, requestId, nettyPacketType, topic, deviceCode, data);
         if (nettyPacketType.equals(NettyPacketType.REGISTER.getValue())) {
             deviceRegister(userId, deviceCode, channelId, data);
         } else if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
             // 记录的通道数据丢失 由心跳恢复通道数据
             if (!NettyServerHandler.clientMap.containsKey(deviceCode)) {
                 addNettyChannel(channelId, userId, deviceCode);
-                log.info("心跳 客户端【{}】与netty通道【{}】绑定", deviceCode, channelId);
+                log.info("netty heartbeat: deviceCode:{} channelId:{}", deviceCode, channelId);
             }
 
 //            NettyHeartbeatDto nettyHeartBeat = JSONObject.parseObject(data, NettyHeartbeatDto.class);
 
-//            // 记录心跳中携带的 cpu 内存 网络 状态数据
-//            DeviceHeartbeat deviceHeartbeat = new DeviceHeartbeat();
-//            deviceHeartbeat.setUserId(userId);
-//            deviceHeartbeat.setDeviceCode(deviceCode);
-//            deviceHeartbeat.setDeviceJson(data);
-//            deviceHeartbeat.setCreateTime(nettyHeartBeat.getHeartBeat());
-//            deviceHeartbeatDAO.insert(deviceHeartbeat);
+
 
 
         } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
@@ -99,6 +94,11 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             } else if (topic.equals(NettyTopicEnum.DEVICE_INFO.getTopic())) {
                 nettyDeviceData.deviceInfo(data, deviceCode, userId);
             }
+
+            // 消息响应
+            NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, "service receive data");
+            nettyResponse.setTopic(topic);
+            nettyServer.channelWriteByChannelId(channelId, requestId, JSONObject.toJSONString(nettyResponse), false);
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             log.info("channelId:{} RESPONSE!! data:{}", channelId, JSONObject.toJSONString(event.getNettyPacket().getData()));
 
@@ -126,7 +126,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             NettyRegisterDto nettyRegisterDto = JSONObject.parseObject(data, NettyRegisterDto.class);
             if (!NettyServerHandler.clientMap.containsKey(deviceCode)) {
                 addNettyChannel(channelId, userId, deviceCode);
-                log.info("注册 客户端【{}】与netty通道【{}】绑定", deviceCode, channelId);
+                log.info("netty register: deviceCode:{} channelId:{}", deviceCode, channelId);
             }
 
             // 创建设备 写入数据

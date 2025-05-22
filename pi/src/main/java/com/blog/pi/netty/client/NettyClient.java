@@ -57,9 +57,9 @@ public class NettyClient implements CommandLineRunner {
             //客户端断线重连逻辑
             future.addListener((ChannelFutureListener) futureListener -> {
                 if (futureListener.isSuccess()) {
-                    log.info("连接Netty服务端成功!!");
+                    log.info("netty connection success");
                 } else {
-                    log.warn("连接Netty服务端失败，准备30s后进行断线重连!!");
+                    log.warn("netty connection failed, try again after 30 seconds");
                     futureListener.channel().eventLoop().schedule((Runnable) this::run, 30, TimeUnit.SECONDS);
                 }
             });
@@ -75,7 +75,7 @@ public class NettyClient implements CommandLineRunner {
             channel.close();
         }
         workGroup.shutdownGracefully();
-        log.warn("Netty连接关闭!!");
+        log.warn("netty service close");
     }
 
     public void sendMsg(String msg) {

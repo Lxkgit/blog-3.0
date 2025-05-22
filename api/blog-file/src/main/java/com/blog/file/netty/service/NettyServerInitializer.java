@@ -7,9 +7,12 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.CharsetUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description: Netty服务端初始化配置
@@ -34,6 +37,7 @@ public class NettyServerInitializer extends ChannelInitializer<Channel> {
                 .addLast(new LengthFieldPrepender(2))
                 .addLast(new StringDecoder(CharsetUtil.UTF_8))
                 .addLast(new StringEncoder(CharsetUtil.UTF_8))
+                .addLast(new IdleStateHandler(65, 0, 0, TimeUnit.SECONDS))
                 .addLast("nettyServerHandler", nettyServerHandler);
     }
 }

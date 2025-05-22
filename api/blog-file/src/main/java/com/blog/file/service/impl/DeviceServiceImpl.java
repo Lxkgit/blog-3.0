@@ -1,24 +1,22 @@
 package com.blog.file.service.impl;
 
 
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.constant.ErrorMessage;
 import com.blog.core.domain.file.device.entity.Chip;
 import com.blog.core.domain.file.device.entity.Device;
-import com.blog.core.domain.file.device.entity.DeviceHeartbeat;
-import com.blog.core.domain.file.device.vo.DeviceHeartbeatVo;
+import com.blog.core.domain.file.device.entity.DeviceInfo;
+import com.blog.core.domain.file.device.vo.DeviceInfoVo;
 import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.ChipMapper;
 import com.blog.file.mapper.DeviceMapper;
-import com.blog.file.mapper.DeviceHeartbeatMapper;
+import com.blog.file.mapper.DeviceInfoMapper;
 import com.blog.file.mapper.UserDeviceMapper;
-import com.blog.core.domain.file.device.dto.NettyHeartbeatDto;
 import com.blog.file.netty.schedule.DeviceStatusSchedule;
 import com.blog.file.service.DeviceService;
 import jakarta.annotation.Resource;
@@ -49,7 +47,7 @@ public class DeviceServiceImpl implements DeviceService {
     private UserDeviceMapper userDeviceDAO;
 
     @Resource
-    private DeviceHeartbeatMapper deviceHeartbeatMapper;
+    private DeviceInfoMapper deviceInfoMapper;
 
     /**
      * 新增设备
@@ -166,26 +164,26 @@ public class DeviceServiceImpl implements DeviceService {
      * @return
      */
     @Override
-    public List<DeviceHeartbeatVo> selectDeviceInfoById(Integer id) {
+    public List<DeviceInfoVo> selectDeviceInfoById(Integer id) {
         Integer userId = SecurityUtil.getLoginUser().getId();
         int dataCount = 100;
 
         Device device = deviceMapper.selectById(id);
 
-        LambdaQueryWrapper<DeviceHeartbeat> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(DeviceHeartbeat::getUserId, userId);
-        wrapper.eq(DeviceHeartbeat::getDeviceCode, device.getDeviceCode());
-        wrapper.orderByDesc(DeviceHeartbeat::getId);
+        LambdaQueryWrapper<DeviceInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DeviceInfo::getUserId, userId);
+        wrapper.eq(DeviceInfo::getDeviceCode, device.getDeviceCode());
+        wrapper.orderByDesc(DeviceInfo::getId);
         wrapper.last("LIMIT " + dataCount);
 
-        List<DeviceHeartbeat> list = deviceHeartbeatMapper.selectList(wrapper);
+        List<DeviceInfo> list = deviceInfoMapper.selectList(wrapper);
 
-        List<DeviceHeartbeatVo> voList = new ArrayList<>();
+        List<DeviceInfoVo> voList = new ArrayList<>();
 
         list.forEach(item -> {
-            DeviceHeartbeatVo vo = new DeviceHeartbeatVo();
+            DeviceInfoVo vo = new DeviceInfoVo();
             BeanUtils.copyProperties(item, vo);
-            vo.setNettyHeartbeatDto(JSONObject.parseObject(item.getDeviceJson(), NettyHeartbeatDto.class));
+//            vo.setNettyHeartbeatDto(JSONObject.parseObject(item.getDeviceJson(), NettyHeartbeatDto.class));
             vo.setDeviceJson(null);
             voList.add(vo);
         });

@@ -1,7 +1,7 @@
 package com.blog.file.service;
 
 import com.blog.core.domain.file.device.entity.Device;
-import com.blog.core.domain.file.device.vo.DeviceHeartbeatVo;
+import com.blog.core.domain.file.device.vo.DeviceInfoVo;
 import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ServiceException;
 
@@ -25,5 +25,5 @@ public interface DeviceService {
 
     DeviceVo selectDeviceById(Integer id) throws ServiceException;
 
-    List<DeviceHeartbeatVo> selectDeviceInfoById(Integer id);
+    List<DeviceInfoVo> selectDeviceInfoById(Integer id);
 }

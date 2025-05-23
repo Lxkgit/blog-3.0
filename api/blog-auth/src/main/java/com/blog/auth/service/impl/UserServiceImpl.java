@@ -14,6 +14,8 @@ import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,9 +26,10 @@ import java.util.List;
  * @date 2025/03/24
  */
 
-@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Resource
     private UserMapper userMapper;
@@ -51,20 +54,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public MyPage<UserVo> selectUserByPage(UserVo userVo) {
-
-        PageHelper.startPage(userVo.getPageNum(), userVo.getPageSize());
-        List<User> userList = userMapper.selectList(new QueryWrapper<>());
-        PageInfo<User> articlePage = new PageInfo<>(userList);
-        List<UserVo> userVoList = BeanUtil.copyToList(articlePage.getList(), UserVo.class);
-        userVoList.forEach(item -> {
-            item.setPassword(null);
-            item.setRoleList(roleMapper.selectUserRoles(item.getId()));
-        });
         MyPage<UserVo> myPage = null;
         try {
+            PageHelper.startPage(userVo.getPageNum(), userVo.getPageSize());
+            List<User> userList = userMapper.selectList(new QueryWrapper<>());
+            PageInfo<User> articlePage = new PageInfo<>(userList);
+            List<UserVo> userVoList = BeanUtil.copyToList(articlePage.getList(), UserVo.class);
+            userVoList.forEach(item -> {
+                item.setPassword(null);
+                item.setRoleList(roleMapper.selectUserRoles(item.getId()));
+            });
             myPage = MyPageUtils.pageUtil(userVoList, userVo.getPageNum(), userVo.getPageSize(), (int) articlePage.getTotal());
         } catch (Exception e){
-            log.info(e.getMessage());
+            logger.error("用户列表接口查询异常：{}", e.getMessage(), e);
         }
         return myPage;
     }

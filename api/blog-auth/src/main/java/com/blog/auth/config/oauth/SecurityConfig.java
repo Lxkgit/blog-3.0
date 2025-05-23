@@ -18,6 +18,8 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,10 +68,12 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 //开启web安全 应用在web环境下
 // 1: 加载了WebSecurityConfiguration配置类, 配置安全认证策略
 // 2: 加载了AuthenticationConfiguration, 配置了认证信息
-@Slf4j
+
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Resource
     private JdbcTemplate jdbcTemplate;
@@ -106,7 +110,6 @@ public class SecurityConfig {
     @Order(1)
     @Bean
     public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {
-        log.info("第一个过滤器");
 
         //授权服务配置 应用默认安全性 简化配置,在源码给你都配置好了
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
@@ -153,7 +156,6 @@ public class SecurityConfig {
     @Order(2)
     @Bean
     public SecurityFilterChain appFilterChain(HttpSecurity http) throws Exception {
-        log.info("第二个过滤器");
         //先进行自定义的过滤器,在进行账号密码验证
         http.addFilterBefore(myAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http
@@ -317,7 +319,7 @@ public class SecurityConfig {
             JwtClaimsSet.Builder claims = context.getClaims();
             //获取原有的jwt 参数
             Map<String, Object> map = claims.build().getClaims();
-            log.info("==========={}", map);
+            logger.info("jwt 参数：{}", map);
             //获取账号
             String sub = map.get("sub").toString();
             LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();

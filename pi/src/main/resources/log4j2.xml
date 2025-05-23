@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <!-- 定义变量 -->
+    <Properties>
+        <!--
+        %d{yyyy-MM-dd HH:mm:ss.SSS} 表示日期，如：2024-01-05 14:30:45.789,
+        [%t]与[%thread]一样 表示当前线程[main]主线程或[http-nio-8080-exec-1]Web请求线程,
+        %-5level 表示日志级别，最大长度为5[-5表示从尾向左保留五个字符];
+        %logger{36} 表示输出日志记录器(Logger)的名称（com.example.service.UserService），{36}表示最大长度
+        %msg 表示日志消息内容，即开发者调用日志API时传入的具体信息（logger
+        .info("用户登录成功：{}", username)）
+        %n 表示换行符，确保每条日志独占一行
+            -->
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="LOG_DIR">logs/pi</Property>
+        <Property name="LOG_FILE_NAME">blog-pi.log</Property>
+    </Properties>
+
+    <!-- 定义输出器（Appenders） -->
+    <Appenders>
+        <!-- 控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <!-- 滚动文件输出 -->
+        <RollingFile name="RollingFile" fileName="${LOG_DIR}/${LOG_FILE_NAME}"
+                     filePattern="${LOG_DIR}/app-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- 按时间滚动（每天） -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!-- 按文件大小滚动（最大 100MB） -->
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <!-- 最多保留 30 天或 10 个文件 -->
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <!-- 异步日志（提升性能） -->
+        <Async name="AsyncAppender" bufferSize="1024">
+            <AppenderRef ref="RollingFile"/>
+        </Async>
+    </Appenders>
+
+    <!-- 定义日志记录器（Loggers） -->
+    <Loggers>
+        <!-- Spring 框架日志（INFO 级别） -->
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- MyBatis SQL 日志（DEBUG 级别） -->
+        <Logger name="com.example.mapper" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncAppender"/>
+        </Logger>
+
+        <!-- 根日志记录器（全局默认） -->
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>

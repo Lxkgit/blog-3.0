@@ -22,7 +22,7 @@ import java.io.PrintWriter;
  * @return
  * @throws Exception
  */
-@Slf4j
+
 @Component
 public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

@@ -21,7 +21,6 @@ import java.util.List;
  * @description: 系统菜单接口
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/menu")
 public class MenuController {

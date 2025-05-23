@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.auth.mapper.MenuMapper;
 import com.blog.auth.mapper.UserMapper;
+import com.blog.auth.service.impl.LoginServiceImpl;
 import com.blog.core.domain.auth.bo.LoginUserBo;
 import com.blog.core.domain.auth.entity.Menu;
 import com.blog.auth.entity.MyUserDetails;
@@ -11,6 +12,8 @@ import com.blog.core.domain.auth.entity.User;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,10 +30,12 @@ import java.util.List;
  * @return
  * @throws Exception
  */
-@Slf4j
+
 @Service
 public class AuthService implements UserDetailsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    
     @Resource
     private UserMapper userMapper;
 
@@ -47,14 +52,14 @@ public class AuthService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("根据账号查询用户信息==========================================================");
+        logger.info("根据账号查询用户信息==========================================================");
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
         User user = userMapper.selectOne(queryWrapper);
         LoginUserBo loginUserBo = new LoginUserBo();
         BeanUtil.copyProperties(user, loginUserBo);
         if (user == null) {
-            log.info("用户不存在");
+            logger.info("用户不存在");
             throw new UsernameNotFoundException("用户不存在");
         }
         //根据用户id获取权限信息

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * @CreateTime 2025-03-20
  */
 
-@Slf4j
+
 @RestController
 @RequestMapping("/role")
 public class RoleController {

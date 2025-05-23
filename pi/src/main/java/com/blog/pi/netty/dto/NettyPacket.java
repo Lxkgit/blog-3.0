@@ -1,7 +1,7 @@
 package com.blog.pi.netty.dto;
 
 
-import com.blog.pi.config.InitConfig;
+import com.blog.pi.config.PiSystemConfig;
 import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.utils.MyUUID;
 import lombok.Data;
@@ -68,7 +68,6 @@ public class NettyPacket<T> implements Serializable {
         nettyPacket.setUsername("gszero");
         nettyPacket.setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
         nettyPacket.setNettyPacketType(NettyPacketType.RESPONSE.getValue());
-        nettyPacket.setRegisterCode((String) InitConfig.getRegisterConfig("netty", "registerId"));
         nettyPacket.setData(data);
         return nettyPacket;
     }

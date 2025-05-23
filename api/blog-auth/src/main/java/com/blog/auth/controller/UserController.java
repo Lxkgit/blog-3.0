@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
  * @CreateTime 2025-03-24
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {

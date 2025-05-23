@@ -3,7 +3,7 @@ package com.blog.pi.netty.service;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.blog.pi.config.InitConfig;
+import com.blog.pi.config.PiSystemConfig;
 import com.blog.pi.dao.FileSyncDAO;
 import com.blog.pi.domain.entity.FileSync;
 import com.blog.pi.ftp.FtpUtil;
@@ -38,6 +38,9 @@ public class SyncBlogFileService {
     @Resource
     private FileSyncDAO fileSyncDAO;
 
+    @Resource
+    private PiSystemConfig piSystemConfig;
+
     /**
      * 下载服务器指定文件
      *
@@ -49,7 +52,7 @@ public class SyncBlogFileService {
         NettySyncBlogFileDto nettySyncBlogFile = JSON.parseObject(data, NettySyncBlogFileDto.class);
 
         // 获取文件存储基础路径
-        String basePath = (String) InitConfig.getRegisterConfig("ftp", "basePath");
+        String basePath = (String) piSystemConfig.getRegisterConfig("ftp", "basePath");
         String serviceFilePath = nettySyncBlogFile.getFilePath();
         String serviceFileName = nettySyncBlogFile.getFileName();
 

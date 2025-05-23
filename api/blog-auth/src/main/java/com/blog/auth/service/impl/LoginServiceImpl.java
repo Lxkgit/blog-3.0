@@ -18,6 +18,8 @@ import com.blog.redis.constant.AuthRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,10 +31,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Slf4j
 @Service
 public class LoginServiceImpl implements LoginService {
 
+    private static final Logger logger = LoggerFactory.getLogger(LoginServiceImpl.class);
 
     //认证管理器
     @Resource
@@ -71,7 +73,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public JSONObject getToken(Oauth2Vo vo) throws ServiceException {
-        log.info("获取 token");
+        logger.info("获取 token");
         //拼接获取token的路径
         String url = "http://127.0.0.1:60001/auth/oauth2/token";
         Map<String, String> map = new HashMap<>();
@@ -103,7 +105,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     private String getRzId(String username, String encryptedPassword) throws ServiceException {
-        log.info("开始登录");
+        logger.info("开始登录");
         String privateKey = redisService.getString(AuthRedisConstant.PRIVATE_KEY).toString();
         String password = RSAUtil.decrypt(encryptedPassword, privateKey);
 
@@ -116,7 +118,7 @@ public class LoginServiceImpl implements LoginService {
         }
         //认证Id
         String rzId = UUID.randomUUID().toString();
-        log.info("获取认证id： {}", rzId);
+        logger.info("获取认证id： {}", rzId);
         String key = AuthRedisConstant.RZ_ID + ":" + rzId;
         //创建安全上下文
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();

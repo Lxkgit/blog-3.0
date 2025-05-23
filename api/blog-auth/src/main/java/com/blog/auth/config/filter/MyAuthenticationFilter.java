@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -23,9 +25,11 @@ import java.io.IOException;
 /**
  * 认证过滤器 校验通过 就不需要再登陆
  */
-@Slf4j
+
 @Component
 public class MyAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(MyAuthenticationFilter.class);
 
     @Resource
     private RedisService redisService;
@@ -43,7 +47,6 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain)
             throws ServletException, IOException {
         try {
-
             //从请求头获取认证id
             String rzId = request.getHeader("rzId");
             if (StringUtils.isNotEmpty(rzId)) {
@@ -69,7 +72,7 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
-            log.error(e.getMessage());
+            logger.error("请求头数据校验异常: {}", e.getMessage(), e);
         }
 
         //放行

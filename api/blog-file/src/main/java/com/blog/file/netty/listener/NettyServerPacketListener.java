@@ -20,6 +20,8 @@ import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -31,10 +33,12 @@ import java.util.Date;
  * @Author: lxk
  * @date 2024/1/6 15:17
  */
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class NettyServerPacketListener implements ApplicationListener<NettyPacketEvent> {
+
+    private static final Logger logger = LoggerFactory.getLogger(NettyServerPacketListener.class);
+
 
     private final NettyServer nettyServer;
 
@@ -69,7 +73,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         Integer userId = Integer.parseInt(registerCode.split(":")[0]);
         String deviceCode = registerCode.split(":")[1];
         String data = event.getNettyPacket().getData().toString();
-        log.info("channelId:{} requestId：{} nettyPacketType:{} topic:{} deviceCode:{} data:{}",
+        logger.info("channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
                 channelId, requestId, nettyPacketType, topic, deviceCode, data);
         if (nettyPacketType.equals(NettyPacketType.REGISTER.getValue())) {
             deviceRegister(userId, deviceCode, channelId, data);
@@ -77,7 +81,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             // 记录的通道数据丢失 由心跳恢复通道数据
             if (!NettyServerHandler.clientMap.containsKey(deviceCode)) {
                 addNettyChannel(channelId, userId, deviceCode);
-                log.info("netty heartbeat: deviceCode:{} channelId:{}", deviceCode, channelId);
+                logger.debug("netty heartbeat: deviceCode:{} channelId:{}", deviceCode, channelId);
             }
 
 //            NettyHeartbeatDto nettyHeartBeat = JSONObject.parseObject(data, NettyHeartbeatDto.class);
@@ -100,7 +104,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             nettyResponse.setTopic(topic);
             nettyServer.channelWriteByChannelId(channelId, requestId, JSONObject.toJSONString(nettyResponse), false);
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
-            log.info("channelId:{} RESPONSE!! data:{}", channelId, JSONObject.toJSONString(event.getNettyPacket().getData()));
+            logger.info("channelId:{} RESPONSE!! data:{}", channelId, JSONObject.toJSONString(event.getNettyPacket().getData()));
 
         }
     }
@@ -119,14 +123,14 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         UserDevice selectDevice = userDeviceDAO.selectOne(userDeviceQueryWrapper);
         // 设备编码错误拒绝注册
         if (selectDevice == null) {
-            log.error("用户与编码匹配失败，拒绝连接");
+            logger.error("用户与编码匹配失败，拒绝连接");
             nettyServer.close(channelId);
         } else {
             // netty 设备通道绑定 后续发送消息获取通道
             NettyRegisterDto nettyRegisterDto = JSONObject.parseObject(data, NettyRegisterDto.class);
             if (!NettyServerHandler.clientMap.containsKey(deviceCode)) {
                 addNettyChannel(channelId, userId, deviceCode);
-                log.info("netty register: deviceCode:{} channelId:{}", deviceCode, channelId);
+                logger.info("netty register: deviceCode:{} channelId:{}", deviceCode, channelId);
             }
 
             // 创建设备 写入数据

@@ -1,6 +1,7 @@
 package com.blog.pi.ftp;
 
-import com.blog.pi.config.InitConfig;
+import com.blog.pi.config.PiSystemConfig;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -21,8 +22,11 @@ import java.nio.file.Files;
 @Service
 public class FtpUtil {
 
+    @Resource
+    private PiSystemConfig piSystemConfig;
 
     private FTPClient ftpClient;
+
 
     private boolean init() {
         ftpClient = new FTPClient();
@@ -32,10 +36,10 @@ public class FtpUtil {
         log.info("开始连接ftp");
         int reply;
         try {
-            String ftpIp = (String) InitConfig.getRegisterConfig("ftp", "ip");
-            int ftpPort = (int) InitConfig.getRegisterConfig("ftp", "port");
-            String ftpUsername = (String) InitConfig.getRegisterConfig("ftp", "username");
-            String ftpPassword = (String) InitConfig.getRegisterConfig("ftp", "password");
+            String ftpIp = (String) piSystemConfig.getRegisterConfig("ftp", "ip");
+            int ftpPort = (int) piSystemConfig.getRegisterConfig("ftp", "port");
+            String ftpUsername = (String) piSystemConfig.getRegisterConfig("ftp", "username");
+            String ftpPassword = (String) piSystemConfig.getRegisterConfig("ftp", "password");
             ftpClient.setConnectTimeout(10000);
             ftpClient.connect(ftpIp, ftpPort);
             ftpClient.login(ftpUsername, ftpPassword);

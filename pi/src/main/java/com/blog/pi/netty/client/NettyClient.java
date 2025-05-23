@@ -1,7 +1,7 @@
 package com.blog.pi.netty.client;
 
 
-import com.blog.pi.config.InitConfig;
+import com.blog.pi.config.PiSystemConfig;
 import com.blog.pi.dao.RegisterSettingDAO;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -30,9 +30,11 @@ public class NettyClient implements CommandLineRunner {
     private final EventLoopGroup workGroup = new NioEventLoopGroup();
     private final NettyClientInitializer nettyClientInitializer;
 
-
     @Resource
     private RegisterSettingDAO registerSettingDAO;
+
+    @Resource
+    private PiSystemConfig piSystemConfig;
 
     @Override
     public void run(String... args) {
@@ -51,8 +53,8 @@ public class NettyClient implements CommandLineRunner {
                     // Netty客户端channel初始化
                     .handler(nettyClientInitializer);
             // 连接服务器ip、端口
-            ChannelFuture future = bootstrap.connect((String) InitConfig.getRegisterConfig("netty", "ip"),
-                    (Integer) InitConfig.getRegisterConfig("netty", "port"));
+            ChannelFuture future = bootstrap.connect((String) piSystemConfig.getRegisterConfig("netty", "ip"),
+                    (Integer) piSystemConfig.getRegisterConfig("netty", "port"));
 
             //客户端断线重连逻辑
             future.addListener((ChannelFutureListener) futureListener -> {

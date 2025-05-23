@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
  * @CreateTime 2025-01-05
  */
 
-@Slf4j
 @Service
 public class RocketMQMessageHandlerService implements RocketMQMessageHandler {
 

@@ -2,10 +2,13 @@ package com.blog.pi.netty.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
-public class NettyReplayMessage {
+public class NettyReplayMessage implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 消息发送时间
@@ -21,6 +24,9 @@ public class NettyReplayMessage {
      * netty 发送消息
      */
     private String message;
+
+    public NettyReplayMessage() {
+    }
 
     public NettyReplayMessage(String message) {
         this.sendTime = new Date();

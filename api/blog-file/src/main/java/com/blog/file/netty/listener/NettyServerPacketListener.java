@@ -94,7 +94,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             // 回复请求消息响应
             NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, "response");
             nettyResponse.setTopic(topic);
-//            nettyServer.channelWriteByChannelId(channelId, requestId, JSONObject.toJSONString(nettyResponse), false);
+            nettyServer.channelWriteByChannelId(channelId, requestId, JSONObject.toJSONString(nettyResponse), false);
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             // 接收响应
             logger.info("channelId:{} RESPONSE data:{}", channelId, JSONObject.toJSONString(event.getNettyPacket().getData()));

@@ -55,29 +55,32 @@ public class NettyMessageReplayThread implements Runnable {
             }
 
             Map<Object, Object> map = redisService.getAllHash(NettyRedisConstant.NETTY_SEND_QUEUE);
-            if (CollectionUtils.isNotEmpty(map)) {
+            if (CollectionUtils.isNotEmpty(map) || nettyClient.getChannelActive()) {
                 map.forEach((k, v) -> {
                     String key = k.toString();
-                    NettyReplayMessage replayMessage = JSONObject.parseObject((String) v, NettyReplayMessage.class);
+                    NettyReplayMessage replayMessage = (NettyReplayMessage) v;
                     // 消息发送时间
                     LocalDateTime startDate = replayMessage.getSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                     LocalDateTime  nowDate = LocalDateTime.now();
                     // 计算两个时间点之间的时间差
                     Duration duration = Duration.between(startDate, nowDate);
                     // 检查时间差是否超过五分钟
-                    if (duration.toMinutes() > 2) {
+                    if (duration.toMinutes() > 5) {
                         if (replayMessage.getTryTime() < 5) {
                             logger.info("netty 消息重发 requestId: {} msg:{}", k, v);
-                            nettyClient.sendMsg(k.toString(),JSONObject.toJSONString(replayMessage), false);
+                            nettyClient.sendMsg(key, replayMessage.getMessage(), false);
                             replayMessage.setTryTime(replayMessage.getTryTime() + 1);
-                            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, key, JSONObject.toJSONString(replayMessage));
+                            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, key, replayMessage);
+                        } else {
+                            // 重发次数超过五次的数据直接丢弃
+                            redisService.deleteAllHash(NettyRedisConstant.NETTY_SEND_QUEUE, key);
                         }
                     }
                 });
             }
 
             try {
-                Thread.sleep(20);
+                Thread.sleep(20*1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

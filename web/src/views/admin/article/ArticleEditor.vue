@@ -277,7 +277,6 @@ function articleFn() {
           likeCount: article.data.likeCount,
         }).then((res: any) => {
           if (res.code === 200) {
-            article.data.id = res.result;
             saveTime.value = getNowTime();
             ElNotification({
               title: '文章自动保存成功',

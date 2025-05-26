@@ -24,7 +24,7 @@
 
         <!-- 滚动文件输出 -->
         <RollingFile name="RollingFile" fileName="${LOG_DIR}/${LOG_FILE_NAME}"
-                     filePattern="${LOG_DIR}/app-%d{yyyy-MM-dd}-%i.log.gz">
+                     filePattern="${LOG_DIR}/pi-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
                 <!-- 按时间滚动（每天） -->

@@ -50,60 +50,60 @@ public class DeviceStatusSchedule {
 //        }
     }
 
-    /**
-     * 判断 clientMap 中是否包含指定 channelId
-     * @param channelId
-     * @return
-     */
-    public static boolean containChannelId(ChannelId channelId) {
-        for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
-            NettyClientChannel channel = entry.getValue();
-            if (channel.getChannelId().equals(channelId)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    /**
+//     * 判断 clientMap 中是否包含指定 channelId
+//     * @param channelId
+//     * @return
+//     */
+//    public static boolean containChannelId(ChannelId channelId) {
+//        for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
+//            NettyClientChannel channel = entry.getValue();
+//            if (channel.getChannelId().equals(channelId)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
-    /**
-     * 根据 channelId 客户端获取注册编码
-     * @param channelId
-     * @return
-     */
-    public static String getChannelRegisterIdByChannelId(ChannelId channelId) {
-        for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
-            NettyClientChannel channel = entry.getValue();
-            if (channel.getChannelId().equals(channelId)) {
-                return channel.getDeviceCode();
-            }
-        }
-        return "";
-    }
+//    /**
+//     * 根据 channelId 客户端获取注册编码
+//     * @param channelId
+//     * @return
+//     */
+//    public static String getChannelRegisterIdByChannelId(ChannelId channelId) {
+//        for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
+//            NettyClientChannel channel = entry.getValue();
+//            if (channel.getChannelId().equals(channelId)) {
+//                return channel.getDeviceCode();
+//            }
+//        }
+//        return "";
+//    }
 
-    /**
-     * 根据客户端注册编码删除通道
-     * @param deviceCode
-     * @param deviceDAO
-     */
-    public static void removeChannelByRegisterId(String deviceCode, DeviceMapper deviceDAO) {
-        for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
-            NettyClientChannel channel = entry.getValue();
-            if (channel.getDeviceCode().equals(deviceCode)) {
-                removeNettyChannel(entry, channel, deviceDAO);
-                log.info("netty通道 userId:【{}】 registerId:【{}】 已离线", channel.getUserId(), deviceCode);
-            }
-        }
-    }
+//    /**
+//     * 根据客户端注册编码删除通道
+//     * @param deviceCode
+//     * @param deviceDAO
+//     */
+//    public static void removeChannelByRegisterId(String deviceCode, DeviceMapper deviceDAO) {
+//        for (Map.Entry <String, NettyClientChannel>  entry : NettyServerHandler.clientMap.entrySet()) {
+//            NettyClientChannel channel = entry.getValue();
+//            if (channel.getDeviceCode().equals(deviceCode)) {
+//                removeNettyChannel(entry, channel, deviceDAO);
+//                log.info("netty通道 userId:【{}】 registerId:【{}】 已离线", channel.getUserId(), deviceCode);
+//            }
+//        }
+//    }
 
-    public static void removeNettyChannel(Map.Entry<String, NettyClientChannel> entry, NettyClientChannel channel, DeviceMapper deviceDAO) {
-        QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<>();
-        deviceQueryWrapper.eq("user_id", channel.getUserId());
-        deviceQueryWrapper.eq("device_code", channel.getDeviceCode());
-        Device deviceStatus = new Device();
-        deviceStatus.setDeviceStatus(Constant.DEVICE_OFFLINE);
-        deviceDAO.update(deviceStatus, deviceQueryWrapper);
-        NettyServerHandler.channelMap.get(entry.getValue().getChannelId()).close();
-        NettyServerHandler.clientMap.remove(entry.getKey());
-        NettyServerHandler.channelMap.remove(entry.getValue().getChannelId());
-    }
+//    public static void removeNettyChannel(Map.Entry<String, NettyClientChannel> entry, NettyClientChannel channel, DeviceMapper deviceDAO) {
+//        QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<>();
+//        deviceQueryWrapper.eq("user_id", channel.getUserId());
+//        deviceQueryWrapper.eq("device_code", channel.getDeviceCode());
+//        Device deviceStatus = new Device();
+//        deviceStatus.setDeviceStatus(Constant.DEVICE_OFFLINE);
+//        deviceDAO.update(deviceStatus, deviceQueryWrapper);
+//        NettyServerHandler.channelMap.get(entry.getValue().getChannelId()).close();
+//        NettyServerHandler.clientMap.remove(entry.getKey());
+//        NettyServerHandler.channelMap.remove(entry.getValue().getChannelId());
+//    }
 }

@@ -65,14 +65,14 @@ public class PushCallback implements MqttCallback {
                 NettyPacket<String> nettyRequest = NettyPacket.buildRequest(data);
                 nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
                 nettyRequest.setTopic(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic());
-                nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
+                nettyClient.sendMsg(nettyRequest.getRequestId(), JSONObject.toJSONString(nettyRequest), true);
             } else if (topic.equals(MQTTTopicEnum.SENSOR_DATA.getTopic())) {
 
                 // 发送 Netty 传感器数据
                 NettyPacket<String> nettyRequest = NettyPacket.buildRequest(data);
                 nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
                 nettyRequest.setTopic(NettyTopicEnum.SENSOR_DATA.getTopic());
-                nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
+                nettyClient.sendMsg(nettyRequest.getRequestId(), JSONObject.toJSONString(nettyRequest), true);
             }
 
 //            MQTTSensorData mqttSensorData = JSONObject.toJavaObject(JSONObject.parseObject(data), MQTTSensorData.class);

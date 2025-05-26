@@ -45,7 +45,8 @@ public class FileServiceImpl implements FileService {
 
     @Resource
     private NettyServer nettyServer;
-    @Autowired
+
+    @Resource
     private MinioService minioService;
 
     @Override

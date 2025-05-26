@@ -88,8 +88,8 @@ public class DeviceServiceImpl implements DeviceService {
         for (String id : idSet) {
             Device device = deviceMapper.selectById(Integer.parseInt(id));
             if (device != null) {
-                DeviceStatusSchedule.removeChannelByRegisterId(device.getDeviceCode(), deviceMapper);
-                deviceMapper.updateDeviceStatusById(id, userId, Constant.DEVICE_DELETE);
+//                DeviceStatusSchedule.removeChannelByRegisterId(device.getDeviceCode(), deviceMapper);
+//                deviceMapper.updateDeviceStatusById(id, userId, Constant.DEVICE_DELETE);
             } else {
                 throw new ServiceException(ErrorMessage.DEVICE_NOT_EXISTS, "id: " + id);
             }
@@ -117,9 +117,9 @@ public class DeviceServiceImpl implements DeviceService {
         }
         Device oldDevice = deviceMapper.selectById(deviceVo.getId());
         // 设备编码变化需要重新连接netty通道
-        if (!oldDevice.getDeviceCode().equals(deviceVo.getDeviceCode())) {
-            DeviceStatusSchedule.removeChannelByRegisterId(oldDevice.getDeviceCode(), deviceMapper);
-        }
+//        if (!oldDevice.getDeviceCode().equals(deviceVo.getDeviceCode())) {
+//            DeviceStatusSchedule.removeChannelByRegisterId(oldDevice.getDeviceCode(), deviceMapper);
+//        }
         deviceMapper.updateById(deviceVo);
         return deviceVo.getId();
     }

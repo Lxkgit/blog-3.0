@@ -1,6 +1,7 @@
 package com.blog.file.netty.service;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.file.mapper.DeviceMapper;
@@ -22,7 +23,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -96,7 +99,7 @@ public class NettyServer implements CommandLineRunner {
         }
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
-        log.warn("Netty服务关闭!!");
+        log.warn("Netty服务关闭");
     }
 
     /**
@@ -121,33 +124,14 @@ public class NettyServer implements CommandLineRunner {
     }
 
     public boolean channelWriteByRegisterId(String registerId, String msg, boolean retry) {
-        NettyClientChannel nettyClientChannel = NettyServerHandler.clientMap.get(registerId);
-        if (nettyClientChannel == null) {
-            log.warn("通道注册码【{}】不存在!!", registerId);
+        ChannelId channelId = NettyServerHandler.clientMap.get(registerId);
+        if (channelId == null) {
+            log.warn("通道注册码:{} 不存在", registerId);
             return false;
         }
-        ChannelId channelId = nettyClientChannel.getChannelId();
-        if (channelId != null) {
-            return channelWriteByChannelId(channelId, registerId, msg, retry);
-        }
-        return false;
+        return channelWriteByChannelId(channelId, registerId, msg, retry);
     }
 
 
-    /**
-     * 断开指定netty通道
-     *
-     * @param channelId
-     * @return
-     */
-    public boolean close(ChannelId channelId) {
-        ChannelHandlerContext ctx = NettyServerHandler.channelMap.get(channelId);
-        if (ctx == null) {
-            log.warn("通道: {} 不存在，netty关闭异常", channelId);
-            return false;
-        }
-        NettyServerHandler.channelMap.remove(channelId);
-        ctx.close();
-        return true;
-    }
+
 }

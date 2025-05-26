@@ -84,7 +84,7 @@ public class DeviceSocket {
                 NettyPacket<String> nettyRequest = NettyPacket.buildRequest(message);
                 nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
                 nettyRequest.setTopic(NettyTopicEnum.DEVICE_INFO.getTopic());
-                nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
+                nettyClient.sendMsg(nettyRequest.getRequestId(), JSONObject.toJSONString(nettyRequest), true);
             } else if (DeviceSocketTopic.SOCKET_HEART.equals(topic)) {
 
             }

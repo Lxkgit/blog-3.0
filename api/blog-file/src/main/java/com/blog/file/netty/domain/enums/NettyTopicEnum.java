@@ -27,6 +27,9 @@ public enum NettyTopicEnum {
     BLOG_FILE_SYNC("BLOG_FILE_SYNC"),
     // 设备详情消息
     DEVICE_INFO("DEVICE_INFO"),
+
+    // 消息异常topic响应
+    MSG_ERROR_RESPONSE("MSG_ERROR_RESPONSE"),
     ;
     /**
      * topic

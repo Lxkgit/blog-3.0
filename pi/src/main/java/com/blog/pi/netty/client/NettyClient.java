@@ -3,6 +3,9 @@ package com.blog.pi.netty.client;
 
 import com.blog.pi.config.PiSystemConfig;
 import com.blog.pi.dao.RegisterSettingDAO;
+import com.blog.pi.netty.dto.NettyReplayMessage;
+import com.blog.redis.constant.NettyRedisConstant;
+import com.blog.redis.service.RedisService;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -14,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,6 +39,11 @@ public class NettyClient implements CommandLineRunner {
 
     @Resource
     private PiSystemConfig piSystemConfig;
+
+    @Resource
+    private RedisService redisService;
+
+
 
     @Override
     public void run(String... args) {
@@ -80,12 +89,22 @@ public class NettyClient implements CommandLineRunner {
         log.warn("netty service close");
     }
 
-    public void sendMsg(String msg) {
+    /**
+     * netty向服务端发送消息
+     * @param requestId 消息id
+     * @param msg 消息
+     * @param retry 是否重发
+     */
+    public void sendMsg(String requestId, String msg, boolean retry) {
         boolean active = channel.isActive();
         if (active) {
             channel.writeAndFlush(msg);
         } else {
-            log.warn("channel active:{}", false);
+            log.warn("netty 连接已断开");
+        }
+        if (retry) {
+            NettyReplayMessage nettyReplayMessage = new NettyReplayMessage(msg);
+            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, nettyReplayMessage);
         }
     }
 

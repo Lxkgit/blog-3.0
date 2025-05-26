@@ -69,7 +69,7 @@ public class SyncBlogFileService {
             // 响应服务端处理结果
             NettyResponse nettyResponse = new NettyResponse(success);
             NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, nettyResponse);
-            nettyClient.sendMsg(JSONObject.toJSONString(nettyPacket));
+            nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
 
             if (success) {
                 File file = new File(basePath + File.separatorChar + localFileName);
@@ -97,7 +97,7 @@ public class SyncBlogFileService {
                 // 响应服务端处理结果
                 NettyResponse nettyResponse = new NettyResponse(success);
                 NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, nettyResponse);
-                nettyClient.sendMsg(JSONObject.toJSONString(nettyPacket));
+                nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
 
                 if (success) {
                     fileSyncDAO.deleteById(fileSync);
@@ -110,7 +110,7 @@ public class SyncBlogFileService {
             // 响应服务端处理结果
             NettyResponse nettyResponse = new NettyResponse(success);
             NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, nettyResponse);
-            nettyClient.sendMsg(JSONObject.toJSONString(nettyPacket));
+            nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
 
             if (success) {
                 File file = new File(basePath + appendPath + File.separatorChar + localFileName);

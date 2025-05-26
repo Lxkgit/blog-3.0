@@ -6,6 +6,8 @@ import com.blog.pi.netty.enums.NettyTopicEnum;
 import com.blog.pi.netty.event.NettyPacketEvent;
 import com.blog.pi.netty.service.SensorControlService;
 import com.blog.pi.netty.service.SyncBlogFileService;
+import com.blog.redis.constant.NettyRedisConstant;
+import com.blog.redis.service.RedisService;
 import io.netty.channel.ChannelId;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,9 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
     @Resource
     private SensorControlService sensorControlService;
 
+    @Resource
+    private RedisService redisService;
+
     @Async
     @Override
     public void onApplicationEvent(NettyPacketEvent event) {
@@ -52,7 +57,7 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
             }
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             // 处理netty消息发送后服务端响应数据
-
+            redisService.setSet(NettyRedisConstant.NETTY_RECEIVE_QUEUE, requestId);
         } else {
             log.warn("unknown NettyPacketType!! channelId:{} event:{}", channelId, JSONObject.toJSONString(event));
         }

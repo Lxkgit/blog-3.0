@@ -8,6 +8,7 @@ import com.blog.pi.netty.dto.heart.NettyHeartBeatDto;
 import com.blog.pi.netty.dto.register.NettyRegisterDto;
 import com.blog.pi.netty.enums.HeartBeatType;
 import com.blog.pi.netty.enums.NettyPacketType;
+import com.blog.pi.netty.enums.NettyTopicEnum;
 import com.blog.pi.netty.event.NettyPacketEvent;
 import com.blog.pi.netty.service.DeviceInfoService;
 import io.netty.channel.ChannelDuplexHandler;
@@ -23,6 +24,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -113,14 +116,17 @@ public class NettyClientHandler extends ChannelDuplexHandler {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
             // 报文解析处理
+            // 处理泛型：new TypeReference<NettyPacket<Object>>() {}.getType()
+            // TypeReference：解决Java泛型类型擦除问题，保留NettyPacket<Object>的类型信息，确保反序列化时能正确识别泛型类型
+            // NettyPacket：自定义的泛型类，可能用于封装网络传输的数据包，Object表示其携带的数据类型可以是任意对象
             NettyPacket<Object> nettyPacket = JSONObject.parseObject(msg.toString(), new TypeReference<NettyPacket<Object>>() {
             }.getType());
             // 发布自定义Netty数据包处理事件
             applicationEventPublisher.publishEvent(new NettyPacketEvent(ctx.channel().id(), nettyPacket));
         } catch (Exception e) {
-            log.error(e.getMessage());
-            log.error("channelId:【{}】 报文解析失败!! msg:{}", ctx.channel().id(), msg.toString());
-            NettyPacket<String> nettyResponse = NettyPacket.buildRequest("报文解析失败!!");
+            log.error("channelId:{} 报文解析失败 msg:{}", ctx.channel().id(), msg.toString());
+            NettyPacket<String> nettyResponse = NettyPacket.buildRequest("报文解析失败: " + msg);
+            nettyResponse.setTopic(NettyTopicEnum.MSG_ERROR_RESPONSE.getTopic());
             ctx.writeAndFlush(JSONObject.toJSONString(nettyResponse));
         }
     }

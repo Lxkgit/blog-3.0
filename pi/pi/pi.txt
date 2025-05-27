@@ -9,6 +9,7 @@ apt-get install lrzsz
 
 ## 执行脚本
 chmod +x pi.sh
+sed -i 's/\r$//' pi.sh
 nohup ./pi.sh >my.log 2>&1 &
 tail -f my.log
 

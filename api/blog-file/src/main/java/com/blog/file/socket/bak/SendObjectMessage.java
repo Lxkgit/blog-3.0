@@ -1,7 +1,7 @@
-package com.blog.file.socket;
+package com.blog.file.socket.bak;
 
 import com.alibaba.fastjson.JSON;
-import com.blog.file.socket.domain.enums.SocketTopicEnum;
+import com.blog.file.socket.bak.enums.SocketTopicEnum;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;

@@ -331,31 +331,26 @@ public class SecurityConfig {
             Authentication principal = context.getPrincipal();
             if (context.getTokenType() == OAuth2TokenType.ACCESS_TOKEN) {
                 //如果jwt的类型是access_token
-                List<String> auths = new ArrayList<>();
-                //得到该用户的权限信息 放入集合
-                for (GrantedAuthority authority : principal.getAuthorities()) {
-                    auths.add(authority.getAuthority());
-                }
-                //写入jwt
-                context.getClaims().claim("id", user.getId());
-                context.getClaims().claim("username", user.getUsername());
-                context.getClaims().claim("auths", auths);
-                context.getClaims().claim("name", user.getNickname());
+                extracted(context, principal, user);
             }
             if (context.getTokenType().getValue().equals(OidcParameterNames.ID_TOKEN)) {
-                //如果jwt的类型是id_token
-                List<String> auths = new ArrayList<>();
-                //得到该用户的权限信息 放入集合
-                for (GrantedAuthority authority : principal.getAuthorities()) {
-                    auths.add(authority.getAuthority());
-                }
-                //写入jwt
-                context.getClaims().claim("id", user.getId());
-                context.getClaims().claim("username", user.getUsername());
-                context.getClaims().claim("auths", auths);
-                context.getClaims().claim("name", user.getNickname());
+                extracted(context, principal, user);
             }
         };
+    }
+
+    private static void extracted(JwtEncodingContext context, Authentication principal, User user) {
+        //如果jwt的类型是id_token
+        List<String> auths = new ArrayList<>();
+        //得到该用户的权限信息 放入集合
+        for (GrantedAuthority authority : principal.getAuthorities()) {
+            auths.add(authority.getAuthority());
+        }
+        //写入jwt
+        context.getClaims().claim("id", user.getId());
+        context.getClaims().claim("username", user.getUsername());
+        context.getClaims().claim("auths", auths);
+        context.getClaims().claim("name", user.getNickname());
     }
 
 

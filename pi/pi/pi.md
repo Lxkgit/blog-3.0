@@ -1,15 +1,21 @@
-
 # pi.sh 部署命令
 
 ## 树莓派安装系统需要设置root账号密码
+```shell
 sudo passwd root
+```
 
 ## 下载rz、sz命令
+```shell
 apt-get install lrzsz
+```
 
 ## 执行脚本
+```shell
 chmod +x pi.sh
 sed -i 's/\r$//' pi.sh
 nohup ./pi.sh >my.log 2>&1 &
 tail -f my.log
+```
+
 

@@ -3,6 +3,9 @@
 # MySQL登陆密码
 mysqlPassword="MySql@Admin123*."
 
+# redis登陆密码
+redisPassword="redis-960@*"
+
 # 安装并配置docker
 dockerStart() {
   echo "启动docker ... "
@@ -92,6 +95,25 @@ installMysql() {
 installMqtt() {
   echo "启动mqtt ... "
   docker run -d --name emqx --privileged=true --restart=always --network blog_network --ip 172.18.0.4 -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083 emqx/emqx:5.4.1
+}
+
+# redis 配置文件修改
+updateRedisConf() {
+	echo "开始修改Redis配置文件..."
+	# redis 配置
+	mv /opt/package/conf/redis.conf /opt/docker/redis/conf
+	sed -i "s/requirepass/requirepass ${redisPassword}/g" /opt/docker/redis/conf/redis.conf
+}
+
+# 启动 redis
+redis() {
+	# redis 目录创建
+	mkdir -p /opt/docker/redis/conf/
+	mkdir -p /opt/docker/redis/data/
+
+	updateRedisConf
+	echo "正在启动redis..."
+	docker run -d --name redis --privileged=true --restart=always --network blog_network --ip 172.18.0.6 -p 6379:6379 -v /opt/docker/redis/conf/redis.conf:/etc/redis/redis.conf -v /opt/docker/redis/data/:/data/  -v /opt/docker/files/:/opt/docker/files/ redis:6.2.5 redis-server /etc/redis/redis.conf
 }
 
 installJar() {

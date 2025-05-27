@@ -29,6 +29,7 @@ unzipPi() {
 
 # conda 下载
 installConda() {
+  mkdir -p /opt/package/soft
   cd /opt/package/soft
 	echo "开始安装 Anacoda ... "
 	sh Anaconda3-2024.10-1-Linux-aarch64.sh<<EOF
@@ -64,7 +65,8 @@ dockerLoad() {
   cd /opt/package/images
   docker load < emqx.tar
   docker load < mysql.tar
-  docker load < jdk.tar
+  docker load < jdk17.tar
+  docker load < redis.tar
 }
 
 # 安装jdk
@@ -106,7 +108,7 @@ updateRedisConf() {
 }
 
 # 启动 redis
-redis() {
+installRedis() {
 	# redis 目录创建
 	mkdir -p /opt/docker/redis/conf/
 	mkdir -p /opt/docker/redis/data/
@@ -139,6 +141,8 @@ main() {
   installJdk
   installMysql
   installMqtt
+  installRedis
+
   installJar
 
   timer_end=`date "+%Y-%m-%d %H:%M:%S"`

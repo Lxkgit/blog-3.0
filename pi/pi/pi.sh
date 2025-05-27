@@ -29,7 +29,6 @@ unzipPi() {
 
 # conda 下载
 installConda() {
-  mkdir -p /opt/package/soft
   cd /opt/package/soft
 	echo "开始安装 Anacoda ... "
 	sh Anaconda3-2024.10-1-Linux-aarch64.sh<<EOF

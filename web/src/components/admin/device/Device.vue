@@ -24,12 +24,10 @@
               <span>设备名称：</span> <span>{{ device.deviceName }}</span>
             </div>
             <div>
-              <span>设备编码：</span> <span>{{ showText(device.deviceCode, 5) }}</span>
+              <span>设备编码：</span> <span>{{ showText(device.deviceCode, 10) }}</span>
             </div>
           </div>
           <div style="flex: 1;">
-
-
             <div>
               <span>设备位置：</span> <span>{{ device.devicePosition }}</span>
             </div>

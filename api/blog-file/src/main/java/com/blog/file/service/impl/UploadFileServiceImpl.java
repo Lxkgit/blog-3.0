@@ -20,6 +20,8 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -31,9 +33,10 @@ import java.util.List;
  * @description: 文件上传服务
  */
 
-@Slf4j
 @Service
 public class UploadFileServiceImpl implements UploadFileService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UploadFileServiceImpl.class);
 
     @Resource
     private FileCategoryMapper fileCategoryMapper;
@@ -112,23 +115,29 @@ public class UploadFileServiceImpl implements UploadFileService {
         Integer userId = SecurityUtil.getLoginUser().getId();
         String userName = SecurityUtil.getLoginUser().getUsername();
         String[] pathArray = path.split("/");
-        StringBuilder dirOath = new StringBuilder();
+        StringBuilder dirPath = new StringBuilder();
         Integer resultFileCategoryId = 0;
         for (int i = 1; i < pathArray.length; i++) {
             String str = pathArray[i];
-            dirOath.append("/").append(str);
+            dirPath.append("/").append(str);
             LambdaQueryWrapper<FileCategory> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(FileCategory::getDirPath, dirOath.toString());
+            wrapper.eq(FileCategory::getDirPath, dirPath.toString());
+
             FileCategory category = fileCategoryMapper.selectOne(wrapper);
             if (category == null) {
-                category = new FileCategory();
-                category.setDirName(str);
-                category.setDirPath(dirOath.toString());
-                category.setParentDir(resultFileCategoryId);
-                category.setUserId(userId);
-                category.setCreateBy(userName);
-                category.setCreateTime(new Date());
-                fileCategoryMapper.insert(category);
+                try {
+                    category = new FileCategory();
+                    category.setDirName(str);
+                    category.setDirPath(dirPath.toString());
+                    category.setParentDir(resultFileCategoryId);
+                    category.setUserId(userId);
+                    category.setCreateBy(userName);
+                    category.setCreateTime(new Date());
+                    fileCategoryMapper.insert(category);
+                } catch (Exception e) {
+                    logger.error("创建目录失败: {}", e.getMessage(), e);
+                    category = fileCategoryMapper.selectOne(wrapper);
+                }
             }
             resultFileCategoryId = category.getId();
         }

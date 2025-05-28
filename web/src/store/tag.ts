@@ -120,5 +120,5 @@ export const tagsStore = defineStore(
         pick: ['tags', 'sideBar', 'selectedTag'],
       },
     ],
-  },
+  }
 )

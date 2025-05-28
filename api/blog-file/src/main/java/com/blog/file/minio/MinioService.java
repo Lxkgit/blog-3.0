@@ -60,8 +60,6 @@ public class MinioService {
                     .contentType(file.getContentType())
                     .build());
 
-            log.info("img_url: {}", response.toString());
-
             // /files 为nginx代理路径
 //            String fileUrl = ip + "/files/" + bucket + path;
             String fileUrl = ip + ":9000/" + bucket + path;

@@ -87,6 +87,7 @@ declare module 'vue' {
     Sensor: typeof import('./src/components/admin/device/Sensor.vue')['default']
     SensorControl: typeof import('./src/components/admin/device/SensorControl.vue')['default']
     SensorData: typeof import('./src/components/admin/device/SensorData.vue')['default']
+    Service: typeof import('./src/components/admin/device/Service.vue')['default']
     TypeInput: typeof import('./src/components/admin/setting/util/TypeInput.vue')['default']
     TypeNumber: typeof import('./src/components/admin/setting/util/TypeNumber.vue')['default']
     TypeSwitch: typeof import('./src/components/admin/setting/util/TypeSwitch.vue')['default']

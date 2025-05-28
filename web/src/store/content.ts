@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
 export const contentStore = defineStore(
   'content',
   () => {
-    let article = {}
-    let docContent = {}
+    let article = ref({})
+    let docContent = ref({})
 
     function setArticle(article: any) {
       this.article = article
@@ -27,7 +28,7 @@ export const contentStore = defineStore(
       {
         storage: sessionStorage,
         pick: ['article', 'docContent'],
-      },
+      }
     ],
-  },
+  }
 )

@@ -22,7 +22,7 @@ public class FileUploadVo {
         /**
          * 上传文件数据
          */
-        @NotNull(message="导入文件不能为空", groups = {AddGroup.class})
+        @NotNull(message="上传文件不能为空", groups = {AddGroup.class})
         private MultipartFile file;
 
         /**

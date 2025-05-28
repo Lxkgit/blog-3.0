@@ -84,11 +84,11 @@ public class NettyServer implements CommandLineRunner {
             // 绑定端口，开始接收进来的连接
             ChannelFuture future = serverBootstrap.bind(port).sync();
             if (future.isSuccess()) {
-                log.info("Netty服务端启动!! 端口:[{}]", port);
+                log.info("Netty 服务端启动成功 端口: {}", port);
             }
             channel = future.channel();
         } catch (Exception e) {
-            log.error("Netty服务端启动异常!! error:{}", e.getMessage());
+            log.error("Netty 服务端启动异常 error: {}", e.getMessage());
         }
     }
 

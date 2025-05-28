@@ -121,6 +121,7 @@ installJar() {
   sleep 5m
   echo "启动pi项目 ... "
   mkdir -p /opt/docker/files/jar
+  mkdir -p /opt/docker/files/logs
   # 项目相关文件
   mv /opt/package/jar/* /opt/docker/files/jar
   # win和linux字符引起的错误

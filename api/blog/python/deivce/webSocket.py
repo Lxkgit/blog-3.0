@@ -4,13 +4,53 @@ import platform
 import psutil
 import json
 import time
+import subprocess
 
 service_info_delay = 60
+exportFilePath = "/opt/docker/files/python/shell/exportFile.sh"
 
 
+# socket 连接主方法
+async def connect_with_retry(url):
+    delay = 60
+    while True:
+        try:
+            async with websockets.connect(url) as ws:
+                print("socket 连接成功")
+                # 启动心跳任务
+                asyncio.create_task(send_heartbeat(ws))
+                # 启动服务器数据监测任务
+                asyncio.create_task(send_service_info(ws))
+                # 接收消息
+                async for message in ws:
+                    print(f"收到消息: {message}")
+                    receiveMsg = json.loads(message)
+                    if receiveMsg.get("topic") == "file_sync":
+                        print(f"调用文件同步脚本: {receiveMsg.get('message')}")
+                        # 执行 Shell 脚本并捕获输出
+                        result = subprocess.run(
+                            [exportFilePath],  # 脚本路径和参数（列表形式）
+                            stdout=subprocess.PIPE,  # 捕获标准输出
+                            stderr=subprocess.PIPE,  # 捕获标准错误
+                            text=True  # 返回字符串（Python 3.7+）
+                        )
+                        # 获取全部输出
+                        full_output = result.stdout + result.stderr
+                        msg = {
+                            'topic': receiveMsg.get("topic"),
+                            'message': full_output
+                        }
+                        await ws.send(json.dumps(msg))
+                return
+        except (websockets.ConnectionClosedError, ConnectionRefusedError) as e:
+            print(f"连接断开: {e} {delay}秒后重试...")
+            await asyncio.sleep(delay)
+
+
+# socket 连接心跳
 async def send_heartbeat(websocket):
     print("启动心跳任务")
-    await websocket.send("{'topic': 'register', 'message': 'smp_service'}")
+    await websocket.send("{'topic': 'register', 'message': 'service'}")
     while True:
         try:
             msg = {
@@ -23,6 +63,7 @@ async def send_heartbeat(websocket):
             break  # 连接断开时退出循环
 
 
+# 服务器设备状态数据上报方法
 async def send_service_info(websocket):
     print("启动服务器数据监测任务")
     while True:
@@ -37,6 +78,7 @@ async def send_service_info(websocket):
             break  # 连接断开时退出循环
 
 
+# 获取服务器状态数据方法
 def get_computer_config():
     # 获取操作系统信息
     # system: 操作系统名称（如 Linux, Windows, Darwin）
@@ -83,25 +125,6 @@ def get_computer_config():
     }
 
     return config
-
-
-async def connect_with_retry(url):
-    delay = 60
-    while True:
-        try:
-            async with websockets.connect(url) as ws:
-                print("socket 连接成功")
-                # 启动心跳任务
-                asyncio.create_task(send_heartbeat(ws))
-                # 启动服务器数据监测任务
-                asyncio.create_task(send_service_info(ws))
-                # 接收消息
-                async for message in ws:
-                    print(f"收到消息: {message}")
-                return
-        except (websockets.ConnectionClosedError, ConnectionRefusedError) as e:
-            print(f"连接断开: {e} {delay}秒后重试...")
-            await asyncio.sleep(delay)
 
 
 # 执行入口

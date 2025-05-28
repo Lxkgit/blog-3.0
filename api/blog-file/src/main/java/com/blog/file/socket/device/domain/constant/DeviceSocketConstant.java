@@ -8,5 +8,5 @@ package com.blog.file.socket.device.domain.constant;
 
 public class DeviceSocketConstant {
 
-    public static final String localhost = "smp_service";
+    public static final String localhost = "service";
 }

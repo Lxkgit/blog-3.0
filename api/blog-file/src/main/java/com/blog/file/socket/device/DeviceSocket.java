@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.domain.file.device.entity.DeviceInfo;
 import com.blog.file.mapper.DeviceInfoMapper;
 import com.blog.file.socket.SocketMessage;
+import com.blog.file.socket.device.domain.constant.DeviceSocketConstant;
 import com.blog.file.socket.device.domain.constant.DeviceSocketTopic;
 import jakarta.annotation.Resource;
 import jakarta.websocket.*;
@@ -72,10 +73,11 @@ public class DeviceSocket {
      * 收到客户端消息后调用的方法
      *
      * @param message 客户端发送过来的消息
+     * @param session 客户端连接session
      */
     @OnMessage
     public void onMessage(String message, Session session) {
-        logger.info("web socket msg :{}", message);
+        logger.info("web socket receive: {}", message);
         if (StringUtils.isNotEmpty(message)) {
             JSONObject jsonObject = JSON.parseObject(message);
             String topic = jsonObject.getString("topic");
@@ -96,30 +98,34 @@ public class DeviceSocket {
         }
     }
 
-    @OnError
-    public void onError(Throwable error) {
-        logger.error("socket 连接异常：{}", error.getMessage(), error);
-    }
-
     /**
      * 服务端发送消息给客户端
+     * @param clientName 客户端注册名称
+     * @param socketMessage 发送消息内容
+     * @param <T> 消息体数据类型
      */
-    public <T> void sendMessage(String clientName, SocketMessage<T> socketMessage) throws IOException {
+    public <T> void sendMessage(String clientName, SocketMessage<T> socketMessage) {
         if (socketMap.containsKey(clientName)) {
-            logger.info("socket 发送消息:{}", JSONObject.toJSONString(socketMessage));
-            Session session = socketMap.get(clientName);
-            //如果开启@Async异步需要加锁，否则就会报错
-            synchronized (session) {
-                session.getBasicRemote().sendText(JSON.toJSONString(socketMessage));
+            try {
+                logger.info("web socket send: {}", JSONObject.toJSONString(socketMessage));
+                Session session = socketMap.get(clientName);
+                //如果开启@Async异步需要加锁，否则就会报错
+                synchronized (session) {
+                    session.getBasicRemote().sendText(JSON.toJSONString(socketMessage));
+                }
+            } catch (Exception e) {
+                logger.error("web socket send error: {}", e.getMessage(), e);
             }
         }
     }
 
-    public <T> void sendMessage(Session session, SocketMessage<T> socketMessage) throws IOException {
-        //如果开启@Async异步需要加锁，否则就会报错
-        synchronized (session) {
-            session.getBasicRemote().sendText(JSON.toJSONString(socketMessage));
-        }
+    /**
+     * web socket 连接异常
+     * @param error
+     */
+    @OnError
+    public void onError(Throwable error) {
+        logger.error("web socket error: {}", error.getMessage(), error);
     }
 
 

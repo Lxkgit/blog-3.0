@@ -5,13 +5,16 @@
 sudo docker exec mysql bash /opt/docker/files/shell/exportSql.sh
 
 # 导出博客文件数据
-rm -rf /opt/files/files.zip
-cd /opt/files
+cd /opt/docker/minio
+./mc alias set local http://172.18.0.11:9000 minio minio-960@*
+./mc mirror local/blog ./files
+cd files
 zip -r files.zip ./*
 
 # 移动文件
+mkdir -p cd /opt/docker/files/sync
 mv /opt/docker/files/sql/* /opt/docker/files/sync/
-mv /opt/files/files.zip /opt/docker/files/sync/
+mv /opt/docker/minio/files/files.zip /opt/docker/files/sync/
 
 # 压缩文件
 cd /opt/docker/files/sync/

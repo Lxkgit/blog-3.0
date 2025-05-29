@@ -17,8 +17,6 @@
           <div style="margin-top: 10px; background-color: aqua;">
             单片机数据
           </div>
-
-
         </div>
         <div style="flex: 1; margin-left: 10px;">
           <el-card shadow="hover">
@@ -29,9 +27,6 @@
           </el-card>
         </div>
       </div>
-
-
-
     </el-tab-pane>
     <el-tab-pane label="单片机数据" name="chipData">单片机数据</el-tab-pane>
   </el-tabs>
@@ -44,6 +39,7 @@ import type { TabsPaneContext } from 'element-plus'
 import { selectDeviceInfoByIdApi } from '@/api/file';
 // import * as echarts from 'echarts'
 import dark from "@/utils/dark";
+import SystemInfo from '@/components/admin/device/SystemInfo.vue';
 
 let {
   deviceInfoList,

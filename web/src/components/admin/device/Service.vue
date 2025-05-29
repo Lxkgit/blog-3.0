@@ -1,46 +1,5 @@
 <template>
-    <div style="width: 100%; height: 100%; display: flex; flex-flow: wrap;overflow-y: auto; align-items:flex-start;"
-        @contextmenu.prevent="">
-        <el-card v-for="(service, id) in serviceList.data" :key="id" @contextmenu.prevent.stop="" style="
-      margin: 18px 2%;
-      width: 45%;
-      height: 200px;
-      margin-bottom: 20px;
-    ">
-            <div style="display: flex">
-                <div style="width: 80%; display: flex;">
-                    <div style="flex: 1;">
-                        <div style="margin-bottom: 10px;">
-                            <el-button @click="" type='primary' text>
-                                打开设备
-                            </el-button>
-                        </div>
-                        <div>
-                            <span>设备类型：</span> <el-tag type="primary">服务器</el-tag>
-                        </div>
-                        <div>
-                            <span>设备名称：</span> <span>{{ service.serviceName }}</span>
-                        </div>
-                    </div>
-                    <div style="flex: 1;">
-                        <div>
-                            <span>备注信息：</span> <span>{{ service.memo }}</span>
-                        </div>
-                        <div>
-                            <span>创建时间：</span> <span>{{ service.createTime }}</span>
-                        </div>
-                        <div>
-                            <span>修改时间：</span> <span>{{ service.updateTime }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div style="width: 20%">
-                    <MyIcon type="icon-device" />
-                </div>
-            </div>
-        </el-card>
-    </div>
-
+    <SystemInfo />
 </template>
 
 <script setup lang="ts">
@@ -49,6 +8,7 @@ import { selectDeviceListApi, saveDeviceApi } from '@/api/file';
 import { ElMessage } from 'element-plus';
 import mixin from '@/mixins/device';
 import icon from '@/utils/icon';
+import SystemInfo from '@/components/admin/device/SystemInfo.vue';
 
 let { MyIcon } = icon();
 

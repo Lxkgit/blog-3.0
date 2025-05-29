@@ -43,6 +43,15 @@ dockerStart() {
 
 	# 一键安装docker
 	curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+  #	判断docker是否正确安装
+	if [ $? -ne 0 ]; then
+      echo "docker 安装失败, 脚本执行退出"
+      exit 1
+  fi
+  if ! command -v docker &>/dev/null; then
+      echo "docker 未正常启动 "
+      exit 1
+  fi
 
 	# 启动docker
 	sudo systemctl start docker

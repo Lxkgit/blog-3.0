@@ -5,7 +5,7 @@
     <groupId>com.example</groupId>
     <artifactId>pi</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>demo</name>
+    <name>pi</name>
     <description>Demo project for Spring Boot</description>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

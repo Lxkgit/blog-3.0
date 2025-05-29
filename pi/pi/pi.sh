@@ -74,23 +74,48 @@ installJdk() {
   docker run -d -it --name jdk8 --privileged=true --restart=always --network blog_network --ip 172.18.0.2 openjdk:17
 }
 
+# 修改 MySQL 配置文件
+updateMysqlConf() {
+	echo "开始修改MySQL配置文件..."
+	# mysql 配置
+	mv /opt/package/conf/my.cnf /opt/docker/mysql/conf
+	sed -i "s/password=/password=${mysqlPassword}/" /opt/docker/mysql/conf/my.cnf
+}
+
 # 安装MySQL
 installMysql() {
-  # MySQL 配置文件
-  mkdir -p /opt/docker/mysql/conf
-  # MySQL 导入数据日志
-  mkdir -p /opt/docker/mysql/logs
+	# mysql文件目录
+	# 宿主机创建数据存放目录映射到容器
+	mkdir -p /opt/docker/mysql/data
+	# 宿主机创建配置文件目录映射到容器
+	mkdir -p /opt/docker/mysql/conf
+	# 宿主机创建日志目录映射到容器
+	mkdir -p /opt/docker/mysql/logs
+
+	updateMysqlConf
+
   echo "启动mysql ... "
   docker run -d --name mysql --privileged=true --restart=always --network blog_network --ip 172.18.0.3 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=${mysqlPassword} -v /opt/docker/files:/opt/docker/files  mysql/mysql-server:8.0.32
 
-  # MySQL数据文件
-  mv /opt/package/sql/blog_pi.sql /opt/docker/files/sql
-  # MySQL容器执行脚本
-  mv /opt/package/conf/mysql.sh /opt/docker/files
-  sed -i 's/\r$//' /opt/docker/files/mysql.sh
-  chmod +x /opt/docker/files/mysql.sh
-  # 导入sql数据
-  nohup sudo docker exec mysql bash /opt/docker/files/mysql.sh >/opt/docker/mysql/logs/sql.log 2>&1
+
+}
+
+# MySQL 数据修改与导入
+insertSqlData() {
+    echo "开始修改MySQL数据恢复脚本文件..."
+	  # MySQL数据文件
+	  mkdir -p /opt/docker/files/sql
+    mv /opt/package/sql/* /opt/docker/files/sql
+    # MySQL容器执行脚本
+    mv /opt/package/conf/mysql.sh /opt/docker/files
+
+    chmod +x /opt/docker/files/mysql.sh
+    sed -i 's/\r$//' /opt/docker/files/mysql.sh
+    sed -i 's/\r$//' /opt/docker/files/sql/*.sql
+    sed -i "s/mysqlPassword=/mysqlPassword=\"${mysqlPassword}\"/" /opt/docker/files/mysql.sh
+
+    # 导入sql数据
+    nohup sudo docker exec mysql bash /opt/docker/files/mysql.sh >/opt/docker/mysql/logs/sql.log 2>&1
 }
 
 installMqtt() {

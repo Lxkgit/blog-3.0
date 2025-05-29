@@ -18,6 +18,8 @@ minioPassword="minio-960@*"
 ftpUsername="system"
 ftpPassword="Ftp@Admin123*."
 
+oldIpAddr="49.232.129.253"
+
 # 安装docker
 dockerStart() {
 
@@ -191,8 +193,14 @@ updateMysqlConf() {
 	sed -i "s/password=/password=${mysqlPassword}/" /opt/docker/mysql/conf/my.cnf
 }
 
+# 更新MySQL数据IP地址，用于迁移服务器，替换旧ip
+updateSqlData() {
+  newIpAddr = $(curl -4s --fail --connect-timeout 2 ifconfig.me 2>/dev/null | tr -d '\n' || curl -4s --fail --connect-timeout 2  icanhazip.com 2>/dev/null | tr -d '\n')
+
+}
+
 # MySQL 数据修改与导入
-updateSqlFile() {
+insertSqlData() {
 	echo "开始修改MySQL数据恢复脚本文件..."
 	mv /opt/package/conf/mysql.sh /opt/docker/files
 	mkdir -p /opt/docker/files/sql
@@ -201,7 +209,9 @@ updateSqlFile() {
 	sed -i 's/\r$//' /opt/docker/files/mysql.sh
 	sed -i 's/\r$//' /opt/docker/files/sql/*.sql
 	sed -i "s/mysqlPassword=/mysqlPassword=\"${mysqlPassword}\"/" /opt/docker/files/mysql.sh
-	
+
+	updateSqlData
+
 	# 导入sql数据
 	nohup sudo docker exec mysql bash /opt/docker/files/mysql.sh >/opt/docker/mysql/logs/importSql.log 2>&1
 }
@@ -220,7 +230,7 @@ mysql() {
 	echo "正在启动mysql..."
 	docker run -d --name mysql --privileged=true --restart=always --network blog_network --ip 172.18.0.3 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=${mysqlPassword} -v /opt/docker/mysql/data/:/var/lib/mysql -v /opt/docker/mysql/conf/my.cnf:/etc/mysql/my.cnf -v /opt/docker/mysql/logs/:/var/log/mysql/ -v /opt/docker/files/:/opt/docker/files/ mysql:8.0.20
 	
-	updateSqlFile
+	insertSqlData
 }
 
 # 创建 ftp 工作目录

@@ -1,8 +1,7 @@
 <template>
-
     <div style="width: 100%; height: 100%; display: flex; flex-flow: wrap;overflow-y: auto; align-items:flex-start;"
         @contextmenu.prevent="">
-        <el-card v-for="(device, id) in serviceList.data" :key="id" @contextmenu.prevent.stop="" style="
+        <el-card v-for="(service, id) in serviceList.data" :key="id" @contextmenu.prevent.stop="" style="
       margin: 18px 2%;
       width: 45%;
       height: 200px;
@@ -17,39 +16,21 @@
                             </el-button>
                         </div>
                         <div>
-                            <span>设备类型：</span> <el-tag type="primary">设备</el-tag>
+                            <span>设备类型：</span> <el-tag type="primary">服务器</el-tag>
                         </div>
                         <div>
-                            <span>设备名称：</span> <span>{{ device.deviceName }}</span>
-                        </div>
-                        <div>
-                            <span>设备编码：</span> <span>{{ showText(device.deviceCode, 5) }}</span>
+                            <span>设备名称：</span> <span>{{ service.serviceName }}</span>
                         </div>
                     </div>
                     <div style="flex: 1;">
-
-
                         <div>
-                            <span>设备位置：</span> <span>{{ device.devicePosition }}</span>
+                            <span>备注信息：</span> <span>{{ service.memo }}</span>
                         </div>
                         <div>
-                            <span>设备状态：</span>
-                            <span>
-                                <el-tag v-if="device.deviceStatus === 1" type="success">{{
-                                    deviceStatus(device.deviceStatus) }}</el-tag>
-                                <el-tag v-if="device.deviceStatus === 0" type="warning">{{
-                                    deviceStatus(device.deviceStatus) }}</el-tag>
-                            </span>
-                        </div>
-                        <div><span>时间模板：</span> <span>模板1</span></div>
-                        <div>
-                            <span>备注信息：</span> <span>{{ device.memo }}</span>
+                            <span>创建时间：</span> <span>{{ service.createTime }}</span>
                         </div>
                         <div>
-                            <span>创建时间：</span> <span>{{ device.createTime }}</span>
-                        </div>
-                        <div>
-                            <span>修改时间：</span> <span>{{ device.updateTime }}</span>
+                            <span>修改时间：</span> <span>{{ service.updateTime }}</span>
                         </div>
                     </div>
                 </div>
@@ -94,7 +75,16 @@ const showText = (text: any, maxLength: Number) => {
 function serviceFun() {
 
     // 服务器列表
-    let serviceList: any = reactive({ data: [] });
+    let serviceList: any = reactive({
+        data: [
+            {
+                "serviceName": "云服务器",
+                "memo": "11",
+                "createTime": "11",
+                "updateTime": "11",
+            }
+        ]
+    });
 
     return {
         serviceList

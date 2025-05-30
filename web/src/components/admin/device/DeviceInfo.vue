@@ -37,7 +37,7 @@
 import { onMounted, reactive, ref, watch } from "vue";
 import type { TabsPaneContext } from 'element-plus'
 import { selectDeviceInfoByIdApi } from '@/api/file';
-// import * as echarts from 'echarts'
+
 import dark from "@/utils/dark";
 import SystemInfo from '@/components/admin/device/SystemInfo.vue';
 

@@ -8,11 +8,17 @@ import io.minio.*;
 import io.minio.http.Method;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -86,7 +92,7 @@ public class MinioService {
     /**
      * 删除指定文件
      *
-     * @param path 文件路径
+     * @param path     文件路径
      * @param fileName 文件名称
      */
     public void deleteFile(String path, String fileName) throws ServiceException {
@@ -103,13 +109,14 @@ public class MinioService {
     }
 
     /**
+     * 文件授权
      *
      * @param path
      * @param time
      * @return
      */
     public String authFile(String path, Integer time) throws ServiceException {
-        try  {
+        try {
             // 生成标准预签名URL（路径不含/minio）
 
             return minioClient.getPresignedObjectUrl(
@@ -124,7 +131,82 @@ public class MinioService {
             log.error(e.getMessage());
             throw new ServiceException(e.getMessage());
         }
-
     }
+
+    /**
+     * 导出minio文件到服务器指定位置
+     *
+     * @param minioFileName MinIO中的文件名（带路径）
+     * @param path          本地保存的文件名
+     * @return
+     * @throws ServiceException
+     */
+    public String exportFile(String minioFileName, String path) throws ServiceException {
+        // 1. 从MinIO下载文件流
+        try (InputStream fileStream = minioClient.getObject(GetObjectArgs.builder()
+                .bucket(bucket)
+                .object(minioFileName)
+                .build())) {
+
+            // 2. 确保目标目录存在
+            Path exportPath = Paths.get(path);
+            if (!Files.exists(exportPath)) {
+                Files.createDirectories(exportPath);
+            }
+            String fileName = extractFileName(minioFileName);
+
+            // 3. 保存到本地文件
+            Path targetPath = exportPath.resolve(fileName);
+            Files.copy(fileStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            return targetPath.toString();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    /**
+     * 将服务器本地文件写入minio
+     *
+     * @param localFilePath 服务器中文件位置
+     * @param minioPath     minio中文件位置
+     * @throws ServiceException 导入异常信息
+     */
+    public void importFile(String localFilePath, String minioPath) throws ServiceException {
+        File file = new File(localFilePath);
+        if (!file.exists() || !file.isFile()) {
+            throw new IllegalArgumentException("文件不存在或不是有效文件: " + localFilePath);
+        }
+
+        try {
+            InputStream inputStream = Files.newInputStream(file.toPath());
+            String contentType = Files.probeContentType(Paths.get(localFilePath));
+            ObjectWriteResponse response = minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(minioPath)
+                    .stream(inputStream, file.length(), -1)
+                    .contentType(contentType)
+                    .build());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    /**
+     * 解析minio文件名称
+     *
+     * @param minioObjectName MinIO中的文件名（带路径）
+     * @return 文件名称
+     */
+    private static String extractFileName(String minioObjectName) {
+        if (StringUtils.isBlank(minioObjectName)) {
+            return "";
+        }
+
+        // 处理可能包含多个分隔符的情况
+        return StringUtils.substringAfterLast(minioObjectName, "/");
+    }
+
 
 }

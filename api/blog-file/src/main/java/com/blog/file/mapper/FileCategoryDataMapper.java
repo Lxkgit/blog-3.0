@@ -13,4 +13,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface FileCategoryDataMapper extends BaseMapper<FileCategoryData> {
 
+    void updateFileCodeByIdAndUserId(FileCategoryData fileCategoryData);
 }

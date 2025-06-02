@@ -4,6 +4,9 @@ import platform
 import psutil
 import json
 import time
+import os
+import shutil
+import random
 
 service_info_delay = 60
 
@@ -85,6 +88,51 @@ def get_computer_config():
     return config
 
 
+def randomly_move_files(source_dir, target_dir, count):
+    # 确保源目录存在
+    if not os.path.exists(source_dir):
+        raise FileNotFoundError(f"源目录 '{source_dir}' 不存在")
+
+    # 创建目标目录（如果不存在）
+    os.makedirs(target_dir, exist_ok=True)
+
+    # 获取目录中的所有文件（排除子目录）
+    all_files = [f for f in os.listdir(source_dir)
+                 if os.path.isfile(os.path.join(source_dir, f))]
+
+    # 按文件名排序并取前 count 个
+    sorted_files = sorted(all_files)
+    file_list = sorted_files[:count]
+
+    if not file_list:
+        print("源目录中没有文件可移动")
+        return
+
+    # 随机打乱文件顺序
+    random.shuffle(file_list)
+
+    # 移动文件
+    moved_files = []
+    for filename in file_list:
+        src_path = os.path.join(source_dir, filename)
+        dst_path = os.path.join(target_dir, filename)
+
+        # 处理文件名冲突（添加随机后缀）
+        while os.path.exists(dst_path):
+            name, ext = os.path.splitext(filename)
+            new_name = f"{name}_{random.randint(1, 1000)}{ext}"
+            dst_path = os.path.join(target_dir, new_name)
+
+        shutil.move(src_path, dst_path)
+        moved_files.append(os.path.basename(dst_path))
+
+    # 打印结果
+    print(f"已移动 {len(moved_files)} 个文件到 {target_dir}:")
+    for f in moved_files:
+        print(f"  - {f}")
+    return moved_files
+
+
 async def connect_with_retry(url):
     delay = 60
     while True:
@@ -98,6 +146,24 @@ async def connect_with_retry(url):
                 # 接收消息
                 async for message in ws:
                     print(f"收到消息: {message}")
+                    receiveMsg = json.loads(message)
+                    if receiveMsg.get("topic") == "move_file":
+                        print(f"调用文件同步脚本: {receiveMsg.get('message')}")
+                        source_directory = receiveMsg.get('sourceDirectory')
+                        target_directory = receiveMsg.get('targetDirectory')
+                        count = receiveMsg.get('count')
+                        moved_files = randomly_move_files(source_directory, target_directory, count)
+                        msg = {
+                            'topic': receiveMsg.get("topic"),
+                            'message': {
+                                "requestId": receiveMsg.get("requestId"),
+                                "sourceDirectory": source_directory,
+                                "targetDirectory": target_directory,
+                                "file_list": moved_files
+                            }
+                        }
+                        await ws.send(json.dumps(msg))
+
                 return
         except (websockets.ConnectionClosedError, ConnectionRefusedError) as e:
             print(f"连接断开: {e} {delay}秒后重试...")

@@ -2,6 +2,7 @@ package com.blog.file.xxlJob;
 
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,9 @@ public class SampleXxlJob {
 
     private static final Logger logger = LoggerFactory.getLogger(SampleXxlJob.class);
 
+    @Resource
+    private FileUploadSchedule fileUploadSchedule;
+
     /**
      * 1、简单任务示例（Bean模式）
      */
@@ -37,6 +41,16 @@ public class SampleXxlJob {
             TimeUnit.SECONDS.sleep(2);
         }
     }
+
+    /**
+     * 指定目录定时上传文件
+     */
+    @XxlJob("fileUploadHandler")
+    public void fileUploadHandler() {
+        fileUploadSchedule.uploadFile();
+    }
+
+
 
 }
 

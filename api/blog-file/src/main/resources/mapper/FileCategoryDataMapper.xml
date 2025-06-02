@@ -20,5 +20,10 @@
     </sql>
 
 
+    <update id="updateFileCodeByIdAndUserId" parameterType="com.blog.core.domain.file.files.entity.FileCategoryData">
+        update file_category_data
+        set file_code = #{fileCode}
+        where id = #{id}
+    </update>
 
 </mapper>

@@ -1,6 +1,9 @@
 package com.blog.pi.netty.listener;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.blog.pi.netty.client.NettyClient;
+import com.blog.pi.netty.dto.NettyPacket;
+import com.blog.pi.netty.dto.NettyResponse;
 import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.netty.enums.NettyTopicEnum;
 import com.blog.pi.netty.event.NettyPacketEvent;
@@ -35,6 +38,10 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
     @Resource
     private RedisService redisService;
 
+    @Resource
+    private NettyClient nettyClient;
+
+
     @Async
     @Override
     public void onApplicationEvent(NettyPacketEvent event) {
@@ -51,6 +58,8 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
             if (topic.equals(NettyTopicEnum.BLOG_FILE_SYNC.getTopic())) {
                 // 处理文件下载同步
                 syncBlogFileService.syncBlogFile(data, requestId);
+            } else if (topic.equals(NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic())) {
+                syncBlogFileService.uploadBlogFileFirstStep(data, requestId);
             } else if (topic.equals(NettyTopicEnum.BLOG_SENSOR_CONTROL.getTopic())) {
                 // 处理服务器控制命令
                 sensorControlService.sendCommand(data, requestId);

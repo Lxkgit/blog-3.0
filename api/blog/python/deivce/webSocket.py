@@ -25,7 +25,7 @@ async def connect_with_retry(url):
                 async for message in ws:
                     print(f"收到消息: {message}")
                     receiveMsg = json.loads(message)
-                    if receiveMsg.get("topic") == "file_sync":
+                    if receiveMsg.get("topic") == "move_file":
                         print(f"调用文件同步脚本: {receiveMsg.get('message')}")
                         # 执行 Shell 脚本并捕获输出
                         result = subprocess.run(

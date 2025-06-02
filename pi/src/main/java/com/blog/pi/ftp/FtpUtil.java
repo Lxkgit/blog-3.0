@@ -1,11 +1,14 @@
 package com.blog.pi.ftp;
 
 import com.blog.pi.config.PiSystemConfig;
+import com.blog.pi.netty.client.NettyMessageReplayThread;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -21,6 +24,8 @@ import java.nio.file.Files;
 @Slf4j
 @Service
 public class FtpUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(FtpUtil.class);
 
     @Resource
     private PiSystemConfig piSystemConfig;
@@ -54,8 +59,7 @@ public class FtpUtil {
                 ftpClient.setFileTransferMode(FTP.STREAM_TRANSFER_MODE);
             }
         } catch (Exception e) {
-
-            e.printStackTrace();
+            logger.error("ftp 连接异常: {}", e.getMessage(), e);
             return false;
         }
         return true;

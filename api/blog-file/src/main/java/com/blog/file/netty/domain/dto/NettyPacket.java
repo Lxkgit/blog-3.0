@@ -67,6 +67,7 @@ public class NettyPacket<T> implements Serializable {
     public static <T> NettyPacket<T> buildResponse(String requestId, T data) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
         nettyPacket.setRequestId(requestId);
+        nettyPacket.setTopic("response");
         nettyPacket.setRegisterCode(NettyConstant.NETTY_DEVICE_CODE);
         nettyPacket.setNettyPacketType(NettyPacketType.RESPONSE.getValue());
         nettyPacket.setData(data);

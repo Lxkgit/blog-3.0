@@ -1,7 +1,9 @@
 package com.blog.file.service.impl;
 
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
@@ -11,6 +13,10 @@ import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
+import com.blog.file.netty.domain.common.NettyConstant;
+import com.blog.file.netty.domain.dto.NettyPacket;
+import com.blog.file.netty.domain.dto.file.NettySyncBlogFileDto;
+import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.file.netty.service.NettyServer;
 import com.blog.file.service.FileService;
 import com.blog.file.service.UploadFileService;
@@ -49,6 +55,12 @@ public class FileServiceImpl implements FileService {
     @Resource
     private MinioService minioService;
 
+    /**
+     * 创建云盘目录
+     *
+     * @param fileCategoryVo
+     * @throws ServiceException
+     */
     @Override
     public void createDir(FileCategoryVo fileCategoryVo) throws ServiceException {
         if (StringUtils.isEmpty(fileCategoryVo.getDirPath())) {
@@ -60,6 +72,7 @@ public class FileServiceImpl implements FileService {
 
     /**
      * 创建目录
+     *
      * @param path 目录
      */
     public void createDir(String path) {
@@ -68,27 +81,21 @@ public class FileServiceImpl implements FileService {
         uploadFileService.createFileCategory(createDir);
     }
 
+    /**
+     * 删除云盘中文件目录
+     *
+     * @param fileCategoryVo
+     * @throws ServiceException
+     */
     @Override
     public void deleteFileDir(FileCategoryVo fileCategoryVo) throws ServiceException {
-        deleteFileDir(fileCategoryVo.getDirPath(), fileCategoryVo.getDirName());
-    }
-
-    /**
-     * 删除目录
-     * @param path 目录
-     */
-    private void deleteFileDir(String path, String dirName) throws ServiceException {
         Integer userId = SecurityUtil.getLoginUser().getId();
-        String allPath = "/" + userId + path;
-        deleteFileCategory(allPath, dirName);
-    }
-
-    private void deleteFileCategory(String path, String dirName) throws ServiceException {
-        Integer userId = SecurityUtil.getLoginUser().getId();
+        String allPath = "/" + userId + fileCategoryVo.getDirPath();
+        String dirName = fileCategoryVo.getDirName();
         LambdaQueryWrapper<FileCategory> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(FileCategory::getUserId, userId);
         wrapper.eq(FileCategory::getDirName, dirName);
-        wrapper.eq(FileCategory::getDirPath, path + "/" + dirName);
+        wrapper.eq(FileCategory::getDirPath, allPath + "/" + dirName);
         FileCategory fileCategory = fileCategoryMapper.selectOne(wrapper);
         if (fileCategory == null) {
             throw new ServiceException("目录不存在");
@@ -103,6 +110,12 @@ public class FileServiceImpl implements FileService {
     }
 
 
+    /**
+     * 删除云盘文件
+     *
+     * @param fileCategoryData
+     * @throws ServiceException
+     */
     @Override
     public void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException {
         uploadFileService.deleteFile(fileCategoryData);
@@ -126,6 +139,13 @@ public class FileServiceImpl implements FileService {
         return fileCategoryMapper.selectList(childWrapper);
     }
 
+    /**
+     * 查询文件列表
+     *
+     * @param fileDataVo
+     * @return
+     * @throws ServiceException
+     */
     @Override
     public List<FileCategoryData> selectFile(FileCategoryVo fileDataVo) throws ServiceException {
         FileCategory fileCategory = getFileDir(fileDataVo);
@@ -156,6 +176,13 @@ public class FileServiceImpl implements FileService {
         return fileCategoryMapper.selectOne(wrapper);
     }
 
+    /**
+     * 私有目录下文件授权
+     *
+     * @param path
+     * @return
+     * @throws ServiceException
+     */
     public String authFile(String path) throws ServiceException {
         String searchStr = "/blog";
         int index = path.indexOf(searchStr);
@@ -168,10 +195,6 @@ public class FileServiceImpl implements FileService {
     }
 
 
-
-
-
-//
 //    /**
 //     * 同步文件
 //     *
@@ -196,41 +219,64 @@ public class FileServiceImpl implements FileService {
 //        return false;
 //    }
 //
-//    /**
-//     * 同步单个文件至远程服务器
-//     *
-//
-//     * @param fileDataVo
-//     * @return
-//     */
-//    public boolean syncFile(FileCategoryDataVo fileDataVo) {
-//        if (fileDataVo.getType().equals(Constant.FILE_TYPE_DIR)) {
-//            // 目录不同步
-//            return false;
-//        }
-//        if (fileDataVo.getDirType().equals(Constant.DIR_TYPE_LOCAL)) {
-//            // 本地目录/文件不同步
-//            return false;
-//        }
-//
-//        NettySyncBlogFileDto nettySyncBlogFile = new NettySyncBlogFileDto();
-//        nettySyncBlogFile.setFilePath(fileDataVo.getFilePath());
-//        nettySyncBlogFile.setFileName(fileDataVo.getName());
-//        nettySyncBlogFile.setSyncType(fileDataVo.getSyncType());
-//        if (fileDataVo.getSyncType().equals(0)) {
-//            String fileCode = UUID.randomUUID().toString();
-//            nettySyncBlogFile.setFileCode(fileCode);
-//            fileDataVo.setFileCode(fileCode);
-//            fileDataMapper.updateFileCodeByIdAndUserId(fileDataVo);
-//        } else if (fileDataVo.getSyncType().equals(1)) {
-//            FileCategoryData fileData = fileDataMapper.selectById(fileDataVo.getId());
-//            nettySyncBlogFile.setFileCode(fileData.getFileCode());
-//        }
-//        NettyPacket<NettySyncBlogFileDto> syncFileRequest = NettyPacket.buildRequest(nettySyncBlogFile);
-//        syncFileRequest.setTopic(NettyTopicEnum.BLOG_FILE_SYNC.getTopic());
-//        nettyServer.channelWriteByRegisterId(NettyConstant.NETTY_CLIENT1, JSONObject.toJSONString(syncFileRequest));
-//        return true;
-//    }
+
+    /**
+     * 同步单个文件至远程服务器
+     *
+     * @param fileDataVo
+     * @return
+     */
+    @Override
+    public boolean syncFile(FileCategoryDataVo fileDataVo) throws ServiceException {
+        Integer fileId = fileDataVo.getId();
+        FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(fileId);
+        if (fileCategoryData == null) {
+            throw new ServiceException("文件不存在");
+        }
+        Integer fileStatus = fileCategoryData.getFileStatus();
+        Integer operateFileStatus = fileDataVo.getFileStatus();
+        if (fileStatus.equals(Constant.FILE_STATUS_WAIT)) {
+            throw new ServiceException("文件正在等待同步");
+        } else if (fileStatus.equals(Constant.FILE_STATUS_TO_LOCAL) || fileStatus.equals(Constant.FILE_STATUS_TO_REMOTE)) {
+            throw new ServiceException("文件正在同步中");
+        } else if (fileStatus.equals(Constant.FILE_STATUS_LOCAL)) {
+            if (!operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
+                throw new ServiceException("本地文件同步参数异常");
+            }
+        } else if (fileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
+            if (!operateFileStatus.equals(Constant.FILE_STATUS_LOCAL)) {
+                throw new ServiceException("远程文件同步参数异常");
+            }
+        }
+
+        FileCategory category = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
+
+        NettySyncBlogFileDto nettySyncBlogFile = new NettySyncBlogFileDto();
+        nettySyncBlogFile.setFilePath(category.getDirPath());
+        nettySyncBlogFile.setFileName(fileCategoryData.getFileName());
+        if (operateFileStatus.equals(Constant.FILE_STATUS_LOCAL)) {
+            nettySyncBlogFile.setSyncType(1);
+        }
+        if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
+            nettySyncBlogFile.setSyncType(0);
+        }
+
+        if (nettySyncBlogFile.getSyncType().equals(0)) {
+            // 文件同步至远程服务器，生成随机文件唯一编码
+            String fileCode = UUID.randomUUID().toString();
+            nettySyncBlogFile.setFileCode(fileCode);
+            fileCategoryData.setFileCode(fileCode);
+            fileCategoryDataMapper.updateFileCodeByIdAndUserId(fileCategoryData);
+        } else if (nettySyncBlogFile.getSyncType().equals(1)) {
+            // 文件同步至本地服务器，获取文件唯一编码
+            nettySyncBlogFile.setFileCode(fileCategoryData.getFileCode());
+        }
+        nettySyncBlogFile.setUserId(SecurityUtil.getLoginUser().getId());
+        NettyPacket<NettySyncBlogFileDto> syncFileRequest = NettyPacket.buildRequest(nettySyncBlogFile);
+        syncFileRequest.setTopic(NettyTopicEnum.BLOG_FILE_SYNC.getTopic());
+        nettyServer.channelWriteByRegisterId(NettyConstant.NETTY_CLIENT1, JSONObject.toJSONString(syncFileRequest), true);
+        return true;
+    }
 //
 //
 //    /**

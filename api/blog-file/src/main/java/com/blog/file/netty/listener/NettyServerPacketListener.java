@@ -7,6 +7,8 @@ import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.file.netty.domain.dto.NettyClientChannel;
 import com.blog.file.netty.domain.dto.NettyPacket;
+import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
+import com.blog.file.netty.domain.dto.register.NettyChipRegisterDto;
 import com.blog.file.netty.domain.dto.register.NettyRegisterDto;
 import com.blog.file.netty.domain.enums.NettyPacketType;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
@@ -15,6 +17,7 @@ import com.blog.file.mapper.DeviceInfoMapper;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.netty.event.NettyPacketEvent;
 import com.blog.file.netty.service.*;
+import com.blog.file.xxlJob.FileUploadSchedule;
 import io.netty.channel.ChannelId;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @description: Netty服务端自定义数据包处理监听器
@@ -58,6 +62,9 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     @Resource
     private NettyServerHandler nettyServerHandler;
 
+    @Resource
+    private FileUploadSchedule fileUploadSchedule;
+
     @SneakyThrows
     @Async
     @Override
@@ -71,7 +78,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         Integer userId = Integer.parseInt(registerCode.split(":")[0]);
         String deviceCode = registerCode.split(":")[1];
         String data = event.getNettyPacket().getData().toString();
-        logger.info("channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
+        logger.info("netty 收到消息，channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
                 channelId, requestId, nettyPacketType, topic, deviceCode, data);
 
         if (!nettyServerHandler.checkContainByDeviceCode(deviceCode)) {
@@ -94,12 +101,17 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             // 回复请求消息响应
             NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, "response");
             nettyResponse.setTopic(topic);
-            nettyServer.channelWriteByChannelId(channelId, requestId, JSONObject.toJSONString(nettyResponse), false);
+            nettyServer.channelWriteByRegisterId(requestId, JSONObject.toJSONString(nettyResponse), false);
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             // 接收响应
-            logger.info("channelId:{} RESPONSE data:{}", channelId, JSONObject.toJSONString(event.getNettyPacket().getData()));
             if (topic.equals(NettyTopicEnum.MSG_ERROR_RESPONSE.getTopic())) {
                 // 处理发送异常的消息
+            }
+            if (NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic().equals(topic)) {
+                NettyUploadBlogFileDto nettyUploadBlogFileDto = JSONObject.parseObject(data, NettyUploadBlogFileDto.class);
+                if ("success".equals(nettyUploadBlogFileDto.getResult())) {
+                    fileUploadSchedule.fileImportMinio(nettyUploadBlogFileDto);
+                }
             }
         }
     }
@@ -126,7 +138,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             NettyRegisterDto nettyRegisterDto = JSONObject.parseObject(data, NettyRegisterDto.class);
             if (!NettyServerHandler.clientMap.containsKey(deviceCode)) {
                 addNettyChannel(channelId, deviceCode);
-                logger.info("netty register: deviceCode:{} channelId:{}", deviceCode, channelId);
+                logger.info("netty 通道注册 register: deviceCode:{} channelId:{}", deviceCode, channelId);
             }
 
             // 创建设备 写入数据

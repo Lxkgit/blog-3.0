@@ -92,17 +92,20 @@ public class FileController {
         return ResultFactory.buildSuccessResult(fileService.selectFile(fileCategoryVo));
     }
 
-//
-//    /**
-//     * 同步文件(包括文件同步至远程和从远程下载文件)
-//     *
-//     * @param fileDataVo
-//     * @return
-//     */
-//    @GetMapping("/sync")
-//    @PreAuthorize("hasAnyAuthority('sys:file:user:sync')")
-//    public Result syncFile(@Validated FileCategoryDataVo fileDataVo) {
-//        return ResultFactory.buildSuccessResult(fileService.syncFile(fileDataVo));
-//    }
+
+    /**
+     * 同步文件(包括文件同步至远程和从远程下载文件)
+     *
+     * @param fileDataVo
+     * @return
+     */
+    @GetMapping("/sync/file")
+    @PreAuthorize("hasAnyAuthority('sys:file:user:sync')")
+    public Result syncFile(@Validated FileCategoryDataVo fileDataVo) throws ServiceException {
+        return ResultFactory.buildSuccessResult(fileService.syncFile(fileDataVo));
+    }
+
+
+
 
 }

@@ -25,6 +25,8 @@ public enum NettyTopicEnum {
     BLOG_CHIP_REGISTER("BLOG_CHIP_REGISTER"),
     // 博客MySQL数据与数据文件同步
     BLOG_FILE_SYNC("BLOG_FILE_SYNC"),
+    // 上传文件至服务器
+    BLOG_FILE_UPLOAD("BLOG_FILE_SYNC"),
     // 设备详情消息
     DEVICE_INFO("DEVICE_INFO"),
 

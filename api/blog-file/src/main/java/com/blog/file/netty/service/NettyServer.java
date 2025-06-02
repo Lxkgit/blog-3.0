@@ -18,6 +18,8 @@ import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -28,15 +30,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * @description: Netty服务端
- * @Author: lxk
- * @date 2024/1/6 15:15
- */
-@Slf4j
+
 @Component
 @RequiredArgsConstructor
 public class NettyServer implements CommandLineRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     private Channel channel;
     // boss事件轮询线程组，处理连接事件
@@ -84,11 +83,11 @@ public class NettyServer implements CommandLineRunner {
             // 绑定端口，开始接收进来的连接
             ChannelFuture future = serverBootstrap.bind(port).sync();
             if (future.isSuccess()) {
-                log.info("Netty 服务端启动成功 端口: {}", port);
+                logger.info("Netty 服务端启动成功 端口: {}", port);
             }
             channel = future.channel();
         } catch (Exception e) {
-            log.error("Netty 服务端启动异常 error: {}", e.getMessage());
+            logger.error("Netty 服务端启动异常 error: {}", e.getMessage());
         }
     }
 
@@ -99,7 +98,7 @@ public class NettyServer implements CommandLineRunner {
         }
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
-        log.warn("Netty服务关闭");
+        logger.warn("Netty服务关闭");
     }
 
     /**
@@ -113,9 +112,10 @@ public class NettyServer implements CommandLineRunner {
     public boolean channelWriteByChannelId(ChannelId channelId, String registerId, String msg, boolean retry) {
         ChannelHandlerContext ctx = NettyServerHandler.channelMap.get(channelId);
         if (ctx == null) {
-            log.warn("通道: {} 不存在，消息发送异常", channelId);
+            logger.warn("通道: {} 不存在，消息发送异常", channelId);
             return false;
         }
+        logger.info("netty 发送消息, channelId:{}, registerId:{}, msg:{}, retry:{}", channelId, registerId, msg, retry);
         ctx.writeAndFlush(msg);
         if (retry) {
             redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, registerId, msg);
@@ -126,7 +126,7 @@ public class NettyServer implements CommandLineRunner {
     public boolean channelWriteByRegisterId(String registerId, String msg, boolean retry) {
         ChannelId channelId = NettyServerHandler.clientMap.get(registerId);
         if (channelId == null) {
-            log.warn("通道注册码:{} 不存在", registerId);
+            logger.warn("通道注册码:{} 不存在", registerId);
             return false;
         }
         return channelWriteByChannelId(channelId, registerId, msg, retry);

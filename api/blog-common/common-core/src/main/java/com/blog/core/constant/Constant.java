@@ -54,4 +54,18 @@ public class Constant {
     public static final Long NETTY_MSG_RETRY = 5*60L;
     // netty 消息重发次数
     public static final Integer NETTY_MSG_RETRY_COUNT = 5;
+
+    // file 模块 **********************************
+    /**
+     *  同步文件位置状态 0:本地服务器 1:正在同步本地服务器 2:等待同步 3:正在同步远程服务器 4:远程服务器
+     */
+    public static final Integer FILE_STATUS_LOCAL = 0;
+    public static final Integer FILE_STATUS_TO_LOCAL = 1;
+    public static final Integer FILE_STATUS_WAIT = 2;
+    public static final Integer FILE_STATUS_TO_REMOTE = 3;
+    public static final Integer FILE_STATUS_REMOTE = 4;
+
+
+
+
 }

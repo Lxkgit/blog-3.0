@@ -14,6 +14,8 @@ import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -25,10 +27,12 @@ import java.util.concurrent.TimeUnit;
  * @Author: lxk
  * @date 2024/1/6 15:51
  */
-@Slf4j
+
 @Component
 @RequiredArgsConstructor
 public class NettyClient implements CommandLineRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
     private Channel channel;
     private final EventLoopGroup workGroup = new NioEventLoopGroup();
@@ -68,15 +72,15 @@ public class NettyClient implements CommandLineRunner {
             //客户端断线重连逻辑
             future.addListener((ChannelFutureListener) futureListener -> {
                 if (futureListener.isSuccess()) {
-                    log.info("netty connection success");
+                    logger.info("netty 连接成功");
                 } else {
-                    log.warn("netty connection failed, try again after 30 seconds");
+                    logger.warn("netty 连接失败，30秒后尝试重新连接");
                     futureListener.channel().eventLoop().schedule((Runnable) this::run, 30, TimeUnit.SECONDS);
                 }
             });
             channel = future.channel();
         } catch (Exception e) {
-            log.error("连接Netty服务端异常!! error:{}", e.getMessage());
+            logger.error("连接Netty服务端异常 error:{}", e.getMessage(), e);
         }
     }
 
@@ -86,7 +90,7 @@ public class NettyClient implements CommandLineRunner {
             channel.close();
         }
         workGroup.shutdownGracefully();
-        log.warn("netty service close");
+        logger.warn("netty 服务关闭");
     }
 
     /**
@@ -100,7 +104,7 @@ public class NettyClient implements CommandLineRunner {
         if (active) {
             channel.writeAndFlush(msg);
         } else {
-            log.warn("netty 连接已断开");
+            logger.warn("netty 连接已断开");
         }
         if (retry) {
             NettyReplayMessage nettyReplayMessage = new NettyReplayMessage(msg);

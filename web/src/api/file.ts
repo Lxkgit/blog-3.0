@@ -69,7 +69,7 @@ export const selectFileApi = (params: any) => {
 }
 
 export const syncFileApi = (params: any) => {
-    const uri = "/file/dir/sync"
+    const uri = "/file/dir/sync/file"
     return api.get(uri, params)
 }
 

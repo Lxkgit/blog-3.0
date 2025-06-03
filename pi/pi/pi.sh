@@ -39,7 +39,7 @@ unzipPi() {
 # conda 下载
 installConda() {
   cd /opt/package/soft
-	echo "开始安装 Anacoda ... "
+	echo "开始安装 Anaconda ... "
 	sh Anaconda3-2024.10-1-Linux-aarch64.sh<<EOF
 
 q
@@ -56,15 +56,16 @@ EOF
 
 	# 安装conda后命令行前面base隐藏
 	conda config --set auto_activate_base False
-	echo "Anacoda 安装完成 ... "
+	echo "Anaconda 安装完成 ... "
 
 	createPythonEnv
 }
 
 # 构建 py 运行环境
 createPythonEnv() {
-	echo "安装python3.11 ... "
-	conda create --name py3 python=3.11 -y
+	echo "安装python3.9 ... "
+	conda create --name py3 python=3.9 -y
+	conda activate py3
 }
 
 # docker 镜像加载
@@ -151,7 +152,7 @@ installRedis() {
 	docker run -d --name redis --privileged=true --restart=always --network blog_network --ip 172.18.0.6 -p 6379:6379 -v /opt/docker/redis/conf/redis.conf:/etc/redis/redis.conf -v /opt/docker/redis/data/:/data/  -v /opt/docker/files/:/opt/docker/files/ redis:6.2.5 redis-server /etc/redis/redis.conf
 }
 
-installJar() {
+startJar() {
   sleep 5m
   echo "启动pi项目 ... "
   mkdir -p /opt/docker/files/jar
@@ -163,6 +164,13 @@ installJar() {
   cd /opt/docker/files/jar
   docker build -t pi:1 .
   docker run -d --name pi --privileged=true --cap-add=SYS_ADMIN --restart=always --network blog_network --ip 172.18.0.5 -p 10201:10201 -p 9092:9092 -p 5005:5005 -v /opt/docker/files:/opt/docker/files pi:1
+}
+
+startPy() {
+    mkdir -p /opt/docker/files/python
+    mv /opt/package/python/* /opt/docker/files/python
+    cd /opt/docker/files/python
+    nohup python -u webSocket.py > output.log 2>&1 &
 }
 
 main() {
@@ -177,7 +185,8 @@ main() {
   installMqtt
   installRedis
 
-  installJar
+  startJar
+  startPy
 
   timer_end=`date "+%Y-%m-%d %H:%M:%S"`
   duration=`echo $(($(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}"))) | awk '{t=split("60 s 60 m 24 h 999 d",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}'`

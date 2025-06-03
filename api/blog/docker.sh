@@ -125,10 +125,10 @@ dockerLoad() {
 
 # conda 下载
 conda() {
-	echo "开始下载 Anacoda ... "
+	echo "开始下载 Anaconda ... "
 	cd /opt/
 	wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
-	echo "开始安装 Anacoda ... "
+	echo "开始安装 Anaconda ... "
 	sh Anaconda3-2024.10-1-Linux-x86_64.sh<<EOF
 
 q
@@ -145,15 +145,19 @@ EOF
 	
 	# 安装conda后命令行前面base隐藏
 	conda config --set auto_activate_base False
-	echo "Anacoda 安装完成 ... "
+	echo "Anaconda 安装完成 ... "
 	
 	py
 }
 
 # 构建 py 运行环境
 py() {
-	echo "安装python3.11 ... "
-	conda create --name py3 python=3.11 -y
+	echo "安装python3.9 ... "
+	conda create --name py3 python=3.9 -y
+	conda activate py3
+
+	pip install websockets
+	pip install psutil
 }
 
 # 服务器相关依赖下载
@@ -204,25 +208,25 @@ updateMysqlConf() {
 
 # 更新MySQL数据IP地址，用于迁移服务器，替换旧ip
 updateSqlData() {
-  newIpAddr = $(curl -4s --fail --connect-timeout 2 ifconfig.me 2>/dev/null | tr -d '\n' || curl -4s --fail --connect-timeout 2  icanhazip.com 2>/dev/null | tr -d '\n')
-
+  newIpAddr=$(curl -4s --fail --connect-timeout 2 ifconfig.me 2>/dev/null || curl -4s --fail --connect-timeout 2 icanhazip.com 2>/dev/null | tr -d '\n')
+  echo "${newIpAddr:-No IP Found}"
 }
 
 # MySQL 数据修改与导入
 insertSqlData() {
-	echo "开始修改MySQL数据恢复脚本文件..."
-	mv /opt/package/conf/mysql.sh /opt/docker/files
+	echo "开始导入MySQL数据..."
 	mkdir -p /opt/docker/files/sql
+	mv /opt/package/conf/mysql.sh /opt/docker/files/sql
 	mv /opt/package/sql/* /opt/docker/files/sql
-	chmod +x /opt/docker/files/mysql.sh
-	sed -i 's/\r$//' /opt/docker/files/mysql.sh
+	chmod +x /opt/docker/files/sql/mysql.sh
+	sed -i 's/\r$//' /opt/docker/files/sql/mysql.sh
 	sed -i 's/\r$//' /opt/docker/files/sql/*.sql
-	sed -i "s/mysqlPassword=/mysqlPassword=\"${mysqlPassword}\"/" /opt/docker/files/mysql.sh
+	sed -i "s/mysqlPassword=/mysqlPassword=\"${mysqlPassword}\"/" /opt/docker/files/sql/mysql.sh
 
 	updateSqlData
 
 	# 导入sql数据
-	nohup sudo docker exec mysql bash /opt/docker/files/mysql.sh >/opt/docker/mysql/logs/importSql.log 2>&1
+	nohup sudo docker exec mysql bash /opt/docker/files/sql/mysql.sh >/opt/docker/mysql/logs/importSql.log 2>&1
 }
 
 # 安装MySQL
@@ -381,18 +385,30 @@ xxlJob() {
 	docker run --name xxljob --network blog_network --ip 172.18.0.12 -p 8080:8080 --restart=always --privileged=true -e PARAMS="--spring.datasource.username=root --spring.datasource.password=${mysqlPassword} --spring.datasource.url=jdbc:mysql://172.18.0.3:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai" -v /opt/docker/xxlJob/logs:/data/applogs -d xuxueli/xxl-job-admin:2.5.0
 }
 
-jar() {
+startJar() {
   mkdir -p /opt/docker/files/jar
   mv /opt/package/jar/* /opt/docker/files/jar
   sed -i 's/\r$//' /opt/docker/files/jar/run.sh
   chmod +x /opt/docker/files/jar/run.sh
-  mkdir -p /opt/docker/files/log
+  mkdir -p /opt/docker/files/logs
   # 等待nacos启动
   echo "3分钟后启动博客服务..."
   sleep 3m
   cd /opt/docker/files/jar
   docker build -t blog:3.0 .
-  docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 60002:60002 -p 59991:59991 -p 9092:9092 -p 21:21 -v /opt/docker/files/log:/opt/logs blog:3.0
+  docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 60002:60002 -p 59991:59991 -p 9092:9092 -p 21:21 -v /opt/docker/files/logs:/opt/logs blog:3.0
+}
+
+# 启动python脚本
+startPy() {
+  # Java服务启动较慢，等待Java服务完全启动后进行连接
+  sleep 10m
+  mkdir -p /opt/docker/files/python
+  mv /opt/package/python/* /opt/docker/files/python
+  cd /opt/docker/files/python
+
+  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py' > nohup.out 2>&1 &
+
 }
 
 # 主函数
@@ -416,7 +432,8 @@ main() {
 	minio
 	xxlJob
 
-	jar
+	startJar
+  startPy
 
 	timer_end=`date "+%Y-%m-%d %H:%M:%S"`
 	duration=`echo $(($(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}"))) | awk '{t=split("60 s 60 m 24 h 999 d",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}'`

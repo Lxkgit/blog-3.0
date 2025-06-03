@@ -129,5 +129,5 @@ def get_computer_config():
 
 # 执行入口
 if __name__ == "__main__":
-    webSocketUrl = "ws://localhost:60001/file/python"
+    webSocketUrl = "ws://172.18.0.13:60001/file/python"
     asyncio.run(connect_with_retry(webSocketUrl))

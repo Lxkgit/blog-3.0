@@ -64,7 +64,7 @@
                   <MyIcon type="icon-user" /> {{ row.dirName }}
                 </li>
                 <li class="data-item" :style="{ width: headers[1].width }">
-                
+
                 </li>
                 <li class="data-item" :style="{ width: headers[2].width }">目录</li>
                 <li class="data-item" :style="{ width: headers[3].width }">
@@ -159,8 +159,8 @@ let updateInterval:any;
 onMounted(() => {
     updateInterval = setInterval(() => {
         // 更新仪表盘数据
-        cpuData.value.value = parseFloat(Math.max(5, Math.min(95, cpuData.value.value + (Math.random() - 0.5) * 10).toFixed(1)));
-        memoryData.value.value = parseFloat(Math.max(20, Math.min(95, memoryData.value.value + (Math.random() - 0.5) * 8).toFixed(1)));
+        cpuData.value.value = 0;
+        memoryData.value.value = 0;
 
         // 更新峰值
         if (cpuData.value.value > cpuData.value.peak) {

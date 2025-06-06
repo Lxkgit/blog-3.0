@@ -47,6 +47,13 @@ dependencies {
     // Material Design组件
     implementation("com.google.android.material:material:1.6.0")
 
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+
+    implementation("io.noties.markwon:core:4.6.2")
+    implementation("io.noties.markwon:image-glide:4.6.2")
+
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

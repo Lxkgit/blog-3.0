@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         // 默认显示首页
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, homeFragment)
+                    .replace(R.id.fragment_container, currentFragment)
                     .commit();
         }
     }

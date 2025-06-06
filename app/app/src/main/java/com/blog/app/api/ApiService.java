@@ -17,4 +17,9 @@ public interface ApiService {
             @Query("selectStatus") String selectStatus,
             @Query("sortType") String sortType
     );
+
+    @GET("content/article/id")
+    Call<ApiResponse> getArticleDetailById(
+            @Query("id") long articleId
+    );
 }

@@ -172,5 +172,5 @@ async def connect_with_retry(url):
 
 # 执行入口
 if __name__ == "__main__":
-    webSocketUrl = "ws://localhost:10201/python"
+    webSocketUrl = "ws://localhost:10201/socket/device/service"
     asyncio.run(connect_with_retry(webSocketUrl))

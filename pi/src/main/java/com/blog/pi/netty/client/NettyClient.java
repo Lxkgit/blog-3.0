@@ -100,8 +100,7 @@ public class NettyClient implements CommandLineRunner {
      * @param retry 是否重发
      */
     public void sendMsg(String requestId, String msg, boolean retry) {
-        boolean active = channel.isActive();
-        if (active) {
+        if (channel != null && channel.isActive()) {
             channel.writeAndFlush(msg);
         } else {
             logger.warn("netty 连接已断开");

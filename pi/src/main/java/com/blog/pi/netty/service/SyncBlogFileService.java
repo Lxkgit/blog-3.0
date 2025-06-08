@@ -13,9 +13,7 @@ import com.blog.pi.netty.dto.NettyResponse;
 import com.blog.pi.netty.dto.file.NettySyncBlogFileDto;
 import com.blog.pi.netty.dto.file.NettyUploadBlogFileDto;
 import com.blog.pi.netty.enums.NettyTopicEnum;
-import com.blog.pi.socket.SocketMessage;
-import com.blog.pi.socket.device.DeviceSocket;
-import com.blog.pi.socket.device.domain.constant.DeviceSocketConstant;
+import com.blog.pi.socket.SocketSendMessage;
 import com.blog.pi.socket.device.domain.constant.DeviceSocketTopic;
 import com.blog.pi.socket.device.domain.dto.MoveFileDto;
 import com.blog.pi.utils.StringUtils;
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -42,8 +39,8 @@ public class SyncBlogFileService {
     @Resource
     private NettyClient nettyClient;
 
-    @Resource
-    private DeviceSocket deviceSocket;
+//    @Resource
+//    private DeviceSocket deviceSocket;
 
     @Resource
     private FileSyncDAO fileSyncDAO;
@@ -186,7 +183,7 @@ public class SyncBlogFileService {
         // 解析netty接收数据
         NettyUploadBlogFileDto nettyUploadBlogFileDto = JSON.parseObject(data, NettyUploadBlogFileDto.class);
 
-        SocketMessage<MoveFileDto> message = new SocketMessage<>();
+        SocketSendMessage<MoveFileDto> message = new SocketSendMessage<>();
         message.setTopic(DeviceSocketTopic.SOCKET_MOVE_FILE);
         MoveFileDto moveFileDto = new MoveFileDto();
         moveFileDto.setRequestId(requestId);
@@ -194,7 +191,7 @@ public class SyncBlogFileService {
         moveFileDto.setTargetDirectory("");
         moveFileDto.setCount(10);
         message.setMessage(moveFileDto);
-        deviceSocket.sendMessage(DeviceSocketConstant.localhost, message);
+//        deviceSocket.sendMessage(DeviceSocketConstant.localhost, message);
     }
 
 

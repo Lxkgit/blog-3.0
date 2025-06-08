@@ -9,7 +9,7 @@ import lombok.Data;
  */
 
 @Data
-public class SocketMessage<T> {
+public class SocketSendMessage<T> {
 
     /**
      * socket topic

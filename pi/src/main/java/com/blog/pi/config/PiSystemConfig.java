@@ -35,15 +35,6 @@ public class PiSystemConfig {
     @Resource
     private RegisterSettingDAO registerSettingDAO;
 
-//        MqttPushClient.connect(new LoginConfig(
-//                (String) getRegisterConfig("mqtt","ip"),
-//                (Integer) getRegisterConfig("mqtt","port"),
-//                (String) getRegisterConfig("mqtt","userName"),
-//                (String) getRegisterConfig("mqtt","password"),
-//                (String) getRegisterConfig("mqtt","clientId")
-//        ));
-
-
     /**
      * 加载注册配置信息
      */

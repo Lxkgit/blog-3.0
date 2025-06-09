@@ -172,12 +172,11 @@ public class MinioService {
      * @param minioPath     minio中文件位置
      * @throws ServiceException 导入异常信息
      */
-    public void importFile(String localFilePath, String minioPath) throws ServiceException {
+    public void importFile(String localFilePath, String minioPath) {
         File file = new File(localFilePath);
         if (!file.exists() || !file.isFile()) {
-            throw new IllegalArgumentException("文件不存在或不是有效文件: " + localFilePath);
+            log.error("minio 文件导入异常: 文件{}不存在", localFilePath);
         }
-
         try {
             InputStream inputStream = Files.newInputStream(file.toPath());
             String contentType = Files.probeContentType(Paths.get(localFilePath));
@@ -189,7 +188,6 @@ public class MinioService {
                     .build());
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new ServiceException(e.getMessage());
         }
     }
 

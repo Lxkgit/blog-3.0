@@ -65,6 +65,8 @@ public class Constant {
     public static final Integer FILE_STATUS_TO_REMOTE = 3;
     public static final Integer FILE_STATUS_REMOTE = 4;
 
+    // 临时文件目录
+    public static final String FTP_PATH = "/opt/docker/files/ftp";
 
 
 

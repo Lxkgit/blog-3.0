@@ -1,5 +1,7 @@
 package com.blog.file.xxlJob;
 
+import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
+import com.blog.file.netty.service.NettyFileSyncService;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import jakarta.annotation.Resource;
@@ -7,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,7 +29,7 @@ public class SampleXxlJob {
     private static final Logger logger = LoggerFactory.getLogger(SampleXxlJob.class);
 
     @Resource
-    private FileUploadSchedule fileUploadSchedule;
+    private NettyFileSyncService nettyFileSyncService;
 
     /**
      * 1、简单任务示例（Bean模式）
@@ -45,9 +49,15 @@ public class SampleXxlJob {
     /**
      * 指定目录定时上传文件
      */
-    @XxlJob("fileUploadHandler")
+    @XxlJob("blogDateSyncTask")
     public void fileUploadHandler() {
-        fileUploadSchedule.uploadFile();
+        logger.info("xxlJob 定时同步文件任务启动");
+        NettySyncFileDto dto = new NettySyncFileDto();
+        dto.setSyncType(1);
+        dto.setServiceFilePath("");
+        dto.setDeviceFilePath("");
+        dto.setFileNameList(Collections.singletonList("blog.zip"));
+        nettyFileSyncService.syncFileSend(dto);
     }
 
 

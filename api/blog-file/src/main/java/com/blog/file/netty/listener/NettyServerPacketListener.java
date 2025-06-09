@@ -5,33 +5,26 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.UserDevice;
-import com.blog.file.netty.domain.dto.NettyClientChannel;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
-import com.blog.file.netty.domain.dto.register.NettyChipRegisterDto;
 import com.blog.file.netty.domain.dto.register.NettyRegisterDto;
 import com.blog.file.netty.domain.enums.NettyPacketType;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.file.mapper.DeviceMapper;
-import com.blog.file.mapper.DeviceInfoMapper;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.netty.event.NettyPacketEvent;
 import com.blog.file.netty.service.*;
-import com.blog.file.xxlJob.FileUploadSchedule;
 import io.netty.channel.ChannelId;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @description: Netty服务端自定义数据包处理监听器
@@ -54,16 +47,13 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     private NettyDeviceService nettyDeviceData;
 
     @Resource
-    private NettyFileSync nettyFileSync;
+    private NettyFileSyncService nettyFileSyncService;
 
     @Resource
     private UserDeviceMapper userDeviceDAO;
 
     @Resource
     private NettyServerHandler nettyServerHandler;
-
-    @Resource
-    private FileUploadSchedule fileUploadSchedule;
 
     @SneakyThrows
     @Async
@@ -101,16 +91,21 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             // 回复请求消息响应
             NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, "response");
             nettyResponse.setTopic(topic);
-            nettyServer.channelWriteByRegisterId(requestId, JSONObject.toJSONString(nettyResponse), false);
+            nettyServer.channelWriteByRegisterId(registerCode, JSONObject.toJSONString(nettyResponse), false);
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
+            if (NettyTopicEnum.BLOG_FILE_SYNC.getTopic().equals(topic)) {
+                nettyFileSyncService.syncFileReceive(data, deviceCode, userId);
+            }
+
             // 接收响应
             if (topic.equals(NettyTopicEnum.MSG_ERROR_RESPONSE.getTopic())) {
                 // 处理发送异常的消息
             }
+
             if (NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic().equals(topic)) {
                 NettyUploadBlogFileDto nettyUploadBlogFileDto = JSONObject.parseObject(data, NettyUploadBlogFileDto.class);
                 if ("success".equals(nettyUploadBlogFileDto.getResult())) {
-                    fileUploadSchedule.fileImportMinio(nettyUploadBlogFileDto);
+
                 }
             }
         }

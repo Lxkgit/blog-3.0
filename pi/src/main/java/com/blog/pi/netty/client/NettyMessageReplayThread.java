@@ -55,7 +55,7 @@ public class NettyMessageReplayThread implements Runnable {
             }
 
             Map<Object, Object> map = redisService.getAllHash(NettyRedisConstant.NETTY_SEND_QUEUE);
-            if (CollectionUtils.isNotEmpty(map) || nettyClient.getChannelActive()) {
+            if (CollectionUtils.isNotEmpty(map) && nettyClient.getChannelActive()) {
                 map.forEach((k, v) -> {
                     String key = k.toString();
                     NettyReplayMessage replayMessage = (NettyReplayMessage) v;

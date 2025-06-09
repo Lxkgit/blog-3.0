@@ -5,7 +5,7 @@ import com.blog.pi.netty.client.NettyClient;
 import com.blog.pi.netty.dto.NettyPacket;
 import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.netty.enums.NettyTopicEnum;
-import com.blog.pi.netty.service.SyncBlogFileService;
+import com.blog.pi.netty.service.NettyFileSyncService;
 import com.blog.pi.socket.device.domain.constant.DeviceSocketTopic;
 import com.blog.pi.socket.device.domain.dto.MoveFileDto;
 import jakarta.annotation.Resource;
@@ -27,7 +27,7 @@ public class SocketMessageListener {
     private NettyClient nettyClient;
 
     @Resource
-    private SyncBlogFileService syncBlogFileService;
+    private NettyFileSyncService syncBlogFileService;
 
     @Async
     @EventListener

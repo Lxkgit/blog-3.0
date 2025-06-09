@@ -2,13 +2,11 @@ package com.blog.pi.netty.listener;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.pi.netty.client.NettyClient;
-import com.blog.pi.netty.dto.NettyPacket;
-import com.blog.pi.netty.dto.NettyResponse;
 import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.netty.enums.NettyTopicEnum;
 import com.blog.pi.netty.event.NettyPacketEvent;
 import com.blog.pi.netty.service.SensorControlService;
-import com.blog.pi.netty.service.SyncBlogFileService;
+import com.blog.pi.netty.service.NettyFileSyncService;
 import com.blog.redis.constant.NettyRedisConstant;
 import com.blog.redis.service.RedisService;
 import io.netty.channel.ChannelId;
@@ -30,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class NettyClientPacketListener implements ApplicationListener<NettyPacketEvent> {
 
     @Resource
-    private SyncBlogFileService syncBlogFileService;
+    private NettyFileSyncService syncBlogFileService;
 
     @Resource
     private SensorControlService sensorControlService;

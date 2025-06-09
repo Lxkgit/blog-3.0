@@ -24,9 +24,9 @@ public class UserDevice {
     private Integer id;
 
     /**
-     * 用户名称
+     * 用户id
      */
-    private String userId;
+    private Integer userId;
 
     /**
      * 设备编码

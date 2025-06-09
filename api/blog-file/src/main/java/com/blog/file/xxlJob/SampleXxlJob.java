@@ -54,8 +54,8 @@ public class SampleXxlJob {
         logger.info("xxlJob 定时同步文件任务启动");
         NettySyncFileDto dto = new NettySyncFileDto();
         dto.setSyncType(1);
-        dto.setServiceFilePath("");
-        dto.setDeviceFilePath("");
+        dto.setServiceFilePath("/opt/docker/files/ftp/system");
+        dto.setDeviceFilePath("/opt/docker/files");
         dto.setFileNameList(Collections.singletonList("blog.zip"));
         nettyFileSyncService.syncFileSend(dto);
     }

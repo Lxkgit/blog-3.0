@@ -165,10 +165,10 @@ async def handle_messages(ws):
                     logger.info(f"调用文件同步脚本: {receiveMsg.get('data')}")
                     # await execute_shell_script(ws, SHELL_PATH["EXPORT_SCRIPT"], receiveMsg)
                 if receiveMsg.get("topic") == "export_blog_file":
-                    logger.info(f"调用导出博客数据脚本: {receiveMsg.get('data').get('blogFilePath')}")
+                    blogFilePath = receiveMsg.get('data').get('blogFilePath')
+                    logger.info(f"调用导出博客数据脚本: {blogFilePath}")
                     result = execute_shell_script(ws, SHELL_PATH["EXPORT_BLOG_FILE"], receiveMsg)
-                    move_file_or_directory("/opt/docker/files/temp/blog/blog.zip",
-                                           receiveMsg.get('data').get('blogFilePath'))
+                    move_file_or_directory("/opt/docker/files/temp/blog/blog.zip", blogFilePath)
                     msg = {
                         "requestId": message.get("requestId"),
                         "socketPacketType": "response",

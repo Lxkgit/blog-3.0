@@ -406,10 +406,12 @@ startPy() {
   sleep 8m
   mkdir -p /opt/docker/files/python
   mv /opt/package/python/* /opt/docker/files/python
-  sed -i 's/\r$//' /opt/package/python/webSocket.py
-  sed -i 's/\r$//' /opt/package/python/shell/*.sh
+  chmod +x /opt/docker/files/python/webSocket.py
+  sed -i 's/\r$//' /opt/docker/files/python/webSocket.py
+  chmod +x /opt/docker/files/python/shell/*.sh
+  sed -i 's/\r$//' /opt/docker/files/python/shell/*.sh
   cd /opt/docker/files/python
-  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.13' > nohup.out 2>&1 &
+  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.13' &
 
 }
 

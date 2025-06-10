@@ -1,15 +1,11 @@
 package com.blog.file.xxlJob;
 
-import com.blog.core.constant.Constant;
-import com.blog.core.utils.MyStringUtils;
-import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.file.netty.service.NettyFileSyncService;
 import com.blog.file.socket.SocketService;
 import com.blog.file.socket.domain.SocketPacket;
 import com.blog.file.socket.domain.constant.SocketClientType;
 import com.blog.file.socket.domain.constant.SocketConstant;
 import com.blog.file.socket.domain.constant.SocketTopic;
-import com.blog.file.socket.domain.dto.ExportBlogFileDto;
 import com.blog.file.socket.domain.dto.MoveFileDto;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
@@ -18,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,7 +67,7 @@ public class XxlJobTask {
     @XxlJob("blogDateSyncTask")
     public void blogDateSyncTask() {
         logger.info("xxlJob 执行：文件同步任务-定时备份博客数据");
-
+        nettyFileSyncService.syncBlogDataFirstStep();
     }
 
     /**

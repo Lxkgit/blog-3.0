@@ -272,8 +272,7 @@ public class FileServiceImpl implements FileService {
             nettySyncBlogFile.setFileCode(fileCategoryData.getFileCode());
         }
         nettySyncBlogFile.setUserId(SecurityUtil.getLoginUser().getId());
-        NettyPacket<NettySyncBlogFileDto> syncFileRequest = NettyPacket.buildRequest(nettySyncBlogFile);
-        syncFileRequest.setTopic(NettyTopicEnum.BLOG_FILE_SYNC.getTopic());
+        NettyPacket<NettySyncBlogFileDto> syncFileRequest = NettyPacket.buildRequest(NettyTopicEnum.BLOG_FILE_SYNC.getTopic(), nettySyncBlogFile);
         nettyServer.channelWriteByRegisterId(NettyConstant.NETTY_CLIENT1, JSONObject.toJSONString(syncFileRequest), true);
         return true;
     }

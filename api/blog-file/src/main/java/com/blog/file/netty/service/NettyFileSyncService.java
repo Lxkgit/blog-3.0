@@ -9,14 +9,15 @@ import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.minio.MinioService;
+import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
-import com.blog.file.netty.domain.dto.sensor.receive.SensorDataDto;
+import com.blog.file.netty.domain.enums.NettyTopic;
 import com.blog.file.socket.SocketService;
 import com.blog.file.socket.domain.SocketPacket;
 import com.blog.file.socket.domain.constant.SocketClientType;
 import com.blog.file.socket.domain.constant.SocketConstant;
 import com.blog.file.socket.domain.constant.SocketTopic;
-import com.blog.file.socket.domain.dto.ExportBlogFileDto;
+import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -91,11 +92,30 @@ public class NettyFileSyncService {
         }
     }
 
+    /**
+     * 博客数据同步任务-第一步
+     * 发送socket导出博客数据任务
+     */
     public void syncBlogDataFirstStep() {
-        ExportBlogFileDto exportBlogFileDto = new ExportBlogFileDto();
+        SocketExportBlogFileDto exportBlogFileDto = new SocketExportBlogFileDto();
         exportBlogFileDto.setBlogFilePath(Constant.FTP_PATH_TEMP + "/" + MyStringUtils.getRandomString(6));
-        SocketPacket<ExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE, exportBlogFileDto);
+        SocketPacket<SocketExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE, exportBlogFileDto);
         socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
+    }
+
+    /**
+     * 博客数据同步任务-第二步
+     * 收到socket消息，组合netty消息，发送到设备
+     */
+    public void syncBlogDataSecondStep(String data) {
+
+        SocketExportBlogFileDto socketExportBlogFileDto = JSONObject.parseObject(data, SocketExportBlogFileDto.class);
+        String serviceFilePath = socketExportBlogFileDto.getBlogFilePath();
+        String deviceFilePath = "/";
+        NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
+
+        NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
+        nettyServer.channelWriteByRegisterId("2ecfb95116de4967afe7710e11ac00b4", JSON.toJSONString(nettyPacket), true);
     }
 
 }

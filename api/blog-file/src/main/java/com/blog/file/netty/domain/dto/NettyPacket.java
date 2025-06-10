@@ -54,9 +54,10 @@ public class NettyPacket<T> implements Serializable {
      */
     private T data;
 
-    public static <T> NettyPacket<T> buildRequest(T param) {
+    public static <T> NettyPacket<T> buildRequest(String topic, T param) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
         nettyPacket.setRequestId(UUID.randomUUID().toString());
+        nettyPacket.setTopic(topic);
         nettyPacket.setRegisterCode(NettyConstant.NETTY_DEVICE_CODE);
         nettyPacket.setNettyPacketType(NettyPacketType.REQUEST.getValue());
         nettyPacket.setData(param);

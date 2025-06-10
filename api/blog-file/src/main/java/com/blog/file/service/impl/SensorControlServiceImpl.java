@@ -22,6 +22,7 @@ import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.sensor.control.SensorCommandCheckDto;
 import com.blog.file.netty.domain.dto.sensor.control.SensorCommandDto;
 import com.blog.file.netty.domain.dto.sensor.control.SteeringEngine180Dto;
+import com.blog.file.netty.domain.enums.NettyTopic;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.file.netty.domain.enums.sensor.SensorTypeEnum;
 import com.blog.file.netty.service.NettyServer;
@@ -102,8 +103,7 @@ public class SensorControlServiceImpl implements SensorControlService {
         commandVo.setSensorCode(sensor.getSensorCode());
         commandVo.setCommandList(list);
 
-        NettyPacket<SensorCommandDto<SteeringEngine180Dto>> sensorCommandRequest = NettyPacket.buildRequest(commandVo);
-        sensorCommandRequest.setTopic(NettyTopicEnum.BLOG_SENSOR_CONTROL.getTopic());
+        NettyPacket<SensorCommandDto<SteeringEngine180Dto>> sensorCommandRequest = NettyPacket.buildRequest(NettyTopic.BLOG_SENSOR_CONTROL, commandVo);
 
         return nettyServer.channelWriteByRegisterId(sensor.getDeviceCode(), JSONObject.toJSONString(sensorCommandRequest), true);
     }

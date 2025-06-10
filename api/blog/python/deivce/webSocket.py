@@ -105,13 +105,13 @@ async def connect_with_retry(url):
                 # 重置重试延迟
                 retry_delay = CONFIG["INITIAL_RETRY_DELAY"]
 
-        except (websockets.ConnectionClosedError, ConnectionRefusedError) as e:
-            logger.warning(f"连接断开: {e} {retry_delay}秒后重试...")
+        except (websockets.ConnectionClosedError, ConnectionRefusedError) as exception:
+            logger.warning(f"连接断开: {exception} {retry_delay}秒后重试...")
             await asyncio.sleep(retry_delay)
             retry_delay = min(retry_delay * 2, CONFIG["MAX_RETRY_DELAY"])
 
-        except websockets.InvalidURI as e:
-            logger.error(f"无效的URL: {url} - {e}")
+        except websockets.InvalidURI as exception:
+            logger.error(f"无效的URL: {url} - {exception}")
             break
 
         except asyncio.TimeoutError:
@@ -119,8 +119,8 @@ async def connect_with_retry(url):
             await asyncio.sleep(retry_delay)
             retry_delay = min(retry_delay * 2, CONFIG["MAX_RETRY_DELAY"])
 
-        except Exception as e:
-            logger.error(f"连接错误: {type(e).__name__}: {str(e)} {retry_delay}秒后重试...")
+        except Exception as exception:
+            logger.error(f"连接错误: {type(exception).__name__}: {str(exception)} {retry_delay}秒后重试...")
             await asyncio.sleep(retry_delay)
             retry_delay = min(retry_delay * 2, CONFIG["MAX_RETRY_DELAY"])
 
@@ -144,7 +144,7 @@ async def handle_connection(ws):
     except asyncio.CancelledError:
         logger.info("连接处理被取消")
     except Exception as exception:
-        logger.error(f"连接处理错误: {type(e).__name__}: {str(exception)}")
+        logger.error(f"连接处理错误: {type(exception).__name__}: {str(exception)}")
     finally:
         # 取消所有任务
         for task in tasks:
@@ -167,7 +167,7 @@ async def handle_messages(ws):
                 if receiveMsg.get("topic") == "export_blog_file":
                     logger.info(f"调用导出博客数据脚本: {receiveMsg.get('data').get('blogFilePath')}")
                     result = execute_shell_script(ws, SHELL_PATH["EXPORT_BLOG_FILE"], receiveMsg)
-                    move_file_or_directory("/opt/docker/files/sync/blog.zip",
+                    move_file_or_directory("/opt/docker/files/temp/blog/blog.zip",
                                            receiveMsg.get('data').get('blogFilePath'))
                     msg = {
                         "requestId": message.get("requestId"),
@@ -175,6 +175,7 @@ async def handle_messages(ws):
                         "topic": message.get("topic"),
                         "data": result
                     }
+                    logger.info(f"博客数据导出任务执行完成: {result}")
                     await ws.send(json.dumps(msg))
 
         except json.JSONDecodeError:
@@ -278,8 +279,8 @@ async def send_heartbeat(websocket):
                 break
     except asyncio.CancelledError:
         logger.info("心跳任务被取消")
-    except Exception as e:
-        logger.error(f"心跳任务错误: {str(e)}")
+    except Exception as exception:
+        logger.error(f"心跳任务错误: {str(exception)}")
 
 
 # 服务器设备状态数据上报方法
@@ -396,8 +397,8 @@ def get_disk_info():
             logger.warning(f"权限不足无法访问: {partition.mountpoint}")
         except FileNotFoundError:
             logger.warning(f"挂载点不存在: {partition.mountpoint}")
-        except Exception as e:
-            logger.error(f"获取磁盘信息错误: {partition.mountpoint} - {str(e)}")
+        except Exception as exception:
+            logger.error(f"获取磁盘信息错误: {partition.mountpoint} - {str(exception)}")
 
     return disk_partitions
 
@@ -422,5 +423,5 @@ if __name__ == "__main__":
         asyncio.run(connect_with_retry(webSocketUrl))
     except KeyboardInterrupt:
         logger.info("程序被用户中断")
-    except Exception as e:
-        logger.exception("程序发生未处理异常")
+    except Exception as exception:
+        logger.exception(f"程序发生未处理异常: {str(exception)}")

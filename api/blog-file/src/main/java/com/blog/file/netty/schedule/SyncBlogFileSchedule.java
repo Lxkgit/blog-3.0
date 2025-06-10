@@ -36,17 +36,17 @@ public class SyncBlogFileSchedule {
     public void initFile() {
         log.info("文件同步");
 
-        NettySyncBlogFileDto nettySyncBlogFile = new NettySyncBlogFileDto();
-        nettySyncBlogFile.setSyncType(2);
-        nettySyncBlogFile.setFileCode("blog.zip");
-        nettySyncBlogFile.setFileName("blog.zip");
-        nettySyncBlogFile.setFilePath("/sync");
-
-        NettyPacket<NettySyncBlogFileDto> nettyResponse = NettyPacket.buildRequest(nettySyncBlogFile);
-        nettyResponse.setNettyPacketType(NettyPacketType.REQUEST.getValue());
-        nettyResponse.setTopic(NettyTopicEnum.BLOG_FILE_SYNC.getTopic());
-
-        nettyServer.channelWriteByRegisterId(NettyConstant.NETTY_CLIENT1, JSONObject.toJSONString(nettyResponse), true);
+//        NettySyncBlogFileDto nettySyncBlogFile = new NettySyncBlogFileDto();
+//        nettySyncBlogFile.setSyncType(2);
+//        nettySyncBlogFile.setFileCode("blog.zip");
+//        nettySyncBlogFile.setFileName("blog.zip");
+//        nettySyncBlogFile.setFilePath("/sync");
+//
+//        NettyPacket<NettySyncBlogFileDto> nettyResponse = NettyPacket.buildRequest(nettySyncBlogFile);
+//        nettyResponse.setNettyPacketType(NettyPacketType.REQUEST.getValue());
+//        nettyResponse.setTopic(NettyTopicEnum.BLOG_FILE_SYNC.getTopic());
+//
+//        nettyServer.channelWriteByRegisterId(NettyConstant.NETTY_CLIENT1, JSONObject.toJSONString(nettyResponse), true);
 
     }
 

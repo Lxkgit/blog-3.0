@@ -1,8 +1,12 @@
 package com.blog.file.netty.domain.dto.file;
 
+import com.blog.file.netty.domain.common.NettyConstant;
+import com.blog.file.netty.domain.dto.NettyPacket;
+import com.blog.file.netty.domain.enums.NettyPacketType;
 import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @Description netty同步文件类
@@ -70,4 +74,11 @@ public class NettySyncFileDto {
     private Integer resultType;
 
 
+    public static NettySyncFileDto buildSyncToDevice(String serviceFilePath, String deviceFilePath) {
+        NettySyncFileDto nettySyncFileDto = new NettySyncFileDto();
+        nettySyncFileDto.setSyncType(1);
+        nettySyncFileDto.setServiceFilePath(serviceFilePath);
+        nettySyncFileDto.setDeviceFilePath(deviceFilePath);
+        return nettySyncFileDto;
+    }
 }

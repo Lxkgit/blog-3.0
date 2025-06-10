@@ -9,7 +9,7 @@ import lombok.Data;
  */
 
 @Data
-public class ExportBlogFileDto {
+public class SocketExportBlogFileDto {
 
     private String blogFilePath;
 

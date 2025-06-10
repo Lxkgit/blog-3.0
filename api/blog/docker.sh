@@ -402,12 +402,14 @@ startJar() {
 # 启动python脚本
 startPy() {
   # Java服务启动较慢，等待Java服务完全启动后进行连接
-  sleep 10m
+  echo "8分钟后启动socket脚本..."
+  sleep 8m
   mkdir -p /opt/docker/files/python
   mv /opt/package/python/* /opt/docker/files/python
+  sed -i 's/\r$//' /opt/package/python/webSocket.py
+  sed -i 's/\r$//' /opt/package/python/shell/*.sh
   cd /opt/docker/files/python
-
-  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py' > nohup.out 2>&1 &
+  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.13' > nohup.out 2>&1 &
 
 }
 

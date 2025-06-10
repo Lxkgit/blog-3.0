@@ -71,5 +71,9 @@ public class Constant {
     // ftp临时文件存放目录
     public static final String FTP_PATH_TEMP = "/opt/docker/files/ftp/temp";
 
+    // 博客系统临时文件存放目录
+    public static final String BLOG_PATH_TEMP = "/opt/docker/files/temp";
 
+    // 博客系统数据文件临时存放目录
+    public static final String BLOG_DATA_PATH_TEMP = "/opt/docker/files/temp/blog";
 }

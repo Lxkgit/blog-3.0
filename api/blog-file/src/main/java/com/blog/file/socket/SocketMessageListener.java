@@ -1,10 +1,9 @@
 package com.blog.file.socket;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.blog.file.netty.service.NettyFileSyncService;
-import com.blog.file.socket.domain.SocketPacket;
 import com.blog.file.socket.domain.SocketPacketEvent;
 import com.blog.file.socket.domain.constant.SocketPacketType;
+import com.blog.file.socket.domain.constant.SocketTopic;
 import jakarta.annotation.Resource;
 import jakarta.websocket.Session;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ public class SocketMessageListener {
 
 
     @Resource
-    private NettyFileSyncService syncBlogFileService;
+    private NettyFileSyncService nettyFileSyncService;
 
     @Async
     @EventListener
@@ -34,6 +33,8 @@ public class SocketMessageListener {
         String topic = event.getSocketPacket().getTopic();
 
         String data = event.getSocketPacket().getData().toString();
+        logger.info("socket 收到消息，type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
+                type, id, requestId, socketPacketType, topic, data);
         if (SocketPacketType.REGISTER.equals(socketPacketType)) {
 
         } else if (SocketPacketType.HEARTBEAT.equals(socketPacketType)) {
@@ -41,7 +42,9 @@ public class SocketMessageListener {
         } else if (SocketPacketType.REQUEST.equals(socketPacketType)) {
 
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
-
+            if (SocketTopic.SOCKET_EXPORT_BLOG_FILE.equals(topic)) {
+                nettyFileSyncService.syncBlogDataSecondStep(data);
+            }
         }
 
     }

@@ -2,7 +2,7 @@
 # 导出博客数据为blog.zip
 
 # 导出mysql
-sudo docker exec mysql bash /opt/docker/files/shell/exportSql.sh
+sudo docker exec mysql bash /opt/docker/files/python/shell/exportSql.sh
 
 # 导出博客文件数据
 cd /opt/docker/minio
@@ -12,15 +12,14 @@ cd files
 zip -r files.zip ./*
 
 # 移动文件
-mkdir -p cd /opt/docker/files/sync
-mv /opt/docker/files/sql/* /opt/docker/files/sync/
-mv /opt/docker/minio/files/files.zip /opt/docker/files/sync/
+mkdir -p /opt/docker/files/temp/blog
+mv /opt/docker/minio/files/files.zip /opt/docker/files/temp/blog
 
 # 压缩文件
-cd /opt/docker/files/sync/
+cd /opt/docker/files/temp/blog
 zip -r blog.zip ./*
 
-# 脚本最终生成文件位置：/opt/docker/files/sync/blog.zip
+# 脚本最终生成文件位置：/opt/docker/files/temp/blog/blog.zip
 
 
 

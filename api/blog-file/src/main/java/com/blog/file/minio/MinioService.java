@@ -170,7 +170,6 @@ public class MinioService {
      *
      * @param localFilePath 服务器中文件位置
      * @param minioPath     minio中文件位置
-     * @throws ServiceException 导入异常信息
      */
     public void importFile(String localFilePath, String minioPath) {
         File file = new File(localFilePath);
@@ -187,7 +186,7 @@ public class MinioService {
                     .contentType(contentType)
                     .build());
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("minio 文件导入异常: {}", e.getMessage(), e);
         }
     }
 

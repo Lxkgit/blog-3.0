@@ -1,0 +1,32 @@
+package com.blog.file.controller;
+
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
+import com.blog.file.netty.service.NettyFileSyncService;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * @Description 测试接口
+ * @Author lxk
+ * @CreateTime 2025-06-10
+ */
+
+@Slf4j
+@RestController
+@RequestMapping("/testSocket")
+public class TestController {
+
+    @Resource
+    private NettyFileSyncService nettyFileSyncService;
+
+    @GetMapping("/sync/blog/file")
+    public Result syncBlogFile() {
+        System.out.println("开始测试 ");
+        nettyFileSyncService.syncBlogDataFirstStep();
+        return ResultFactory.buildSuccessResult();
+    }
+}

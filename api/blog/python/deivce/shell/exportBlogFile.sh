@@ -20,12 +20,7 @@ mv /opt/docker/minio/files/files.zip /opt/docker/files/sync/
 cd /opt/docker/files/sync/
 zip -r blog.zip ./*
 
-# 导出文件移至ftp system用户目录
-mkdir -p /opt/docker/ftp/system
-mv /opt/docker/files/sync/blog.zip /opt/docker/files/ftp/system/sync
-
-# 临时文件删除
-rm -rf /opt/docker/files/sync/*
+# 脚本最终生成文件位置：/opt/docker/files/sync/blog.zip
 
 
 

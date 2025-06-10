@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 自定义Netty数据包
  */
 @Data
-@Slf4j
 public class NettyPacket<T> implements Serializable {
 
     private static final long serialVersionUID = 3450384644298931566L;
@@ -57,7 +56,7 @@ public class NettyPacket<T> implements Serializable {
 
     public static <T> NettyPacket<T> buildRequest(T param) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
-        nettyPacket.setRequestId(getOnlyId());
+        nettyPacket.setRequestId(UUID.randomUUID().toString());
         nettyPacket.setRegisterCode(NettyConstant.NETTY_DEVICE_CODE);
         nettyPacket.setNettyPacketType(NettyPacketType.REQUEST.getValue());
         nettyPacket.setData(param);
@@ -82,7 +81,4 @@ public class NettyPacket<T> implements Serializable {
         MESSAGE_QUEUE.remove(requestId);
     }
 
-    private static String getOnlyId() {
-        return UUID.randomUUID().toString();
-    }
 }

@@ -22,6 +22,7 @@ public class PermitUrl {
 
     private static final String[] filePermitUrl = {
             "/files/**",
+            "/testSocket/**",
             "/img/**",
             "/client/**",
             "/result",
@@ -29,7 +30,7 @@ public class PermitUrl {
             "/data",
             "/setting/id",
             "/upload/images/**",
-            "/python"
+            "/socket/**"
     };
 
     private static final String[] contentPermitUrl = {

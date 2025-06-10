@@ -3,12 +3,20 @@ package com.blog.file.netty.service;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.device.entity.UserDevice;
+import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.file.netty.domain.dto.sensor.receive.SensorDataDto;
+import com.blog.file.socket.SocketService;
+import com.blog.file.socket.domain.SocketPacket;
+import com.blog.file.socket.domain.constant.SocketClientType;
+import com.blog.file.socket.domain.constant.SocketConstant;
+import com.blog.file.socket.domain.constant.SocketTopic;
+import com.blog.file.socket.domain.dto.ExportBlogFileDto;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -33,6 +41,9 @@ public class NettyFileSyncService {
 
     @Resource
     private NettyServer nettyServer;
+
+    @Resource
+    private SocketService socketService;
 
     @Resource
     private UserDeviceMapper userDeviceMapper;
@@ -80,5 +91,11 @@ public class NettyFileSyncService {
         }
     }
 
+    public void syncBlogDataFirstStep() {
+        ExportBlogFileDto exportBlogFileDto = new ExportBlogFileDto();
+        exportBlogFileDto.setBlogFilePath(Constant.FTP_PATH_TEMP + "/" + MyStringUtils.getRandomString(6));
+        SocketPacket<ExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE, exportBlogFileDto);
+        socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
+    }
 
 }

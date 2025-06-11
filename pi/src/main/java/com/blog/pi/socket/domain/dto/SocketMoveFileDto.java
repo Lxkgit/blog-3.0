@@ -1,12 +1,12 @@
-package com.blog.file.socket.domain.dto;
+package com.blog.pi.socket.domain.dto;
 
 import lombok.Data;
 
 /**
- *
+ * socket文件移动类
  */
 @Data
-public class MoveFileDto {
+public class SocketMoveFileDto {
 
     /**
      * netty 消息id

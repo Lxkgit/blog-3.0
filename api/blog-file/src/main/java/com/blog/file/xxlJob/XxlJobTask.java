@@ -6,7 +6,7 @@ import com.blog.file.socket.domain.SocketPacket;
 import com.blog.file.socket.domain.constant.SocketClientType;
 import com.blog.file.socket.domain.constant.SocketConstant;
 import com.blog.file.socket.domain.constant.SocketTopic;
-import com.blog.file.socket.domain.dto.MoveFileDto;
+import com.blog.file.socket.domain.dto.SocketMoveFileDto;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import jakarta.annotation.Resource;
@@ -87,8 +87,8 @@ public class XxlJobTask {
     public void deviceFileUploadTask() {
         logger.info("xxlJob 执行：文件同步任务-设备端文件上传任务");
 
-        MoveFileDto moveFileDto = new MoveFileDto();
-        SocketPacket<MoveFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, moveFileDto);
+        SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
+        SocketPacket<SocketMoveFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, moveFileDto);
         socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
 
     }

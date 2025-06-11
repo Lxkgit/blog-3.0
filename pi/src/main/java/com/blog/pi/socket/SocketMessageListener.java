@@ -1,13 +1,7 @@
 package com.blog.pi.socket;
 
-import com.alibaba.fastjson2.JSONObject;
-import com.blog.pi.netty.client.NettyClient;
-import com.blog.pi.netty.dto.NettyPacket;
-import com.blog.pi.netty.enums.NettyPacketType;
-import com.blog.pi.netty.enums.NettyTopicEnum;
-import com.blog.pi.netty.service.NettyFileSyncService;
-import com.blog.pi.socket.device.domain.constant.DeviceSocketTopic;
-import com.blog.pi.socket.device.domain.dto.MoveFileDto;
+import com.blog.pi.socket.domain.SocketPacketEvent;
+import com.blog.pi.socket.domain.constant.SocketPacketType;
 import jakarta.annotation.Resource;
 import jakarta.websocket.Session;
 import org.slf4j.Logger;
@@ -16,44 +10,35 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class SocketMessageListener {
 
     private static final Logger logger = LoggerFactory.getLogger(SocketMessageListener.class);
 
-    @Resource
-    private NettyClient nettyClient;
-
-    @Resource
-    private NettyFileSyncService syncBlogFileService;
-
     @Async
     @EventListener
-    public void handleSocketReceiveMsgEvent(SocketReceiveMessage receiveMsgEvent) {
-        String type = receiveMsgEvent.getType();
-        String id = receiveMsgEvent.getId();
-        Session session = receiveMsgEvent.getSession();
-        JSONObject jsonObject = JSONObject.parseObject(receiveMsgEvent.getMessage());
-        String topic = jsonObject.getString("topic");
-        logger.info("收到socket消息 type:{} id:{} topic:{} message: {}", type, id, topic, jsonObject);
-        if (DeviceSocketTopic.SOCKET_REGISTER.equals(topic)) {
-            String clientName = jsonObject.getString("message");
+    public void handleSocketReceiveMsgEvent(SocketPacketEvent event) {
+        String type = event.getType();
+        String id = event.getId();
+        Session session = event.getSession();
 
-        } else if (DeviceSocketTopic.SOCKET_SYSTEM.equals(topic)) {
-            NettyPacket<String> nettyRequest = NettyPacket.buildRequest(jsonObject.toString());
-            nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
-            nettyRequest.setTopic(NettyTopicEnum.DEVICE_INFO.getTopic());
-            nettyClient.sendMsg(nettyRequest.getRequestId(), JSONObject.toJSONString(nettyRequest), true);
-        } else if (DeviceSocketTopic.SOCKET_MOVE_FILE.equals(topic)) {
-            MoveFileDto moveFileDto = new MoveFileDto();
-            moveFileDto.setRequestId(jsonObject.getString("requestId"));
-            moveFileDto.setSourceDirectory(jsonObject.getString("sourceDirectory"));
-            moveFileDto.setTargetDirectory(jsonObject.getString("targetDirectory"));
-            List<String> fileNameList = jsonObject.getJSONObject("message").getList("file_list", String.class);
-            syncBlogFileService.updateBlogFileSecondStep(moveFileDto, fileNameList);
+        String requestId = event.getSocketPacket().getRequestId();
+        String socketPacketType = event.getSocketPacket().getSocketPacketType();
+        String topic = event.getSocketPacket().getTopic();
+
+        String data = event.getSocketPacket().getData().toString();
+        logger.info("socket 收到消息，type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
+                type, id, requestId, socketPacketType, topic, data);
+        if (SocketPacketType.REGISTER.equals(socketPacketType)) {
+
+        } else if (SocketPacketType.HEARTBEAT.equals(socketPacketType)) {
+
+        } else if (SocketPacketType.REQUEST.equals(socketPacketType)) {
+
+        } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
+
         }
+
     }
 
 

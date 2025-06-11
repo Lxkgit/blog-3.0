@@ -1,6 +1,10 @@
 package com.blog.pi.socket;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
+import com.blog.pi.socket.domain.SocketPacket;
+import com.blog.pi.socket.domain.SocketPacketEvent;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
@@ -83,7 +87,13 @@ public class SocketService {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
-        eventPublisher.publishEvent(new SocketReceiveMessage(connectionType, connectionId, session, message));
+        // 报文解析处理
+        // 处理泛型：new TypeReference<SocketPacket<Object>>() {}.getType()
+        // TypeReference：解决Java泛型类型擦除问题，保留SocketPacket<Object>的类型信息，确保反序列化时能正确识别泛型类型
+        // SocketPacket：自定义的泛型类，可能用于封装网络传输的数据包，Object表示其携带的数据类型可以是任意对象
+        SocketPacket<Object> socketPacket = JSONObject.parseObject(message, new TypeReference<SocketPacket<Object>>() {}.getType());
+        // 发布自定义 socket 数据包处理事件
+        eventPublisher.publishEvent(new SocketPacketEvent(connectionType, connectionId, session, socketPacket));
     }
 
     @OnError
@@ -94,12 +104,12 @@ public class SocketService {
     /**
      * 发送消息给指定客户端
      */
-    public <T> void sendMessage(String type, String id, SocketSendMessage<T> message) {
+    public <T> void sendMessage(String type, String id, SocketPacket<T> message) {
         Session session = connections.get(type).get(id);
         if (session != null && session.isOpen()) {
             String jsonMessage = JSON.toJSONString(message);
             sendMessageToSession(session, jsonMessage);
-            logger.debug("向{}/{}发送消息: {}", type, id, jsonMessage);
+            logger.debug("向{}/{}发送消息: requestId: {} message: {}", type, id, message.getRequestId(), jsonMessage);
         } else {
             logger.warn("目标会话不存在或已关闭: {}/{}", type, id);
         }

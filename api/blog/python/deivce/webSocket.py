@@ -299,6 +299,7 @@ def delete_file_or_directory(path):
         if any(target == p or target.is_relative_to(p) for p in protected_paths):
             return False
 
+        logger.info(f"删除目录或文件：{path}")
         # 执行删除操作
         if target.is_file():
             os.remove(target)

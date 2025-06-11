@@ -8,6 +8,8 @@ import argparse
 import logging
 import shutil
 import os
+import subprocess
+from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
 # 配置常量
@@ -21,7 +23,11 @@ CONFIG = {
 }
 
 SHELL_PATH = {
-    "EXPORT_BLOG_FILE": "/opt/docker/files/python/shell/exportBlogFile.sh"
+    "EXPORT_BLOG_FILE": "/opt/docker/files/python/shell/exportBlogFile.sh",
+}
+
+SHELL_CMD = {
+    "REMOVE_BLOG_TEMP_DATA": "rm -rf /opt/docker/files/temp/blog/*"
 }
 
 
@@ -167,89 +173,89 @@ async def handle_messages(ws):
                 if receiveMsg.get("topic") == "export_blog_file":
                     blogFilePath = receiveMsg.get('data').get('blogFilePath')
                     logger.info(f"调用导出博客数据脚本: {blogFilePath}")
-                    result = execute_shell_script(ws, SHELL_PATH["EXPORT_BLOG_FILE"], receiveMsg)
+                    # 导出博客文件数据
+                    execute_shell_script(SHELL_PATH["EXPORT_BLOG_FILE"])
+                    # 文件移动到ftp目录中 ftp目录由服务器指定
                     move_file_or_directory("/opt/docker/files/temp/blog/blog.zip", blogFilePath)
+                    # 删除临时文件
+                    delete_file_or_directory("/opt/docker/files/temp/blog/*")
+                    # 执行完成响应socket
                     msg = {
-                        "requestId": message.get("requestId"),
+                        "requestId": receiveMsg.get("requestId"),
                         "socketPacketType": "response",
-                        "topic": message.get("topic"),
-                        "data": result
+                        "topic": receiveMsg.get("topic"),
+                        "data": {
+                            "fileResult": "fileResult",
+                            "sqlResult": "sqlResult"
+                        }
                     }
-                    logger.info(f"博客数据导出任务执行完成: {result}")
+                    logger.info(f"博客数据导出任务执行完成: {msg}")
                     await ws.send(json.dumps(msg))
 
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")
 
 
-# 异步执行Shell脚本
-async def execute_shell_script(ws, shell, message):
+# 执行Shell脚本
+def execute_shell_script(shell_script_path):
+    """同步执行Shell脚本并返回结果"""
     try:
-        # 创建子进程
-        process = await asyncio.create_subprocess_shell(
-            shell,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+        # 执行脚本并捕获输出
+        result = subprocess.run(
+            shell_script_path,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,  # 合并标准输出和错误输出
+            text=True,
+            check=False
         )
 
-        # 等待进程完成并获取输出
-        stdout, stderr = await process.communicate()
-        full_output = stdout.decode() + stderr.decode()
-        logger.info(f"脚本执行完成，输出长度: {len(full_output)}字节")
+        logger.info(f"脚本执行完成，返回码: {result.returncode}")
+        return {
+            "success": result.returncode == 0,
+            "output": result.stdout,
+            "returncode": result.returncode
+        }
 
-        return full_output
-        # # 发送响应
-        # msg = {
-        #     "requestId": message.get("requestId"),
-        #     "socketPacketType": "response",
-        #     "topic": message.get("topic"),
-        #     "data": full_output
-        # }
-        # await ws.send(json.dumps(msg))
-
-    except Exception as exception:
-        logger.error(f"执行脚本错误: {str(exception)}")
-        return exception
-        # error_msg = {
-        #     "requestId": message.get("requestId"),
-        #     "socketPacketType": "response",
-        #     "topic": message.get("topic"),
-        #     "data": f"脚本执行失败: {str(exception)}"
-        # }
-        # await ws.send(json.dumps(error_msg))
+    except Exception as e:
+        logger.error(f"执行脚本错误: {str(e)}")
+        return {
+            "success": False,
+            "output": str(e),
+            "returncode": -1
+        }
 
 
 # 文件或目录移动方法
 def move_file_or_directory(source_path, destination_path):
     """
-    移动文件或目录到指定位置
-
+    移动文件或目录到指定目录（总是将destination_path视为目录）
     参数:
         source_path (str): 源文件/目录路径
-        destination_path (str): 目标路径(可以是目录或完整文件路径)
-
+        destination_path (str): 目标目录路径（总是作为目录处理）
     返回:
         tuple: (success: bool, message: str)
     """
     # 检查源路径是否存在
     if not os.path.exists(source_path):
-        return False, f"错误：源路径 '{source_path}' 不存在"
+        logger.info(f"错误：源路径 '{source_path}' 不存在")
+        return False
 
     try:
-        # 如果目标是目录，自动添加源文件名
-        if os.path.isdir(destination_path):
-            destination_path = os.path.join(
-                destination_path,
-                os.path.basename(source_path)
-            )
+        # 确保目标路径是目录格式（去除可能的尾部分隔符）
+        destination_path = destination_path.rstrip(os.sep)
 
-        # 创建目标目录（如果不存在）
-        os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+        # 创建目标目录（包括所有父目录）
+        os.makedirs(destination_path, exist_ok=True)
+
+        # 构建完整目标路径（目标目录 + 源文件名）
+        final_path = os.path.join(destination_path, os.path.basename(source_path))
 
         # 执行移动操作
-        shutil.move(source_path, destination_path)
+        shutil.move(source_path, final_path)
 
-        return True, f"成功移动 '{source_path}' 到 '{destination_path}'"
+        logger.info(f"成功移动 '{source_path}' 到目录 '{destination_path}'")
+        return True
 
     except PermissionError:
         return False, f"权限错误：无法移动 '{source_path}'，请检查文件权限"
@@ -259,6 +265,52 @@ def move_file_or_directory(source_path, destination_path):
 
     except Exception as exception:
         return False, f"移动失败：{str(exception)}"
+
+
+# 删除目录或文件
+def delete_file_or_directory(path):
+    """
+    安全删除文件或目录（包含所有内容）
+    参数:
+        path (str): 要删除的文件或目录路径
+    返回:
+        bool: 删除成功返回True，否则返回False
+    """
+    try:
+        # 转换为绝对路径
+        target = Path(path).resolve()
+
+        # 基本安全校验
+        if not target.exists():
+            return False
+
+        # 关键目录保护（防止误删系统文件）
+        protected_paths = [
+            Path("/"),
+            Path.home(),
+            Path("/etc"),
+            Path("/bin"),
+            Path("/usr"),
+            Path("/var"),
+            Path("/lib")
+        ]
+
+        # 检查是否尝试删除受保护路径
+        if any(target == p or target.is_relative_to(p) for p in protected_paths):
+            return False
+
+        # 执行删除操作
+        if target.is_file():
+            os.remove(target)
+        elif target.is_dir():
+            shutil.rmtree(target)
+        else:
+            return False  # 跳过特殊文件类型
+
+        return True
+
+    except Exception:
+        return False
 
 
 # socket 连接心跳

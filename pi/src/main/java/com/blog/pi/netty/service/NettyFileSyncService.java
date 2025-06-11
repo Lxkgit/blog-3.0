@@ -11,13 +11,12 @@ import com.blog.pi.netty.client.NettyClient;
 import com.blog.pi.netty.dto.NettyPacket;
 import com.blog.pi.netty.dto.NettyResponse;
 import com.blog.pi.netty.dto.file.NettySyncFileDto;
-import com.blog.pi.netty.dto.file.NettyUploadBlogFileDto;
 import com.blog.pi.netty.enums.NettyTopicEnum;
-import com.blog.pi.socket.SocketSendMessage;
 import com.blog.pi.socket.SocketService;
-import com.blog.pi.socket.device.domain.constant.DeviceSocketConstant;
-import com.blog.pi.socket.device.domain.constant.DeviceSocketTopic;
-import com.blog.pi.socket.device.domain.dto.MoveFileDto;
+import com.blog.pi.socket.domain.SocketPacket;
+import com.blog.pi.socket.domain.constant.SocketConstant;
+import com.blog.pi.socket.domain.constant.SocketTopic;
+import com.blog.pi.socket.domain.dto.SocketMoveFileDto;
 import com.blog.pi.utils.StringUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
@@ -190,15 +189,15 @@ public class NettyFileSyncService {
         // 解析netty接收数据
         NettySyncFileDto nettySyncFileDto = JSON.parseObject(data, NettySyncFileDto.class);
 
-        SocketSendMessage<MoveFileDto> message = new SocketSendMessage<>();
-        message.setTopic(DeviceSocketTopic.SOCKET_MOVE_FILE);
-        MoveFileDto moveFileDto = new MoveFileDto();
+        SocketPacket<SocketMoveFileDto> message = new SocketPacket<>();
+        message.setTopic(SocketTopic.SOCKET_MOVE_FILE);
+        SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
         moveFileDto.setRequestId(requestId);
         moveFileDto.setSourceDirectory(nettySyncFileDto.getDeviceFilePath());
         moveFileDto.setTargetDirectory(nettySyncFileDto.getServiceFilePath());
         moveFileDto.setCount(10);
-        message.setMessage(moveFileDto);
-        socketService.sendMessage("python", DeviceSocketConstant.localhost, message);
+        message.setData(moveFileDto);
+        socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, message);
     }
 
 
@@ -208,7 +207,7 @@ public class NettyFileSyncService {
      * @param moveFileDto
      * @param fileNameList
      */
-    public void updateBlogFileSecondStep(MoveFileDto moveFileDto, List<String> fileNameList) {
+    public void updateBlogFileSecondStep(SocketMoveFileDto moveFileDto, List<String> fileNameList) {
         for (String fileName : fileNameList) {
             ftpUtil.uploadFtpFile(moveFileDto.getTargetDirectory(), fileName, moveFileDto.getServicePath(), fileName);
         }

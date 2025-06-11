@@ -16,10 +16,10 @@ dockerStart() {
       echo "docker 安装失败, 脚本执行退出" >&2
       exit 1
   fi
-  if ! command -v docker &>/dev/null; then
-      echo "docker 未正常启动 " >&2
-      exit 1
-  fi
+#  if ! command -v docker &>/dev/null; then
+#      echo "docker 未正常启动 "
+#      exit 1
+#  fi
 	# 启动docker
 	sudo systemctl start docker
 	# docker开始自启动
@@ -66,6 +66,9 @@ createPythonEnv() {
 	echo "安装python3.9 ... "
 	conda create --name py3 python=3.9 -y
 	conda activate py3
+
+	pip install websockets
+  pip install psutil
 }
 
 # docker 镜像加载
@@ -107,7 +110,7 @@ installMysql() {
   echo "启动mysql ... "
   docker run -d --name mysql --privileged=true --restart=always --network blog_network --ip 172.18.0.3 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=${mysqlPassword} -v /opt/docker/files:/opt/docker/files  mysql/mysql-server:8.0.32
 
-
+  insertSqlData
 }
 
 # MySQL 数据修改与导入
@@ -153,8 +156,8 @@ installRedis() {
 }
 
 startJar() {
-  sleep 5m
-  echo "启动pi项目 ... "
+  echo "3分钟后启动pi项目 ... "
+  sleep 3m
   mkdir -p /opt/docker/files/jar
   mkdir -p /opt/docker/files/logs
   # 项目相关文件
@@ -166,11 +169,19 @@ startJar() {
   docker run -d --name pi --privileged=true --cap-add=SYS_ADMIN --restart=always --network blog_network --ip 172.18.0.5 -p 10201:10201 -p 9092:9092 -p 5005:5005 -v /opt/docker/files:/opt/docker/files pi:1
 }
 
+# 启动python脚本
 startPy() {
-    mkdir -p /opt/docker/files/python
-    mv /opt/package/python/* /opt/docker/files/python
-    cd /opt/docker/files/python
-    nohup python -u webSocket.py > output.log 2>&1 &
+  # Java服务启动较慢，等待Java服务完全启动后进行连接
+  echo "4分钟后启动python脚本 ... "
+  sleep 4m
+  mkdir -p /opt/docker/files/python
+  mv /opt/package/python/* /opt/docker/files/python
+  chmod +x /opt/docker/files/python/webSocket.py
+  sed -i 's/\r$//' /opt/docker/files/python/webSocket.py
+  chmod +x /opt/docker/files/python/shell/*.sh
+  sed -i 's/\r$//' /opt/docker/files/python/shell/*.sh
+  cd /opt/docker/files/python
+  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.5' >python.log 2>&1 &
 }
 
 main() {

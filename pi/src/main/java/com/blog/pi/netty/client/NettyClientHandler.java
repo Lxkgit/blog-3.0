@@ -57,7 +57,6 @@ public class NettyClientHandler extends ChannelDuplexHandler {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        log.info("netty register");
 
         // 组装netty注册消息类
         NettyRegisterDto nettyRegisterDto = new NettyRegisterDto();

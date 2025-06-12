@@ -1,5 +1,3 @@
-devServiceIp: localhost
-
 server:
   port: 10201
 

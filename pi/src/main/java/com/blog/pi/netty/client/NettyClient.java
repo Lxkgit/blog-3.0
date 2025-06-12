@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -47,6 +48,11 @@ public class NettyClient implements CommandLineRunner {
     @Resource
     private RedisService redisService;
 
+    @Value("${netty.ip}")
+    private String ip;
+
+    @Value("${netty.port}")
+    private Integer port;
 
 
     @Override
@@ -66,8 +72,7 @@ public class NettyClient implements CommandLineRunner {
                     // Netty客户端channel初始化
                     .handler(nettyClientInitializer);
             // 连接服务器ip、端口
-            ChannelFuture future = bootstrap.connect((String) piSystemConfig.getRegisterConfig("netty", "ip"),
-                    (Integer) piSystemConfig.getRegisterConfig("netty", "port"));
+            ChannelFuture future = bootstrap.connect(ip, port);
 
             //客户端断线重连逻辑
             future.addListener((ChannelFutureListener) futureListener -> {

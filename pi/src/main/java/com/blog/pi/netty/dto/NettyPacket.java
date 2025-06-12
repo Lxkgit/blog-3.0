@@ -6,6 +6,7 @@ import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.utils.MyUUID;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.Serializable;
 
@@ -45,6 +46,7 @@ public class NettyPacket<T> implements Serializable {
     /**
      * netty注册id
      */
+    @Value("${netty.registerCode}")
     private String registerCode;
 
     /**

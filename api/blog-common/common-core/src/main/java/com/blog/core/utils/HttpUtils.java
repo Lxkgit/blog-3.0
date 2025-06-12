@@ -2,8 +2,6 @@ package com.blog.core.utils;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.domain.auth.vo.Oauth2Vo;
-import com.blog.core.result.Result;
-import com.blog.core.result.ResultFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;

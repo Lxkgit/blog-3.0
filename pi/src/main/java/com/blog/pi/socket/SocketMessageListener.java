@@ -27,7 +27,7 @@ public class SocketMessageListener {
         String topic = event.getSocketPacket().getTopic();
 
         String data = event.getSocketPacket().getData().toString();
-        logger.info("socket 收到消息，type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
+        logger.info("socket 收到消息，type:{} id:{} requestId:{} socketPacketType:{} topic:{} data:{}",
                 type, id, requestId, socketPacketType, topic, data);
         if (SocketPacketType.REGISTER.equals(socketPacketType)) {
 

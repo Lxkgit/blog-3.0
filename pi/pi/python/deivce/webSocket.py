@@ -443,8 +443,8 @@ if __name__ == "__main__":
                         help='WebSocket server IP address (default: localhost)')
     parser.add_argument('--port', type=int, default=10201,
                         help='WebSocket server port (default: 10201)')
-    parser.add_argument('--path', type=str, default='/file/socket/python/localhost',
-                        help='WebSocket endpoint path (default: /file/socket/python/localhost)')
+    parser.add_argument('--path', type=str, default='/socket/python/localhost',
+                        help='WebSocket endpoint path (default: /socket/python/localhost)')
     args = parser.parse_args()
 
     # 构建WebSocket URL

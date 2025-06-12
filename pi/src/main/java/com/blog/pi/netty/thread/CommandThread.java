@@ -1,10 +1,12 @@
 package com.blog.pi.netty.thread;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.blog.pi.mqtt.MqttPushClient;
+import com.blog.pi.mqtt.MqttService;
 import com.blog.pi.mqtt.enums.MQTTTopicEnum;
 import com.blog.pi.netty.service.vo.SensorCommandVo;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.paho.client.mqttv3.MqttClient;
 
 /**
  * @description: 命令执行线程
@@ -14,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CommandThread extends Thread {
+
+    @Resource
+    private MqttService mqttClient;
 
     private final String sensorCommandType;
 
@@ -31,7 +36,7 @@ public class CommandThread extends Thread {
                 Thread.sleep(sensorCommandVo.getControlIntervalTime() * 1000);
                 String command = JSONObject.toJSONString(sensorCommandVo);
                 log.info(">>>> 执行命令: {}", command);
-                MqttPushClient.publish(MQTTTopicEnum.SENSOR_CONTROL.getTopic(), command);
+//                MqttPushClient.publish(MQTTTopicEnum.SENSOR_CONTROL.getTopic(), command);
                 CommandThreadService.commandMap.get(sensorCommandType).remove(sensorCommandVo);
             }
         } catch (Exception e) {

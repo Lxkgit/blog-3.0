@@ -11,6 +11,7 @@ import com.blog.pi.netty.client.NettyClient;
 import com.blog.pi.netty.dto.NettyPacket;
 import com.blog.pi.netty.dto.NettyResponse;
 import com.blog.pi.netty.dto.file.NettySyncFileDto;
+import com.blog.pi.netty.enums.NettyTopic;
 import com.blog.pi.netty.enums.NettyTopicEnum;
 import com.blog.pi.socket.SocketService;
 import com.blog.pi.socket.domain.SocketPacket;
@@ -64,7 +65,7 @@ public class NettyFileSyncService {
     public void syncBlogFile(String data, String requestId) {
         // 响应服务端处理结果
         NettyResponse nettyResponse = new NettyResponse(true);
-        NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopicEnum.BLOG_FILE_SYNC.getTopic(), nettyResponse);
+        NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopic.BLOG_FILE_SYNC, nettyResponse);
         nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
 
         // 解析netty接收数据
@@ -72,14 +73,30 @@ public class NettyFileSyncService {
         // 获取文件存储基础路径
         String basePath = (String) piSystemConfig.getRegisterConfig("ftp", "basePath");
 
-        if (nettySyncBlogFile.getSyncType().equals(0)) {
+        if (nettySyncBlogFile.getSyncType().equals(1)) {
             // 下载服务器文件
             downloadFile(basePath, nettySyncBlogFile);
-        } else if (nettySyncBlogFile.getSyncType().equals(1)) {
+        } else if (nettySyncBlogFile.getSyncType().equals(2)) {
             // 上传文件至服务器
             uploadFile(nettySyncBlogFile);
-        } else if (nettySyncBlogFile.getSyncType().equals(2)) {
-            downloadBlogData(basePath, nettySyncBlogFile);
+        }
+    }
+
+    /**
+     * 上传文件至服务器
+     */
+    private void uploadFile(NettySyncFileDto nettySyncBlogFile) {
+        QueryWrapper<FileSync> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("file_code", nettySyncBlogFile.getFileCode());
+        queryWrapper.eq("user_id", nettySyncBlogFile.getUserId());
+        List<FileSync> fileSyncList = fileSyncDAO.selectList(queryWrapper);
+        if (!CollectionUtils.isEmpty(fileSyncList)) {
+            FileSync fileSync = fileSyncList.get(0);
+            boolean success = ftpUtil.uploadFtpFile(fileSync.getLocalFilePath(), fileSync.getLocalFileName(), fileSync.getServiceFilePath(), fileSync.getServiceFileName());
+
+            if (success) {
+                fileSyncDAO.deleteById(fileSync);
+            }
         }
     }
 
@@ -116,24 +133,6 @@ public class NettyFileSyncService {
     }
 
     /**
-     * 上传文件至服务器
-     */
-    private void uploadFile(NettySyncFileDto nettySyncBlogFile) {
-        QueryWrapper<FileSync> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("file_code", nettySyncBlogFile.getFileCode());
-        queryWrapper.eq("user_id", nettySyncBlogFile.getUserId());
-        List<FileSync> fileSyncList = fileSyncDAO.selectList(queryWrapper);
-        if (!CollectionUtils.isEmpty(fileSyncList)) {
-            FileSync fileSync = fileSyncList.get(0);
-            boolean success = ftpUtil.uploadFtpFile(fileSync.getLocalFilePath(), fileSync.getLocalFileName(), fileSync.getServiceFilePath(), fileSync.getServiceFileName());
-
-            if (success) {
-                fileSyncDAO.deleteById(fileSync);
-            }
-        }
-    }
-
-    /**
      * 下载服务器文件
      *
      * @param basePath          本地存放基础路径
@@ -149,7 +148,7 @@ public class NettyFileSyncService {
 
             String filePath = basePath + serviceFilePath;
 
-            String localFileName = fileName + "_" + StringUtils.getRandomString(6) + fileType;
+            String localFileName = fileName + fileType;
             boolean success = ftpUtil.downloadFtpFile(serviceFilePath, serviceFileName, filePath, localFileName);
 
             if (success) {

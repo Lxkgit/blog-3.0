@@ -2,19 +2,24 @@ package com.blog.pi.mqtt;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.pi.mqtt.enums.MQTTTopicEnum;
+import com.blog.pi.mqtt.http.ChipStatusService;
 import com.blog.pi.netty.client.NettyClient;
 import com.blog.pi.netty.dto.NettyPacket;
 import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.netty.enums.NettyTopicEnum;
-import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
-public class PushCallback implements MqttCallback {
+public class MqttMessageListener implements MqttCallback {
 
-    @Resource
+    private static final Logger logger = LoggerFactory.getLogger(MqttMessageListener.class);
+
     private final NettyClient nettyClient = SpringUtils.getBean(NettyClient.class);
+
+    private final MqttService mqttService = SpringUtils.getBean(MqttService.class);
+
+    private final ChipStatusService chipStatusService = SpringUtils.getBean(ChipStatusService.class);
 
     /**
      * mqtt断线重连
@@ -23,26 +28,26 @@ public class PushCallback implements MqttCallback {
      */
     @Override
     public void connectionLost(Throwable throwable) {
-        long reconnectTimes = 0;
+        int num = 1;
         while (true) {
             try {
-                if (MqttPushClient.getClient().isConnected()) {
+                logger.info("mqtt 重新连接 num:{}", num);
+                mqttService.getMqttClient().reconnect();
+                if (mqttService.getMqttClient().isConnected()) {
                     // 判断已经重新连接成功  需要重新订阅主题 可以在这个if里面订阅主题  或者 connectComplete（方法里面）
-                    log.warn("MQTT 重新连接成功");
-                    MqttPushClient.subscribe();
+                    logger.warn("MQTT 重新连接成功");
+                    mqttService.subscribe();
                     return;
                 }
-                reconnectTimes += 1;
-                log.warn("MQTT 重连次数: {}", reconnectTimes);
-                MqttPushClient.getClient().reconnect();
+                num++;
             } catch (MqttException e) {
-                log.error("mqtt断连异常", e);
+                logger.error("mqtt断连异常", e);
             }
             try {
                 // 5秒执行异常重新连接
                 Thread.sleep(5000);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             }
         }
     }
@@ -57,8 +62,8 @@ public class PushCallback implements MqttCallback {
     public void messageArrived(String topic, MqttMessage message) {
         try {
             String data = new String(message.getPayload());
-            log.info("MQTT Topic:【{}】 data:【{}】", topic, data);
-
+            logger.info("MQTT Topic:{} data:{}", topic, data);
+            chipStatusService.loginMqtt();
             if (topic.equals(MQTTTopicEnum.CHIP_SENSOR_REGISTER.getTopic())) {
 
                 // 发送 Netty 单片机设备注册消息
@@ -81,7 +86,7 @@ public class PushCallback implements MqttCallback {
 //            nettyRequest.setTopic(NettyTopicEnum.BLOG_SENSOR_DATA.getTopic());
 //            nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("mqtt 消息处理异常：{}", e.getMessage(), e);
         }
 
     }
@@ -93,10 +98,10 @@ public class PushCallback implements MqttCallback {
      */
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
-//        try {
-//            System.out.println(token.getMessage());
-//        } catch (MqttException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            logger.info("mqtt 发送消息：{}", token.getMessage());
+        } catch (MqttException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

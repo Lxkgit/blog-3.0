@@ -63,7 +63,7 @@ public class MqttMessageListener implements MqttCallback {
         try {
             String data = new String(message.getPayload());
             logger.info("MQTT Topic:{} data:{}", topic, data);
-            chipStatusService.loginMqtt();
+            chipStatusService.getMqttClientId(true);
             if (topic.equals(MQTTTopicEnum.CHIP_SENSOR_REGISTER.getTopic())) {
 
                 // 发送 Netty 单片机设备注册消息

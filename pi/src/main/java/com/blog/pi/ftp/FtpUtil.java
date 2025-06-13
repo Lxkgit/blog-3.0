@@ -9,6 +9,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -32,6 +33,17 @@ public class FtpUtil {
 
     private FTPClient ftpClient;
 
+    @Value("${ftp.ip}")
+    private String ip;
+
+    @Value("${ftp.port}")
+    private int port;
+
+    @Value("${ftp.username}")
+    private String username;
+
+    @Value("${ftp.password}")
+    private String password;
 
     private boolean init() {
         ftpClient = new FTPClient();
@@ -41,13 +53,9 @@ public class FtpUtil {
         log.info("开始连接ftp");
         int reply;
         try {
-            String ftpIp = (String) piSystemConfig.getRegisterConfig("ftp", "ip");
-            int ftpPort = (int) piSystemConfig.getRegisterConfig("ftp", "port");
-            String ftpUsername = (String) piSystemConfig.getRegisterConfig("ftp", "username");
-            String ftpPassword = (String) piSystemConfig.getRegisterConfig("ftp", "password");
             ftpClient.setConnectTimeout(10000);
-            ftpClient.connect(ftpIp, ftpPort);
-            ftpClient.login(ftpUsername, ftpPassword);
+            ftpClient.connect(ip, port);
+            ftpClient.login(username, password);
             reply = ftpClient.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftpClient.disconnect();
@@ -108,7 +116,7 @@ public class FtpUtil {
             createDirectoryByPathName(new String(targetFilePath.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
             String fn = new String(targetFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
             boolean success = ftpClient.storeFile(fn, inputStream);
-            log.info("ftp 文件上传结果 " + success);
+            log.info("ftp 文件上传结果:{}", success);
             return success;
         } catch (Exception e) {
             log.error("ftp 文件上传失败", e);
@@ -117,14 +125,14 @@ public class FtpUtil {
                 try {
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    log.error("ftp 文件上传失败", e);
+                    log.error("ftp 文件上传失败:{}", e.getMessage(), e);
                 }
             }
             if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    log.error("ftp 文件上传失败", e);
+                    log.error("ftp 文件上传失败:{}", e.getMessage(), e);
                 }
             }
         }
@@ -132,35 +140,35 @@ public class FtpUtil {
     }
 
 
-
     /**
      * 下载服务器文件
+     *
      * @param serviceFilePath 服务器文件目录
      * @param serviceFileName 服务器文件名称
-     * @param localFilePath 本地存放文件相对目录
-     * @param localFileName 本地存放文件名称
+     * @param localFilePath   本地存放文件相对目录
+     * @param localFileName   本地存放文件名称
      * @return 下载结果
      */
     public boolean downloadFtpFile(String serviceFilePath, String serviceFileName, String localFilePath, String localFileName) {
-        log.info("ftp 下载文件  pathName: {}, fileName: {}", serviceFilePath, serviceFileName);
+        log.info("ftp 下载文件 pathName:{} fileName:{}", serviceFilePath, serviceFileName);
         init();
         try {
             ftpClient.changeWorkingDirectory(new String(serviceFilePath.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
-            File localFile = new File( localFilePath + File.separatorChar + localFileName);
+            File localFile = new File(localFilePath + File.separatorChar + localFileName);
             OutputStream os = new FileOutputStream(localFile);
             boolean success = ftpClient.retrieveFile(new String(serviceFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1), os);
             os.close();
-            log.info("ftp 文件下载结果 " + success);
+            log.info("ftp 文件下载结果:{}", success);
             return success;
         } catch (IOException e) {
-            log.error("ftp 文件下载失败", e);
+            log.error("ftp 文件下载失败:{}", e.getMessage(), e);
         } finally {
             if (!ftpClient.isConnected()) {
                 try {
                     ftpClient.completePendingCommand();
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    log.error("ftp 文件下载失败", e);
+                    log.error("ftp 文件下载失败:{}", e.getMessage(), e);
                 }
             }
         }

@@ -1,7 +1,13 @@
 package com.blog.pi.socket;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.blog.pi.netty.dto.file.NettySyncFileDto;
+import com.blog.pi.netty.service.NettyFileSyncService;
 import com.blog.pi.socket.domain.SocketPacketEvent;
 import com.blog.pi.socket.domain.constant.SocketPacketType;
+import com.blog.pi.socket.domain.constant.SocketTopic;
+import com.blog.pi.socket.domain.dto.SocketMoveFileDto;
 import jakarta.annotation.Resource;
 import jakarta.websocket.Session;
 import org.slf4j.Logger;
@@ -14,6 +20,9 @@ import org.springframework.stereotype.Component;
 public class SocketMessageListener {
 
     private static final Logger logger = LoggerFactory.getLogger(SocketMessageListener.class);
+
+    @Resource
+    private NettyFileSyncService nettyFileSyncService;
 
     @Async
     @EventListener
@@ -36,7 +45,10 @@ public class SocketMessageListener {
         } else if (SocketPacketType.REQUEST.equals(socketPacketType)) {
 
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
-
+            if (SocketTopic.SOCKET_MOVE_FILE.equals(topic)) {
+                SocketMoveFileDto dto = JSON.parseObject(data, SocketMoveFileDto.class);
+                nettyFileSyncService.updateBlogFileSecondStep(dto);
+            }
         }
 
     }

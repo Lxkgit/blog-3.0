@@ -34,12 +34,16 @@ public class NettySyncFileDto {
     /**
      * 必填
      * 服务器文件目录
+     * 下载：从此目录中下载文件
+     * 上传：文件上传至此目录
      */
     private String serviceFilePath;
 
     /**
      * 必填
      * 设备文件存放目录
+     * 下载：文件最终存放至此目录
+     * 上传：从设备上此目录中选择文件上传
      */
     private String deviceFilePath;
 

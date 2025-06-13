@@ -2,6 +2,8 @@ package com.blog.pi.socket.domain.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * socket文件移动类
  */
@@ -24,7 +26,7 @@ public class SocketMoveFileDto {
     private String targetDirectory;
 
     /**
-     *
+     * 文件最终上传服务器位置
      */
     private String servicePath;
 
@@ -32,5 +34,10 @@ public class SocketMoveFileDto {
      * 文件移动数量
      */
     private Integer count;
+
+    /**
+     * 文件名称列表
+     */
+    private List<String> fileNameList;
 
 }

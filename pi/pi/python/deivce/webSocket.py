@@ -23,7 +23,7 @@ CONFIG = {
 }
 
 SHELL_PATH = {
-    
+
 }
 
 SHELL_CMD = {
@@ -169,8 +169,27 @@ async def handle_messages(ws):
             if receiveMsg.get("socketPacketType") == "request":
                 if receiveMsg.get("topic") == "move_file":
                     logger.info(f"调用文件同步脚本: {receiveMsg.get('data')}")
-                    # await execute_shell_script(ws, SHELL_PATH["EXPORT_SCRIPT"], receiveMsg)
-
+                    fileNameList = receiveMsg.get('data').get('fileNameList')
+                    sourceDirectory = receiveMsg.get('data').get("sourceDirectory")
+                    targetDirectory = receiveMsg.get('data').get("targetDirectory")
+                    count = receiveMsg.get('data').get("count")
+                    if not fileNameList:
+                        fileNameList = get_path_first_x_filename(sourceDirectory, count)
+                    for filename in fileNameList:
+                        move_file_or_directory(sourceDirectory + "/" + filename, targetDirectory)
+                    # 执行完成响应socket
+                    msg = {
+                        "requestId": receiveMsg.get("requestId"),
+                        "socketPacketType": "response",
+                        "topic": receiveMsg.get("topic"),
+                        "data": {
+                            "servicePath": receiveMsg.get('data').get("servicePath"),
+                            "fileNameList": fileNameList,
+                            "targetDirectory": targetDirectory
+                        }
+                    }
+                    logger.info(f"博客数据导出任务执行完成: {msg}")
+                    ws.send(json.dumps(msg))
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")
 
@@ -203,6 +222,21 @@ def execute_shell_script(shell_script_path):
             "output": str(e),
             "returncode": -1
         }
+
+
+# 获取指定目录下前x文件的名称
+def get_path_first_x_filename(directory, count):
+    # 获取目录下所有条目
+    all_entries = os.listdir(directory)
+
+    # 过滤出文件并排序
+    files = sorted(
+        [entry for entry in all_entries if os.path.isfile(os.path.join(directory, entry))],
+        key=lambda f: f.lower()  # 不区分大小写排序
+    )
+
+    # 返回前x个文件
+    return files[:count]
 
 
 # 文件或目录移动方法
@@ -244,6 +278,28 @@ def move_file_or_directory(source_path, destination_path):
 
     except Exception as exception:
         return False, f"移动失败：{str(exception)}"
+
+
+# 修改文件名称
+def rename_file(file_path, new_name):
+    # 检查文件是否存在
+    if not os.path.isfile(file_path):
+        print(f"错误：文件 '{file_path}' 不存在")
+        return
+
+    # 提取目录路径和原后缀名
+    directory = os.path.dirname(file_path)
+    _, old_extension = os.path.splitext(file_path)
+
+    # 构建新文件路径（保持原后缀）
+    new_file_path = os.path.join(directory, f"{new_name}{old_extension}")
+
+    # 执行重命名操作
+    try:
+        os.rename(file_path, new_file_path)
+        print(f"文件已重命名为: {os.path.basename(new_file_path)}")
+    except Exception as e:
+        print(f"重命名失败: {str(e)}")
 
 
 # 删除目录或文件

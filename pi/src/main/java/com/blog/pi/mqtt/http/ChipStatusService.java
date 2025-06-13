@@ -29,7 +29,7 @@ public class ChipStatusService {
 
     private static final Logger logger = LoggerFactory.getLogger(ChipStatusService.class);
 
-    private String MQTT_AUTHORIZATION  = "";
+    private String MQTT_AUTHORIZATION = "";
 
     @Value("${mqtt.ip}")
     private String ip;
@@ -39,32 +39,34 @@ public class ChipStatusService {
 
     /**
      * 登陆mqtt 获取token
-     *
+     * <p>
      * mqtt login接口返回数据
      * {
-     *     "license": {
-     *         "edition": "ce"
-     *     },
-     *     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mjc3NzU1MTM0ODUsImlzcyI6IkVNUVgifQ.JYtcr0WwLu3nRV2mWsX2Hw7m4LC0Nvu2aEkU_ITaeiI",
-     *     "version": "5.3.2"
+     * "license": {
+     * "edition": "ce"
+     * },
+     * "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mjc3NzU1MTM0ODUsImlzcyI6IkVNUVgifQ.JYtcr0WwLu3nRV2mWsX2Hw7m4LC0Nvu2aEkU_ITaeiI",
+     * "version": "5.3.2"
      * }
      */
     public void loginMqtt() {
 
         try {
             Map<String, Object> param = new HashMap<>();
-            param.put("username","admin");
-            param.put("password","public");
+            param.put("username", "admin");
+            param.put("password", "public");
 
             // 发送JSON格式请求
             HttpResponse res = HttpRequest.post("http://" + ip + ":18083/api/v5/login")
                     .header("Content-Type", "application/json")  // 关键：声明JSON格式
                     .body(JSONUtil.toJsonStr(param))            // 将Map转为JSON字符串
                     .execute();
-
-            if ()
-            JSONObject jsonObject = JSONObject.parseObject(result);
-            MQTT_AUTHORIZATION = "Bearer " + jsonObject.get("token");
+            logger.info("mqtt 登陆返回数据:{}", res);
+            if (res.getStatus() == 200) {
+                JSONObject jsonObject = JSONObject.parseObject(res.body());
+                MQTT_AUTHORIZATION = "Bearer " + jsonObject.get("token");
+                logger.info("mqtt 登陆成功:{}", MQTT_AUTHORIZATION);
+            }
 
         } catch (Exception e) {
             logger.error("mqtt 登陆异常：{}", e.getMessage(), e);
@@ -73,43 +75,40 @@ public class ChipStatusService {
 
     /**
      * 获取mqtt服务中全部注册的clientId
-     *
+     * <p>
      * mqtt 返回数据格式
      * {
-     *     "data": [],
-     *     "meta": {
-     *         "count": 0,
-     *         "hasnext": false,
-     *         "limit": 100,
-     *         "page": 1
-     *     }
+     * "data": [],
+     * "meta": {
+     * "count": 0,
+     * "hasnext": false,
+     * "limit": 100,
+     * "page": 1
      * }
-     *  @param flag 登陆信息失效是否重新获取数据 true 重新登陆
+     * }
+     *
+     * @param flag 登陆信息失效是否重新获取数据 true 重新登陆
      */
     public List<String> getMqttClientId(boolean flag) {
 
         try {
-            List<String> clientId = new ArrayList<>();
-            Map<String, Object> header = new HashMap<>();
-            header.put("Authorization", MQTT_AUTHORIZATION);
+            List<String> clientIdList = new ArrayList<>();
             // 发送JSON格式请求
-//            HttpResponse res = HttpRequest.post("http://" + ip + ":18083/api/v5/login")
-//                    .header("Content-Type", "application/json")  // 关键：声明JSON格式
-//                    .body(JSONUtil.toJsonStr(param))            // 将Map转为JSON字符串
-//                    .execute();
-            String result = HttpUtil.get("http://" + ip + ":18083/api/v5/clients");
-            logger.info("result: {}", result);
-            if (200 == 2100) {
-
-//                JSONObject jsonObject = JSONObject.parseObject((String) result.get("data"));
-//                JSONArray jsonArray = JSONArray.parseArray(jsonObject.getString("data"));
-//                for (int i = 0; i < jsonArray.size(); i++) {
-//                    JSONObject mqttClient = jsonArray.getJSONObject(i);
-//                    clientId.add((String) mqttClient.get("clientid"));
-//                }
-//                jsonObject.getString("data");
-//                return clientId;
-            } else if (flag){
+            HttpResponse res = HttpRequest.get("http://" + ip + ":18083/api/v5/clients")
+                    .header("Content-Type", "application/json")  // 关键：声明JSON格式
+                    .header("Authorization", MQTT_AUTHORIZATION)
+                    .execute();
+            logger.info("mqtt在线客户端数据:{}", res);
+            if (res.getStatus() == 200) {
+                JSONObject jsonObject = JSONObject.parseObject(res.body());
+                JSONArray jsonArray = JSONArray.parseArray(jsonObject.getString("data"));
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject mqttClient = jsonArray.getJSONObject(i);
+                    clientIdList.add((String) mqttClient.get("clientid"));
+                }
+                logger.info("mqtt 当前在线客户端:{}", clientIdList);
+                return clientIdList;
+            } else if (flag) {
                 logger.error("mqtt 登陆信息失效,重新获取mqtt登陆token信息");
 
                 // 登陆mqtt

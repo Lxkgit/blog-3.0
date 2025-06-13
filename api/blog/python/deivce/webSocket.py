@@ -190,7 +190,7 @@ async def handle_messages(ws):
                         }
                     }
                     logger.info(f"博客数据导出任务执行完成: {msg}")
-                    await ws.send(json.dumps(msg))
+                    ws.send(json.dumps(msg))
 
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")

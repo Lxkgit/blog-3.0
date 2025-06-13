@@ -16,10 +16,10 @@ dockerStart() {
       echo "docker 安装失败, 脚本执行退出" >&2
       exit 1
   fi
-#  if ! command -v docker &>/dev/null; then
-#      echo "docker 未正常启动 "
-#      exit 1
-#  fi
+  if ! command -v docker &>/dev/null; then
+      echo "docker 未正常启动 "
+      exit 1
+  fi
 	# 启动docker
 	sudo systemctl start docker
 	# docker开始自启动
@@ -67,8 +67,8 @@ createPythonEnv() {
 	conda create --name py3 python=3.9 -y
 	conda activate py3
 
-	pip install websockets
-  pip install psutil
+  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade websockets
+	pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade psutil
 }
 
 # docker 镜像加载

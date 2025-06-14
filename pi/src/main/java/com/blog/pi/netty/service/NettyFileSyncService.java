@@ -8,6 +8,7 @@ import com.blog.pi.config.PiSystemConfig;
 import com.blog.pi.dao.FileSyncDAO;
 import com.blog.pi.domain.entity.FileSync;
 import com.blog.pi.ftp.FtpUtil;
+import com.blog.pi.mqtt.MqttMessageListener;
 import com.blog.pi.netty.client.NettyClient;
 import com.blog.pi.netty.dto.NettyPacket;
 import com.blog.pi.netty.dto.NettyResponse;
@@ -21,6 +22,8 @@ import com.blog.pi.socket.domain.constant.SocketTopic;
 import com.blog.pi.socket.domain.dto.SocketMoveFileDto;
 import com.blog.pi.utils.MyStringUtils;
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -35,6 +38,8 @@ import java.util.*;
 
 @Component
 public class NettyFileSyncService {
+
+    private static final Logger logger = LoggerFactory.getLogger(NettyFileSyncService.class);
 
     @Resource
     private FtpUtil ftpUtil;
@@ -69,8 +74,10 @@ public class NettyFileSyncService {
         NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopic.BLOG_FILE_SYNC, nettyResponse);
         nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
 
+        logger.info("解析data:{}", data);
         // 解析netty接收数据
         NettySyncFileDto nettySyncBlogFile = JSON.parseObject(data, NettySyncFileDto.class);
+        logger.info("nettySyncBlogFile:{}", data);
         // 获取文件存储基础路径
         String basePath = "/opt/docker/files/temp" + "/" + MyStringUtils.getRandomString(6);
 

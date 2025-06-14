@@ -15,4 +15,6 @@ public class SocketExportBlogFileDto {
 
     private String blogFileName;
 
+
+
 }

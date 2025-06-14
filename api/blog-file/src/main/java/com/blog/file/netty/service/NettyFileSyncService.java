@@ -99,7 +99,7 @@ public class NettyFileSyncService {
      */
     public void syncBlogDataFirstStep() {
         SocketExportBlogFileDto exportBlogFileDto = new SocketExportBlogFileDto();
-        exportBlogFileDto.setBlogFilePath(Constant.FTP_PATH_TEMP + "/" + MyStringUtils.getRandomString(6));
+        exportBlogFileDto.setBlogFilePath(Constant.FTP_PATH_SYSTEM + "/temp/" + MyStringUtils.getRandomString(6));
         SocketPacket<SocketExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE, exportBlogFileDto);
         socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
     }
@@ -111,7 +111,8 @@ public class NettyFileSyncService {
     public void syncBlogDataSecondStep(String data) {
 
         SocketExportBlogFileDto socketExportBlogFileDto = JSONObject.parseObject(data, SocketExportBlogFileDto.class);
-        String serviceFilePath = socketExportBlogFileDto.getBlogFilePath();
+        // 此处将文件在ftp的全路径转换为在ftp/system用户目录下的路径
+        String serviceFilePath = socketExportBlogFileDto.getBlogFilePath().substring(Constant.FTP_PATH_SYSTEM.length());
         String fileName = socketExportBlogFileDto.getBlogFileName();
         String deviceFilePath = "/opt/docker/files/temp";
 

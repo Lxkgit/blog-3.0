@@ -192,16 +192,16 @@ async def handle_messages(ws):
                     delete_file_or_directory("/opt/docker/files/temp/blog/*")
                     # 执行完成响应socket
                     msg = {
-                        "requestId": receiveMsg.get("requestId"),
-                        "socketPacketType": "response",
-                        "topic": receiveMsg.get("topic"),
-                        "data": {
-                            "blogFilePath": blogFilePath,
-                            "blogFilePath": "blog.zip"
+                        'requestId': receiveMsg.get("requestId"),
+                        'socketPacketType': 'response',
+                        'topic': receiveMsg.get("topic"),
+                        'data': {
+                            'blogFilePath': blogFilePath,
+                            'blogFileName': 'blog.zip'
                         }
                     }
                     logger.info(f"博客数据导出任务执行完成: {msg}")
-                    ws.send(json.dumps(msg))
+                    await ws.send(json.dumps(msg))
 
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")

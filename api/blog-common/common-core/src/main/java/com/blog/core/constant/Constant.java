@@ -65,11 +65,11 @@ public class Constant {
     public static final Integer FILE_STATUS_TO_REMOTE = 3;
     public static final Integer FILE_STATUS_REMOTE = 4;
 
-    // ftp目录
-    public static final String FTP_PATH = "/opt/docker/files/ftp";
+    // system用户ftp目录
+    public static final String FTP_PATH_SYSTEM = "/opt/docker/files/ftp/system";
 
     // ftp临时文件存放目录
-    public static final String FTP_PATH_TEMP = "/opt/docker/files/ftp/temp";
+    public static final String FTP_PATH_TEMP = "/opt/docker/files/ftp/";
 
     // 博客系统临时文件存放目录
     public static final String BLOG_PATH_TEMP = "/opt/docker/files/temp";

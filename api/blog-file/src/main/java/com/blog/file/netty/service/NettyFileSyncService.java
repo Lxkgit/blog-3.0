@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -54,20 +56,19 @@ public class NettyFileSyncService {
      * @param nettySyncFileDto 同步文件参数
      */
     public void syncFileSend(NettySyncFileDto nettySyncFileDto) {
-        Integer userId = SecurityUtil.getLoginUser().getId();
+//        Integer userId = SecurityUtil.getLoginUser().getId();
 
         // 获取用户默认同步数据设备
-        UserDevice userDevice = new UserDevice();
-        userDevice.setUserId(userId);
         LambdaQueryWrapper<UserDevice> userDeviceLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        userDeviceLambdaQueryWrapper.eq(UserDevice::getUserId, userId);
+        userDeviceLambdaQueryWrapper.eq(UserDevice::getUserId, 1);
         List<UserDevice> deviceList = userDeviceMapper.selectList(userDeviceLambdaQueryWrapper);
 
         if (CollectionUtils.isNotEmpty(deviceList)) {
             UserDevice device = deviceList.get(0);
             String registerId = device.getDeviceCode();
 
-            nettyServer.channelWriteByRegisterId(registerId, JSON.toJSONString(nettySyncFileDto), true);
+            NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
+            nettyServer.channelWriteByRegisterId(registerId, JSON.toJSONString(nettyPacket), true);
         }
     }
 
@@ -111,11 +112,20 @@ public class NettyFileSyncService {
 
         SocketExportBlogFileDto socketExportBlogFileDto = JSONObject.parseObject(data, SocketExportBlogFileDto.class);
         String serviceFilePath = socketExportBlogFileDto.getBlogFilePath();
-        String deviceFilePath = "/";
-        NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
+        String fileName = socketExportBlogFileDto.getBlogFileName();
+        String deviceFilePath = "/opt/docker/files/temp";
 
-        NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
-        nettyServer.channelWriteByRegisterId("2ecfb95116de4967afe7710e11ac00b4", JSON.toJSONString(nettyPacket), true);
+        NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
+        nettySyncFileDto.setFileNameList(List.of(fileName));
+        syncFileSend(nettySyncFileDto);
     }
+
+    public void syncDeviceFile() {
+        String minioPath = "/1/device";
+        NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, "/opt/docker/files/temp");
+        nettySyncFileDto.setCount(3);
+        syncFileSend(nettySyncFileDto);
+    }
+
 
 }

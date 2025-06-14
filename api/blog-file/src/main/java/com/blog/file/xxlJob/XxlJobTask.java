@@ -86,11 +86,7 @@ public class XxlJobTask {
     @XxlJob("deviceFileUploadTask")
     public void deviceFileUploadTask() {
         logger.info("xxlJob 执行：文件同步任务-设备端文件上传任务");
-
-        SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
-        SocketPacket<SocketMoveFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, moveFileDto);
-        socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
-
+        nettyFileSyncService.syncDeviceFile();
     }
 
 

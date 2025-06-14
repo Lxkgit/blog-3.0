@@ -1,5 +1,7 @@
 package com.blog.file.netty.domain.dto.file;
 
+import com.blog.core.constant.Constant;
+import com.blog.core.utils.MyStringUtils;
 import com.blog.file.netty.domain.common.NettyConstant;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.enums.NettyPacketType;
@@ -78,6 +80,15 @@ public class NettySyncFileDto {
         NettySyncFileDto nettySyncFileDto = new NettySyncFileDto();
         nettySyncFileDto.setSyncType(1);
         nettySyncFileDto.setServiceFilePath(serviceFilePath);
+        nettySyncFileDto.setDeviceFilePath(deviceFilePath);
+        return nettySyncFileDto;
+    }
+
+    public static NettySyncFileDto buildSyncToService(String minioPath, String deviceFilePath) {
+        NettySyncFileDto nettySyncFileDto = new NettySyncFileDto();
+        nettySyncFileDto.setSyncType(2);
+        nettySyncFileDto.setMinioPath(minioPath);
+        nettySyncFileDto.setServiceFilePath(Constant.BLOG_DATA_PATH_TEMP + "/" + MyStringUtils.getRandomString(6));
         nettySyncFileDto.setDeviceFilePath(deviceFilePath);
         return nettySyncFileDto;
     }

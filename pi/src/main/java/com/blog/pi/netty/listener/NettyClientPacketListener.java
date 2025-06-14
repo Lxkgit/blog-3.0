@@ -54,7 +54,7 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
         String topic = event.getNettyPacket().getTopic();
         String registerId = event.getNettyPacket().getRegisterCode();
         String data = event.getNettyPacket().getData().toString();
-        logger.info("channelId:{} nettyPacketType:{} requestId:{} topic:{} registerId:{} data:{}", channelId, nettyPacketType, requestId, topic, registerId, data);
+        logger.info("netty 收到消息，channelId:{} nettyPacketType:{} requestId:{} topic:{} registerId:{} data:{}", channelId, nettyPacketType, requestId, topic, registerId, data);
         if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
             // 服务器不会下发心跳信息，客户端心跳信息也不会响应
         } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {

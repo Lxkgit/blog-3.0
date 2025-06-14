@@ -17,3 +17,24 @@ spring:
       host: 172.18.0.6
       port: 6379
       password: redis-960@*
+
+netty:
+  ip: 49.232.129.253
+  port: 60032
+
+  registerCode: 1:2ecfb95116de4967afe7710e11ac00b4
+
+mqtt:
+  ip: 172.18.0.4
+  port: 1883
+  username: admin
+  password: public
+  clientId: SMP1
+
+ftp:
+  ip: 49.232.129.253
+  port: 61121
+  username: system
+  password: Ftp@Admin123*.
+
+  basePath: /opt/files

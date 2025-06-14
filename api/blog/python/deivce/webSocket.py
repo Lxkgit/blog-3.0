@@ -170,6 +170,17 @@ async def handle_messages(ws):
                 if receiveMsg.get("topic") == "move_file":
                     logger.info(f"调用文件同步脚本: {receiveMsg.get('data')}")
                     # await execute_shell_script(ws, SHELL_PATH["EXPORT_SCRIPT"], receiveMsg)
+                    msg = {
+                        "requestId": receiveMsg.get("requestId"),
+                        "socketPacketType": "response",
+                        "topic": receiveMsg.get("topic"),
+                        "data": {
+                            "fileResult": receiveMsg.get('data'),
+                            "sqlResult": "sqlResult"
+                        }
+                    }
+                    logger.info(f"文件移动完成: {msg}")
+                    ws.send(json.dumps(msg))
                 if receiveMsg.get("topic") == "export_blog_file":
                     blogFilePath = receiveMsg.get('data').get('blogFilePath')
                     logger.info(f"调用导出博客数据脚本: {blogFilePath}")
@@ -185,8 +196,8 @@ async def handle_messages(ws):
                         "socketPacketType": "response",
                         "topic": receiveMsg.get("topic"),
                         "data": {
-                            "fileResult": "fileResult",
-                            "sqlResult": "sqlResult"
+                            "blogFilePath": blogFilePath,
+                            "blogFilePath": "blog.zip"
                         }
                     }
                     logger.info(f"博客数据导出任务执行完成: {msg}")

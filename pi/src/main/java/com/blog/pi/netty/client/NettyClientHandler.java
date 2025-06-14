@@ -124,9 +124,9 @@ public class NettyClientHandler extends ChannelDuplexHandler {
             applicationEventPublisher.publishEvent(new NettyPacketEvent(ctx.channel().id(), nettyPacket));
         } catch (Exception e) {
             log.error("channelId:{} 报文解析失败 msg:{}", ctx.channel().id(), msg.toString());
-            NettyPacket<String> nettyResponse = NettyPacket.buildRequest("报文解析失败: " + msg);
-            nettyResponse.setTopic(NettyTopicEnum.MSG_ERROR_RESPONSE.getTopic());
-            ctx.writeAndFlush(JSONObject.toJSONString(nettyResponse));
+//            NettyPacket<String> nettyResponse = NettyPacket.buildRequest("报文解析失败: " + msg);
+//            nettyResponse.setTopic(NettyTopicEnum.MSG_ERROR_RESPONSE.getTopic());
+//            ctx.writeAndFlush(JSONObject.toJSONString(nettyResponse));
         }
     }
 

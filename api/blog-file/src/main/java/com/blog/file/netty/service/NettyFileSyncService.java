@@ -122,8 +122,13 @@ public class NettyFileSyncService {
     }
 
     public void syncDeviceFile() {
+        // 文件存储minio中路径
         String minioPath = "/1/device";
-        NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, "/opt/docker/files/temp");
+        // servicePath 为文件在ftp system用户目录下的相对路径
+        String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
+        // devicePath 为树莓派设备上的绝对路径
+        String devicePath = "/mnt/test";
+        NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
         nettySyncFileDto.setCount(3);
         syncFileSend(nettySyncFileDto);
     }

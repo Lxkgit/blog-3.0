@@ -74,10 +74,8 @@ public class NettyFileSyncService {
         NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopic.BLOG_FILE_SYNC, nettyResponse);
         nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
 
-        logger.info("解析data:{}", data);
         // 解析netty接收数据
         NettySyncFileDto nettySyncBlogFile = JSON.parseObject(data, NettySyncFileDto.class);
-        logger.info("nettySyncBlogFile:{}", data);
         // 获取文件存储基础路径
         String basePath = "/opt/docker/files/temp" + "/" + MyStringUtils.getRandomString(6);
 
@@ -87,6 +85,8 @@ public class NettyFileSyncService {
 
             SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
             moveFileDto.setRequestId(requestId);
+            moveFileDto.setType(0);
+            moveFileDto.setData(data);
             moveFileDto.setSourceDirectory(basePath);
             moveFileDto.setFileNameList(fileNameList);
             moveFileDto.setTargetDirectory("/opt/docker/files/temp/test" + "/" + MyStringUtils.getRandomString(6));
@@ -96,7 +96,6 @@ public class NettyFileSyncService {
             uploadBlogFileFirstStep(requestId, nettySyncBlogFile, basePath);
         }
     }
-
 
 
     /**
@@ -114,19 +113,19 @@ public class NettyFileSyncService {
             boolean success = ftpUtil.downloadFtpFile(serviceFilePath, serviceFileName, basePath, serviceFileName);
 
             if (success) {
-                File file = new File(basePath + File.separatorChar + serviceFileName);
-                FileSync fileSync = new FileSync();
-                fileSync.setUserId(nettySyncBlogFile.getUserId());
-                fileSync.setFileCode(nettySyncBlogFile.getFileCode());
-                fileSync.setServiceFilePath(serviceFilePath);
-                fileSync.setServiceFileName(serviceFileName);
+//                File file = new File(basePath + File.separatorChar + serviceFileName);
+//                FileSync fileSync = new FileSync();
+//                fileSync.setUserId(nettySyncBlogFile.getUserId());
+//                fileSync.setFileCode(nettySyncBlogFile.getFileCode());
+//                fileSync.setServiceFilePath(serviceFilePath);
+//                fileSync.setServiceFileName(serviceFileName);
 //                fileSync.setLocalFilePath(filePath);
-                fileSync.setLocalFileName(serviceFileName);
-                fileSync.setFileSize(file.length());
-                fileSync.setCreateTime(new Date());
-                fileSyncDAO.insert(fileSync);
-
-                successFileNameList.add(serviceFileName);
+//                fileSync.setLocalFileName(serviceFileName);
+//                fileSync.setFileSize(file.length());
+//                fileSync.setCreateTime(new Date());
+//                fileSyncDAO.insert(fileSync);
+//
+//                successFileNameList.add(serviceFileName);
             }
         }
         return successFileNameList;
@@ -138,6 +137,7 @@ public class NettyFileSyncService {
      * 2. 树莓派设备接受数据并响应
      * 3. 通过websocket调用python脚本，将指定目录下文件移动到docker共享目录
      * 4. 等待websocket响应，调用updateBlogFileSecondStep
+     *
      * @param requestId
      * @param nettySyncBlogFile
      * @param basePath
@@ -150,28 +150,24 @@ public class NettyFileSyncService {
         NettyPacket<NettyResponse> uploadNettyPacket = NettyPacket.buildResponse(requestId, NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic(), uploadNettyResponse);
         nettyClient.sendMsg(requestId, JSONObject.toJSONString(uploadNettyPacket), false);
 
+
+        SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
+        moveFileDto.setRequestId(requestId);
+        moveFileDto.setType(0);
+        moveFileDto.setData(JSONObject.toJSONString(nettySyncBlogFile));
+        moveFileDto.setSourceDirectory(nettySyncBlogFile.getDeviceFilePath());
+        moveFileDto.setTargetDirectory(basePath);
+        moveFileDto.setServicePath(nettySyncBlogFile.getServiceFilePath());
         // 文件存放在服务器挂载硬盘中，docker无法直接访问，先通知socket将文件移动到指定目录
         if (CollectionUtil.isNotEmpty(nettySyncBlogFile.getFileNameList())) {
             // 指定了文件名称
-            SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
-            moveFileDto.setRequestId(requestId);
-            moveFileDto.setSourceDirectory(nettySyncBlogFile.getDeviceFilePath());
             moveFileDto.setFileNameList(nettySyncBlogFile.getFileNameList());
-            moveFileDto.setTargetDirectory(basePath);
-            moveFileDto.setServicePath(nettySyncBlogFile.getServiceFilePath());
-            SocketPacket<SocketMoveFileDto> message = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, moveFileDto);
-            socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, message);
         } else {
             // 未指定文件名称
-            SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
-            moveFileDto.setRequestId(requestId);
-            moveFileDto.setSourceDirectory(nettySyncBlogFile.getDeviceFilePath());
             moveFileDto.setCount(nettySyncBlogFile.getCount());
-            moveFileDto.setTargetDirectory(basePath);
-            moveFileDto.setServicePath(nettySyncBlogFile.getServiceFilePath());
-            SocketPacket<SocketMoveFileDto> message = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, moveFileDto);
-            socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, message);
         }
+        SocketPacket<SocketMoveFileDto> message = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, moveFileDto);
+        socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, message);
     }
 
     /**
@@ -180,20 +176,23 @@ public class NettyFileSyncService {
      * @param moveFileDto
      */
     public void updateBlogFileSecondStep(SocketMoveFileDto moveFileDto) {
-        List<String> fileNameList = moveFileDto.getFileNameList();
-        for (String fileName : fileNameList) {
-            ftpUtil.uploadFtpFile(moveFileDto.getTargetDirectory(), fileName, moveFileDto.getServicePath(), fileName);
-        }
+        NettySyncFileDto nettySyncFileDto = JSONObject.parseObject(moveFileDto.getData(), NettySyncFileDto.class);
+        if (nettySyncFileDto.getSyncType().equals(2)) {
+            List<String> fileNameList = moveFileDto.getFileNameList();
+            for (String fileName : fileNameList) {
+                ftpUtil.uploadFtpFile(moveFileDto.getTargetDirectory(), fileName, moveFileDto.getServicePath(), fileName);
+            }
 
-        // 上传完成之后再次响应数据
-        String requestId = moveFileDto.getRequestId();
-        // 响应服务端处理结果
-        Map<String, Object> map = new HashMap<>();
-        map.put("resultType", 2);
-        map.put("filePath", moveFileDto.getServicePath());
-        map.put("fileNameList", fileNameList);
-        NettyResponse nettyResponse = new NettyResponse(true, JSONObject.toJSONString(map));
-        NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic(), nettyResponse);
-        nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
+            // 上传完成之后再次响应数据
+            String requestId = moveFileDto.getRequestId();
+            // 响应服务端处理结果
+            Map<String, Object> map = new HashMap<>();
+            map.put("resultType", 2);
+            map.put("filePath", moveFileDto.getServicePath());
+            map.put("fileNameList", fileNameList);
+            NettyResponse nettyResponse = new NettyResponse(true, JSONObject.toJSONString(map));
+            NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic(), nettyResponse);
+            nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
+        }
     }
 }

@@ -16,6 +16,17 @@ public class SocketMoveFileDto {
     private String requestId;
 
     /**
+     * 上下文类型
+     * 0：data数据转换为 NettySyncFileDto.class
+     */
+    private Integer type;
+
+    /**
+     * 文件移动携带上下文信息
+     */
+    private String data;
+
+    /**
      * 文件移动源路径
      */
     private String sourceDirectory;

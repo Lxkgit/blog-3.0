@@ -183,13 +183,15 @@ async def handle_messages(ws):
                         "socketPacketType": "response",
                         "topic": receiveMsg.get("topic"),
                         "data": {
+                            "type": receiveMsg.get('data').get("type"),
+                            "data": receiveMsg.get('data').get("data"),
                             "servicePath": receiveMsg.get('data').get("servicePath"),
                             "fileNameList": fileNameList,
                             "targetDirectory": targetDirectory
                         }
                     }
                     logger.info(f"博客数据导出任务执行完成: {msg}")
-                    ws.send(json.dumps(msg))
+                    await ws.send(json.dumps(msg))
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")
 

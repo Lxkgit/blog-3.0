@@ -111,7 +111,7 @@ public class FtpUtil {
         }
         InputStream inputStream = null;
         try {
-            File file = new File(sourceFilePath + sourceFileName);
+            File file = new File(sourceFilePath + "/" + sourceFileName);
             byte[] bytes = Files.readAllBytes(file.toPath());
             inputStream = new ByteArrayInputStream(bytes);
             createDirectoryByPathName(new String(targetFilePath.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));

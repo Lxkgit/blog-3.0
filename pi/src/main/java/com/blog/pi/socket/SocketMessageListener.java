@@ -46,8 +46,12 @@ public class SocketMessageListener {
 
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
             if (SocketTopic.SOCKET_MOVE_FILE.equals(topic)) {
-                SocketMoveFileDto dto = JSON.parseObject(data, SocketMoveFileDto.class);
-                nettyFileSyncService.updateBlogFileSecondStep(dto);
+                JSONObject jsonObject = JSONObject.parseObject(data);
+                if (jsonObject.getInteger("type").equals(0)) {
+                    SocketMoveFileDto dto = JSON.parseObject(data, SocketMoveFileDto.class);
+                    nettyFileSyncService.updateBlogFileSecondStep(dto);
+                }
+
             }
         }
 

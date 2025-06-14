@@ -84,11 +84,11 @@ public class NettySyncFileDto {
         return nettySyncFileDto;
     }
 
-    public static NettySyncFileDto buildSyncToService(String minioPath, String deviceFilePath) {
+    public static NettySyncFileDto buildSyncToService(String minioPath, String servicePath, String deviceFilePath) {
         NettySyncFileDto nettySyncFileDto = new NettySyncFileDto();
         nettySyncFileDto.setSyncType(2);
         nettySyncFileDto.setMinioPath(minioPath);
-        nettySyncFileDto.setServiceFilePath(Constant.BLOG_DATA_PATH_TEMP + "/" + MyStringUtils.getRandomString(6));
+        nettySyncFileDto.setServiceFilePath(servicePath);
         nettySyncFileDto.setDeviceFilePath(deviceFilePath);
         return nettySyncFileDto;
     }

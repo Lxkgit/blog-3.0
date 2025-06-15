@@ -70,7 +70,14 @@ public class NettyFileSyncService {
      */
     public void syncBlogFile(String data, String requestId) {
         // 响应服务端处理结果
-        NettyResponse nettyResponse = new NettyResponse(true);
+        // 响应服务端处理结果
+        Map<String, Object> map = new HashMap<>();
+        // syncResult 文件同步状态
+        // 0 请求已收到
+        // 1 下载完成
+        // 2 上传完成
+        map.put("syncResult", 0);
+        NettyResponse nettyResponse = new NettyResponse(true, JSONObject.toJSONString(map));
         NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopic.BLOG_FILE_SYNC, nettyResponse);
         nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
 
@@ -143,14 +150,6 @@ public class NettyFileSyncService {
      * @param basePath
      */
     private void uploadBlogFileFirstStep(String requestId, NettySyncFileDto nettySyncBlogFile, String basePath) {
-        // 响应服务端处理结果
-        Map<String, Object> map = new HashMap<>();
-        map.put("resultType", 1);
-        NettyResponse uploadNettyResponse = new NettyResponse(true, JSONObject.toJSONString(map));
-        NettyPacket<NettyResponse> uploadNettyPacket = NettyPacket.buildResponse(requestId, NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic(), uploadNettyResponse);
-        nettyClient.sendMsg(requestId, JSONObject.toJSONString(uploadNettyPacket), false);
-
-
         SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
         moveFileDto.setRequestId(requestId);
         moveFileDto.setType(0);
@@ -181,18 +180,19 @@ public class NettyFileSyncService {
             List<String> fileNameList = moveFileDto.getFileNameList();
             for (String fileName : fileNameList) {
                 ftpUtil.uploadFtpFile(moveFileDto.getTargetDirectory(), fileName, moveFileDto.getServicePath(), fileName);
-            }
 
-            // 上传完成之后再次响应数据
-            String requestId = moveFileDto.getRequestId();
-            // 响应服务端处理结果
-            Map<String, Object> map = new HashMap<>();
-            map.put("resultType", 2);
-            map.put("filePath", moveFileDto.getServicePath());
-            map.put("fileNameList", fileNameList);
-            NettyResponse nettyResponse = new NettyResponse(true, JSONObject.toJSONString(map));
-            NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic(), nettyResponse);
-            nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
+                // 上传完成一个文件
+                String requestId = moveFileDto.getRequestId();
+                // 响应服务端处理结果
+                Map<String, Object> map = new HashMap<>();
+                map.put("syncResult", 2);
+                map.put("serviceFilePath", moveFileDto.getServicePath());
+                map.put("fileNameList", new ArrayList<>(List.of(fileName)));
+                map.put("minioPath", nettySyncFileDto.getMinioPath());
+                NettyResponse nettyResponse = new NettyResponse(true, JSONObject.toJSONString(map));
+                NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopic.BLOG_FILE_SYNC, nettyResponse);
+                nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
+            }
         }
     }
 }

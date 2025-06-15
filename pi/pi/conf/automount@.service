@@ -1,0 +1,15 @@
+[Unit]
+Description=Automount USB Drive %i
+Requires=systemd-udev-settle.service
+After=systemd-udev-settle.service
+
+[Service]
+Type=oneshot
+# 挂载命令（设备存在时才执行）
+ExecStart=/bin/sh -c "if [ -e /dev/disk/by-uuid/E80499A6049977F0 ]; then /bin/mount -t ntfs-3g -o uid=1000,gid=1000,umask=000,nofail,errors=remount-ro /dev/disk/by-uuid/E80499A6049977F0 /mnt/disk; fi"
+# 卸载命令
+ExecStop=/bin/umount -l /mnt/disk
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

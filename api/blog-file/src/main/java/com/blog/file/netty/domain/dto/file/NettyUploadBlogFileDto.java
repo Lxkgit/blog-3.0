@@ -23,9 +23,15 @@ public class NettyUploadBlogFileDto {
     private Integer count;
 
     //  文件定时同步响应字段
-    private String result;
+    /**
+     * syncResult 文件同步状态
+     * 0 请求已收到
+     * 1 下载完成
+     * 2 上传完成
+     */
+    private Integer syncResult;
 
-    private String filePath;
+    private String minioPath;
 
     private List<String> fileNameList;
 

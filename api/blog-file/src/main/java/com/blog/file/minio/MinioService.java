@@ -9,6 +9,8 @@ import io.minio.http.Method;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,9 +30,10 @@ import java.util.concurrent.TimeUnit;
  * @CreateTime 2025-04-12
  */
 
-@Slf4j
 @Service
 public class MinioService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MinioService.class);
 
     @Value("${minio.ip}")
     private String ip;
@@ -84,7 +87,7 @@ public class MinioService {
             fileLog.setErrorMsg(e.getMessage());
             fileLog.setUploadState(2);
             fileUploadLogMapper.updateById(fileLog);
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
             throw new ServiceException(e.getMessage());
         }
     }
@@ -103,7 +106,7 @@ public class MinioService {
                             .object(path + "/" + fileName)
                             .build());
         } catch (Exception e) {
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
             throw new ServiceException(e.getMessage());
         }
     }
@@ -128,7 +131,7 @@ public class MinioService {
                             .build()
             );
         } catch (Exception e) {
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
             throw new ServiceException(e.getMessage());
         }
     }
@@ -160,7 +163,7 @@ public class MinioService {
             Files.copy(fileStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
             return targetPath.toString();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
             throw new ServiceException(e.getMessage());
         }
     }
@@ -172,22 +175,40 @@ public class MinioService {
      * @param minioPath     minio中文件位置
      */
     public void importFile(String localFilePath, String minioPath) {
+        logger.info("minio 导入文件: localFilePath:{} minioPath:{}", localFilePath, minioPath);
         File file = new File(localFilePath);
         if (!file.exists() || !file.isFile()) {
-            log.error("minio 文件导入异常: 文件{}不存在", localFilePath);
+            logger.error("minio 文件导入异常: 文件{}不存在", localFilePath);
         }
         try {
+
             InputStream inputStream = Files.newInputStream(file.toPath());
             String contentType = Files.probeContentType(Paths.get(localFilePath));
             ObjectWriteResponse response = minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
-                    .object(minioPath)
+                    .object(minioPath + "/" + getFileName(localFilePath))
                     .stream(inputStream, file.length(), -1)
                     .contentType(contentType)
                     .build());
         } catch (Exception e) {
-            log.error("minio 文件导入异常: {}", e.getMessage(), e);
+            logger.error("minio 文件导入异常: {}", e.getMessage(), e);
         }
+    }
+
+    public String getFileName(String filePath) {
+        // 处理空路径或非法输入
+        if (filePath == null || filePath.isEmpty()) {
+            return "";
+        }
+        // 找到最后一个分隔符位置（兼容 Windows/Linux）
+        int lastSeparator = Math.max(
+                filePath.lastIndexOf('/'),
+                filePath.lastIndexOf('\\')
+        );
+        // 截取文件名部分
+        return (lastSeparator >= 0)
+                ? filePath.substring(lastSeparator + 1)
+                : filePath;
     }
 
     /**

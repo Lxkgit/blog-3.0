@@ -1,0 +1,5 @@
+# 硬盘插入时触发挂载
+ACTION=="add", ENV{ID_FS_UUID}=="E80499A6049977F0", TAG+="systemd", ENV{SYSTEMD_WANTS}="automount@mydrive.service"
+
+# 硬盘移除时触发卸载
+ACTION=="remove", ENV{ID_FS_UUID}=="E80499A6049977F0", RUN+="/bin/systemctl stop automount@mydrive.service"

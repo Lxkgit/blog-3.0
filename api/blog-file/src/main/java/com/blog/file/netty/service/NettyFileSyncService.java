@@ -6,11 +6,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.utils.MyStringUtils;
-import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
+import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
 import com.blog.file.netty.domain.enums.NettyTopic;
 import com.blog.file.socket.SocketService;
 import com.blog.file.socket.domain.SocketPacket;
@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -53,6 +51,7 @@ public class NettyFileSyncService {
 
     /**
      * netty消息发送文件同步到服务器
+     *
      * @param nettySyncFileDto 同步文件参数
      */
     public void syncFileSend(NettySyncFileDto nettySyncFileDto) {
@@ -72,26 +71,6 @@ public class NettyFileSyncService {
         }
     }
 
-    /**
-     * netty响应消息处理同步到服务器
-     */
-    public void syncFileReceive(String data, String deviceCode, Integer userId) {
-        NettySyncFileDto nettySyncFileDto = JSONObject.parseObject(data, NettySyncFileDto.class);
-        if (nettySyncFileDto.getSyncType().equals(1)) {
-
-        } else if (nettySyncFileDto.getSyncType().equals(2)) {
-            if (nettySyncFileDto.getResultType().equals(2)) {
-                List<String> fileNameList = nettySyncFileDto.getFileNameList();
-                if (CollectionUtils.isNotEmpty(fileNameList)) {
-                    for (String fileName : fileNameList) {
-                        minioService.importFile(nettySyncFileDto.getServiceFilePath() + fileName, nettySyncFileDto.getMinioPath());
-                    }
-                }
-            }
-        } else {
-            logger.error("文件同步参数异常:{}", nettySyncFileDto);
-        }
-    }
 
     /**
      * 博客数据同步任务-第一步
@@ -131,6 +110,26 @@ public class NettyFileSyncService {
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
         nettySyncFileDto.setCount(3);
         syncFileSend(nettySyncFileDto);
+    }
+
+    /**
+     * netty响应消息处理同步到服务器
+     *
+     * @param nettyUploadBlogFileDto
+     * @param deviceCode
+     * @param userId
+     */
+    public void syncFileReceive(NettyUploadBlogFileDto nettyUploadBlogFileDto, String deviceCode, Integer userId) {
+        if (nettyUploadBlogFileDto.getSyncResult().equals(0)) {
+
+        } else if (nettyUploadBlogFileDto.getSyncResult().equals(1)) {
+
+        } else if (nettyUploadBlogFileDto.getSyncResult().equals(2)) {
+            for (String fileName : nettyUploadBlogFileDto.getFileNameList()) {
+                minioService.importFile(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName, nettyUploadBlogFileDto.getMinioPath());
+            }
+
+        }
     }
 
 

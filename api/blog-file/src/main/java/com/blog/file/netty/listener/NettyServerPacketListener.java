@@ -9,6 +9,7 @@ import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
 import com.blog.file.netty.domain.dto.register.NettyRegisterDto;
 import com.blog.file.netty.domain.enums.NettyPacketType;
+import com.blog.file.netty.domain.enums.NettyTopic;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.mapper.UserDeviceMapper;
@@ -93,8 +94,10 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             nettyResponse.setTopic(topic);
             nettyServer.channelWriteByRegisterId(registerCode, JSONObject.toJSONString(nettyResponse), false);
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
-            if (NettyTopicEnum.BLOG_FILE_SYNC.getTopic().equals(topic)) {
-                nettyFileSyncService.syncFileReceive(data, deviceCode, userId);
+            if (NettyTopic.BLOG_FILE_SYNC.equals(topic)) {
+                JSONObject jsonObject = JSONObject.parseObject(data);
+                NettyUploadBlogFileDto nettyUploadBlogFileDto = JSONObject.parseObject(jsonObject.getString("message"), NettyUploadBlogFileDto.class);
+                nettyFileSyncService.syncFileReceive(nettyUploadBlogFileDto, deviceCode, userId);
             }
 
             // 接收响应
@@ -102,12 +105,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
                 // 处理发送异常的消息
             }
 
-            if (NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic().equals(topic)) {
-                NettyUploadBlogFileDto nettyUploadBlogFileDto = JSONObject.parseObject(data, NettyUploadBlogFileDto.class);
-                if ("success".equals(nettyUploadBlogFileDto.getResult())) {
 
-                }
-            }
         }
     }
 

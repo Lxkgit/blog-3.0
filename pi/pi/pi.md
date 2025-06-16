@@ -60,3 +60,14 @@ sudo systemctl start automount@mydrive.service
 ``` 
 
 
+
+# python脚本守护线程启动
+sudo systemctl daemon-reload # 重新加载systemd配置
+sudo systemctl enable websocket-watchdog.service  # 开机自启
+sudo systemctl start websocket-watchdog.service   # 立即启动
+
+# 检查服务状态
+sudo systemctl status websocket-watchdog.service
+
+# 查看服务日志
+journalctl -u websocket-watchdog.service -f

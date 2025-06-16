@@ -7,11 +7,11 @@ import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.UserDeviceMapper;
-import com.blog.file.minio.MinioService;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
 import com.blog.file.netty.domain.enums.NettyTopic;
+import com.blog.file.service.FileService;
 import com.blog.file.socket.SocketService;
 import com.blog.file.socket.domain.SocketPacket;
 import com.blog.file.socket.domain.constant.SocketClientType;
@@ -38,7 +38,7 @@ public class NettyFileSyncService {
     private static final Logger logger = LoggerFactory.getLogger(NettyFileSyncService.class);
 
     @Resource
-    private MinioService minioService;
+    private FileService fileService;
 
     @Resource
     private NettyServer nettyServer;
@@ -54,12 +54,11 @@ public class NettyFileSyncService {
      *
      * @param nettySyncFileDto 同步文件参数
      */
-    public void syncFileSend(NettySyncFileDto nettySyncFileDto) {
-//        Integer userId = SecurityUtil.getLoginUser().getId();
+    public void syncFileSend(NettySyncFileDto nettySyncFileDto, Integer userId) {
 
         // 获取用户默认同步数据设备
         LambdaQueryWrapper<UserDevice> userDeviceLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        userDeviceLambdaQueryWrapper.eq(UserDevice::getUserId, 1);
+        userDeviceLambdaQueryWrapper.eq(UserDevice::getUserId, userId);
         List<UserDevice> deviceList = userDeviceMapper.selectList(userDeviceLambdaQueryWrapper);
 
         if (CollectionUtils.isNotEmpty(deviceList)) {
@@ -97,19 +96,20 @@ public class NettyFileSyncService {
 
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
         nettySyncFileDto.setFileNameList(List.of(fileName));
-        syncFileSend(nettySyncFileDto);
+        syncFileSend(nettySyncFileDto, 1);
     }
 
     public void syncDeviceFile() {
+        Integer userId = 1;
         // 文件存储minio中路径
-        String minioPath = "/1/device";
+        String minioPath = "/"+ userId + "/device";
         // servicePath 为文件在ftp system用户目录下的相对路径
         String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
         // devicePath 为树莓派设备上的绝对路径
         String devicePath = "/mnt/test";
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
         nettySyncFileDto.setCount(3);
-        syncFileSend(nettySyncFileDto);
+        syncFileSend(nettySyncFileDto, userId);
     }
 
     /**
@@ -125,10 +125,7 @@ public class NettyFileSyncService {
         } else if (nettyUploadBlogFileDto.getSyncResult().equals(1)) {
 
         } else if (nettyUploadBlogFileDto.getSyncResult().equals(2)) {
-            for (String fileName : nettyUploadBlogFileDto.getFileNameList()) {
-                minioService.importFile(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName, nettyUploadBlogFileDto.getMinioPath());
-            }
-
+            fileService.fileImportMinio(nettyUploadBlogFileDto);
         }
     }
 

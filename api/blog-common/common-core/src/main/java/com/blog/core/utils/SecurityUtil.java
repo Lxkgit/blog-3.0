@@ -22,4 +22,14 @@ public class SecurityUtil {
     public static void setRzId(String rzId) {
         SecurityUtil.rzId = rzId;
     }
+
+    /**
+     * 假登陆，用于服务间调用生成创建用户与创建人名称
+     */
+    public static void setSystem() {
+        LoginUserBo loginUserBo = new LoginUserBo();
+        loginUserBo.setId(0);
+        loginUserBo.setUsername("system");
+        SecurityUtil.loginUser = loginUserBo;
+    }
 }

@@ -16,6 +16,7 @@ import com.blog.file.minio.MinioService;
 import com.blog.file.netty.domain.common.NettyConstant;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncBlogFileDto;
+import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.file.netty.service.NettyServer;
 import com.blog.file.service.FileService;
@@ -26,8 +27,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -79,6 +82,16 @@ public class FileServiceImpl implements FileService {
         Integer userId = SecurityUtil.getLoginUser().getId();
         String createDir = "/" + userId + path;
         uploadFileService.createFileCategory(createDir);
+    }
+
+    /**
+     * 创建目录
+     *
+     * @param path 目录
+     */
+    public Integer createDirWithUserId(String path) {
+        SecurityUtil.setSystem();
+        return uploadFileService.createFileCategory(path);
     }
 
     /**
@@ -276,6 +289,37 @@ public class FileServiceImpl implements FileService {
         nettyServer.channelWriteByRegisterId(NettyConstant.NETTY_CLIENT1, JSONObject.toJSONString(syncFileRequest), true);
         return true;
     }
+
+    @Override
+    public void fileImportMinio(NettyUploadBlogFileDto nettyUploadBlogFileDto) {
+        Integer userId = nettyUploadBlogFileDto.getUserId();
+        String minioPath = nettyUploadBlogFileDto.getMinioPath();
+        Integer categoryId = createDirWithUserId(minioPath);
+        List<FileCategoryData> fileCategoryDataList = new ArrayList<>();
+        for (String fileName : nettyUploadBlogFileDto.getFileNameList()) {
+
+            minioService.importFile(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName, minioPath);
+
+            String fileUrl = minioService.getFileUrl(minioPath, fileName);
+            FileCategoryData fileCategoryData = new FileCategoryData();
+            fileCategoryData.setUserId(userId);
+            fileCategoryData.setFileName(fileName);
+            fileCategoryData.setFileCategoryId(categoryId);
+            fileCategoryData.setFileUrl(fileUrl);
+            fileCategoryData.setFileSize(0);
+            fileCategoryData.setFileStatus(0);
+            fileCategoryData.setFileType(fileName.substring(fileName.lastIndexOf(".")));
+            fileCategoryData.setCreateBy("userName");
+            fileCategoryData.setCreateTime(new Date());
+
+            fileCategoryDataList.add(fileCategoryData);
+        }
+
+        if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
+            fileCategoryDataMapper.insert(fileCategoryDataList);
+        }
+    }
+
 //
 //
 //    /**
@@ -383,4 +427,6 @@ public class FileServiceImpl implements FileService {
 //        Collections.sort(fileDataVoList);
 //        return fileDataVoList;
 //    }
+
+
 }

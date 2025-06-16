@@ -92,6 +92,10 @@ public class MinioService {
         }
     }
 
+    public String getFileUrl(String minioPath, String fileName) {
+        return ip + ":9000/" + bucket + minioPath + "/" + fileName;
+    }
+
     /**
      * 删除指定文件
      *

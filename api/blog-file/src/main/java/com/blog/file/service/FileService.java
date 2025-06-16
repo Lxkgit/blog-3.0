@@ -5,6 +5,7 @@ import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.exception.ServiceException;
+import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
 
 import java.util.List;
 
@@ -27,6 +28,8 @@ public interface FileService {
     void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException;
 
     boolean syncFile(FileCategoryDataVo fileDataVo) throws ServiceException;
+
+    void fileImportMinio(NettyUploadBlogFileDto nettyUploadBlogFileDto);
 //
 //    boolean syncFileList(List<FileCategoryDataVo> fileDataVoList);
 }

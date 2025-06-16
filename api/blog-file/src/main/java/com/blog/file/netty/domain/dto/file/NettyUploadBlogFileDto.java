@@ -8,6 +8,11 @@ import java.util.List;
 public class NettyUploadBlogFileDto {
 
     /**
+     * 同步文件所属用户
+     */
+    private Integer userId;
+
+    /**
      * 设备上传文件目录
      */
     private String deviceFilePath;

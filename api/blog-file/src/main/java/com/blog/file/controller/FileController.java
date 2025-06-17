@@ -102,7 +102,8 @@ public class FileController {
     @GetMapping("/sync/file")
     @PreAuthorize("hasAnyAuthority('sys:file:user:sync')")
     public Result syncFile(@Validated FileCategoryDataVo fileDataVo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(fileService.syncFile(fileDataVo));
+        fileService.syncFile(fileDataVo);
+        return ResultFactory.buildSuccessResult();
     }
 
 

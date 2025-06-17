@@ -27,7 +27,7 @@ public interface FileService {
 
     void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException;
 
-    boolean syncFile(FileCategoryDataVo fileDataVo) throws ServiceException;
+    void syncFile(FileCategoryDataVo fileDataVo) throws ServiceException;
 
     void fileImportMinio(NettyUploadBlogFileDto nettyUploadBlogFileDto);
 //

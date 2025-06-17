@@ -9,6 +9,7 @@ import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.exception.ServiceException;
+import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
@@ -16,11 +17,19 @@ import com.blog.file.minio.MinioService;
 import com.blog.file.netty.domain.common.NettyConstant;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncBlogFileDto;
+import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
 import com.blog.file.netty.domain.enums.NettyTopicEnum;
+import com.blog.file.netty.service.NettyFileSyncService;
 import com.blog.file.netty.service.NettyServer;
 import com.blog.file.service.FileService;
 import com.blog.file.service.UploadFileService;
+import com.blog.file.socket.SocketService;
+import com.blog.file.socket.domain.SocketPacket;
+import com.blog.file.socket.domain.constant.SocketClientType;
+import com.blog.file.socket.domain.constant.SocketConstant;
+import com.blog.file.socket.domain.constant.SocketTopic;
+import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +66,9 @@ public class FileServiceImpl implements FileService {
 
     @Resource
     private MinioService minioService;
+
+    @Resource
+    private NettyFileSyncService nettyFileSyncService;
 
     /**
      * 创建云盘目录
@@ -207,32 +219,6 @@ public class FileServiceImpl implements FileService {
         }
     }
 
-
-//    /**
-//     * 同步文件
-//     *
-//
-//     * @param fileDataVoList
-//     * @return
-//     */
-//    @Override
-//    public boolean syncFileList(List<FileCategoryDataVo> fileDataVoList) {
-//        for (FileCategoryDataVo fileData : fileDataVoList) {
-//            if (fileData.getType().equals(Constant.FILE_TYPE_DIR)) {
-//                // 目录不同步
-//                continue;
-//            }
-//            if (fileData.getDirType().equals(Constant.DIR_TYPE_LOCAL)) {
-//                // 本地目录不同步
-//                continue;
-//            }
-//
-//
-//        }
-//        return false;
-//    }
-//
-
     /**
      * 同步单个文件至远程服务器
      *
@@ -240,7 +226,7 @@ public class FileServiceImpl implements FileService {
      * @return
      */
     @Override
-    public boolean syncFile(FileCategoryDataVo fileDataVo) throws ServiceException {
+    public void syncFile(FileCategoryDataVo fileDataVo) throws ServiceException {
         Integer fileId = fileDataVo.getId();
         FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(fileId);
         if (fileCategoryData == null) {
@@ -262,32 +248,38 @@ public class FileServiceImpl implements FileService {
             }
         }
 
+        Integer userId = SecurityUtil.getLoginUser().getId();
         FileCategory category = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
-
-        NettySyncBlogFileDto nettySyncBlogFile = new NettySyncBlogFileDto();
-        nettySyncBlogFile.setFilePath(category.getDirPath());
-        nettySyncBlogFile.setFileName(fileCategoryData.getFileName());
         if (operateFileStatus.equals(Constant.FILE_STATUS_LOCAL)) {
-            nettySyncBlogFile.setSyncType(1);
-        }
-        if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
-            nettySyncBlogFile.setSyncType(0);
-        }
+            // 文件下载到本地
+            // 文件存储minio中路径
+            String minioPath = category.getDirPath();
+            // servicePath 为文件在ftp system用户目录下的相对路径
+            String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
+            // devicePath 为树莓派设备上的绝对路径
+            String devicePath = "/mnt/test";
+            // 同步文件名称
+            String fileName = fileCategoryData.getFileName();
 
-        if (nettySyncBlogFile.getSyncType().equals(0)) {
-            // 文件同步至远程服务器，生成随机文件唯一编码
-            String fileCode = UUID.randomUUID().toString();
-            nettySyncBlogFile.setFileCode(fileCode);
-            fileCategoryData.setFileCode(fileCode);
-            fileCategoryDataMapper.updateFileCodeByIdAndUserId(fileCategoryData);
-        } else if (nettySyncBlogFile.getSyncType().equals(1)) {
-            // 文件同步至本地服务器，获取文件唯一编码
-            nettySyncBlogFile.setFileCode(fileCategoryData.getFileCode());
+            // 发送netty消息
+            NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
+            nettySyncFileDto.setFileNameList(List.of(fileName));
+            nettyFileSyncService.syncFileSend(nettySyncFileDto, userId);
+        } else if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
+            // 文件同步到远程
+            String exportPath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
+            minioService.exportFile(category.getDirPath() + "/" + fileCategoryData.getFileName(), exportPath);
+
+            // 此处将文件在ftp的全路径转换为在ftp/system用户目录下的路径
+            String serviceFilePath = exportPath.substring(Constant.FTP_PATH_SYSTEM.length());
+            String fileName = fileCategoryData.getFileName();
+            String deviceFilePath = "/opt/docker/files/temp";
+
+            // 发送netty消息
+            NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
+            nettySyncFileDto.setFileNameList(List.of(fileName));
+            nettyFileSyncService.syncFileSend(nettySyncFileDto, userId);
         }
-        nettySyncBlogFile.setUserId(SecurityUtil.getLoginUser().getId());
-        NettyPacket<NettySyncBlogFileDto> syncFileRequest = NettyPacket.buildRequest(NettyTopicEnum.BLOG_FILE_SYNC.getTopic(), nettySyncBlogFile);
-        nettyServer.channelWriteByRegisterId(NettyConstant.NETTY_CLIENT1, JSONObject.toJSONString(syncFileRequest), true);
-        return true;
     }
 
     @Override

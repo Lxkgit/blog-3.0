@@ -68,6 +68,9 @@ public class Constant {
     // system用户ftp目录
     public static final String FTP_PATH_SYSTEM = "/opt/docker/files/ftp/system";
 
+    // system用户ftp目录下文件临时存放位置
+    public static final String FTP_PATH_SYSTEM_TEMP = "/opt/docker/files/ftp/system/temp";
+
     // ftp临时文件存放目录
     public static final String FTP_PATH_TEMP = "/opt/docker/files/ftp/";
 

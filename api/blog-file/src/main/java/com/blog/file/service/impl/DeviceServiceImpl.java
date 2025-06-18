@@ -190,4 +190,9 @@ public class DeviceServiceImpl implements DeviceService {
 
         return voList;
     }
+
+    @Override
+    public void getDeviceStatus() {
+
+    }
 }

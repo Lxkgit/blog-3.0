@@ -33,4 +33,9 @@ public class FileCategoryVo extends FileCategory {
     @Pattern(message = "目录名称只允许汉字、数字、字母、下划线", regexp = "^[a-zA-Z0-9_\\u4e00-\\u9fa5]+$")
     private String dirName;
 
+    /**
+     * 文件移动目标目录id
+     */
+    private Integer newDirId;
+
 }

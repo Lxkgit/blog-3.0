@@ -7,7 +7,6 @@ import com.blog.file.mapper.FileUploadLogMapper;
 import io.minio.*;
 import io.minio.http.Method;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +49,14 @@ public class MinioService {
     @Resource
     private FileUploadLogMapper fileUploadLogMapper;
 
+    /**
+     * 上传文件
+     *
+     * @param file 文件
+     * @param path 上传路径
+     * @return
+     * @throws ServiceException
+     */
     public String uploadFile(MultipartFile file, String path) throws ServiceException {
         Integer userId = SecurityUtil.getLoginUser().getId();
         String userName = SecurityUtil.getLoginUser().getUsername();
@@ -92,6 +99,13 @@ public class MinioService {
         }
     }
 
+    /**
+     * 获取文件url
+     *
+     * @param minioPath 文件存放目录
+     * @param fileName  文件名称
+     * @return
+     */
     public String getFileUrl(String minioPath, String fileName) {
         return ip + ":9000/" + bucket + minioPath + "/" + fileName;
     }
@@ -113,6 +127,39 @@ public class MinioService {
             logger.error(e.getMessage());
             throw new ServiceException(e.getMessage());
         }
+    }
+
+    /**
+     * 移动单个文件
+     *
+     * @param sourcePath 文件原存储路径
+     * @param targetPath 文件移动目标路径
+     * @throws Exception
+     */
+    public void moveFile(String sourcePath, String targetPath) throws ServiceException {
+        try {
+            // 复制文件到新位置
+            minioClient.copyObject(
+                    CopyObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(targetPath)
+                            .source(CopySource.builder()
+                                    .bucket(bucket)
+                                    .object(sourcePath)
+                                    .build())
+                            .build());
+
+            // 删除原文件
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(sourcePath)
+                            .build());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new ServiceException(e.getMessage());
+        }
+
     }
 
     /**
@@ -199,6 +246,12 @@ public class MinioService {
         }
     }
 
+    /**
+     * 获取文件名称
+     *
+     * @param filePath
+     * @return
+     */
     public String getFileName(String filePath) {
         // 处理空路径或非法输入
         if (filePath == null || filePath.isEmpty()) {

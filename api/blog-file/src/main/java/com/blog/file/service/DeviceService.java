@@ -26,4 +26,6 @@ public interface DeviceService {
     DeviceVo selectDeviceById(Integer id) throws ServiceException;
 
     List<DeviceInfoVo> selectDeviceInfoById(Integer id);
+
+    void getDeviceStatus();
 }

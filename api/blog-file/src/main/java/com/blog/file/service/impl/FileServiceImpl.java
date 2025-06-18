@@ -14,32 +14,19 @@ import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
-import com.blog.file.netty.domain.common.NettyConstant;
-import com.blog.file.netty.domain.dto.NettyPacket;
-import com.blog.file.netty.domain.dto.file.NettySyncBlogFileDto;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
-import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.file.netty.service.NettyFileSyncService;
 import com.blog.file.netty.service.NettyServer;
 import com.blog.file.service.FileService;
 import com.blog.file.service.UploadFileService;
-import com.blog.file.socket.SocketService;
-import com.blog.file.socket.domain.SocketPacket;
-import com.blog.file.socket.domain.constant.SocketClientType;
-import com.blog.file.socket.domain.constant.SocketConstant;
-import com.blog.file.socket.domain.constant.SocketTopic;
-import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.*;
 
 /**
@@ -151,6 +138,20 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
+     * 文件移动
+     *
+     * @param fileCategoryVo
+     * @throws ServiceException
+     */
+    @Override
+    public void moveFile(FileCategoryVo fileCategoryVo) throws ServiceException {
+        FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(fileCategoryVo.getId());
+        FileCategory oldFileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
+        FileCategory newFileCategory = fileCategoryMapper.selectById(fileCategoryVo.getNewDirId());
+        minioService.moveFile(oldFileCategory.getDirPath() + "/" + fileCategoryData.getFileUrl().lastIndexOf("/"), newFileCategory.getDirName());
+    }
+
+    /**
      * 查询指定用户的文件目录
      *
      * @param fileDataVo
@@ -213,7 +214,7 @@ public class FileServiceImpl implements FileService {
         int index = path.indexOf(searchStr);
         if (index != -1) {
             String fileUrl = path.substring(index + searchStr.length() + 1);
-            return minioService.authFile(fileUrl, 60);
+            return minioService.authFile(fileUrl, 3);
         } else {
             return "";
         }
@@ -282,6 +283,11 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    /**
+     * 文件导入minio
+     *
+     * @param nettyUploadBlogFileDto
+     */
     @Override
     public void fileImportMinio(NettyUploadBlogFileDto nettyUploadBlogFileDto) {
         Integer userId = nettyUploadBlogFileDto.getUserId();
@@ -311,114 +317,6 @@ public class FileServiceImpl implements FileService {
             fileCategoryDataMapper.insert(fileCategoryDataList);
         }
     }
-
-//
-//
-//    /**
-//     * 查询用户的文件目录
-//     * @param path 文件目录
-//     * @param userId 用户ID
-//     * @return 文件目录下数据列表
-//     */
-//    private List<FileCategoryDataVo> show(String path, Integer userId) {
-//        FileCategoryData dir = fileDataMapper.selectByPathAndName(path);
-//        // 获取数据库中当前目录下文件列表
-//        QueryWrapper<FileCategoryData> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.eq("path", path);
-//        List<FileCategoryData> fileDataList = fileDataMapper.selectList(queryWrapper);
-//        List<FileCategoryDataVo> fileDataVoList = new ArrayList<>();
-//        for (FileCategoryData fileData : fileDataList) {
-//            FileCategoryDataVo fileDataVo = new FileCategoryDataVo();
-//            BeanUtils.copyProperties(fileData, fileDataVo);
-//            fileDataVoList.add(fileDataVo);
-//        }
-//        // 获取当前目录下实际文件列表
-//        File[] files = (new File(path)).listFiles();
-//        if (null != files && files.length > 0) {
-//            for (File file : files) {
-//                String fileType = file.getName().substring(file.getName().lastIndexOf(".") + 1);
-//                AtomicReference<Boolean> flag = new AtomicReference<>(false);
-//                // 统计目录下文件大小
-//                fileDataVoList.forEach(fileDataVo -> {
-//                    if (fileDataVo.getName().toLowerCase().equals(file.getName().toLowerCase())) {
-//                        flag.set(true);
-//                        fileDataVo.setFlag(true);
-//                        fileDataVo.setUpdateTime(new Date(file.lastModified()));
-//
-//                        if (!file.isFile()) {
-//                            // 目录计算目录占用大小
-//                            fileDataVo.setFileSize(FileUtils.sizeOf(file));
-//                        } else {
-//                            if (FileTypeEnum.IMAGE.getTypeSet().contains(fileType)) {
-//                                // 图片添加图片链接
-//                                fileDataVo.setImgPath(serviceIp + baseUri + path.substring(basePath.length()) + "/" + file.getName());
-//                            }
-//                            // 文件计算文件大小
-//                            fileDataVo.setFileSize(file.length());
-//                        }
-//                    }
-//                });
-//
-//                // 数据库中不存在的目录 文件中存在 将数据入库
-//                if (!flag.get()) {
-//                    FileCategoryDataVo fileDataVo = new FileCategoryDataVo();
-//                    fileDataVo.setName(file.getName());
-//                    fileDataVo.setPath(path);
-//                    fileDataVo.setUserId(userId);
-//                    fileDataVo.setDirType(dir == null ? 0 : dir.getDirType());
-//                    fileDataVo.setStatus(Constant.FILE_TYPE_FILE);
-//                    fileDataVo.setUpdateTime(new Date(file.lastModified()));
-//                    if (!file.isFile()) {
-//                        fileDataVo.setType(Constant.FILE_TYPE_DIR);
-//                        fileDataVo.setFileSize(FileUtils.sizeOf(file));
-//                    } else {
-//                        if (FileTypeEnum.IMAGE.getTypeSet().contains(fileType)) {
-//                            fileDataVo.setType(Constant.FILE_TYPE_FILE);
-//                            fileDataVo.setImgPath(serviceIp + baseUri + path.substring(basePath.length()) + "/" + file.getName());
-//                        } else {
-//                            fileDataVo.setType(Constant.FILE_TYPE_IMAGE);
-//                        }
-//                        fileDataVo.setFileSize(file.length());
-//                    }
-//                    fileDataMapper.insert(fileDataVo);
-//                    fileDataVo.setFlag(true);
-//                    fileDataVoList.add(fileDataVo);
-//                }
-//            }
-//            // 删除数据库中存在 文件目录中不存在的数据 (远程同步文件除外)
-//            fileDataVoList.forEach(fileDataVo -> {
-//                if (!fileDataVo.isFlag()) {
-//                    // 删除该目录下全部数据
-//                    QueryWrapper<FileCategoryData> wrapper = new QueryWrapper<>();
-//                    wrapper.likeRight("path", path + "/" + fileDataVo.getName());
-//                    wrapper.ne("dir_type", Constant.DIR_TYPE_SYNC);
-//                    fileDataMapper.delete(wrapper);
-//                    // 删除该目录
-//                    if (!fileDataVo.getDirType().equals(Constant.DIR_TYPE_SYNC)) {
-//                        fileDataMapper.deleteById(fileDataVo.getId());
-//                        // 标记为false移除List中当前数据
-//                        fileDataVo.setFlag(false);
-//                    }
-//                    fileDataVo.setFlag(true);
-//                }
-//            });
-//            fileDataVoList.removeIf(fileDataVo -> !fileDataVo.isFlag());
-//        } else {
-//            // 文件目录为空 删除数据库中此目录下全部数据
-//            QueryWrapper<FileCategoryData> wrapper = new QueryWrapper<>();
-//            wrapper.likeRight("path", path);
-//            wrapper.ne("dir_type", Constant.DIR_TYPE_SYNC);
-//            fileDataMapper.delete(wrapper);
-//            fileDataVoList.clear();
-//        }
-//        fileDataVoList.forEach(fileDataVo -> {
-//            if (fileDataVo.getId() != null) {
-//                fileDataMapper.updateById(fileDataVo);
-//            }
-//        });
-//        Collections.sort(fileDataVoList);
-//        return fileDataVoList;
-//    }
 
 
 }

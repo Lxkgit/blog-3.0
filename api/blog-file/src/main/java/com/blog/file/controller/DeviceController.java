@@ -97,4 +97,10 @@ public class DeviceController {
         return ResultFactory.buildSuccessResult(deviceService.selectDeviceInfoById(deviceVo.getId()));
     }
 
+    @GetMapping("/status")
+    public Result selectDeviceStatus() {
+        deviceService.getDeviceStatus();
+        return ResultFactory.buildSuccessResult();
+    }
+
 }

@@ -1,9 +1,6 @@
 package com.blog.file.netty.schedule;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.blog.core.constant.Constant;
-import com.blog.core.domain.file.device.entity.Device;
-import com.blog.file.netty.domain.dto.NettyClientChannel;
+
 import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.netty.service.NettyServerHandler;
 import io.netty.channel.ChannelId;

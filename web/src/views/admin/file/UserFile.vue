@@ -62,8 +62,8 @@
                   {{ row.createTime }}
                 </li>
                 <li class="data-item" :style="{ width: headers[5].width }">
-                  <MyIcon type="icon-user" />
-                  <MyIcon type="icon-delete" @click="deleteFileDirFun(row)" />
+                  <MyIcon style="padding-left: 10px;" type="icon-user" />
+                  <MyIcon style="padding-left: 10px;" type="icon-delete" @click="deleteFileDirFun(row)" />
                 </li>
               </div>
             </ul>
@@ -87,9 +87,9 @@
                   {{ row.createTime }}
                 </li>
                 <li class="data-item" :style="{ width: headers[5].width }">
-                  <MyIcon type="icon-eye" @click="openFileFun(row)"></MyIcon>
-                  <MyIcon type="icon-refresh" @click="syncFileFun(row)" />
-                  <MyIcon type="icon-delete" @click="deleteFileFun(row)" />
+                  <MyIcon style="padding-left: 10px;" title="预览" type="icon-eye" @click="openFileFun(row)"></MyIcon>
+                  <MyIcon style="padding-left: 10px;" title="同步" type="icon-refresh" @click="syncFileFun(row)" />
+                  <MyIcon style="padding-left: 10px;" title="删除" type="icon-delete" @click="deleteFileFun(row)" />
                 </li>
               </div>
             </ul>

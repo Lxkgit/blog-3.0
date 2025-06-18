@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * @date 2022/6/9 9:33
  * @description: 文章服务
  */
-@Slf4j
+
 @Service
 public class ArticleServiceImpl implements ArticleService {
 

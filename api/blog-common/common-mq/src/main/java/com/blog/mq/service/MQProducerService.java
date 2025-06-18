@@ -2,11 +2,14 @@ package com.blog.mq.service;
 
 import com.alibaba.fastjson.JSON;
 import com.blog.mq.entity.RocketMQMessage;
+import com.blog.mq.listener.RocketMQConsumerMsgListenerProcessor;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
@@ -18,9 +21,10 @@ import org.springframework.stereotype.Component;
  * @date 2023/6/26 19:56
  */
 
-@Slf4j
 @Component
 public class MQProducerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MQProducerService.class);
 
     @Value("${rocketmq.producer.send-message-timeout}")
     private Integer messageTimeOut;
@@ -42,7 +46,7 @@ public class MQProducerService {
      */
     public SendResult sendMsg(String topic, String tag, String msgBody) {
         SendResult sendResult = rocketMQTemplate.syncSend(topic + ":" + tag, MessageBuilder.withPayload(msgBody).build());
-        log.info("【sendMsg】sendResult={}", JSON.toJSONString(sendResult));
+        logger.info("【sendMsg】sendResult={}", JSON.toJSONString(sendResult));
         return sendResult;
     }
 

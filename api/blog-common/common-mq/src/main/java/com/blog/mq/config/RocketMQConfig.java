@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,9 +18,10 @@ import org.springframework.context.annotation.Configuration;
  * RocketMQConfig
  */
 
-@Slf4j
 @Configuration
 public class RocketMQConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(RocketMQConfig.class);
 
     @Value("${rocketmq.consumer.groupName}")
     protected String groupName;
@@ -49,7 +52,7 @@ public class RocketMQConfig {
     @Bean("myGetRocketMQConsumer")
     public DefaultMQPushConsumer getRocketMQConsumer() {
 
-        log.info("groupName {} nameSrvAddr {} topic {}", groupName, nameSrvAddr, topic);
+        logger.info("groupName {} nameSrvAddr {} topic {}", groupName, nameSrvAddr, topic);
 
         if (StringUtils.isEmpty(groupName)) {
             throw new RuntimeException("rocketMq consumer groupName is null !");
@@ -85,9 +88,9 @@ public class RocketMQConfig {
                 consumer.subscribe(topicTag[0], topicTag[1]);
             }
             consumer.start();
-            log.info("consumer start success!!! groupName:{},topics:{},namesrvAddr:{}", groupName, topic, nameSrvAddr);
+            logger.info("consumer start success!!! groupName:{},topics:{},namesrvAddr:{}", groupName, topic, nameSrvAddr);
         } catch (MQClientException e) {
-            log.info("consumer start failed!!! groupName:{},topics:{},namesrvAddr:{}", groupName, topic, nameSrvAddr, e);
+            logger.info("consumer start failed!!! groupName:{},topics:{},namesrvAddr:{}", groupName, topic, nameSrvAddr, e);
             throw new RuntimeException(e);
         }
         return consumer;

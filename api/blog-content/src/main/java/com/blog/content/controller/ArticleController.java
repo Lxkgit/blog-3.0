@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
  * @description: 文章服务接口
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/article")
 public class ArticleController {

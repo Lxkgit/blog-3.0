@@ -25,7 +25,6 @@ import java.util.Map;
  * @description: 日记接口
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/diary")
 public class DiaryController {

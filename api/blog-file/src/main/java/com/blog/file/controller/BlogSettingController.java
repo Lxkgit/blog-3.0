@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
  * @date 2023/7/25 17:21
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/setting")
 public class BlogSettingController {

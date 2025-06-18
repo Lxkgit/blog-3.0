@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
  * @CreateTime 2024-09-05
  */
 
-@Slf4j
 @Service
 public class NettyUserService {
 

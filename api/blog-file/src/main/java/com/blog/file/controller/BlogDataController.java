@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2023/7/14 11:34
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/data")
 public class BlogDataController {

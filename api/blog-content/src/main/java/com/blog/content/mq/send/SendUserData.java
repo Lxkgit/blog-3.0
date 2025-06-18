@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
  * @date 2023/12/27 14:31
  */
 
-@Slf4j
 @Component
 public class SendUserData {
 

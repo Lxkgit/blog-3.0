@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @CreateTime 2024-09-29
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/sensorTemplate")
 public class SensorTemplateController {

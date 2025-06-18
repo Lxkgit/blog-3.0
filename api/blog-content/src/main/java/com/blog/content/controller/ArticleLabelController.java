@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
  * @modified By:
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/article/label")
 public class ArticleLabelController {

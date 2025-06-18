@@ -46,7 +46,6 @@ import java.util.stream.Collectors;
  * @date 2024/2/2 10:43
  */
 
-@Slf4j
 @Service
 public class SensorControlServiceImpl implements SensorControlService {
 

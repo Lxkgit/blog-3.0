@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
  * @description:
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/doc")
 public class DocController {

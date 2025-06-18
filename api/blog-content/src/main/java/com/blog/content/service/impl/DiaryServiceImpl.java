@@ -20,6 +20,8 @@ import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -32,9 +34,10 @@ import java.util.regex.Pattern;
  * @modified By:
  */
 
-@Slf4j
 @Service
 public class DiaryServiceImpl implements DiaryService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DiaryServiceImpl.class);
 
     @Resource
     private DiaryMapper diaryMapper;
@@ -135,7 +138,7 @@ public class DiaryServiceImpl implements DiaryService {
             try {
                 myPage = MyPageUtils.pageUtil(articlePage, articlePage.getPageNum(), articlePage.getPageSize(), (int) articlePage.getTotal());
             } catch (Exception e) {
-                log.info("查找日记报错: {}", e.getMessage(), e);
+                logger.info("查找日记报错: {}", e.getMessage(), e);
             }
             map.put("diary", myPage);
         } else if (StringUtils.isNotEmpty(dateDay)) {

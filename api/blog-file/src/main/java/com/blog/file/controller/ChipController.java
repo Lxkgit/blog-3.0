@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
  * @date 2024/1/30 19:56
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/chip")
 public class ChipController {

@@ -3,6 +3,8 @@ package com.blog.core.utils;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,9 +17,9 @@ import java.util.Date;
  * @description: 日期处理工具类
  */
 
-@Slf4j
 public class DateUtil {
 
+    private static final Logger logger = LoggerFactory.getLogger(DateUtil.class);
 
     public final static String DATE = "yyyy-MM-dd";
 
@@ -351,7 +353,7 @@ public class DateUtil {
         try {
             return parseDateTime(sdf1.format(timeStamp));
         } catch (Exception e) {
-            log.error("日期格式转换错误，返回当前时间 " + e.getMessage(), e);
+            logger.error("日期格式转换错误，返回当前时间 {}", e.getMessage(), e);
         }
         return new Date();
     }

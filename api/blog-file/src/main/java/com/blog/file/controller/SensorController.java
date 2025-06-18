@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
  * @date 2024/1/30 20:07
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/sensor")
 public class SensorController {

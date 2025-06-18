@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
  * @description: 文章类型控制类
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/article/type")
 public class ArticleTypeController {

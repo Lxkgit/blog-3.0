@@ -40,7 +40,6 @@ import java.util.concurrent.TimeUnit;
  * @description: 文件上传接口服务
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/upload")
 public class UploadFileController {

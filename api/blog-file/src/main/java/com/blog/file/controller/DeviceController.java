@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
  * @date 2024/1/29 13:48
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/device")
 public class DeviceController {

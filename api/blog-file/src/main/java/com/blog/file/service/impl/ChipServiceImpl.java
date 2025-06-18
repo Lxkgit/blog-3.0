@@ -36,7 +36,6 @@ import java.util.Set;
  * @date 2024/1/30 19:58
  */
 
-@Slf4j
 @Service
 public class ChipServiceImpl implements ChipService {
 

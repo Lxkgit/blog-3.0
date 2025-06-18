@@ -21,7 +21,7 @@ import java.util.Map;
  * @Author: lxk
  * @date 2024/1/29 19:17
  */
-@Slf4j
+
 @Configuration     //证明这个类是一个配置文件
 @EnableScheduling  //启用定时器
 public class DeviceStatusSchedule {

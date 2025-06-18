@@ -14,6 +14,8 @@ import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,10 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @date 2023/6/29 11:06
  */
 
-@Slf4j
 @Configuration     //证明这个类是一个配置文件
 @EnableScheduling  //启用定时器
 public class ContentCountInit {
+
+    private static final Logger logger = LoggerFactory.getLogger(ContentCountInit.class);
 
     // 发送文章
     private static final Integer article = 1;
@@ -59,7 +62,7 @@ public class ContentCountInit {
     @PostConstruct
     @Scheduled(cron = "0 0 0 * * ?")
     public void initContent() {
-        log.info("开始初始化博客内容数据 ... ");
+        logger.info("开始初始化博客内容数据 ... ");
 
         // 初始化系统消息数据
 //        initSystemData();

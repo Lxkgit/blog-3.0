@@ -21,7 +21,6 @@ import org.springframework.scheduling.annotation.Scheduled;
  * @date 2023/7/11 20:06
  */
 
-@Slf4j
 @Configuration     //证明这个类是一个配置文件
 @EnableScheduling  //启用定时器
 public class FileInitSchedule {

@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
  * @description: 文章标签分类接口
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/label/type")
 public class ArticleLabelTypeController {

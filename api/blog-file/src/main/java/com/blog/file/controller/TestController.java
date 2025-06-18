@@ -4,7 +4,6 @@ import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.file.netty.service.NettyFileSyncService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @CreateTime 2025-06-10
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/testSocket")
 public class TestController {

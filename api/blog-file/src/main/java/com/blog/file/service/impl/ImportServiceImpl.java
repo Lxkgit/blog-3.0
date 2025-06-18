@@ -12,6 +12,8 @@ import com.blog.file.service.ImportService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +29,10 @@ import java.util.regex.Pattern;
  * @description: 数据导入服务类
  */
 
-@Slf4j
 @Service
 public class ImportServiceImpl implements ImportService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ImportServiceImpl.class);
 
     @Value("${file.basePath}")
     private String basePath;
@@ -66,7 +69,7 @@ public class ImportServiceImpl implements ImportService {
             FileUtil.deleteDir(descPath);
             FileUtil.deleteFile(filePath);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
         return flag;
     }
@@ -99,7 +102,7 @@ public class ImportServiceImpl implements ImportService {
                     }
                     br.close();
                 } catch (Exception e) {
-                    log.error("读取文件错误" + e.getMessage(), e);
+                    logger.error("读取文件错误{}", e.getMessage(), e);
                 }
                 diary.setDiaryMd(result.toString());
                 map.put(DateUtil.formatDate(diary.getDiaryDate())+".txt", diary);
@@ -121,7 +124,7 @@ public class ImportServiceImpl implements ImportService {
                     uploadState = 2;
                     uploadStr = "日记上传失败";
                 }
-                log.info("日记名称： {}", DateUtil.dateToDateTime(diaryDate) );
+                logger.info("日记名称： {}", DateUtil.dateToDateTime(diaryDate) );
                 FileUploadLog uploadLog = new FileUploadLog(userId, DateUtil.dateToDateTime(diaryDate), "diary", uploadState, uploadStr, new Date());
                 uploadLogMapper.insert(uploadLog);
             }

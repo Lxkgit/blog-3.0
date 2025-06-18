@@ -5,6 +5,8 @@ import com.blog.mq.listener.RocketMQMessageHandler;
 import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,9 +15,10 @@ import org.springframework.stereotype.Service;
  * @CreateTime 2025-01-05
  */
 
-@Slf4j
 @Service
 public class RocketMQMessageHandlerService implements RocketMQMessageHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(RocketMQMessageHandlerService.class);
 
     @Resource
     private MQProducerService mqProducerService;

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
  * @date 2023/8/2 14:59
  */
 
-@Slf4j
 @RestController
 @RequestMapping("/dir")
 public class FileController {

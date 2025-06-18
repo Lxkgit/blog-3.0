@@ -16,7 +16,6 @@ import java.util.List;
  * @date 2024/2/22 14:55
  */
 
-@Slf4j
 @Service
 public class SensorTypeServiceImpl implements SensorTypeService {
 

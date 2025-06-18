@@ -10,12 +10,15 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.*;
 
-@Slf4j
 public class HttpUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
     /**
      * 调用认证中心获取token专用
@@ -55,7 +58,7 @@ public class HttpUtils {
                 return null;
             }
         } catch (Exception e) {
-            log.error("post请求异常:{}", e.getMessage(), e);
+            logger.error("post请求异常:{}", e.getMessage(), e);
             return null;
         }
 

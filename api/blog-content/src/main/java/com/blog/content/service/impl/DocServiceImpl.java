@@ -28,7 +28,6 @@ import java.util.*;
  * @description: 文档服务接口
  */
 
-@Slf4j
 @Service
 public class DocServiceImpl implements DocService {
 

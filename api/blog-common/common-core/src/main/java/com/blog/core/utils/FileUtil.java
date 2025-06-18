@@ -1,6 +1,8 @@
 package com.blog.core.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -10,19 +12,20 @@ import java.io.File;
  * @description: 文件操作工具类
  */
 
-@Slf4j
 public class FileUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     public static void deleteFile(String fileName) {
         File file = new File(fileName);
         if(file.exists() && file.isFile()) {
             if (file.delete()) {
-                log.info("文件删除成功: fileName: {}", fileName);
+                logger.info("文件删除成功: fileName: {}", fileName);
             } else {
-                log.error("文件删除失败: fileName: {}", fileName);
+                logger.error("文件删除失败: fileName: {}", fileName);
             }
         } else {
-            log.error("文件不存在: fileName: {}", fileName);
+            logger.error("文件不存在: fileName: {}", fileName);
         }
     }
 
@@ -32,7 +35,7 @@ public class FileUtil {
         }
         File dirFile = new File(dir);
         if (!dirFile.exists() || !dirFile.isDirectory()) {
-            log.error("删除文件夹失败： {} 不存在", dir);
+            logger.error("删除文件夹失败： {} 不存在", dir);
         }
         File[] files = dirFile.listFiles();
         if (files != null) {
@@ -45,7 +48,7 @@ public class FileUtil {
             }
         }
         if (dirFile.delete()) {
-            log.info("文件夹删除成功： {}", dir);
+            logger.info("文件夹删除成功： {}", dir);
         }
     }
 }

@@ -37,7 +37,7 @@
           height: calc(100vh - 335px);
         " @contextmenu.prevent="openMenu($event)">
         <div style="display: flex">
-          <div v-if="switchFlag" style="width: 79vw" @contextmenu.prevent.stop="openMenu($event)">
+          <div v-if="switchFlag" style="width: 77vw" @contextmenu.prevent.stop="openMenu($event)">
             <!-- 表头 -->
             <ul class="table-header">
               <li v-for="(header, index) in headers" :key="index" class="header-item" :style="{ width: header.width }">
@@ -51,7 +51,7 @@
                 <li class="data-item" :style="{ width: headers[0].width }">
                   <MyIcon type="icon-user" /> {{ row.dirName }}
                 </li>
-                <li class="data-item" :style="{ width: headers[1].width }">
+                <li class="data-item" style="text-indent: 10px;" :style="{ width: headers[1].width }">
                   {{ fileSizeConvert(row.occupySpace).value }}
                 </li>
                 <li class="data-item" :style="{ width: headers[2].width }">目录</li>
@@ -71,10 +71,10 @@
             <ul v-for="(row, rowIndex) in fileList.data" :key="rowIndex" class="table-row">
               <div style="display: flex; width: 100%; position: relative; cursor: pointer;"
                 @contextmenu.prevent.stop="openMenu($event, 2, row)" @dblclick="openFileFun(row)">
-                <li class="data-item" :style="{ width: headers[0].width }">
+                <li class="data-item" :style="{ width: headers[0].width }" :title="row.fileName">
                   <MyIcon type="icon-edit" /> {{ row.fileName }}
                 </li>
-                <li class="data-item" :style="{ width: headers[1].width }">
+                <li class="data-item" style="text-indent: 10px;" :style="{ width: headers[1].width }" >
                   {{ fileSizeConvert(row.fileSize).value }}
                 </li>
                 <li class="data-item" :style="{ width: headers[2].width }">
@@ -584,7 +584,7 @@ function fileFn(): any {
     if (item.fileStatus === 0 || item.fileStatus === 4) {
       syncFileApi({
         id: item.id,
-        fileStatus: item.fileStatus === 0 ? 4 : 0
+        syncFileStatus: item.fileStatus === 0 ? 4 : 0
       }).then((res: any) => { })
     } else if (item.fileStatus === 1 || item.fileStatus === 3) {
       ElMessage.warning('文件正在同步中')

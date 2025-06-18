@@ -192,10 +192,9 @@ public class MinioService {
      *
      * @param minioFileName MinIO中的文件名（带路径）
      * @param path          本地保存的文件名
-     * @return
      * @throws ServiceException
      */
-    public String exportFile(String minioFileName, String path) throws ServiceException {
+    public void exportFile(String minioFileName, String path) throws ServiceException {
         // 1. 从MinIO下载文件流
         try (InputStream fileStream = minioClient.getObject(GetObjectArgs.builder()
                 .bucket(bucket)
@@ -212,9 +211,8 @@ public class MinioService {
             // 3. 保存到本地文件
             Path targetPath = exportPath.resolve(fileName);
             Files.copy(fileStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            return targetPath.toString();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("导出文件异常：{}", e.getMessage(), e);
             throw new ServiceException(e.getMessage());
         }
     }

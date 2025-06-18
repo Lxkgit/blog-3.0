@@ -136,7 +136,7 @@ public class DateUtil {
      * @return
      */
     public static String formatDateTimeNoSpaces() {
-        return format(new Date(), "yyyy-MM-dd_HH:mm:ss");
+        return format(new Date(), "yyyy-MM-dd_HH-mm-ss");
     }
 
     /**

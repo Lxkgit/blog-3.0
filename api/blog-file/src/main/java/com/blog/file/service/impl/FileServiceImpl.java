@@ -25,6 +25,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -49,11 +50,9 @@ public class FileServiceImpl implements FileService {
     private UploadFileService uploadFileService;
 
     @Resource
-    private NettyServer nettyServer;
-
-    @Resource
     private MinioService minioService;
 
+    @Lazy
     @Resource
     private NettyFileSyncService nettyFileSyncService;
 
@@ -234,7 +233,7 @@ public class FileServiceImpl implements FileService {
             throw new ServiceException("文件不存在");
         }
         Integer fileStatus = fileCategoryData.getFileStatus();
-        Integer operateFileStatus = fileDataVo.getFileStatus();
+        Integer operateFileStatus = fileDataVo.getSyncFileStatus();
         if (fileStatus.equals(Constant.FILE_STATUS_WAIT)) {
             throw new ServiceException("文件正在等待同步");
         } else if (fileStatus.equals(Constant.FILE_STATUS_TO_LOCAL) || fileStatus.equals(Constant.FILE_STATUS_TO_REMOTE)) {
@@ -269,11 +268,12 @@ public class FileServiceImpl implements FileService {
         } else if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
             // 文件同步到远程
             String exportPath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
-            minioService.exportFile(category.getDirPath() + "/" + fileCategoryData.getFileName(), exportPath);
+            String fileUrl = fileCategoryData.getFileUrl();
+            String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+            minioService.exportFile(category.getDirPath() + "/" + fileName, exportPath);
 
             // 此处将文件在ftp的全路径转换为在ftp/system用户目录下的路径
             String serviceFilePath = exportPath.substring(Constant.FTP_PATH_SYSTEM.length());
-            String fileName = fileCategoryData.getFileName();
             String deviceFilePath = "/opt/docker/files/temp";
 
             // 发送netty消息

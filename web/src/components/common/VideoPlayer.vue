@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, onBeforeUnmount, defineProps, nextTick } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount, defineProps, nextTick, defineExpose } from 'vue';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 
@@ -19,6 +19,10 @@ const props = defineProps({
     default: '100%'
   },
   resetOnLoad: { // 新增重置标志
+    type: Boolean,
+    default: false
+  },
+  destroyPlayer: {
     type: Boolean,
     default: false
   }
@@ -45,12 +49,13 @@ const initPlayer = () => {
     type: 'video/mp4',
     src: props.videoSrc
   });
+
 };
 
 // 重置播放器状态
 const resetPlayer = () => {
   if (player) {
-    console.log("重置播放器")
+    console.log("重置播放器-1")
     player.currentTime(0); // 重置进度到开始
     player.pause();        // 暂停播放
     player.hasStarted(false); // 重置播放状态
@@ -64,6 +69,19 @@ const resetPlayer = () => {
     }
   }
 };
+
+const pausePlayer = () => {
+  if (player) {
+    player.pause();
+  }
+}
+
+const playPlayer = () => {
+  if (player) {
+    player.play();
+  }
+}
+
 
 // 调整播放器尺寸
 const resizePlayer = () => {
@@ -97,8 +115,17 @@ watch(() => props.resetOnLoad, (newVal) => {
   }
 });
 
+// 监听重置标志变化
+watch(() => props.destroyPlayer, (newVal) => {
+  console.log("销毁播放器-watch")
+  if (newVal) {
+    destroyPlayer();
+  }
+});
+
 // 监听视频源变化
 watch(() => props.videoSrc, (newSrc) => {
+  console.log("监听视频源变化-watch")
   if (player && newSrc) {
     player.src({
       type: 'video/mp4',
@@ -113,7 +140,9 @@ watch(() => props.videoSrc, (newSrc) => {
 // 暴露方法给父组件
 defineExpose({
   resizePlayer,
-  resetPlayer // 暴露重置方法
+  resetPlayer, // 暴露重置方法
+  pausePlayer,
+  playPlayer
 });
 
 onBeforeUnmount(() => {
@@ -131,11 +160,12 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #000; /* 添加背景色避免空白 */
+  background: #000;
+  /* 添加背景色避免空白 */
 }
 
 /* 确保 video 元素占满容器 */
-.video-container > :deep(.video-js) {
+.video-container> :deep(.video-js) {
   width: 100% !important;
   height: 100% !important;
   max-width: 100%;

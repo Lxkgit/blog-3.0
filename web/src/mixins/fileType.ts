@@ -8,18 +8,22 @@ export default function () {
     let type = { key: 0, value: "" }
     let img = ["jpg", "png"];
     let zip = ["zip", "7z"];
+    let video = ["mp4", "m3u8"];
     if (img.indexOf(fileType) != -1) {
       type.key = 1;
       type.value = "图片"
     } else if (zip.indexOf(fileType) != -1) {
       type.key = 2;
       type.value = "压缩文件"
+    } else if (video.indexOf(fileType) != -1) {
+      type.key = 3;
+      type.value = "视频"
     }
     return type
   }
 
   /**
-   * 
+   *
    * @param fileStatus 0:本地服务器 1:正在同步本地服务器 2:等待同步 3:正在同步远程服务器 4:远程服务器
    */
   const fileStatusEnum = (fileStatus: any) => {

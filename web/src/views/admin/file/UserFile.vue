@@ -4,30 +4,47 @@
       <span>个人云盘</span>
     </div>
     <el-card style="margin: 18px 2%; width: 95%; color: #606266">
-      <div style="display: flex; font-size: 14px; justify-content: flex-start; align-items: flex-start;">
+      <div
+        style="display: flex; font-size: 14px; justify-content: flex-start; align-items: flex-start"
+      >
         <el-upload :auto-upload="false" multiple :show-file-list="false" :on-change="changeUpload">
           <el-button type="success" size="small" text>上传文件</el-button>
         </el-upload>
         <div style="line-height: 23px; margin-left: 20px">
-          <MyIcon :style="[filePath === '' ? { 'pointer-events': 'none' } : { cursor: 'pointer' }]"
-            style="margin-right: 20px; outline: 0" type="icon-shangyibu" @click="changePath(-2)" title="返回上一级" />
+          <MyIcon
+            :style="[filePath === '' ? { 'pointer-events': 'none' } : { cursor: 'pointer' }]"
+            style="margin-right: 20px; outline: 0"
+            type="icon-shangyibu"
+            @click="changePath(-2)"
+            title="返回上一级"
+          />
           <span style="">当前路径：&nbsp;</span>
           <div style="display: inline; margin-left: 10px">
             <span class="file_path" style="cursor: pointer" @click="changePath(-1)">根目录</span>
-            <div v-for="(item, idx) in filePathArr" style="display: inline; margin-left: 5px" :key="idx">
+            <div
+              v-for="(item, idx) in filePathArr"
+              style="display: inline; margin-left: 5px"
+              :key="idx"
+            >
               <span class="file_path" style="cursor: pointer" @click="changePath(idx)">
                 {{ item }}
               </span>
             </div>
           </div>
         </div>
-        <div style="margin-left: auto; margin-right: 20px;">
-          <el-switch v-model="switchFlag" class="mb-2"
-            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="列表" inactive-text="卡片" />
+        <div style="margin-left: auto; margin-right: 20px">
+          <el-switch
+            v-model="switchFlag"
+            class="mb-2"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+            active-text="列表"
+            inactive-text="卡片"
+          />
         </div>
       </div>
       <el-divider content-position="left">文件目录</el-divider>
-      <div style="
+      <div
+        style="
           display: flex;
           flex-wrap: wrap;
           align-content: flex-start;
@@ -35,23 +52,37 @@
           overflow: auto;
           margin: 10px;
           height: calc(100vh - 335px);
-        " @contextmenu.prevent="openMenu($event)">
+        "
+        @contextmenu.prevent="openMenu($event)"
+      >
         <div style="display: flex">
           <div v-if="switchFlag" style="width: 77vw" @contextmenu.prevent.stop="openMenu($event)">
             <!-- 表头 -->
             <ul class="table-header">
-              <li v-for="(header, index) in headers" :key="index" class="header-item" :style="{ width: header.width }">
+              <li
+                v-for="(header, index) in headers"
+                :key="index"
+                class="header-item"
+                :style="{ width: header.width }"
+              >
                 {{ header.title }}
               </li>
             </ul>
             <!-- 目录数据行 -->
             <ul v-for="(row, rowIndex) in dirList.data" :key="rowIndex" class="table-row">
-              <div style="display: flex; width: 100%; position: relative; cursor: pointer;"
-                @contextmenu.prevent.stop="openMenu($event, 1, row)" @dblclick="openFileDirFun(row)">
+              <div
+                style="display: flex; width: 100%; position: relative; cursor: pointer"
+                @contextmenu.prevent.stop="openMenu($event, 1, row)"
+                @dblclick="openFileDirFun(row)"
+              >
                 <li class="data-item" :style="{ width: headers[0].width }">
                   <MyIcon type="icon-user" /> {{ row.dirName }}
                 </li>
-                <li class="data-item" style="text-indent: 10px;" :style="{ width: headers[1].width }">
+                <li
+                  class="data-item"
+                  style="text-indent: 10px"
+                  :style="{ width: headers[1].width }"
+                >
                   {{ fileSizeConvert(row.occupySpace).value }}
                 </li>
                 <li class="data-item" :style="{ width: headers[2].width }">目录</li>
@@ -62,19 +93,31 @@
                   {{ row.createTime }}
                 </li>
                 <li class="data-item" :style="{ width: headers[5].width }">
-                  <MyIcon style="padding-left: 10px;" type="icon-user" />
-                  <MyIcon style="padding-left: 10px;" type="icon-delete" @click="deleteFileDirFun(row)" />
+                  <MyIcon class="icon-btn" type="icon-file-open" title="打开文件夹" />
+                  <MyIcon
+                    class="icon-btn"
+                    type="icon-delete"
+                    @click="deleteFileDirFun(row)"
+                    title="删除文件夹"
+                  />
                 </li>
               </div>
             </ul>
             <!-- 文件数据行 -->
             <ul v-for="(row, rowIndex) in fileList.data" :key="rowIndex" class="table-row">
-              <div style="display: flex; width: 100%; position: relative; cursor: pointer;"
-                @contextmenu.prevent.stop="openMenu($event, 2, row)" @dblclick="openFileFun(row)">
+              <div
+                style="display: flex; width: 100%; position: relative; cursor: pointer"
+                @contextmenu.prevent.stop="openMenu($event, 2, row)"
+                @dblclick="openFileFun(row)"
+              >
                 <li class="data-item" :style="{ width: headers[0].width }" :title="row.fileName">
                   <MyIcon type="icon-edit" /> {{ row.fileName }}
                 </li>
-                <li class="data-item" style="text-indent: 10px;" :style="{ width: headers[1].width }" >
+                <li
+                  class="data-item"
+                  style="text-indent: 10px"
+                  :style="{ width: headers[1].width }"
+                >
                   {{ fileSizeConvert(row.fileSize).value }}
                 </li>
                 <li class="data-item" :style="{ width: headers[2].width }">
@@ -87,34 +130,63 @@
                   {{ row.createTime }}
                 </li>
                 <li class="data-item" :style="{ width: headers[5].width }">
-                  <MyIcon style="padding-left: 10px;" title="预览" type="icon-eye" @click="openFileFun(row)"></MyIcon>
-                  <MyIcon style="padding-left: 10px;" title="同步" type="icon-refresh" @click="syncFileFun(row)" />
-                  <MyIcon style="padding-left: 10px;" title="删除" type="icon-delete" @click="deleteFileFun(row)" />
+                  <MyIcon
+                    class="icon-btn"
+                    title="预览"
+                    type="icon-eye"
+                    @click="openFileFun(row)"
+                  ></MyIcon>
+                  <MyIcon
+                    class="icon-btn"
+                    title="同步"
+                    type="icon-refresh"
+                    @click="syncFileFun(row)"
+                  />
+                  <MyIcon
+                    class="icon-btn"
+                    title="删除"
+                    type="icon-delete"
+                    @click="deleteFileFun(row)"
+                  />
                 </li>
               </div>
             </ul>
           </div>
           <div v-else style="display: flex; width: 79vw; flex-wrap: wrap">
             <ul v-for="item in dirList.data">
-              <el-card :body-style="{ padding: '0px' }" shadow="hover"
+              <el-card
+                :body-style="{ padding: '0px' }"
+                shadow="hover"
                 style="width: 155px; height: 150px; margin-bottom: 25px; margin-right: 10px"
-                @contextmenu.prevent.stop="openMenu($event, item)" :key="item.id">
-                <div style="
+                @contextmenu.prevent.stop="openMenu($event, item)"
+                :key="item.id"
+              >
+                <div
+                  style="
                     width: 159px;
                     height: 125px;
                     border-bottom: 1px solid #dcdfe6;
                     position: relative;
-                  " class="file_item">
+                  "
+                  class="file_item"
+                >
                   <div style="height: 125px; cursor: pointer" @dblclick="openFileDirFun(item)">
                     本地目录
                     <div class="show_icon">
-                      <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileDirFun(item)" />
+                      <MyIcon
+                        title="删除"
+                        class="icon_type"
+                        type="icon-delete"
+                        @click="deleteFileDirFun(item)"
+                      />
                     </div>
                   </div>
                 </div>
                 <div style="display: flex; padding-left: 5px; padding-top: 2px">
                   <el-tag class="mx-1" size="small" style=""> 目录 </el-tag>
-                  <span :title="item.dirName" style="
+                  <span
+                    :title="item.dirName"
+                    style="
                       margin-left: 5px;
                       width: 90px;
                       height: 20px;
@@ -123,45 +195,96 @@
                       -o-text-overflow: ellipsis;
                       white-space: nowrap;
                       display: inline-block;
-                    ">{{ item.dirName }}</span>
+                    "
+                    >{{ item.dirName }}</span
+                  >
                 </div>
               </el-card>
             </ul>
             <ul v-for="item in fileList.data">
-              <el-card :body-style="{ padding: '0px' }" shadow="hover"
+              <el-card
+                :body-style="{ padding: '0px' }"
+                shadow="hover"
                 style="width: 155px; height: 150px; margin-bottom: 25px; margin-right: 10px"
-                @contextmenu.prevent.stop="openMenu($event, item)" :key="item.id">
-                <div style="
+                @contextmenu.prevent.stop="openMenu($event, item)"
+                :key="item.id"
+              >
+                <div
+                  style="
                     width: 159px;
                     height: 125px;
                     border-bottom: 1px solid #dcdfe6;
                     position: relative;
-                  " class="file_item">
-                  <div v-if="fileTypeEnum(item.fileType).key === 1" style="
+                  "
+                  class="file_item"
+                >
+                  <div
+                    v-if="fileTypeEnum(item.fileType).key === 1"
+                    style="
                       height: 125px;
                       display: flex;
                       justify-content: space-between;
                       align-items: center;
-                    ">
-                    <img :src="item.fileUrl" class="image" style="width: 100%; height: 100%; object-fit: cover"
-                      loading="lazy" />
+                    "
+                  >
+                    <img
+                      :src="item.fileUrl"
+                      class="image"
+                      style="width: 100%; height: 100%; object-fit: cover"
+                      loading="lazy"
+                    />
                     <div class="show_icon">
-                      <MyIcon title="预览" class="icon_type" type="icon-search" @click="showImg(item)" />
-                      <MyIcon title="查看文件信息" class="icon_type" type="icon-file" @click="showFileDesc(item)" />
-                      <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileFun(item)" />
+                      <MyIcon
+                        title="预览"
+                        class="icon_type"
+                        type="icon-search"
+                        @click="showImg(item)"
+                      />
+                      <MyIcon
+                        title="查看文件信息"
+                        class="icon_type"
+                        type="icon-file"
+                        @click="showFileDesc(item)"
+                      />
+                      <MyIcon
+                        title="删除"
+                        class="icon_type"
+                        type="icon-delete"
+                        @click="deleteFileFun(item)"
+                      />
                     </div>
                   </div>
                   <div v-else-if="fileTypeEnum(item.fileType).key === 2" style="height: 125px">
                     <div class="show_icon">
-                      <MyIcon title="查看文件信息" class="icon_type" type="icon-file" @click="showFileDesc(item)" />
-                      <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileFun(item)" />
+                      <MyIcon
+                        title="查看文件信息"
+                        class="icon_type"
+                        type="icon-file"
+                        @click="showFileDesc(item)"
+                      />
+                      <MyIcon
+                        title="删除"
+                        class="icon_type"
+                        type="icon-delete"
+                        @click="deleteFileFun(item)"
+                      />
                     </div>
                     压缩文件
                   </div>
                   <div v-else style="height: 125px">
                     <div class="show_icon">
-                      <MyIcon title="查看文件信息" class="icon_type" type="icon-file" @click="showFileDesc(item)" />
-                      <MyIcon title="删除" class="icon_type" type="icon-delete" @click="deleteFileFun(item)" />
+                      <MyIcon
+                        title="查看文件信息"
+                        class="icon_type"
+                        type="icon-file"
+                        @click="showFileDesc(item)"
+                      />
+                      <MyIcon
+                        title="删除"
+                        class="icon_type"
+                        type="icon-delete"
+                        @click="deleteFileFun(item)"
+                      />
                     </div>
                     其它类型文件
                   </div>
@@ -170,7 +293,9 @@
                   <el-tag class="mx-1" size="small" style="">
                     {{ fileTypeEnum(item.fileType).value }}
                   </el-tag>
-                  <span :title="item.fileName" style="
+                  <span
+                    :title="item.fileName"
+                    style="
                       margin-left: 5px;
                       width: 90px;
                       height: 20px;
@@ -179,7 +304,9 @@
                       -o-text-overflow: ellipsis;
                       white-space: nowrap;
                       display: inline-block;
-                    ">{{ item.fileName }}</span>
+                    "
+                    >{{ item.fileName }}</span
+                  >
                   <MyIcon v-if="item.type !== 0" type="icon-download" style="line-height: 21px" />
                 </div>
               </el-card>
@@ -188,15 +315,31 @@
         </div>
       </div>
     </el-card>
-    <el-image-viewer v-if="dialogImageUrl.show" :initial-index="dialogImageUrl.index" :index="dialogImageUrl.index"
-      :url-list="dialogImageUrl.url" :hide-on-click-modal="true" :show-progress="true"
-      @close="dialogImageUrl.show = false">
+    <el-image-viewer
+      v-if="dialogImageUrl.show"
+      :initial-index="dialogImageUrl.index"
+      :index="dialogImageUrl.index"
+      :url-list="dialogImageUrl.url"
+      :hide-on-click-modal="true"
+      :show-progress="true"
+      @close="dialogImageUrl.show = false"
+    >
     </el-image-viewer>
-    <ul v-if="menu.visible" :style="{ left: menu.left + 'px', top: menu.top + 'px' }" class="contextmenu">
+    <ul
+      v-if="menu.visible"
+      :style="{ left: menu.left + 'px', top: menu.top + 'px' }"
+      class="contextmenu"
+    >
       <li @click="refreshDir()">刷新</li>
       <li v-if="menu.type === 0">
-        <el-upload :auto-upload="false" multiple :show-file-list="false" @click="menu.visible = false"
-          :on-change="changeUpload" style="padding: 0">
+        <el-upload
+          :auto-upload="false"
+          multiple
+          :show-file-list="false"
+          @click="menu.visible = false"
+          :on-change="changeUpload"
+          style="padding: 0"
+        >
           上传文件
         </el-upload>
       </li>
@@ -224,8 +367,13 @@
       </el-form>
     </el-dialog>
     <el-dialog v-model="menu.dirDialog" width="40%">
-      <el-form :model="menu.dirFile" label-width="100px" ref="createFileFormRef" :rules="createFileRules"
-        label-position="left">
+      <el-form
+        :model="menu.dirFile"
+        label-width="100px"
+        ref="createFileFormRef"
+        :rules="createFileRules"
+        label-position="left"
+      >
         <el-form-item label="目录名称: " prop="name">
           <el-input v-model="menu.dirFile.name" size="small" />
         </el-form-item>
@@ -240,8 +388,8 @@
             <el-radio border :label="1">
               同步
               <el-tooltip content="文件存放远程树莓派" placement="top" @click.stop.prevent>
-                <MyIcon type="icon-wenhaofill" />
-              </el-tooltip></el-radio>
+                <MyIcon type="icon-wenhaofill" /> </el-tooltip
+            ></el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -252,10 +400,64 @@
         </span>
       </template>
     </el-dialog>
+    <el-dialog
+      v-model="video.showVideoDialog"
+      title="视频播放"
+      width="1350px"
+      @opened="handleDialogOpened"
+      @open="handleDialogOpen"
+      :fullscreen="video.fullscreen"
+    >
+      <div class="video-container">
+        <!-- 左侧视频播放器 (已有) -->
+        <div class="video-player">
+          <VideoPlayer
+            ref="videoPlayerRef"
+            style="margin-top: 10px;"
+            :video-src="video.videoUrl"
+            :reset-on-load="video.resetFlag"
+            :style="{ width: video.videoStyle.videoWidth, height: video.videoStyle.videoHeight }"
+          />
+        </div>
+
+        <!-- 右侧视频列表 -->
+        <div class="video-list-container">
+          <div class="list-controls">
+            <el-button type="primary" @click="" :disabled="video.videoList.length === 0">
+              上一个
+            </el-button>
+            <el-button type="primary" @click="" :disabled="video.videoList.length === 0">
+              下一个
+            </el-button>
+
+            <el-button type="primary" @click="toggleFullscreen()">
+              <MyIcon title="网页全屏" type="icon-eye" />
+            </el-button>
+          </div>
+
+          <el-scrollbar class="scroll-container">
+            <ul class="video-list" :style="{ height: video.videoStyle.listHeight }">
+              <li
+                v-for="(video, index) in video.videoList"
+                :key="index"
+                class="video-item"
+              >
+                <div class="video-info" >
+                  <div class="video-title">{{ video.fileName }}</div>
+                  <div class="video-duration">{{ index }} + {{ video.currentIndex }}</div>
+                  <div class="video-duration">{{ video.currentIndex }} + </div>
+                </div>
+              </li>
+            </ul>
+          </el-scrollbar>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
+import VideoPlayer from '@/components/common/VideoPlayer.vue'
 import {
   selectFileDirApi,
   selectFileApi,
@@ -266,7 +468,7 @@ import {
   syncFileApi,
 } from '@/api/file'
 import icon from '@/utils/icon'
-import { onMounted, ref, reactive } from 'vue'
+import { onMounted, ref, reactive, nextTick } from 'vue'
 import mixin from '@/mixins/fileType'
 import { ElImageViewer } from 'element-plus'
 import { ElMessage } from 'element-plus'
@@ -298,6 +500,7 @@ let {
   syncFileFun,
 } = fileFn()
 
+let { video, openDialog, toggleFullscreen, handleDialogOpened, handleDialogOpen } = videoFn()
 let { fileTypeEnum, fileStatusEnum, fileSizeConvert } = mixin()
 let { MyIcon } = icon()
 
@@ -314,6 +517,87 @@ onMounted(() => {
   selectFileDirOrFileFun()
 })
 
+function videoFn(): any {
+  let video: any = reactive({
+    // dialog 是否显示
+    showVideoDialog: false,
+    // 当前播放视频url
+    videoUrl: '',
+    // 重置播放器
+    resetFlag: false,
+    // 全部视频文件列表
+    videoList: [],
+    // 当前播放视频 计数从1开始
+    currentIndex: 0,
+    // dialog是否全屏
+    fullscreen: false,
+    videoStyle: {
+      videoWidth: '960px',
+      videoHeight: '540px',
+      listHeight: '400px',
+    },
+  })
+
+  let videoStyle = {
+    fullScreen: {
+      videoWidth: '1504px',
+      videoHeight: '846px',
+      listHeight: '800px',
+    },
+
+    halfScreen: {
+      videoWidth: '960px',
+      videoHeight: '540px',
+      listHeight: '400px',
+    },
+  }
+
+  const videoPlayerRef = ref(null)
+
+  // 打开对话框时设置视频URL
+  const openDialog = (videoUrl) => {
+    video.videoUrl = videoUrl
+    video.showVideoDialog = true
+  }
+
+  // 独立控制全屏状态的方法
+  const toggleFullscreen = () => {
+    console.log('切换全屏')
+    video.fullscreen = !video.fullscreen
+    updateVideoStyle() // 更新样式
+  }
+
+  // 提取样式更新逻辑
+  const updateVideoStyle = () => {
+    video.videoStyle = video.fullscreen ? videoStyle.fullScreen : videoStyle.halfScreen
+  }
+
+  // 对话框完全打开后调整播放器
+  const handleDialogOpened = () => {
+    // 切换重置标志以触发重置
+    video.resetFlag = !video.resetFlag
+
+    nextTick(() => {
+      // 确保播放器已初始化
+      if (videoPlayerRef.value) {
+        videoPlayerRef.value.resetPlayer?.()
+      }
+    })
+  }
+
+  // 对话框开始打开时（可选）
+  const handleDialogOpen = () => {
+    // 如果需要，可以在这里重置播放器状态
+  }
+
+  return {
+    video,
+    openDialog,
+    toggleFullscreen,
+    handleDialogOpened,
+    handleDialogOpen,
+  }
+}
 
 /**
  * 文件云盘接口合集
@@ -391,7 +675,7 @@ function fileFn(): any {
         if (valid) {
           saveFileDirApi({
             dirPath: filePath.value,
-            dirName: menu.dirFile.name
+            dirName: menu.dirFile.name,
           }).then((res: any) => {
             if (res.code === 200) {
               menu.dirFile.name = ''
@@ -511,7 +795,7 @@ function fileFn(): any {
    * 打开文件目录
    */
   const openFileDirFun = (dir: any) => {
-    filePathArr.value.push("/" + dir.dirName)
+    filePathArr.value.push('/' + dir.dirName)
 
     if (filePath.value !== null) {
       filePath.value += '/' + dir.dirName
@@ -528,6 +812,8 @@ function fileFn(): any {
   const openFileFun = (file: any) => {
     if (fileTypeEnum(file.fileType).key === 1) {
       showImg(file)
+    } else if (fileTypeEnum(file.fileType).key === 3) {
+      playVideo(file)
     }
   }
 
@@ -548,12 +834,36 @@ function fileFn(): any {
   }
 
   /**
+   * 播放视频
+   * @param video 当前需要播放的视频
+   */
+  const playVideo = (file: any) => {
+    video.videoList = []
+    video.videoUrl = file.fileUrl
+    // 添加全部
+    for (let i = 0; i < fileList.data.length; i++) {
+      if (fileTypeEnum(fileList.data[i].fileType).key === 3) {
+        video.videoList.push(fileList.data[i])
+      }
+    }
+
+    for (let i = 0; i < video.videoList.length; i++) {
+      if (video.videoUrl === video.videoList[i].fileUrl) {
+        video.currentIndex = i + 1
+      }
+    }
+
+    video.showVideoDialog = true
+    console.log("video.currentIndex:" + video.currentIndex )
+  }
+
+  /**
    * 删除目录
    */
   const deleteFileDirFun = (item: any) => {
     deleteFileDirApi({
       dirPath: filePath.value,
-      dirName: item.dirName
+      dirName: item.dirName,
     }).then((res: any) => {
       if (res.code === 200) {
         ElMessage.success('文件删除成功')
@@ -580,12 +890,12 @@ function fileFn(): any {
 
   const syncFileFun = (item: any) => {
     console.log(item)
-    let syncStatus: any;
+    let syncStatus: any
     if (item.fileStatus === 0 || item.fileStatus === 4) {
       syncFileApi({
         id: item.id,
-        syncFileStatus: item.fileStatus === 0 ? 4 : 0
-      }).then((res: any) => { })
+        syncFileStatus: item.fileStatus === 0 ? 4 : 0,
+      }).then((res: any) => {})
     } else if (item.fileStatus === 1 || item.fileStatus === 3) {
       ElMessage.warning('文件正在同步中')
     } else if (item.fileStatus === 2) {
@@ -755,6 +1065,65 @@ function fileFn(): any {
   text-overflow: ellipsis;
 }
 
+.icon-btn {
+  margin-left: 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  color: #64748b;
+  font-size: 18px;
+}
+
+/* 悬停效果 */
+.icon-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.icon-btn.icon-eye:hover {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.icon-btn.icon-refresh:hover {
+  background: #f0fdf4;
+  color: #22c55e;
+  animation: spin 0.5s linear;
+}
+
+.icon-btn.icon-delete:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* 悬停提示 */
+.icon-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.icon-btn:hover::after {
+  opacity: 1;
+}
+
 /* 列宽控制逻辑 */
 .header-item {
   flex-shrink: 0;
@@ -774,5 +1143,109 @@ function fileFn(): any {
 /* 悬停效果 */
 .table-row:hover {
   background-color: #e9ecef;
+}
+
+.video-container {
+  display: flex;
+  height: 100%;
+  gap: 20px;
+}
+
+.video-player {
+  flex: 1;
+  min-width: 0;
+}
+
+.player {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  border-radius: 8px;
+}
+
+.video-list-container {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.list-controls {
+  padding: 12px;
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid #ebeef5;
+  background: #f5f7fa;
+}
+
+.scroll-container {
+  flex: 1;
+  height: 0;
+}
+
+.video-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.video-item {
+  display: flex;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.video-item:last-child {
+  border-bottom: none;
+}
+
+.video-item:hover {
+  background: #f5f7fa;
+}
+
+.video-item.active {
+  background: #ecf5ff;
+  border-left: 3px solid #409eff;
+}
+
+.video-thumb {
+  width: 120px;
+  height: 68px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #000;
+  flex-shrink: 0;
+}
+
+.video-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-info {
+  flex: 1;
+  padding-left: 12px;
+  min-width: 0;
+}
+
+.video-title {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-duration {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 6px;
 }
 </style>

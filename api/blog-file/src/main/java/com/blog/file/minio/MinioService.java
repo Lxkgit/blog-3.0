@@ -88,6 +88,7 @@ public class MinioService {
 
             return fileUrl;
         } catch (Exception e) {
+            logger.error("minio上传文件异常:{}", e.getMessage(), e);
             // 文件上传失败
             FileUploadLog fileLog = new FileUploadLog();
             fileLog.setId(fileUploadLog.getId());
@@ -124,7 +125,7 @@ public class MinioService {
                             .object(path + "/" + fileName)
                             .build());
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("minio删除文件异常:{}", e.getMessage(), e);
             throw new ServiceException(e.getMessage());
         }
     }
@@ -156,7 +157,7 @@ public class MinioService {
                             .object(sourcePath)
                             .build());
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("minio移动文件异常:{}", e.getMessage(), e);
             throw new ServiceException(e.getMessage());
         }
 
@@ -182,7 +183,7 @@ public class MinioService {
                             .build()
             );
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("minio授权文件异常:{}", e.getMessage(), e);
             throw new ServiceException(e.getMessage());
         }
     }
@@ -212,7 +213,7 @@ public class MinioService {
             Path targetPath = exportPath.resolve(fileName);
             Files.copy(fileStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            logger.error("导出文件异常：{}", e.getMessage(), e);
+            logger.error("minio导出文件异常:{}", e.getMessage(), e);
             throw new ServiceException(e.getMessage());
         }
     }
@@ -240,7 +241,7 @@ public class MinioService {
                     .contentType(contentType)
                     .build());
         } catch (Exception e) {
-            logger.error("minio 文件导入异常: {}", e.getMessage(), e);
+            logger.error("minio导入文件异常:{}", e.getMessage(), e);
         }
     }
 

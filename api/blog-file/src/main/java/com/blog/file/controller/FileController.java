@@ -91,6 +91,17 @@ public class FileController {
         return ResultFactory.buildSuccessResult(fileService.selectFile(fileCategoryVo));
     }
 
+    /**
+     * 查看文件列表
+     *
+     * @param fileCategoryVo
+     * @return
+     */
+    @GetMapping("/move/file")
+    public Result moveFile(@Validated FileCategoryVo fileCategoryVo) throws ServiceException {
+        fileService.moveFile(fileCategoryVo);
+        return ResultFactory.buildSuccessResult();
+    }
 
     /**
      * 同步文件(包括文件同步至远程和从远程下载文件)

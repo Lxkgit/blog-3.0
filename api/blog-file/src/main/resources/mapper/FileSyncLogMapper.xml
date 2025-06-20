@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.file.mapper.FileSyncLogMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.files.entity.FileSyncLog">
+        <id column="id" property="id"/>
+        <id column="user_id" property="userId"/>
+        <id column="file_id" property="fileId"/>
+        <id column="request_source" property="requestSource"/>
+        <id column="sync_type" property="syncType"/>
+        <id column="request_id" property="requestId"/>
+        <id column="request_json" property="requestJson"/>
+        <id column="service_file_path" property="serviceFilePath"/>
+        <id column="device_file_path" property="deviceFilePath"/>
+        <id column="minio_path" property="minioPath"/>
+        <id column="result_type" property="resultType"/>
+        <id column="create_time" property="createTime"/>
+        <id column="create_by" property="createBy"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        id, user_id, file_id, request_source, sync_type, request_id, request_json, service_file_path, device_file_path,
+          minio_path, result_type, create_time, create_by
+    </sql>
+
+
+</mapper>

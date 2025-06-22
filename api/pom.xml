@@ -251,7 +251,7 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <devServiceIp>123.207.202.131</devServiceIp>
+                <devServiceIp>114.55.101.143</devServiceIp>
                 <env>test</env>
             </properties>
         </profile>

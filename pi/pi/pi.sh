@@ -155,6 +155,35 @@ installRedis() {
 	docker run -d --name redis --privileged=true --restart=always --network blog_network --ip 172.18.0.6 -p 6379:6379 -v /opt/docker/redis/conf/redis.conf:/etc/redis/redis.conf -v /opt/docker/redis/data/:/data/  -v /opt/docker/files/:/opt/docker/files/ redis:6.2.5 redis-server /etc/redis/redis.conf
 }
 
+# 挂载硬盘
+mountDisk() {
+  echo "开始挂载NTFS硬盘..."
+
+  # 安装 挂载NTFS格式硬盘 驱动
+  sudo apt update && sudo apt install ntfs-3g fuse -y
+
+  # 创建挂载点目录文件
+  sudo mkdir -p /mnt/disk
+
+  # 创建 Systemd 服务（支持启动挂载）
+  mv /opt/package/conf/automount@.service /etc/systemd/system/
+  sed -i 's/\r$//' /etc/systemd/system/automount@.service
+
+  # 创建 Udev 规则（热插拔核心）
+  mv /opt/package/conf/99-automount.rules /etc/udev/rules.d/
+  sed -i 's/\r$//' /etc/udev/rules.d/99-automount.rules
+
+  # 重载配置
+  sudo udevadm control --reload
+  sudo systemctl daemon-reload
+
+  # 启用服务（使启动时生效）
+  sudo systemctl enable automount@mydrive.service
+
+  # 立即测试启动挂载
+  sudo systemctl start automount@mydrive.service
+}
+
 startJar() {
   echo "3分钟后启动pi项目 ... "
   sleep 3m
@@ -169,6 +198,24 @@ startJar() {
   docker run -d --name pi --privileged=true --cap-add=SYS_ADMIN --restart=always --network blog_network --ip 172.18.0.5 -p 10201:10201 -p 9092:9092 -p 5005:5005 -v /opt/docker/files:/opt/docker/files pi:1
 }
 
+# python 脚本守护线程
+startPyDaemon() {
+  # 开机唤醒守护线程配置
+  mv /opt/package/conf/websocket-watchdog.service /etc/systemd/system/
+  sed -i 's/\r$//' /etc/systemd/system/websocket-watchdog.service
+  # 守护线程
+  mv /opt/package/conf/websocket_watchdog.sh /opt/docker/files/python
+  sed -i 's/\r$//' /opt/docker/files/python/websocket_watchdog.sh
+  chmod +x /opt/docker/files/python/websocket_watchdog.sh
+
+  # 重新加载systemd配置
+  sudo systemctl daemon-reload
+  # 开机自启
+  sudo systemctl enable websocket-watchdog.service
+  # 立即启动
+  sudo systemctl start websocket-watchdog.service
+}
+
 # 启动python脚本
 startPy() {
   # Java服务启动较慢，等待Java服务完全启动后进行连接
@@ -181,7 +228,9 @@ startPy() {
   chmod +x /opt/docker/files/python/shell/*.sh
   sed -i 's/\r$//' /opt/docker/files/python/shell/*.sh
   cd /opt/docker/files/python
-  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.5' >python.log 2>&1 &
+#  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.5' >python.log 2>&1 &
+
+  startPyDaemon
 }
 
 main() {
@@ -195,6 +244,8 @@ main() {
   installMysql
   installMqtt
   installRedis
+
+  mountDisk
 
   startJar
   startPy

@@ -171,7 +171,6 @@ import { ref, reactive, onMounted } from "vue";
 import { userListApi, roleListApi, updateUserPerApi } from "@/api/user";
 import type { UploadProps } from "element-plus";
 import { ElMessage } from "element-plus";
-import { uploadUrl, header } from "@/utils/upload";
 import icon from "@/utils/icon";
 import ImgUpload from "@/components/common/ImgUpload.vue";
 

@@ -114,8 +114,8 @@ dockerLoad() {
 	command="docker pull elasticsearch:7.14.1"
 	reLoad
 	
-	echo "开始下载 minio/minio 镜像文件..."
-	command="docker pull minio/minio"
+	echo "开始下载 minio/minio:RELEASE.2025-01-20T14-49-07Z 镜像文件..."
+	command="docker pull minio/minio:RELEASE.2025-01-20T14-49-07Z"
 	reLoad
 	
 	echo "开始下载 xuxueli/xxl-job-admin:2.5.0 镜像文件..."
@@ -374,7 +374,7 @@ importMinio() {
 # 启动 minio
 minio() {
 	echo "正在启动minio..."
-	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart=always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio server /data --console-address ":9001"
+	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart=always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio:RELEASE.2025-01-20T14-49-07Z server /data --console-address ":9001"
 	importMinio
 }
 
@@ -399,6 +399,24 @@ startJar() {
   docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 60002:60002 -p 59991:59991 -p 60032:60032 -p 21:21 -v /opt/docker/files/logs:/opt/logs -v /opt/docker/files/:/opt/docker/files/ blog:3.0
 }
 
+# python 脚本守护线程
+startPyDaemon() {
+  # 开机唤醒守护线程配置
+  mv /opt/package/conf/websocket-watchdog.service /etc/systemd/system/
+  sed -i 's/\r$//' /etc/systemd/system/websocket-watchdog.service
+  # 守护线程
+  mv /opt/package/conf/websocket_watchdog.sh /opt/docker/files/python
+  sed -i 's/\r$//' /opt/docker/files/python/websocket_watchdog.sh
+  chmod +x /opt/docker/files/python/websocket_watchdog.sh
+
+  # 重新加载systemd配置
+  sudo systemctl daemon-reload
+  # 开机自启
+  sudo systemctl enable websocket-watchdog.service
+  # 立即启动
+  sudo systemctl start websocket-watchdog.service
+}
+
 # 启动python脚本
 startPy() {
   # Java服务启动较慢，等待Java服务完全启动后进行连接
@@ -411,7 +429,9 @@ startPy() {
   chmod +x /opt/docker/files/python/shell/*.sh
   sed -i 's/\r$//' /opt/docker/files/python/shell/*.sh
   cd /opt/docker/files/python
-  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.13' >python.log 2>&1 &
+#  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.13' >python.log 2>&1 &
+
+  startPyDaemon
 }
 
 # 主函数

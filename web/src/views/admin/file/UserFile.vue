@@ -974,13 +974,16 @@ function fileFn(): any {
   }
 
   const syncFileFun = (item: any) => {
-    console.log(item)
     let syncStatus: any
     if (item.fileStatus === 0 || item.fileStatus === 4) {
       syncFileApi({
         id: item.id,
         syncFileStatus: item.fileStatus === 0 ? 4 : 0,
-      }).then((res: any) => {})
+      }).then((res: any) => {
+        if(res.code === 200) {
+          ElMessage.success('同步命令发送成功')
+        }
+      })
     } else if (item.fileStatus === 1 || item.fileStatus === 3) {
       ElMessage.warning('文件正在同步中')
     } else if (item.fileStatus === 2) {

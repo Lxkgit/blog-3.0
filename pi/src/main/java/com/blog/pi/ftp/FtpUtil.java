@@ -178,24 +178,19 @@ public class FtpUtil {
     }
 
     /**
-     * 本地环境创建目录
-     *
-     * @param dirPath
-     * @throws Exception
+     * 创建本地目录（自动创建父目录）
+     * @param dirPath 目录路径
+     * @return 是否创建成功（已存在视为成功）
      */
-    public void createDir(String dirPath) {
+    public boolean createDir(String dirPath) {
         try {
-            Path path = Paths.get(dirPath);
-            if (!Files.exists(path)) {
-                Files.createDirectories(path); // 自动创建父目录
-                System.out.println("目录创建成功: " + dirPath);
-            } else {
-                System.out.println("目录已存在: " + dirPath);
-            }
-        } catch (Exception e) {
-            logger.error("目录创建失败:{}", e.getMessage(), e);
+            Files.createDirectories(Paths.get(dirPath));
+            logger.info("目录创建成功或已存在: {}", dirPath);
+            return true;
+        } catch (IOException e) {
+            logger.error("目录创建失败: {} -> {}", dirPath, e.getMessage(), e);
+            return false;
         }
-
     }
 
 

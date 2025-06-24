@@ -41,21 +41,18 @@ export function request(config: any) {
     }
     return response.data
   }, error => {
-    console.log("-----------------")
-    console.log(error)
-
     if (error.response) {
       switch (error.response.status) {
         case 400:
           return Promise.reject(error.response.data)
         case 401:
-          console.log("无权访问")
-          ElMessage.error('对不起，您暂无权限访问此接口，请登录重试！')
           localStorage.clear()
           sessionStorage.clear()
-          // window.location.href = "http://localhost:5173/";
+          ElMessage.error('对不起，您暂无权限访问此接口，请登录重试！')
           break
         case 403:
+          localStorage.clear()
+          sessionStorage.clear()
           ElMessage.error('对不起，您暂无权限访问此接口！')
           break
         case 404:
@@ -69,7 +66,6 @@ export function request(config: any) {
           return Promise.reject(error)
       }
     } else {
-      console.log("请求超时")
       ElMessage.error('请求超时，检查网络状态或刷新重试！')
     }
 

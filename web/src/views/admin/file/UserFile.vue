@@ -402,6 +402,7 @@
     </el-dialog>
     <el-dialog
       v-model="video.showVideoDialog"
+      :close-on-click-modal="false"
       title="视频播放"
       width="80vw"
       @opened="handleDialogOpened"
@@ -410,7 +411,7 @@
       :fullscreen="video.fullscreen"
     >
       <div class="video-container">
-        <!-- 左侧视频播放器 (已有) -->
+        <!-- 左侧视频播放器 -->
         <div class="video-player">
           <VideoPlayer
             ref="videoPlayerRef"

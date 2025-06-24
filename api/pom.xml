@@ -49,6 +49,7 @@
         <validation.version>3.1.1</validation.version>
         <!-- 解决依赖冲突 - mq与gateway -->
         <grpc-netty.version>1.53.0</grpc-netty.version>
+        <javacv-platform.version>1.5.6</javacv-platform.version>
     </properties>
 
     <dependencyManagement>
@@ -228,7 +229,12 @@
                 <version>${grpc-netty.version}</version>
             </dependency>
 
-
+            <!-- 视频库 -->
+            <dependency>
+                <groupId>org.bytedeco</groupId>
+                <artifactId>javacv-platform</artifactId>
+                <version>1.5.6</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

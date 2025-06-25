@@ -129,7 +129,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException {
-        uploadFileService.deleteFile(fileCategoryData);
+        uploadFileService.deleteFile(fileCategoryData.getId());
         LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(FileCategoryData::getId, fileCategoryData.getId());
         wrapper.eq(FileCategoryData::getUserId, SecurityUtil.getLoginUser().getId());

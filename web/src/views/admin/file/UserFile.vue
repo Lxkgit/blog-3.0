@@ -963,8 +963,6 @@ function fileFn(): any {
    */
   const deleteFileFun = (item: any) => {
     deleteFileApi({
-      dirPath: filePath.value,
-      fileName: item.fileName,
       id: item.id,
     }).then((res: any) => {
       if (res.code === 200) {

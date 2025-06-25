@@ -58,6 +58,11 @@ public class FileCategoryData {
     private String fileType;
 
     /**
+     * 文件详细信息
+     */
+    private String fileJson;
+
+    /**
      * 同步文件唯一编码
      */
     private String fileCode;

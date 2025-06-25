@@ -1,8 +1,5 @@
 package com.blog.core.enums.file;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.*;
 
 /**
@@ -16,7 +13,7 @@ public enum FileTypeEnum {
     IMAGE(1, "图片", new HashSet<>(Arrays.asList("jpg", "png")), "/img"),
     FILE(2, "文件", new HashSet<>(Arrays.asList("zip", "7z")), "/file"),
     VIDEO(3, "视频", new HashSet<>(Arrays.asList("mp4", "avi")), "/video"),
-    DIARY_FILE(4, "其他", new HashSet<>(Arrays.asList("mp4")), "/other");
+    DIARY_FILE(4, "其他", new HashSet<>(), "/other");
 
     /**
      * 文件类型编码
@@ -38,13 +35,13 @@ public enum FileTypeEnum {
      */
     private String fileTypePath;
 
-    public static String getTypeListByTypeName(String fileType) {
+    public static FileTypeEnum getTypeEnumByFileType(String fileType) {
         for (FileTypeEnum fileTypeEnum : FileTypeEnum.values()) {
             if (fileTypeEnum.getTypeSet().contains(fileType)) {
-                return fileTypeEnum.getFileTypePath();
+                return fileTypeEnum;
             }
         }
-        return null;
+        return DIARY_FILE;
     }
 
     public static String getTypePathByTypeName(Integer fileType) {

@@ -114,8 +114,8 @@ dockerLoad() {
 	command="docker pull elasticsearch:7.14.1"
 	reLoad
 	
-	echo "开始下载 minio/minio:RELEASE.2025-01-20T14-49-07Z 镜像文件..."
-	command="docker pull minio/minio:RELEASE.2025-01-20T14-49-07Z"
+	echo "开始下载 minio/minio:RELEASE.2025-04-22T22-12-26Z 镜像文件..."
+	command="docker pull minio/minio:RELEASE.2025-04-22T22-12-26Z"
 	reLoad
 	
 	echo "开始下载 xuxueli/xxl-job-admin:2.5.0 镜像文件..."
@@ -366,7 +366,11 @@ importMinio() {
 	./mc mb local/blog
 	./mc mirror --overwrite /opt/docker/minio/blog/ local/blog
 	./mc anonymous set download local/blog
-	
+
+	# minio 权限配置
+	mv opt/package/conf/minio.json /opt/docker/minio/
+	./mc policy set minio.json local/blog
+
 	# 导入文件后删除数据
 	rm -rf /opt/docker/minio/blog
 }
@@ -374,7 +378,7 @@ importMinio() {
 # 启动 minio
 minio() {
 	echo "正在启动minio..."
-	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart=always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio:RELEASE.2025-01-20T14-49-07Z server /data --console-address ":9001"
+	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart=always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio:RELEASE.2025-04-22T22-12-26Z server /data --console-address ":9001"
 	importMinio
 }
 

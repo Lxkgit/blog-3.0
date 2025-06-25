@@ -10,13 +10,14 @@
         <id column="file_size" property="fileSize"/>
         <id column="file_status" property="fileStatus"/>
         <id column="file_type" property="fileType"/>
+        <id column="file_json" property="fileJson"/>
         <id column="file_code" property="fileCode"/>
         <id column="create_by" property="createBy"/>
         <id column="create_time" property="createTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, user_id, file_name, file_category_id, file_url, file_size, file_status, file_type, file_code, create_by, create_time
+        id, user_id, file_name, file_category_id, file_url, file_size, file_status, file_type, file_json, file_code, create_by, create_time
     </sql>
 
 

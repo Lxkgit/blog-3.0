@@ -1,6 +1,7 @@
 package com.blog.file.service.impl;
 
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
@@ -17,15 +18,24 @@ import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.file.service.UploadFileService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.FFmpegLogCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @Author: lxk
@@ -64,7 +74,7 @@ public class UploadFileServiceImpl implements UploadFileService {
             throw new ServiceException("文件名称不能为空");
         }
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
-        String typePath = FileTypeEnum.getTypeListByTypeName(fileType);
+        String typePath = FileTypeEnum.getTypeEnumByFileType(fileType).getFileTypePath();
 
         String path;
         if (StringUtils.isNotEmpty(uploadVo.getAppointPath())) {
@@ -87,6 +97,10 @@ public class UploadFileServiceImpl implements UploadFileService {
             fileCategoryData.setFileSize((int) uploadVo.getFile().getSize());
             fileCategoryData.setFileStatus(0);
             fileCategoryData.setFileType(fileType);
+            if (FileTypeEnum.getTypeEnumByFileType(fileType).getFileType() == 3) {
+                // 如果是视频文件，解析视频获取时间长度
+                fileCategoryData.setFileJson(resolveVideo(uploadVo.getFile()));
+            }
             fileCategoryData.setCreateBy(userName);
             fileCategoryData.setCreateTime(new Date());
             fileCategoryDataMapper.insert(fileCategoryData);
@@ -95,9 +109,38 @@ public class UploadFileServiceImpl implements UploadFileService {
         return null;
     }
 
+    public String resolveVideo(MultipartFile file) {
+        JSONObject result = new JSONObject();
+        try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(file.getInputStream())) {
+            grabber.start();
+            result.put("durationSeconds", (double) grabber.getLengthInTime() / 1_000_000.0);
+            result.put("frameRate", grabber.getFrameRate());
+            result.put("width", grabber.getImageWidth());
+            result.put("height", grabber.getImageHeight());
+            result.put("format", grabber.getFormat());
+            grabber.stop();
+        } catch (Exception e) {
+            logger.error("视频文件解析异常:{}", e.getMessage());
+            result.put("success", false);
+            result.put("error", e.getClass().getSimpleName());
+            result.put("message", e.getMessage());
+        } finally {
+            try {
+                file.getInputStream().close();
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
+        }
+
+        return result.toJSONString();
+    }
+
     @Override
-    public void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException {
-        minioService.deleteFile(fileCategoryData.getDirPath(), fileCategoryData.getFileName());
+    public void deleteFile(Integer id) throws ServiceException {
+        FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(id);
+        FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
+        String fileName = minioService.getFileName(fileCategoryData.getFileUrl());
+        minioService.deleteFile(fileCategory.getDirPath(), fileName);
     }
 
     @Override
@@ -143,7 +186,6 @@ public class UploadFileServiceImpl implements UploadFileService {
         }
         return resultFileCategoryId;
     }
-
 
 
 }

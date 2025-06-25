@@ -119,6 +119,12 @@
             <artifactId>minio</artifactId>
         </dependency>
 
+        <!-- 视频库 -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+        </dependency>
+
         <!-- 实体类数据包 -->
         <dependency>
             <groupId>com.blog</groupId>

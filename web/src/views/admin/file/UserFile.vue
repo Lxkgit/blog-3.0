@@ -468,7 +468,7 @@
                     </div>
                   </div>
                   <div class="video-duration">
-                    <MyIcon title="视频时长" type="icon-time" /> {{item.videoTime}}
+                    <MyIcon title="视频时长" type="icon-time" /> {{timeToMinOrHour(item.videoTime)}}
                   </div>
                 </div>
                 <div class="video-info" v-else>
@@ -479,7 +479,7 @@
                     </div>
                   </div>
                   <div class="video-duration">
-                    <MyIcon title="视频时长" type="icon-time" /> {{item.videoTime}}
+                    <MyIcon title="视频时长" type="icon-time" /> {{timeToMinOrHour(item.videoTime)}}
                   </div>
                 </div>
               </li>
@@ -507,6 +507,9 @@ import { onMounted, onBeforeUnmount, ref, reactive, nextTick } from 'vue'
 import mixin from '@/mixins/fileType'
 import { ElImageViewer } from 'element-plus'
 import { ElMessage } from 'element-plus'
+import timeFormat from "@/utils/timeFormat";
+
+let { timeToMinOrHour } = timeFormat()
 
 let {
   switchFlag,

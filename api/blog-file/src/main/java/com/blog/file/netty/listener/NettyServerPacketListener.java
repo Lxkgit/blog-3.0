@@ -92,7 +92,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             // 回复请求消息响应
             NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, "response");
             nettyResponse.setTopic(topic);
-            nettyServer.channelWriteByRegisterId(registerCode, JSONObject.toJSONString(nettyResponse), false);
+            nettyServer.sendByRegisterIdNotRetry(registerCode, JSONObject.toJSONString(nettyResponse));
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             if (NettyTopic.BLOG_FILE_SYNC.equals(topic)) {
                 JSONObject jsonObject = JSONObject.parseObject(data);

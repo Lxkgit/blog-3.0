@@ -180,8 +180,8 @@ async def handle_messages(ws):
                         }
                     }
                     logger.info(f"文件移动完成: {msg}")
-                    ws.send(json.dumps(msg))
-                if receiveMsg.get("topic") == "export_blog_file":
+                    await ws.send(json.dumps(msg))
+                elif receiveMsg.get("topic") == "export_blog_file":
                     blogFilePath = receiveMsg.get('data').get('blogFilePath')
                     logger.info(f"调用导出博客数据脚本: {blogFilePath}")
                     # 导出博客文件数据
@@ -202,7 +202,31 @@ async def handle_messages(ws):
                     }
                     logger.info(f"博客数据导出任务执行完成: {msg}")
                     await ws.send(json.dumps(msg))
+                elif receiveMsg.get("topic") == "delete_file_or_dir":
+                    logger.info(f"执行文件删除操作: {receiveMsg.get('data')}")
+                    dirPath = receiveMsg.get('data').get('dirPath')
+                    fileName = receiveMsg.get('data').get('fileName')
 
+                    # python 特色的三目运算符 [当条件为真时的值] if [条件] else [当条件为假时的值]
+                    dirPath = dirPath[:-1] if dirPath.endswith('/') else dirPath
+
+                    if not fileName:
+                        deleteResult = delete_file_or_directory(dirPath + "/" + fileName)
+                    else:
+                        deleteResult = delete_file_or_directory(dirPath)
+                        # 执行完成响应socket
+                    msg = {
+                        'requestId': receiveMsg.get("requestId"),
+                        'socketPacketType': 'response',
+                        'topic': receiveMsg.get("topic"),
+                        'data': {
+                            'dirPath': dirPath,
+                            'fileName': fileName,
+                            'result': deleteResult
+                        }
+                    }
+                    logger.info(f"博客数据导出任务执行完成: {msg}")
+                    await ws.send(json.dumps(msg))
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")
 
@@ -220,7 +244,7 @@ def execute_shell_script(shell_script_path):
             text=True,
             check=False
         )
-
+        logger.info(f"脚本执行完成，执行输出: {result.stdout}")
         logger.info(f"脚本执行完成，返回码: {result.returncode}")
         return {
             "success": result.returncode == 0,

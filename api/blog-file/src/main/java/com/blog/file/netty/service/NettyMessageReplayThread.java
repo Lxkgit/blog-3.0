@@ -5,19 +5,19 @@ import com.blog.file.netty.domain.dto.NettyReplayMessage;
 import com.blog.redis.constant.NettyRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.*;
-import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class NettyMessageReplayThread implements Runnable {
+
+    private static final Logger logger = LoggerFactory.getLogger(NettyMessageReplayThread.class);
 
     @Resource
     private RedisService redisService;
@@ -27,40 +27,74 @@ public class NettyMessageReplayThread implements Runnable {
 
     @Override
     public void run() {
-        Set<Object> allValues = redisService.getSetByKey(NettyRedisConstant.NETTY_RECEIVE_QUEUE);
-        redisService.delKey(NettyRedisConstant.NETTY_RECEIVE_QUEUE);
-        if (CollectionUtils.isNotEmpty(allValues)) {
-            for (Object value : allValues) {
-                if (redisService.hasHashKey(NettyRedisConstant.NETTY_SEND_QUEUE, value.toString())) {
-                    redisService.deleteAllHash(NettyRedisConstant.NETTY_SEND_QUEUE, value.toString());
+        logger.info("netty 消息重发线程启动");
+        while (true) {
+            // 消息重发队列中去掉netty收到响应的消息
+            Set<Object> allValues = redisService.getSetByKey(NettyRedisConstant.NETTY_RECEIVE_QUEUE);
+            redisService.delKey(NettyRedisConstant.NETTY_RECEIVE_QUEUE);
+            if (CollectionUtils.isNotEmpty(allValues)) {
+                for (Object value : allValues) {
+                    if (redisService.hasHashKey(NettyRedisConstant.NETTY_SEND_QUEUE, value.toString())) {
+                        redisService.deleteAllHash(NettyRedisConstant.NETTY_SEND_QUEUE, value.toString());
+                    }
                 }
+            }
+
+            Map<Object, Object> map = redisService.getAllHash(NettyRedisConstant.NETTY_SEND_QUEUE);
+            map.forEach((k, v) -> {
+                String key = k.toString();
+                NettyReplayMessage replayMessage = JSONObject.parseObject((String) v, NettyReplayMessage.class);
+                // 消息首次发送时间
+                LocalDateTime firstSendTime = replayMessage.getFirstSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                // 消息最近发送时间
+                LocalDateTime lastSendTime = replayMessage.getLastSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                // 当前时间
+                LocalDateTime nowDate = LocalDateTime.now();
+
+                if (replayMessage.getRetryType() == 1) {
+                    // 计算两个时间点之间的时间差
+                    Duration duration = Duration.between(lastSendTime, nowDate);
+                    if (replayMessage.getLimitCount() != 0) {
+                        if (replayMessage.getTryCount() <= replayMessage.getLimitCount()) {
+                            resendMessage(duration, key, replayMessage);
+                        }
+                    } else {
+                        resendMessage(duration, key, replayMessage);
+                    }
+                } else if (replayMessage.getRetryType() == 2) {
+                    Duration effectiveDuration = Duration.between(firstSendTime, nowDate);
+                    // 首次发送消息与当前时间大于指定消息有效时间 丢弃消息
+                    if (effectiveDuration.toMinutes() > replayMessage.getEffectiveTime()) {
+                        logger.info("netty 消息超过有效时间，丢弃此消息 msg:{}", replayMessage.getMessage());
+                    } else {
+                        Duration lastDuration = Duration.between(lastSendTime, nowDate);
+                        resendMessage(lastDuration, key, replayMessage);
+                    }
+                }
+            });
+
+            try {
+                Thread.sleep(30);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
+    }
 
-        Map<Object, Object> map = redisService.getAllHash(NettyRedisConstant.NETTY_SEND_QUEUE);
-        map.forEach((k, v) -> {
-            String key = k.toString();
-            NettyReplayMessage replayMessage = JSONObject.parseObject((String) v, NettyReplayMessage.class);
-            // 消息发送时间
-            LocalDateTime startDate = replayMessage.getSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            LocalDateTime  nowDate = LocalDateTime.now();
-            // 计算两个时间点之间的时间差
-            Duration duration = Duration.between(startDate, nowDate);
-            // 检查时间差是否超过五分钟
-            if (duration.toMinutes() > 5) {
-                if (replayMessage.getTryTime() < 5) {
-                    nettyServer.channelWriteByRegisterId(key, JSONObject.toJSONString(replayMessage), true);
-                    replayMessage.setTryTime(replayMessage.getTryTime() + 1);
-                    redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, key, JSONObject.toJSONString(replayMessage));
-                }
-            }
-        });
-
-
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+    /**
+     * 发送netty消息
+     *
+     * @param duration      时间差
+     * @param key           消息key
+     * @param replayMessage 重发消息内容
+     */
+    private void resendMessage(Duration duration, String key, NettyReplayMessage replayMessage) {
+        // 上次发送消息与当前时间大于消息发送间隔
+        if (duration.toMinutes() > 5) {
+            logger.info("netty 重发消息: {}", replayMessage.toString());
+            nettyServer.sendByRegisterIdNotRetry(key, JSONObject.toJSONString(replayMessage));
+            replayMessage.setTryCount(replayMessage.getTryCount() + 1);
+            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, key, JSONObject.toJSONString(replayMessage));
         }
     }
 }

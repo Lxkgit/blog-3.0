@@ -1,11 +1,14 @@
 package com.blog.file.socket;
 
+import com.alibaba.fastjson2.JSON;
 import com.blog.file.netty.service.NettyFileSyncService;
 import com.blog.file.socket.domain.SocketPacketEvent;
 import com.blog.file.socket.domain.constant.SocketPacketType;
 import com.blog.file.socket.domain.constant.SocketTopic;
+import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
 import jakarta.annotation.Resource;
 import jakarta.websocket.Session;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -44,6 +47,13 @@ public class SocketMessageListener {
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
             if (SocketTopic.SOCKET_EXPORT_BLOG_FILE.equals(topic)) {
                 nettyFileSyncService.syncBlogDataSecondStep(data);
+            } else if (SocketTopic.SOCKET_DELETE_FILE_OR_DIR.equals(topic)) {
+                SocketDeleteFileOrDirDto dto = JSON.parseObject(data, SocketDeleteFileOrDirDto.class);
+                if (StringUtils.isNotEmpty(dto.getFileName())) {
+                    logger.info("文件删除结果 result:{} path: {} fileName: {}", dto.getResult(), dto.getDirPath(), dto.getFileName());
+                } else {
+                    logger.info("目录删除结果 result:{} path: {}", dto.getResult(), dto.getDirPath());
+                }
             }
         }
 

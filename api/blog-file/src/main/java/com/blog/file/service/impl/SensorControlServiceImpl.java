@@ -23,14 +23,12 @@ import com.blog.file.netty.domain.dto.sensor.control.SensorCommandCheckDto;
 import com.blog.file.netty.domain.dto.sensor.control.SensorCommandDto;
 import com.blog.file.netty.domain.dto.sensor.control.SteeringEngine180Dto;
 import com.blog.file.netty.domain.enums.NettyTopic;
-import com.blog.file.netty.domain.enums.NettyTopicEnum;
 import com.blog.file.netty.domain.enums.sensor.SensorTypeEnum;
 import com.blog.file.netty.service.NettyServer;
 import com.blog.file.service.SensorControlService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -104,7 +102,7 @@ public class SensorControlServiceImpl implements SensorControlService {
 
         NettyPacket<SensorCommandDto<SteeringEngine180Dto>> sensorCommandRequest = NettyPacket.buildRequest(NettyTopic.BLOG_SENSOR_CONTROL, commandVo);
 
-        return nettyServer.channelWriteByRegisterId(sensor.getDeviceCode(), JSONObject.toJSONString(sensorCommandRequest), true);
+        return nettyServer.sendByRegisterIdLimitCount(sensor.getDeviceCode(), JSONObject.toJSONString(sensorCommandRequest), 0);
     }
 
     /**

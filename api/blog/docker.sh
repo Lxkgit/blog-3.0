@@ -368,7 +368,7 @@ importMinio() {
 	./mc anonymous set download local/blog
 
 	# minio 权限配置
-	mv opt/package/conf/public-policy.json /opt/docker/minio/
+	mv /opt/package/conf/public-policy.json /opt/docker/minio/
 	./mc anonymous set-json public-policy.json local/blog
 
 	# 导入文件后删除数据
@@ -432,7 +432,7 @@ startPy() {
   sed -i 's/\r$//' /opt/docker/files/python/webSocket.py
   chmod +x /opt/docker/files/python/shell/*.sh
   sed -i 's/\r$//' /opt/docker/files/python/shell/*.sh
-  cd /opt/docker/files/python
+#  cd /opt/docker/files/python
 #  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.13' >python.log 2>&1 &
 
   startPyDaemon

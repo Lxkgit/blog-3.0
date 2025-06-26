@@ -18,6 +18,7 @@ import com.blog.file.socket.domain.constant.SocketClientType;
 import com.blog.file.socket.domain.constant.SocketConstant;
 import com.blog.file.socket.domain.constant.SocketTopic;
 import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
+import com.blog.file.socket.domain.service.SocketMessageSendService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -49,6 +50,9 @@ public class NettyFileSyncService {
     @Resource
     private UserDeviceMapper userDeviceMapper;
 
+    @Resource
+    private SocketMessageSendService socketMessageSendService;
+
     /**
      * netty消息发送文件同步到服务器
      *
@@ -66,7 +70,7 @@ public class NettyFileSyncService {
             String registerId = device.getDeviceCode();
 
             NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
-            nettyServer.channelWriteByRegisterId(registerId, JSON.toJSONString(nettyPacket), true);
+            nettyServer.sendByRegisterIdLimitTime(registerId, JSON.toJSONString(nettyPacket), 8 * 60);
         }
     }
 
@@ -123,7 +127,8 @@ public class NettyFileSyncService {
         if (nettyUploadBlogFileDto.getSyncResult().equals(0)) {
 
         } else if (nettyUploadBlogFileDto.getSyncResult().equals(1)) {
-
+            // 文件传输都是使用ftp system用户下相对路径
+            socketMessageSendService.deleteDir(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath());
         } else if (nettyUploadBlogFileDto.getSyncResult().equals(2)) {
             fileService.fileImportMinio(nettyUploadBlogFileDto);
         }

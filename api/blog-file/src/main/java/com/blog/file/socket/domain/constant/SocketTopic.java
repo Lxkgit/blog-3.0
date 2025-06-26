@@ -22,4 +22,9 @@ public class SocketTopic {
      */
     public static final String SOCKET_EXPORT_BLOG_FILE = "export_blog_file";
 
+    /**
+     * 删除指定目录或文件
+     */
+    public static final String SOCKET_DELETE_FILE_OR_DIR = "delete_file_or_dir";
+
 }

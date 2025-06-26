@@ -468,7 +468,7 @@
                     </div>
                   </div>
                   <div class="video-duration">
-                    <MyIcon title="视频时长" type="icon-time" /> 20分
+                    <MyIcon title="视频时长" type="icon-time" /> {{item.videoTime}}
                   </div>
                 </div>
                 <div class="video-info" v-else>
@@ -479,7 +479,7 @@
                     </div>
                   </div>
                   <div class="video-duration">
-                    <MyIcon title="视频时长" type="icon-time" /> 20分
+                    <MyIcon title="视频时长" type="icon-time" /> {{item.videoTime}}
                   </div>
                 </div>
               </li>
@@ -935,6 +935,9 @@ function fileFn(): any {
     }
 
     for (let i = 0; i < video.videoList.length; i++) {
+      let fileJson = JSON.parse(video.videoList[i].fileJson)
+      video.videoList[i].videoTime = fileJson.durationSeconds
+
       if (video.videoUrl === video.videoList[i].fileUrl) {
         video.currentIndex = i
       }

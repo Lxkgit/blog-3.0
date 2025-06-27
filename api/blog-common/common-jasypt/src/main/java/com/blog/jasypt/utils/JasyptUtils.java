@@ -16,6 +16,7 @@ public class JasyptUtils {
         map.put("elasticsearch  账号: elastic     密码: ", "elasticsearch-960@*");
         map.put("minio          账号: minio       密码: ", "minio-960@*");
         map.put("ftp            账号: system      密码: ", "Ftp@Admin123*.");
+        map.put("xxlJob         账号：admin        密码：", "xxlJob-960@*");
     }
 
 

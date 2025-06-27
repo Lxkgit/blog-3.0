@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -50,6 +51,10 @@ public class NettyServer implements CommandLineRunner {
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    @Lazy
+    @Resource
+    private NettyMessageReplayThread replayThread;
+
     /**
      * 开启Netty服务
      */
@@ -80,7 +85,7 @@ public class NettyServer implements CommandLineRunner {
             ChannelFuture future = serverBootstrap.bind(port).sync();
             if (future.isSuccess()) {
                 logger.info("Netty 服务端启动成功 端口: {}", port);
-                executor.execute(new NettyMessageReplayThread());
+                executor.execute(replayThread);
             }
             channel = future.channel();
         } catch (Exception e) {

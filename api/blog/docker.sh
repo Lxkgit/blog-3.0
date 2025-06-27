@@ -386,7 +386,7 @@ minio() {
 xxlJob() {
 	mkdir -p /opt/docker/xxlJob/logs
 	echo "正在启动xxlJob..."
-	docker run --name xxljob --network blog_network --ip 172.18.0.12 -p 8080:8080 --restart=always --privileged=true -e PARAMS="--spring.datasource.username=root --spring.datasource.password=${mysqlPassword} --spring.datasource.url=jdbc:mysql://172.18.0.3:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai" -v /opt/docker/xxlJob/logs:/data/applogs -d xuxueli/xxl-job-admin:2.5.0
+	docker run --name xxljob --network blog_network --ip 172.18.0.12 -p 8080:8080 --restart=always --privileged=true -e PARAMS="--spring.datasource.username=root --spring.datasource.password=${mysqlPassword} --spring.datasource.url=jdbc:mysql://172.18.0.3:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai --xxl.job.accessToken=aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789+=" -v /opt/docker/xxlJob/logs:/data/applogs -d xuxueli/xxl-job-admin:2.5.0
 }
 
 startJar() {

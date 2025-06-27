@@ -38,21 +38,6 @@ public class XxlJobTask {
     private NettyFileSyncService nettyFileSyncService;
 
     /**
-     * 1、简单任务示例（Bean模式）
-     */
-    @XxlJob("demoJobHandler")
-    public void demoJobHandler() throws Exception {
-        logger.info("执行 demoJobHandler 定时任务");
-        System.out.println("XXL-JOB, Hello World.");
-        XxlJobHelper.log("XXL-JOB, Hello World.");
-
-        for (int i = 0; i < 5; i++) {
-            XxlJobHelper.log("beat at:" + i);
-            TimeUnit.SECONDS.sleep(2);
-        }
-    }
-
-    /**
      * 文件同步任务-定时备份博客数据
      * 服务器端：
      * 1. 通知socket执行shell脚本，备份服务器上数据

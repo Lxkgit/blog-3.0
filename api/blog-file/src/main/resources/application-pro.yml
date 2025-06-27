@@ -60,7 +60,7 @@ xxl:
   job:
     admin:
       addresses: http://172.18.0.12:8080/xxl-job-admin
-    accessToken: default_token
+    accessToken: aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789+=
     executor:
       appname: ${spring.application.name}
       address:

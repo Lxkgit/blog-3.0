@@ -37,7 +37,7 @@
 
         <!-- 工具类版本 -->
         <mybatis-plus.version>3.5.10.1</mybatis-plus.version>
-        <pagehelper.version>6.1.0</pagehelper.version>
+        <pagehelper.version>2.1.0</pagehelper.version>
         <easyes.version>2.0.0</easyes.version>
         <fastjson.version>2.0.43</fastjson.version>
         <lombok.version>1.18.36</lombok.version>
@@ -149,7 +149,7 @@
             <dependency>
                 <groupId>com.github.pagehelper</groupId>
                 <artifactId>pagehelper-spring-boot-starter</artifactId>
-                <version>2.1.0</version>
+                <version>${pagehelper.version}</version>
             </dependency>
 
             <!-- easy-es -->
@@ -233,7 +233,7 @@
             <dependency>
                 <groupId>org.bytedeco</groupId>
                 <artifactId>javacv-platform</artifactId>
-                <version>1.5.11</version>
+                <version>${javacv-platform.version}</version>
             </dependency>
 
         </dependencies>

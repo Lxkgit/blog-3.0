@@ -17,9 +17,9 @@ spring:
     password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)
   servlet:
     multipart:
-      max-file-size: 110MB # 设置单个文件大小
-      max-request-size: 110MB # 设置单次请求文件的总大小
-  data:
+      max-file-size: 500MB # 设置单个文件大小
+      max-request-size: 500MB # 设置单次请求文件的总大小
+  data:,
     redis:
       database: 0
       host: 172.18.0.6

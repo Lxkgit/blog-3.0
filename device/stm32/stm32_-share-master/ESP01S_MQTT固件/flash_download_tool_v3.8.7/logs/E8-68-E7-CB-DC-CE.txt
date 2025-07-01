@@ -1,236 +1,0 @@
-*************************** START ****************************
-START TIME: 202203300810
-CONNECT BAUD: 115200
-com port closed
-set state: ESP_DL_SYNC
-serial port opened
------------
-baud:115200
-root baud:115200
--------------
-===============BAUD : 115200===============CALL DEVICE SYNC
-connecting...
-chip sync ok
-0x3ff00050: ce190000
-0x3ff00054: 0200cbdc
-0x3ff00058: ba00b000
-0x3ff0005c: 00e868e7
-check_err_0: 0bcheck_err_1: 00check_err_2: 00check_err_3: 02check_err_4: 0b====================
-EFUSE NORMAL MODE
-====================
-=========================
-CRC IN MODE 1: 
-crc_calc_res: 186
-target crc val: 186
-=========================
-=========================
-CRC IN MODE 1:
-crc_calc_res: 25
-target crc val: 25
-=========================
-==================
-EFUSE LOG:
-======================
-    EFUSE LOG:
-    ---------------
-    REG0:CE190000
-    REG1:0200CBDC
-    REG2:ba00b000
-    REG3:00E868E7
-    ----------------
-    ====================
-                                   EFUSE NORMAL MODE
-                                   ====================
-EFUSE CHECK PASS...48bit mac
------------------------
- e8 68 e7 cb dc ceCUSTOM_ID: 0B A0 00 00 00 01 90 00 
-MAC AP : EA-68-E7-CB-DC-CE
-MAC STA: E8-68-E7-CB-DC-CE
-get mac res: 1
-get flash id : 0x001440c8
-manufacturer_id: 0xc8
-device_id: 0x4014
-SET FLASH PARAMS
-com closed
-Use time: 4 s
-Download result: PASS
-*************************** END ****************************
-
-*************************** START ****************************
-START TIME: 202203300810
-CONNECT BAUD: 115200
-com port closed
-set state: ESP_DL_SYNC
-serial port opened
------------
-baud:115200
-root baud:115200
--------------
-===============BAUD : 115200===============CALL DEVICE SYNC
-connecting...
-chip sync ok
-0x3ff00050: ce190000
-0x3ff00054: 0200cbdc
-0x3ff00058: ba00b000
-0x3ff0005c: 00e868e7
-check_err_0: 0bcheck_err_1: 00check_err_2: 00check_err_3: 02check_err_4: 0b====================
-EFUSE NORMAL MODE
-====================
-=========================
-CRC IN MODE 1: 
-crc_calc_res: 186
-target crc val: 186
-=========================
-=========================
-CRC IN MODE 1:
-crc_calc_res: 25
-target crc val: 25
-=========================
-==================
-EFUSE LOG:
-======================
-    EFUSE LOG:
-    ---------------
-    REG0:CE190000
-    REG1:0200CBDC
-    REG2:ba00b000
-    REG3:00E868E7
-    ----------------
-    ====================
-                                   EFUSE NORMAL MODE
-                                   ====================
-EFUSE CHECK PASS...48bit mac
------------------------
- e8 68 e7 cb dc ceCUSTOM_ID: 0B A0 00 00 00 01 90 00 
-MAC AP : EA-68-E7-CB-DC-CE
-MAC STA: E8-68-E7-CB-DC-CE
-get mac res: 1
-get flash id : 0x001440c8
-manufacturer_id: 0xc8
-device_id: 0x4014
-SET FLASH PARAMS
-set STOP FLG: Truecom closed
-Use time: 33 s
-Download result: PASS
-*************************** END ****************************
-
-set state: ESP_DL_STOP
-*************************** START ****************************
-START TIME: 202203300811
-CONNECT BAUD: 115200
-com port closed
-set state: ESP_DL_SYNC
-serial port opened
------------
-baud:115200
-root baud:115200
--------------
-===============BAUD : 115200===============CALL DEVICE SYNC
-connecting...
-chip sync ok
-0x3ff00050: ce190000
-0x3ff00054: 0200cbdc
-0x3ff00058: ba00b000
-0x3ff0005c: 00e868e7
-check_err_0: 0bcheck_err_1: 00check_err_2: 00check_err_3: 02check_err_4: 0b====================
-EFUSE NORMAL MODE
-====================
-=========================
-CRC IN MODE 1: 
-crc_calc_res: 186
-target crc val: 186
-=========================
-=========================
-CRC IN MODE 1:
-crc_calc_res: 25
-target crc val: 25
-=========================
-==================
-EFUSE LOG:
-======================
-    EFUSE LOG:
-    ---------------
-    REG0:CE190000
-    REG1:0200CBDC
-    REG2:ba00b000
-    REG3:00E868E7
-    ----------------
-    ====================
-                                   EFUSE NORMAL MODE
-                                   ====================
-EFUSE CHECK PASS...48bit mac
------------------------
- e8 68 e7 cb dc ceCUSTOM_ID: 0B A0 00 00 00 01 90 00 
-MAC AP : EA-68-E7-CB-DC-CE
-MAC STA: E8-68-E7-CB-DC-CE
-get mac res: 1
-get flash id : 0x001440c8
-manufacturer_id: 0xc8
-device_id: 0x4014
-SET FLASH PARAMS
-com closed
-Use time: 5 s
-Download result: PASS
-*************************** END ****************************
-
-*************************** START ****************************
-START TIME: 202203300811
-CONNECT BAUD: 115200
-com port closed
-set state: ESP_DL_SYNC
-serial port opened
------------
-baud:115200
-root baud:115200
--------------
-===============BAUD : 115200===============CALL DEVICE SYNC
-connecting...
-chip sync ok
-0x3ff00050: ce190000
-0x3ff00054: 0200cbdc
-0x3ff00058: ba00b000
-0x3ff0005c: 00e868e7
-check_err_0: 0bcheck_err_1: 00check_err_2: 00check_err_3: 02check_err_4: 0b====================
-EFUSE NORMAL MODE
-====================
-=========================
-CRC IN MODE 1: 
-crc_calc_res: 186
-target crc val: 186
-=========================
-=========================
-CRC IN MODE 1:
-crc_calc_res: 25
-target crc val: 25
-=========================
-==================
-EFUSE LOG:
-======================
-    EFUSE LOG:
-    ---------------
-    REG0:CE190000
-    REG1:0200CBDC
-    REG2:ba00b000
-    REG3:00E868E7
-    ----------------
-    ====================
-                                   EFUSE NORMAL MODE
-                                   ====================
-EFUSE CHECK PASS...48bit mac
------------------------
- e8 68 e7 cb dc ceCUSTOM_ID: 0B A0 00 00 00 01 90 00 
-MAC AP : EA-68-E7-CB-DC-CE
-MAC STA: E8-68-E7-CB-DC-CE
-get mac res: 1
-get flash id : 0x001440c8
-manufacturer_id: 0xc8
-device_id: 0x4014
-SET FLASH PARAMS
-Wrote 1048576 bytes (528574 compressed) at 0x00000000 in 46.7 seconds (effective 179.6 kbit/s)...
-Hash of data verified.
-Leaving...
-com closed
-Use time: 49 s
-Download result: PASS
-*************************** END ****************************
-

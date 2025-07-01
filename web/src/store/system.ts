@@ -23,6 +23,19 @@ export const systemStore = defineStore(
       password: '',
     })
 
+    // 临时登录用户信息(sessionStorage)
+    let userSession = ref({
+      rz_id: '',
+      user_id: '',
+      access_token: '',
+    })
+
+    // 登陆用户信息
+    let userMessage = ref({
+      userId: '',
+      username: ''
+    })
+
     let userInfo = ref({
       name: ''
     })
@@ -32,12 +45,6 @@ export const systemStore = defineStore(
       callbackUrl: ''
     })
 
-    // 临时登录用户信息(sessionStorage)
-    let userSession = ref({
-      rz_id: '',
-      user_id: '',
-      access_token: '',
-    })
 
     // 个人中心导航栏是否折叠
     let asideMenuFold = ref(false)
@@ -101,6 +108,11 @@ export const systemStore = defineStore(
       this.userSession = value
     }
 
+        // 用户信息（临时存储）
+    function setUserMessage(value: any) {
+      this.userMessage = value
+    }
+
     // 个人中心导航栏是否折叠
     function setAsideMenuFold(value: any) {
       this.asideMenuFold = value
@@ -151,9 +163,11 @@ export const systemStore = defineStore(
       nextPath,
       keepLogin,
       userLocal,
+      userSession,
+      userMessage,
       userInfo,
       callback,
-      userSession,
+
       asideMenuFold,
       theme,
       navigation,
@@ -172,6 +186,7 @@ export const systemStore = defineStore(
       setKeepLogin,
       setUserLocal,
       setUserSession,
+      setUserMessage,
       setAsideMenuFold,
       setTheme,
       setNavigation,
@@ -195,6 +210,7 @@ export const systemStore = defineStore(
           'callback',
           'userInfo',
           'userSession',
+          'userMessage',
           'asideMenuFold',
           'theme',
           'navigation',

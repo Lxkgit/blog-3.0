@@ -118,6 +118,11 @@ public class SocketService {
 
     }
 
+    /**
+     * socket 消息发送方法
+     * @param session
+     * @param message
+     */
     private void sendMessageToSession(Session session, String message) {
         if (session != null && session.isOpen()) {
             synchronized (session) {

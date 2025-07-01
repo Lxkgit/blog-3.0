@@ -13,7 +13,7 @@ function user() {
   let userName = ref()
   const router = useRouter()
 
-  onActivated(() => { })
+  onActivated(() => {})
 
   onMounted(() => {
     isLogin.value = store.isLogin
@@ -49,12 +49,14 @@ function user() {
       clientSecret: '123456',
       // 授权码获取token
       grantType: 'authorization_code',
-      username: store.userLocal.username
+      username: store.userLocal.username,
     }).then((res: any) => {
       //把token放入Cookie中
       store.userSession.access_token = res.result.access_token
       store.userSession.user_id = res.result.user_id
       store.userLocal.refresh_token = res.result.refresh_token
+      ;(store.userMessage.userId = res.result.user_id),
+        (store.userMessage.username = store.userLocal.username)
       store.isLogin = true
       userInfoFun()
       //然后跳转到首页
@@ -64,7 +66,11 @@ function user() {
 
   const refreshTokenFun = () => {
     if (!isLogin.value) {
-      if (store.userLocal.refresh_token !== null && store.userLocal.refresh_token !== undefined && store.userLocal.refresh_token !== '') {
+      if (
+        store.userLocal.refresh_token !== null &&
+        store.userLocal.refresh_token !== undefined &&
+        store.userLocal.refresh_token !== ''
+      ) {
         userTokenApi({
           // 客户端id
           clientId: 'dianshang',
@@ -97,11 +103,19 @@ function user() {
 
   // 个人中心-退出登录
   const userLogoutFun = () => {
-    // userLogoutApi({}, { headers: { rzId: store.userSession.rz_id } }).then((res: any) => {
-    //   if (res.code === 200) {
-    //     router.push('/home')
-    //   }
-    // })
+    store.isLogin = false
+    store.userSession = {
+      rz_id: '',
+      user_id: '',
+      access_token: '',
+    }
+    store.userLocal = {
+      refresh_token: '',
+      username: '',
+      password: '',
+    }
+
+    router.push('/')
   }
 
   return {

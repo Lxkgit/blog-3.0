@@ -12,31 +12,38 @@
 
 <script setup lang="ts">
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import { onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import { systemStore } from "@/store/system"
-import dark from "@/utils/dark";
+import { onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { systemStore } from '@/store/system'
+import dark from '@/utils/dark'
+import socketAll from '@/utils/socketAll'
 
-// import socketAll from '@/utils/socketAll';
-// import socketUser from '@/utils/socketUser'
-import user from "@/utils/user";
+import user from '@/utils/user'
+import mitter from './utils/mitt'
 // import mitter from "@/utils/mitt";
 // import { selectBlogSettingByIdApi } from "@/api/file"
 // import SettingEnum from "@/enums/blogSettingEnum"
 
-let { isLogin, userId, refreshTokenFun } = user();
+let { isLogin, userId, refreshTokenFun } = user()
 const store = systemStore()
 let { setDark } = dark()
-// let { openSocketAll } = socketAll()
-// let { openSocketUser, closeWebSocketUser } = socketUser()
+let { openSocketAll, reConnectWebSocketAll } = socketAll()
+
 const locale = zhCn
 const includeList = ref([])
 const router = useRouter()
-watch(() => router, (newValue) => {
-  if (newValue.currentRoute.value.meta.keepAlive && includeList.value.indexOf(newValue.currentRoute.value.name) === -1) {
-    includeList.value.push(newValue.currentRoute.value.name);
-  }
-}, { deep: true })
+watch(
+  () => router,
+  (newValue) => {
+    if (
+      newValue.currentRoute.value.meta.keepAlive &&
+      includeList.value.indexOf(newValue.currentRoute.value.name) === -1
+    ) {
+      includeList.value.push(newValue.currentRoute.value.name)
+    }
+  },
+  { deep: true },
+)
 
 // mitter.on("login", (data) => {
 //   const msg = JSON.parse(data)
@@ -58,12 +65,26 @@ onMounted(() => {
   try {
     document.body.removeChild(document.getElementById('Loading'))
     setTimeout(function () {
-      document.getElementById('app').style.display = 'block';
+      document.getElementById('app').style.display = 'block'
     }, 500)
   } catch (e) {
     console.log(e)
   }
+  openSocketAll()
+
+  mitter.on('heartbeat', (data) => {
+    console.log('接收子组件数据:', data)
+  })
 })
+
+// 监听切换主题色事件
+watch(
+  () => store.isLogin,
+  (newVal) => {
+    console.log('用户登陆状态改变:' + newVal)
+    reConnectWebSocketAll()
+  },
+)
 
 // async function selectBlogSettingByIdFun() {
 //   if (!store.socketFlag) {
@@ -101,14 +122,15 @@ onMounted(() => {
 //     }
 //   }
 // }
-
 </script>
 
 <style>
 .router-view {
   color: var(--el-text-color-primary);
   background-color: var(--el-background-color-base);
-  transition: background 1s, color 0.6s;
+  transition:
+    background 1s,
+    color 0.6s;
   width: 100%;
   height: max-content;
   min-height: 100vh;
@@ -141,5 +163,4 @@ onMounted(() => {
   background: #ededed;
   border-radius: 5px;
 }
-
 </style>

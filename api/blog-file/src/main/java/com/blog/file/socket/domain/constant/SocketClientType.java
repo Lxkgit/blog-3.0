@@ -14,13 +14,10 @@ public class SocketClientType {
     public static final String PYTHON = "python";
 
     /**
-     * 已登录用户
+     * 系统用户
+     * x: 用户id
+     * 六位随机码：未登录用户
      */
     public static final String USER = "user";
-
-    /**
-     * 全部用户
-     */
-    public static final String VISITOR = "visitor";
 
 }

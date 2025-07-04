@@ -4,11 +4,7 @@
       <span>用户管理</span>
     </div>
     <el-card style="margin: 18px 2%; width: 95%">
-      <el-table
-        :data="userList.data"
-        stripe
-        style="width: 100%; height: calc(100vh - 296px)"
-      >
+      <el-table :data="userList.data" stripe style="width: 100%; height: calc(100vh - 296px)">
         <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column prop="username" label="用户名" width="150" />
         <el-table-column prop="headImg" label="头像" width="100">
@@ -22,8 +18,8 @@
         <el-table-column prop="email" label="邮箱地址" width="180" />
         <el-table-column prop="sysRole" label="角色" width="240">
           <template #default="scope">
-            <div v-for="(role, index) in scope.row.roleList" :key="index" style="display: inline;">
-              <el-tag  style="margin-right: 2px; margin-bottom: 2px">
+            <div v-for="(role, index) in scope.row.roleList" :key="index" style="display: inline">
+              <el-tag style="margin-right: 2px; margin-bottom: 2px">
                 {{ role.roleName }}
               </el-tag>
             </div>
@@ -34,9 +30,7 @@
             <el-tag v-if="scope.row.status === '1'" class="ml-2" type="success">{{
               userStatus(scope.row.status)
             }}</el-tag>
-            <el-tag v-else class="ml-2" type="warning">{{
-              userStatus(scope.row.status)
-            }}</el-tag>
+            <el-tag v-else class="ml-2" type="warning">{{ userStatus(scope.row.status) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建日期" width="162" />
@@ -90,7 +84,7 @@
                 userDate.data.headImg === null ||
                 userDate.data.headImg === undefined ||
                 userDate.data.headImg === ''
-                  ? ['http://123.207.202.131:9000/blog/1/other/img/2025-04-26_22:17:02_c9a149_5.png']
+                  ? ['']
                   : [userDate.data.headImg]
               "
               :num="1"
@@ -103,11 +97,7 @@
           </div>
         </el-form-item>
         <el-form-item label="昵称：" label-width="100">
-          <el-input
-            v-model="userDate.data.nickname"
-            autocomplete="off"
-            style="width: 230px"
-          />
+          <el-input v-model="userDate.data.nickname" autocomplete="off" style="width: 230px" />
         </el-form-item>
         <el-form-item label="角色：" label-width="100">
           <el-select
@@ -126,11 +116,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="邮箱：" label-width="100">
-          <el-input
-            v-model="userDate.data.email"
-            autocomplete="off"
-            style="width: 230px"
-          />
+          <el-input v-model="userDate.data.email" autocomplete="off" style="width: 230px" />
         </el-form-item>
         <el-form-item label="账号状态：" label-width="100">
           <el-select v-model="userDate.data.status">
@@ -166,13 +152,13 @@
 </template>
 
 <script setup lang="ts">
-import mixin from "@/mixins/user";
-import { ref, reactive, onMounted } from "vue";
-import { userListApi, roleListApi, updateUserPerApi } from "@/api/user";
-import type { UploadProps } from "element-plus";
-import { ElMessage } from "element-plus";
-import icon from "@/utils/icon";
-import ImgUpload from "@/components/common/ImgUpload.vue";
+import mixin from '@/mixins/user'
+import { ref, reactive, onMounted } from 'vue'
+import { userListApi, roleListApi, updateUserPerApi } from '@/api/user'
+import type { UploadProps } from 'element-plus'
+import { ElMessage } from 'element-plus'
+import icon from '@/utils/icon'
+import ImgUpload from '@/components/common/ImgUpload.vue'
 
 let {
   page,
@@ -189,46 +175,46 @@ let {
   loadUserData,
   userHeadUpload,
   updateUserFun,
-} = userFn();
+} = userFn()
 
-let { MyIcon } = icon();
-let { userStatus } = mixin();
+let { MyIcon } = icon()
+let { userStatus } = mixin()
 
 onMounted(() => {
-  pageChange(1);
-});
+  pageChange(1)
+})
 
 /**
  * 用户增删改查操作方法合集
  */
 function userFn(): any {
   // 分页参数
-  let page = ref<number>(1);
-  let size = ref<number>(20);
-  let total = ref<number>(0);
+  let page = ref<number>(1)
+  let size = ref<number>(20)
+  let total = ref<number>(0)
 
   // 用户列表
-  let userList: any = reactive({ data: [] });
+  let userList: any = reactive({ data: [] })
   // 角色列表
-  let roleList: any = reactive({ data: [] });
+  let roleList: any = reactive({ data: [] })
   // 修改用户dialog
-  let updateUserDialog = ref(false);
+  let updateUserDialog = ref(false)
   // 修改用户数据
-  const userDate: any = reactive({ data: {} });
+  const userDate: any = reactive({ data: {} })
 
   /**
    * 页数修改查询数据
    */
   const pageChange = (page: any) => {
-    getUserList(page);
-  };
+    getUserList(page)
+  }
 
   /**
    * 页大小修改查询数据
    */
   const sizeChange = (size: any) => {
-    getUserList(1);
-  };
+    getUserList(1)
+  }
 
   /**
    * 分页获取用户列表
@@ -236,11 +222,11 @@ function userFn(): any {
   const getUserList = (page: any) => {
     userListApi(page, size.value).then((res: any) => {
       if (res.code === 200) {
-        userList.data = res.result.list;
-        total.value = res.result.total;
+        userList.data = res.result.list
+        total.value = res.result.total
       }
-    });
-  };
+    })
+  }
 
   /**
    * 获取全部角色列表
@@ -248,42 +234,42 @@ function userFn(): any {
   const getRoleList = () => {
     roleListApi(1, 200).then((res: any) => {
       if (res.code === 200) {
-        roleList.data = res.result.list;
+        roleList.data = res.result.list
         for (let i = 0; i < roleList.data.length; i++) {
-          roleList.data[i].label = roleList.data[i].roleName;
-          roleList.data[i].value = roleList.data[i].id;
+          roleList.data[i].label = roleList.data[i].roleName
+          roleList.data[i].value = roleList.data[i].id
         }
       }
-    });
-  };
+    })
+  }
 
   /**
    * 修改用户信息
    */
   const loadUserData = (data: any) => {
     // 转为json 再转回来防止表单修改影响页面展示
-    userDate.data = JSON.parse(JSON.stringify(data));
-    updateUserDialog.value = true;
-    getRoleList();
-  };
+    userDate.data = JSON.parse(JSON.stringify(data))
+    updateUserDialog.value = true
+    getRoleList()
+  }
 
   /**
    * 上传用户头像回调方法
    */
   const userHeadUpload = (upload: any) => {
-    if(upload !== null && upload !== undefined) {
+    if (upload !== null && upload !== undefined) {
       console.log('---')
       console.log(upload.fileUrl)
       console.log(userDate.data)
-      userDate.data.headImg = upload.fileUrl;
+      userDate.data.headImg = upload.fileUrl
     }
-  };
+  }
 
   /**
    * 管理员修改用户数据
    */
   const updateUserFun = () => {
-    updateUserDialog.value = false;
+    updateUserDialog.value = false
     updateUserPerApi({
       id: userDate.data.id,
       nickname: userDate.data.nickname,
@@ -294,13 +280,13 @@ function userFn(): any {
     }).then((res: any) => {
       if (res.code === 200) {
         ElMessage({
-          message: "用户数据修改成功",
-          type: "success",
-        });
-        pageChange(1);
+          message: '用户数据修改成功',
+          type: 'success',
+        })
+        pageChange(1)
       }
-    });
-  };
+    })
+  }
 
   return {
     page,
@@ -317,7 +303,7 @@ function userFn(): any {
     loadUserData,
     userHeadUpload,
     updateUserFun,
-  };
+  }
 }
 </script>
 

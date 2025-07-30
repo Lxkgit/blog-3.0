@@ -50,6 +50,7 @@
         <!-- 解决依赖冲突 - mq与gateway -->
         <grpc-netty.version>1.53.0</grpc-netty.version>
         <javacv-platform.version>1.5.6</javacv-platform.version>
+        <easyexcel.version>4.0.3</easyexcel.version>
     </properties>
 
     <dependencyManagement>
@@ -234,6 +235,13 @@
                 <groupId>org.bytedeco</groupId>
                 <artifactId>javacv-platform</artifactId>
                 <version>${javacv-platform.version}</version>
+            </dependency>
+
+            <!-- excel 导入导出工具 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>easyexcel</artifactId>
+                <version>${easyexcel.version}</version>
             </dependency>
 
         </dependencies>

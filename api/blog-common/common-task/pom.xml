@@ -14,8 +14,25 @@
     <dependencies>
         <!-- spring注解 -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cronutils</groupId>
+            <artifactId>cron-utils</artifactId>
+        </dependency>
+
+        <!-- redis服务 -->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-redis</artifactId>
+            <version>3.0</version>
         </dependency>
     </dependencies>
 

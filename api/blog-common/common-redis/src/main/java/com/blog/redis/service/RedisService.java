@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -582,8 +583,63 @@ public class RedisService {
             logger.info("redis错误信息:{} error: ", e.getMessage(), e);
             return 0L;
         }
-
     }
 
+    // ===============================zSet=================================
 
+    /**
+     * @param key   键
+     * @param value 值
+     * @param score 排序
+     * @return
+     */
+    public boolean setZSet(String key, Object value, double score) {
+        try {
+            redisTemplate.opsForZSet().add(key, value, score);
+            return true;
+        } catch (Exception e) {
+            logger.info("redis错误信息:{} error: ", e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public ZSetOperations.TypedTuple<Object> getZSetByIndex(String key, long index) {
+        try {
+            Set<Object> set = redisTemplate.opsForZSet().range(key, index, index);
+            if (CollectionUtils.isEmpty(set)) {
+                logger.info("ZSet:{} 数据为空", key);
+                return null;
+            }
+
+            Set<ZSetOperations.TypedTuple<Object>> tuples = redisTemplate.opsForZSet().rangeWithScores(key, index, index);
+            if (tuples != null && !tuples.isEmpty()) {
+                ZSetOperations.TypedTuple<Object> tuple = tuples.iterator().next();
+                logger.info("ZSet: 成员: {}, 分数: {}", tuple.getValue(), tuple.getScore());
+                return tuple;
+            }
+            return null;
+        } catch (Exception e) {
+            logger.info("redis错误信息:{} error: ", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    public void removeZSetByIndex(String key, long index) {
+        try {
+            // 获取指定索引的元素
+            Set<ZSetOperations.TypedTuple<Object>> tuples = redisTemplate.opsForZSet().rangeWithScores(key, index, index);
+
+            if (tuples == null || tuples.isEmpty()) {
+                return;
+            }
+
+            ZSetOperations.TypedTuple<Object> element = tuples.iterator().next();
+            Object member = element.getValue();
+
+            // 删除该成员
+            redisTemplate.opsForZSet().remove(key, member);
+        } catch (Exception e) {
+            logger.info("redis错误信息:{} error: ", e.getMessage(), e);
+        }
+    }
 }

@@ -167,6 +167,12 @@
             <version>3.0</version>
         </dependency>
 
+        <!-- 定时任务线程 -->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-task</artifactId>
+            <version>3.0</version>
+        </dependency>
 
     </dependencies>
 

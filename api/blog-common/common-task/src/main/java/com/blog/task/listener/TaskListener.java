@@ -7,6 +7,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.Executor;
+
 /**
  * @Description
  * @Author lxk
@@ -20,7 +22,7 @@ public class TaskListener implements ApplicationRunner {
     private RedisService redisService;
 
     @Resource
-    private TaskThread baseTaskThread;
+    private Executor baseTaskThread;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {

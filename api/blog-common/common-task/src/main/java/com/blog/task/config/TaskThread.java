@@ -36,7 +36,7 @@ public class TaskThread {
         executor.setQueueCapacity(500);
         // 线程空闲时间
         executor.setKeepAliveSeconds(60);
-        executor.setThreadNamePrefix("BaseImportThread");
+        executor.setThreadNamePrefix("TaskThread");
         // 拒绝策略 由调用者所在的线程来执行任务
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();

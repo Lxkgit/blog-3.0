@@ -588,6 +588,22 @@ public class RedisService {
     // ===============================zSet=================================
 
     /**
+     * 获取ZSet长度
+     *
+     * @param key ZSet key
+     * @return
+     */
+    public Long getZSetSize(String key) {
+        try {
+            return redisTemplate.opsForZSet().size(key);
+        } catch (Exception e) {
+            logger.info("redis错误信息:{} error: ", e.getMessage(), e);
+            return 0L;
+        }
+
+    }
+
+    /**
      * @param key   键
      * @param value 值
      * @param score 排序
@@ -633,8 +649,8 @@ public class RedisService {
                 return;
             }
 
-            ZSetOperations.TypedTuple<Object> element = tuples.iterator().next();
-            Object member = element.getValue();
+            ZSetOperations.TypedTuple<Object> tuple = tuples.iterator().next();
+            Object member = tuple.getValue();
 
             // 删除该成员
             redisTemplate.opsForZSet().remove(key, member);

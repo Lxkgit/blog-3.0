@@ -1,15 +1,16 @@
 package com.blog.task.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.blog.redis.service.RedisService;
+import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
 import com.blog.task.utils.CronUtil;
 import jakarta.annotation.Resource;
-import org.springframework.util.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -18,9 +19,8 @@ import java.time.format.DateTimeFormatter;
  * @CreateTime 2025-07-31
  */
 
+@Service
 public class TaskService {
-
-    private static final String taskKey = "task.queue";
 
     @Resource
     private RedisService redisService;
@@ -32,7 +32,7 @@ public class TaskService {
         } else {
             String time = taskEntity.getTime();
             char lastChar = time.charAt(time.length() - 1);
-            double timeDouble = Double.parseDouble(time.substring(0, time.length() - 2));
+            double timeDouble = Double.parseDouble(time.substring(0, time.length() - 1));
 
             if (lastChar == 'h') {
                 // 获取当前时间
@@ -57,10 +57,8 @@ public class TaskService {
             }
         }
         if (nextTime != 0L) {
-            redisService.setZSet(taskKey, taskEntity, nextTime);
+            redisService.setZSet(TaskConstant.TASK_QUEUE, JSONObject.toJSONString(taskEntity), nextTime);
         }
-
-
     }
 
 

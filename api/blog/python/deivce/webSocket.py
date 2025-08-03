@@ -249,7 +249,7 @@ def execute_shell_script(shell_script_path):
         return {
             "success": result.returncode == 0,
             "output": result.stdout,
-            "returncode": result.returncode
+            "code": result.returncode
         }
 
     except Exception as e:
@@ -257,7 +257,7 @@ def execute_shell_script(shell_script_path):
         return {
             "success": False,
             "output": str(e),
-            "returncode": -1
+            "code": -1
         }
 
 

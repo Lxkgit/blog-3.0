@@ -1,2 +1,3 @@
-com.blog.task.listener.TaskListener
 com.blog.task.config.TaskThread
+com.blog.task.listener.TaskListener
+com.blog.task.service.TaskService

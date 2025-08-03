@@ -134,5 +134,11 @@ public class NettyFileSyncService {
         }
     }
 
+    /**
+     *
+     */
+    public void clearTempFileOrPath(String path) {
+        logger.info("清理文件：{}", path);
+    }
 
 }

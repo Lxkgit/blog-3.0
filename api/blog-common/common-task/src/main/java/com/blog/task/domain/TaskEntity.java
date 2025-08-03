@@ -15,9 +15,9 @@ public class TaskEntity {
 
     private String methodName;
 
-    private String params;
+    private Object[] params;
 
-    private Class<?> paramsClazz;
+    private Class<?>[] paramsClazz;
 
     /**
      * cron 表达式

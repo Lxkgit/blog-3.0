@@ -30,7 +30,8 @@ public class PermitUrl {
             "/data",
             "/setting/id",
             "/upload/images/**",
-            "/socket/**"
+            "/socket/**",
+            "/test/**"
     };
 
     private static final String[] contentPermitUrl = {

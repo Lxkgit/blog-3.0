@@ -623,14 +623,11 @@ public class RedisService {
         try {
             Set<Object> set = redisTemplate.opsForZSet().range(key, index, index);
             if (CollectionUtils.isEmpty(set)) {
-                logger.info("ZSet:{} 数据为空", key);
                 return null;
             }
-
             Set<ZSetOperations.TypedTuple<Object>> tuples = redisTemplate.opsForZSet().rangeWithScores(key, index, index);
             if (tuples != null && !tuples.isEmpty()) {
                 ZSetOperations.TypedTuple<Object> tuple = tuples.iterator().next();
-                logger.info("ZSet: 成员: {}, 分数: {}", tuple.getValue(), tuple.getScore());
                 return tuple;
             }
             return null;
@@ -644,11 +641,9 @@ public class RedisService {
         try {
             // 获取指定索引的元素
             Set<ZSetOperations.TypedTuple<Object>> tuples = redisTemplate.opsForZSet().rangeWithScores(key, index, index);
-
             if (tuples == null || tuples.isEmpty()) {
                 return;
             }
-
             ZSetOperations.TypedTuple<Object> tuple = tuples.iterator().next();
             Object member = tuple.getValue();
 

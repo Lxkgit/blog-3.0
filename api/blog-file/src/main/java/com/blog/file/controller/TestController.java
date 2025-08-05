@@ -23,21 +23,12 @@ import java.util.Arrays;
 public class TestController {
 
     @Resource
-    private TaskService taskService;
+    private NettyFileSyncService nettyFileSyncService;
 
     @GetMapping("/get")
     public Result getTest() {
         System.out.println("测试方法调用");
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setClazz(NettyFileSyncService.class);
-
-        taskEntity.setMethodName("clearTempFileOrPath");
-        taskEntity.setParams(new Object[]{"测试参数名称"});
-        Class<?>[] paramTypes = new Class<?>[]{String.class};
-        taskEntity.setParamsClazz(paramTypes);
-        taskEntity.setTime("5s");
-        taskEntity.setCount(1);
-        taskService.createTask(taskEntity);
+        nettyFileSyncService.deleteTempFile("test-11");
         return ResultFactory.buildSuccessResult();
     }
 }

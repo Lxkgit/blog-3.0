@@ -4,8 +4,11 @@ import com.alibaba.fastjson2.JSONObject;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
+import com.blog.task.listener.TaskListener;
 import com.blog.task.utils.CronUtil;
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,15 +25,24 @@ import java.time.ZonedDateTime;
 @Service
 public class TaskService {
 
+    private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
+
     @Resource
     private RedisService redisService;
 
     public void createTask(TaskEntity taskEntity) {
         long nextTime = 0L;
+        if (taskEntity.getIndexCount() == null) {
+            taskEntity.setIndexCount(0);
+        }
         if (taskEntity.getCron() != null && !taskEntity.getCron().isEmpty()) {
             nextTime = CronUtil.getCronNextTimeEpoch(taskEntity.getCron());
         } else {
             String time = taskEntity.getTime();
+            if (time == null || time.isEmpty()) {
+                logger.error("任务创建失败 cron 与 time 字段不能同时为空");
+                return;
+            }
             char lastChar = time.charAt(time.length() - 1);
             double timeDouble = Double.parseDouble(time.substring(0, time.length() - 1));
 

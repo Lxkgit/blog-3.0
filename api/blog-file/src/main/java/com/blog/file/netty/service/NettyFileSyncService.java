@@ -19,6 +19,8 @@ import com.blog.file.socket.domain.constant.SocketConstant;
 import com.blog.file.socket.domain.constant.SocketTopic;
 import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.domain.service.SocketMessageSendService;
+import com.blog.task.domain.TaskEntity;
+import com.blog.task.service.TaskService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -48,6 +50,9 @@ public class NettyFileSyncService {
     private SocketService socketService;
 
     @Resource
+    private TaskService taskService;
+
+    @Resource
     private UserDeviceMapper userDeviceMapper;
 
     @Resource
@@ -72,6 +77,24 @@ public class NettyFileSyncService {
             NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
             nettyServer.sendByRegisterIdLimitTime(registerId, JSON.toJSONString(nettyPacket), 8 * 60);
         }
+//        deleteTempFile(nettySyncFileDto.getServiceFilePath());
+    }
+
+    /**
+     *  删除临时同步目录文件
+     */
+    public void deleteTempFile(String filePath) {
+        // 定时删除同步文件
+        TaskEntity taskEntity = new TaskEntity();
+
+        taskEntity.setClazz(NettyFileSyncService.class);
+        taskEntity.setMethodName("clearTempFileOrPath");
+        taskEntity.setParams(new Object[]{filePath});
+        Class<?>[] paramTypes = new Class<?>[]{String.class};
+        taskEntity.setParamsClazz(paramTypes);
+        taskEntity.setTime("20s");
+        taskEntity.setCount(1);
+        taskService.createTask(taskEntity);
     }
 
 

@@ -6,6 +6,7 @@ import com.blog.redis.service.RedisService;
 import com.blog.task.config.TaskThread;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
+import com.blog.task.service.TaskService;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -40,14 +41,16 @@ public class TaskListener implements ApplicationRunner {
     @Resource
     private Executor baseTaskThread;
 
+    @Resource
+    private TaskService taskService;
+
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-        System.out.println("任务定时监控线程启动");
+    public void run(ApplicationArguments args) {
+        logger.info("任务定时监控线程启动");
         baseTaskThread.execute(this::taskListenerThread);
     }
 
     private void taskListenerThread() {
-
         while (true) {
             try {
                 Long taskCount = redisService.getZSetSize(TaskConstant.TASK_QUEUE);
@@ -75,25 +78,22 @@ public class TaskListener implements ApplicationRunner {
                                 Class<?>[] paramTypes = taskEntity.getParamsClazz(); // 改为数组
                                 Object[] methodParams = taskEntity.getParams();
 
-                                // 2. 获取目标类的实例（关键修复！）
-                                // 方式1：如果目标类有默认构造（简单场景）
+                                // 2. 获取目标类的实例
                                 Object targetInstance = targetClass.getDeclaredConstructor().newInstance();
-
-                                // 方式2：更推荐 - 从Spring容器获取Bean（确保依赖注入）
-                                // Object targetInstance = applicationContext.getBean(targetClass);
 
                                 // 3. 查找方法
                                 Method method = ReflectionUtils.findMethod(targetClass, methodName, paramTypes);
                                 if (method == null) {
-                                    throw new IllegalArgumentException("Method not found: " + methodName);
+                                    logger.error("类:{} 中不存在:{} 方法", targetClass, methodName);
+                                    throw new IllegalArgumentException();
                                 }
 
                                 // 4. 设置方法可访问
                                 method.setAccessible(true);
 
-                                logger.info("执行任务：class:{} method:{}", targetClass, methodName);
-
                                 // 5. 提交任务（捕获所有必要变量）
+                                logger.info("执行任务：{} method:{}", targetClass, methodName);
+                                taskEntity.setIndexCount(taskEntity.getIndexCount() + 1);
                                 baseTaskThread.execute(() -> {
                                     try {
                                         // 使用正确的目标实例
@@ -104,6 +104,9 @@ public class TaskListener implements ApplicationRunner {
                                         // 添加错误处理逻辑
                                     }
                                 });
+                                if (taskEntity.getIndexCount() < taskEntity.getCount()) {
+                                    taskService.createTask(taskEntity);
+                                }
                             }
                         }
                     }
@@ -111,7 +114,6 @@ public class TaskListener implements ApplicationRunner {
                 Thread.sleep(1000);
             } catch (Exception e) {
                 logger.error("任务调用异常：{}", e.getMessage(), e);
-
             }
         }
     }

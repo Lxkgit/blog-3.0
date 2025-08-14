@@ -87,7 +87,7 @@ public class ArticleController {
      * @return
      */
     @GetMapping("/id")
-    public Result selectArticleById(@Validated(value = {SelectIdGroup.class}) ArticleVo articleVo) {
+    public Result selectArticleById(@Validated(value = {SelectIdGroup.class}) ArticleVo articleVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(articleService.selectArticleById(articleVo.getId()));
     }
 

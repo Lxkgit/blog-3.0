@@ -14,10 +14,8 @@ public class ServiceException extends BaseException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private String errMsg;
-
-    public ServiceException(String code) {
-        super(code);
+    public ServiceException(String errMsg) {
+        super(errMsg);
     }
 
     public ServiceException(String code, String errMsg) {

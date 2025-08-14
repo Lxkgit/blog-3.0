@@ -1,5 +1,7 @@
 package com.blog.core.result;
 
+import com.blog.core.constant.ErrorMessage;
+
 /**
  * @author: lxk
  * @date: 2021/6/30 10:29
@@ -9,15 +11,15 @@ package com.blog.core.result;
 public class ResultFactory {
 
     public static Result buildSuccessResult(Object data) {
-        return buildResult(ResultCode.SUCCESS.code, "成功", data, true);
+        return buildResult("200", "成功", data, true);
     }
 
     public static Result buildSuccessResult() {
-        return buildResult(ResultCode.SUCCESS.code, "成功", null, true);
+        return buildResult("200", "成功", null, true);
     }
 
     public static Result buildFailResult(String message) {
-        return buildResult(ResultCode.FAIL.code, message, null, false);
+        return buildResult(ErrorMessage.SERVICE_UNKNOWN_ERROR.getCode(), message, null, false);
     }
 
     public static Result buildFailResult(String errorCode, String message) {

@@ -276,8 +276,11 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     @Override
-    public ArticleVo selectArticleById(int articleId) {
+    public ArticleVo selectArticleById(int articleId) throws ServiceException {
         Article article = articleMapper.selectById(articleId);
+        if(article == null) {
+            throw new ServiceException("文章不存在");
+        }
         ArticleVo articleVo = new ArticleVo();
         BeanUtils.copyProperties(article, articleVo);
         UserVo userVo = userClient.selectUserById(article.getUserId());

@@ -10,7 +10,7 @@ public interface ArticleService {
 
     MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo articleVo) throws ServiceException;
 
-    ArticleVo selectArticleById(int articleId);
+    ArticleVo selectArticleById(int articleId) throws ServiceException;
 
     int saveArticle(ArticleVo article) throws ServiceException;
 

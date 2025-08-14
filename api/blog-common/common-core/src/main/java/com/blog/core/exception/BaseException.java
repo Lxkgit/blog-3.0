@@ -9,7 +9,7 @@ import java.io.Serial;
 
 @Setter
 @Getter
-public abstract class BaseException extends Exception {
+public abstract class BaseException extends RuntimeException {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -19,8 +19,8 @@ public abstract class BaseException extends Exception {
     private Object args;
     private Object data;
 
-    public BaseException(String code) {
-        this.code = code;
+    public BaseException(String errMsg) {
+        this.errMsg = errMsg;
     }
 
     public BaseException(String code, String errMsg) {

@@ -4,7 +4,7 @@ package com.blog.file.service.impl;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.file.device.entity.Chip;
 import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.entity.SensorControl;
@@ -12,8 +12,8 @@ import com.blog.core.domain.file.device.entity.SensorTemplate;
 import com.blog.core.domain.file.device.vo.SensorControlVo;
 import com.blog.core.domain.file.device.vo.SensorVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.result.MyPage;
-import com.blog.core.result.MyPageUtils;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.BeanValidationUtil;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.core.valication.group.AddGroup;
@@ -84,7 +84,7 @@ public class SensorControlServiceImpl implements SensorControlService {
         SensorControl sensorControl = sensorControlMapper.selectById(id);
 
         if (sensorControl == null) {
-            throw new ServiceException(ErrorMessage.SENSOR_CONTROL_NOT_EXISTS);
+            throw new ServiceException(ErrorConstant.SENSOR_CONTROL_NOT_EXISTS);
         }
 
         if (!userId.equals(sensorControl.getUserId())) {
@@ -217,7 +217,7 @@ public class SensorControlServiceImpl implements SensorControlService {
      * @return
      */
     @Override
-    public MyPage<SensorControlVo> selectSensorControlList(SensorControlVo sensorControlVoParam) throws ServiceException {
+    public ResultPage<SensorControlVo> selectSensorControlList(SensorControlVo sensorControlVoParam) throws ServiceException {
         Integer userId = SecurityUtil.getLoginUser().getId();
 
         // 传感器与单片机id
@@ -279,7 +279,7 @@ public class SensorControlServiceImpl implements SensorControlService {
             sensorControlVoList.add(sensorControlVo);
         }
 
-        return MyPageUtils.pageUtil(sensorControlVoList, sensorControlPage.getPageNum(), sensorControlPage.getPageSize(), (int) sensorControlPage.getTotal());
+        return ResultPageUtils.pageUtil(sensorControlVoList, sensorControlPage.getPageNum(), sensorControlPage.getPageSize(), (int) sensorControlPage.getTotal());
     }
 
     /**
@@ -371,7 +371,7 @@ public class SensorControlServiceImpl implements SensorControlService {
         Map<String, String> errorMap = BeanValidationUtil.validationBean(sensorCommandCheckVo, AddGroup.class);
 
         if (!CollectionUtils.isEmpty(errorMap)) {
-            throw new ServiceException(ErrorMessage.PARAMETER_VERIFICATION_ERROR, errorMap);
+            throw new ServiceException(ErrorConstant.PARAMETER_VERIFICATION_ERROR, errorMap);
         }
     }
 }

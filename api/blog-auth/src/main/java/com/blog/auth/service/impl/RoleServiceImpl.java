@@ -7,8 +7,8 @@ import com.blog.auth.service.RoleService;
 import com.blog.core.domain.auth.entity.Menu;
 import com.blog.core.domain.auth.entity.Role;
 import com.blog.core.domain.auth.vo.RoleVo;
-import com.blog.core.result.MyPage;
-import com.blog.core.result.MyPageUtils;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -42,11 +42,11 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public MyPage<Role> selectRoleList(RoleVo role) {
+    public ResultPage<Role> selectRoleList(RoleVo role) {
         LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<>();
         PageHelper.startPage(role.getPageNum(), role.getPageSize());
         List<Role> roles = roleMapper.selectList(queryWrapper);
-        return MyPageUtils.pageUtil(roles, role.getPageNum(), role.getPageSize(), new PageInfo<>(roles).getTotal());
+        return ResultPageUtils.pageUtil(roles, role.getPageNum(), role.getPageSize(), new PageInfo<>(roles).getTotal());
     }
 
     @Override

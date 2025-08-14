@@ -4,14 +4,14 @@ package com.blog.file.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.constant.Constant;
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.file.device.entity.Chip;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.vo.ChipVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.result.MyPage;
-import com.blog.core.result.MyPageUtils;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.ChipMapper;
@@ -21,7 +21,6 @@ import com.blog.file.service.ChipService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -63,7 +62,7 @@ public class ChipServiceImpl implements ChipService {
         wrapper.eq("chip_code", chipVo.getChipCode());
         Chip chip = chipMapper.selectOne(wrapper);
         if (chip != null) {
-            throw new ServiceException(ErrorMessage.CHIP_CODE_EXISTS);
+            throw new ServiceException(ErrorConstant.CHIP_CODE_EXISTS);
         }
         chipVo.setUserId(userId);
         chipVo.setChipStatus(Constant.DEVICE_OFFLINE);
@@ -103,7 +102,7 @@ public class ChipServiceImpl implements ChipService {
         wrapper.ne("id", chipVo.getId());
         Chip chip = chipMapper.selectOne(wrapper);
         if (chip != null) {
-            throw new ServiceException(ErrorMessage.CHIP_CODE_EXISTS);
+            throw new ServiceException(ErrorConstant.CHIP_CODE_EXISTS);
         }
         chipVo.setUserId(userId);
         chipVo.setChipStatus(Constant.DEVICE_OFFLINE);
@@ -119,7 +118,7 @@ public class ChipServiceImpl implements ChipService {
      * @return
      */
     @Override
-    public MyPage<ChipVo> selectChipList(ChipVo chipVoParam) {
+    public ResultPage<ChipVo> selectChipList(ChipVo chipVoParam) {
         Integer userId = SecurityUtil.getLoginUser().getId();
         Device device = deviceMapper.selectById(chipVoParam.getDeviceId());
 
@@ -138,7 +137,7 @@ public class ChipServiceImpl implements ChipService {
             chipVoList.add(chipVo);
         }
 
-        return MyPageUtils.pageUtil(chipVoList, chipPage.getPageNum(), chipPage.getPageSize(), (int) chipPage.getTotal());
+        return ResultPageUtils.pageUtil(chipVoList, chipPage.getPageNum(), chipPage.getPageSize(), (int) chipPage.getTotal());
     }
 
     /**

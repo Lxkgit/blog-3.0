@@ -7,18 +7,17 @@ import com.blog.content.mq.send.SendSystemData;
 import com.blog.content.mq.send.SendUserData;
 import com.blog.content.service.DiaryService;
 import com.blog.core.constant.Constant;
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.content.diary.entity.Diary;
 import com.blog.core.domain.content.diary.vo.DiaryVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.result.MyPage;
-import com.blog.core.result.MyPageUtils;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +88,7 @@ public class DiaryServiceImpl implements DiaryService {
             queryWrapper.ne("diary_status", Constant.DELETE);
             Diary diary = diaryMapper.selectOne(queryWrapper);
             if (diary == null) {
-                throw new ServiceException(ErrorMessage.DIARY_NOT_EXISTS, "日记id: " + id + " 不存在");
+                throw new ServiceException(ErrorConstant.DIARY_NOT_EXISTS, "日记id: " + id + " 不存在");
             }
         }
         diaryMapper.updateDiaryStatusByIds(idSet, userId, Constant.DELETE);
@@ -127,7 +126,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public Map<String, Object> selectDiaryByDate(DiaryVo diaryVo) {
         Integer userId = SecurityUtil.getLoginUser().getId();
-        MyPage<Diary> myPage = null;
+        ResultPage<Diary> myPage = null;
         Map<String, Object> map = new HashMap<>();
         List<Diary> list = new ArrayList<>();
         String dateDay = diaryVo.getDate();
@@ -136,7 +135,7 @@ public class DiaryServiceImpl implements DiaryService {
             PageHelper.startPage(diaryVo.getPageNum(), diaryVo.getPageSize());
             Page<Diary> articlePage = (Page<Diary>) diaryMapper.selectDiaryList(userId);
             try {
-                myPage = MyPageUtils.pageUtil(articlePage, articlePage.getPageNum(), articlePage.getPageSize(), (int) articlePage.getTotal());
+                myPage = ResultPageUtils.pageUtil(articlePage, articlePage.getPageNum(), articlePage.getPageSize(), (int) articlePage.getTotal());
             } catch (Exception e) {
                 logger.info("查找日记报错: {}", e.getMessage(), e);
             }

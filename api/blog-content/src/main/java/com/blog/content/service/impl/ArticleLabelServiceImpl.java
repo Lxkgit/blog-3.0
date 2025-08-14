@@ -5,7 +5,7 @@ import com.blog.content.mapper.mybatis.ArticleLabelMapper;
 import com.blog.content.mapper.mybatis.ArticleLabelTypeMapper;
 import com.blog.content.mq.send.SendSystemData;
 import com.blog.content.service.ArticleLabelService;
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.domain.content.article.vo.ArticleLabelVo;
 import com.blog.core.exception.ServiceException;
@@ -53,7 +53,7 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
         articleLabelVo.setCreateTime(new Date());
         articleLabelVo.setUpdateTime(new Date());
         if (articleLabelTypeMapper.selectById(articleLabelVo.getLabelType()) == null) {
-            throw new ServiceException(ErrorMessage.ARTICLE_LABEL_TYPE_NOT_EXISTS);
+            throw new ServiceException(ErrorConstant.ARTICLE_LABEL_TYPE_NOT_EXISTS);
         }
         articleLabelMapper.insert(articleLabelVo);
         articleLabelTypeMapper.updateArticleLabelTypeLabelNumAdd(articleLabelVo.getLabelType());
@@ -79,11 +79,11 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
         for (ArticleLabel articleLabel : articleLabelList) {
             if (articleLabel.getArticleNum() != 0) {
                 String errorMag = "文章标签【" + articleLabel.getLabelName() + "】下文章数量不为0";
-                throw new ServiceException(ErrorMessage.ARTICLE_LABEL_NUM_ERROR, errorMag);
+                throw new ServiceException(ErrorConstant.ARTICLE_LABEL_NUM_ERROR, errorMag);
             }
             if (!articleLabel.getUserId().equals(userId)) {
                 String errorMag = "文章标签【" + articleLabel.getLabelName() + "】创建者不为你";
-                throw new ServiceException(ErrorMessage.ARTICLE_LABEL_USER_DELETE_ERROR, errorMag);
+                throw new ServiceException(ErrorConstant.ARTICLE_LABEL_USER_DELETE_ERROR, errorMag);
             }
         }
 
@@ -109,10 +109,10 @@ public class ArticleLabelServiceImpl implements ArticleLabelService {
     public Integer updateArticleLabel(ArticleLabelVo articleLabelVo) throws ServiceException {
         ArticleLabel oldLabel = articleLabelMapper.selectById(articleLabelVo.getId());
         if (oldLabel == null) {
-            throw new ServiceException(ErrorMessage.ARTICLE_LABEL_NOT_EXISTS);
+            throw new ServiceException(ErrorConstant.ARTICLE_LABEL_NOT_EXISTS);
         }
         if (!oldLabel.getUserId().equals(articleLabelVo.getUserId())) {
-            throw new ServiceException(ErrorMessage.ARTICLE_LABEL_USER_UPDATE_ERROR);
+            throw new ServiceException(ErrorConstant.ARTICLE_LABEL_USER_UPDATE_ERROR);
         }
         articleLabelTypeMapper.updateArticleLabelTypeLabelNumSubtract(oldLabel.getLabelType());
         articleLabelTypeMapper.updateArticleLabelTypeLabelNumAdd(articleLabelVo.getLabelType());

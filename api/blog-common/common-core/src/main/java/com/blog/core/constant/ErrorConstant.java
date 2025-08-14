@@ -10,16 +10,18 @@ import lombok.Getter;
  */
 
 @Getter
-public enum ErrorMessage {
+public enum ErrorConstant {
 
     /**
      * 00 全局异常
      */
     // 参数校验： 00
     PARAMETER_VERIFICATION_ERROR( "000001","参数校验错误"),
-    UNKNOWN_ERROR( "000002","代码异常"),
-    // 业务流程： 01
-    SERVICE_UNKNOWN_ERROR( "000102","业务通用异常"),
+    // 代码错误： 01
+    UNKNOWN_ERROR( "000101","代码异常"),
+    // 业务流程： 02
+    SERVICE_UNKNOWN_ERROR( "000201","业务通用异常"),
+
 
     /**
      * 01 网关服务
@@ -88,7 +90,7 @@ public enum ErrorMessage {
     private final String code;
     private final String desc;
 
-    ErrorMessage(String code, String desc) {
+    ErrorConstant(String code, String desc) {
         this.code = code;
         this.desc = desc;
     }

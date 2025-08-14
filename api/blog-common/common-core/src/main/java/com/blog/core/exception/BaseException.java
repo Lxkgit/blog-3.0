@@ -1,7 +1,7 @@
 package com.blog.core.exception;
 
 
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +15,7 @@ public abstract class BaseException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private String errMsg;
     private String code;
-    private ErrorMessage errorMessage;
+    private ErrorConstant errorMessage;
     private Object args;
     private Object data;
 

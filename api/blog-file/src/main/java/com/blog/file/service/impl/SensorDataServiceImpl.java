@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.entity.SensorData;
 import com.blog.core.domain.file.device.vo.SensorDataVo;
-import com.blog.core.result.MyPage;
-import com.blog.core.result.MyPageUtils;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.blog.file.mapper.SensorMapper;
 import com.blog.file.mapper.SensorDataMapper;
 import com.blog.file.service.SensorDataService;
@@ -54,7 +54,7 @@ public class SensorDataServiceImpl implements SensorDataService {
      * @return
      */
     @Override
-    public MyPage<SensorDataVo> selectSensorDataList(SensorDataVo sensorDataVoParam) {
+    public ResultPage<SensorDataVo> selectSensorDataList(SensorDataVo sensorDataVoParam) {
 
         Sensor sensor = sensorMapper.selectById(sensorDataVoParam.getSensorId());
         LambdaQueryWrapper<SensorData> wrapper = new LambdaQueryWrapper<>();
@@ -73,7 +73,7 @@ public class SensorDataServiceImpl implements SensorDataService {
             sensorDataVoList.add(sensorDataVo);
         }
 
-        return MyPageUtils.pageUtil(sensorDataVoList, sensorDataPage.getPageNum(), sensorDataPage.getPageSize(), (int) sensorDataPage.getTotal());
+        return ResultPageUtils.pageUtil(sensorDataVoList, sensorDataPage.getPageNum(), sensorDataPage.getPageSize(), (int) sensorDataPage.getTotal());
 
     }
 }

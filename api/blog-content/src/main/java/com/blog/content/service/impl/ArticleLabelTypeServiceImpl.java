@@ -4,7 +4,7 @@ import com.blog.content.feign.UserClient;
 import com.blog.content.mapper.mybatis.ArticleLabelMapper;
 import com.blog.content.mapper.mybatis.ArticleLabelTypeMapper;
 import com.blog.content.service.ArticleLabelTypeService;
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.domain.content.article.entity.ArticleLabelType;
@@ -67,7 +67,7 @@ public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
         for (String id : ids) {
             ArticleLabelType articleLabelType = articleLabelTypeMapper.selectById(Integer.parseInt(id));
             if (!articleLabelType.getLabelNum().equals(0)) {
-                throw new ServiceException(ErrorMessage.ARTICLE_LABEL_TYPE_NUMBER_ERROR);
+                throw new ServiceException(ErrorConstant.ARTICLE_LABEL_TYPE_NUMBER_ERROR);
             }
         }
         articleLabelTypeMapper.deleteArticleLabelTypeByIds(ids);
@@ -84,7 +84,7 @@ public class ArticleLabelTypeServiceImpl implements ArticleLabelTypeService {
     public Integer updateArticleLabelType(ArticleLabelTypeVo articleLabelTypeVo) throws ServiceException {
         ArticleLabelType articleLabelType = articleLabelTypeMapper.selectById(articleLabelTypeVo.getId());
         if (articleLabelType == null) {
-            throw new ServiceException(ErrorMessage.ARTICLE_LABEL_TYPE_NOT_EXISTS);
+            throw new ServiceException(ErrorConstant.ARTICLE_LABEL_TYPE_NOT_EXISTS);
         }
         articleLabelTypeVo.setUpdateTime(new Date());
         articleLabelTypeMapper.updateArticleLabelType(articleLabelTypeVo);

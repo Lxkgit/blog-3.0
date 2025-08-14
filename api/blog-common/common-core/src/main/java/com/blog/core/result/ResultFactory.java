@@ -1,6 +1,6 @@
 package com.blog.core.result;
 
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 
 /**
  * @author: lxk
@@ -19,7 +19,7 @@ public class ResultFactory {
     }
 
     public static Result buildFailResult(String message) {
-        return buildResult(ErrorMessage.SERVICE_UNKNOWN_ERROR.getCode(), message, null, false);
+        return buildResult(ErrorConstant.SERVICE_UNKNOWN_ERROR.getCode(), message, null, false);
     }
 
     public static Result buildFailResult(String errorCode, String message) {

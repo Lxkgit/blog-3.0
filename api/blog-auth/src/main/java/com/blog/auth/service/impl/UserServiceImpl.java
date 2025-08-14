@@ -7,12 +7,11 @@ import com.blog.auth.mapper.UserMapper;
 import com.blog.auth.service.UserService;
 import com.blog.core.domain.auth.entity.User;
 import com.blog.core.domain.auth.vo.UserVo;
-import com.blog.core.result.MyPage;
-import com.blog.core.result.MyPageUtils;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public MyPage<UserVo> selectUserByPage(UserVo userVo) {
-        MyPage<UserVo> myPage = null;
+    public ResultPage<UserVo> selectUserByPage(UserVo userVo) {
+        ResultPage<UserVo> myPage = null;
         try {
             PageHelper.startPage(userVo.getPageNum(), userVo.getPageSize());
             List<User> userList = userMapper.selectList(new QueryWrapper<>());
@@ -64,7 +63,7 @@ public class UserServiceImpl implements UserService {
                 item.setPassword(null);
                 item.setRoleList(roleMapper.selectUserRoles(item.getId()));
             });
-            myPage = MyPageUtils.pageUtil(userVoList, userVo.getPageNum(), userVo.getPageSize(), (int) articlePage.getTotal());
+            myPage = ResultPageUtils.pageUtil(userVoList, userVo.getPageNum(), userVo.getPageSize(), (int) articlePage.getTotal());
         } catch (Exception e){
             logger.error("用户列表接口查询异常：{}", e.getMessage(), e);
         }

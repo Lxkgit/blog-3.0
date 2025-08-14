@@ -1,7 +1,7 @@
 package com.blog.auth.service;
 
 import com.blog.core.domain.auth.vo.UserVo;
-import com.blog.core.result.MyPage;
+import com.blog.core.result.ResultPage;
 
 /**
  * @author lxk
@@ -14,6 +14,6 @@ public interface UserService {
     UserVo selectUserById(Integer userId);
     UserVo selectUserByUsername(String username);
     void updateUser(UserVo userVo, Integer perFlag);
-    MyPage<UserVo> selectUserByPage(UserVo userVo);
+    ResultPage<UserVo> selectUserByPage(UserVo userVo);
     void updateUserPermission(UserVo userVo);
 }

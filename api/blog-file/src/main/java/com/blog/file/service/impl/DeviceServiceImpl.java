@@ -4,7 +4,7 @@ package com.blog.file.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.constant.Constant;
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.file.device.entity.Chip;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.DeviceInfo;
@@ -17,7 +17,6 @@ import com.blog.file.mapper.ChipMapper;
 import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.mapper.DeviceInfoMapper;
 import com.blog.file.mapper.UserDeviceMapper;
-import com.blog.file.netty.schedule.DeviceStatusSchedule;
 import com.blog.file.service.DeviceService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -64,7 +63,7 @@ public class DeviceServiceImpl implements DeviceService {
         wrapper.eq("device_code", deviceVo.getDeviceCode());
         Device device = deviceMapper.selectOne(wrapper);
         if (device != null) {
-            throw new ServiceException(ErrorMessage.DEVICE_CODE_EXISTS);
+            throw new ServiceException(ErrorConstant.DEVICE_CODE_EXISTS);
         }
         deviceVo.setUserId(userId);
         deviceVo.setDeviceStatus(Constant.DEVICE_OFFLINE);
@@ -91,7 +90,7 @@ public class DeviceServiceImpl implements DeviceService {
 //                DeviceStatusSchedule.removeChannelByRegisterId(device.getDeviceCode(), deviceMapper);
 //                deviceMapper.updateDeviceStatusById(id, userId, Constant.DEVICE_DELETE);
             } else {
-                throw new ServiceException(ErrorMessage.DEVICE_NOT_EXISTS, "id: " + id);
+                throw new ServiceException(ErrorConstant.DEVICE_NOT_EXISTS, "id: " + id);
             }
         }
         return idSet.size();
@@ -113,7 +112,7 @@ public class DeviceServiceImpl implements DeviceService {
         wrapper.ne("id", deviceVo.getId());
         Device device = deviceMapper.selectOne(wrapper);
         if (device != null) {
-            throw new ServiceException(ErrorMessage.DEVICE_CODE_EXISTS);
+            throw new ServiceException(ErrorConstant.DEVICE_CODE_EXISTS);
         }
         Device oldDevice = deviceMapper.selectById(deviceVo.getId());
         // 设备编码变化需要重新连接netty通道

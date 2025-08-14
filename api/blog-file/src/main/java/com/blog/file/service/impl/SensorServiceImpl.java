@@ -4,14 +4,14 @@ package com.blog.file.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.constant.Constant;
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.file.device.entity.Chip;
 import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.entity.SensorType;
 import com.blog.core.domain.file.device.vo.SensorVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.result.MyPage;
-import com.blog.core.result.MyPageUtils;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.ChipMapper;
@@ -21,7 +21,6 @@ import com.blog.file.service.SensorService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -90,10 +89,10 @@ public class SensorServiceImpl implements SensorService {
         Integer userId = SecurityUtil.getLoginUser().getId();
         Sensor sensor = sensorMapper.selectById(sensorVo.getId());
         if (sensor == null) {
-            throw new ServiceException(ErrorMessage.SENSOR_NOT_EXISTS);
+            throw new ServiceException(ErrorConstant.SENSOR_NOT_EXISTS);
         }
         if (!sensor.getUserId().equals(userId)) {
-            throw new ServiceException(ErrorMessage.SENSOR_USER_ERROR);
+            throw new ServiceException(ErrorConstant.SENSOR_USER_ERROR);
         }
         sensorVo.setUserId(userId);
         sensorVo.setUpdateTime(new Date());
@@ -108,7 +107,7 @@ public class SensorServiceImpl implements SensorService {
      * @return
      */
     @Override
-    public MyPage<SensorVo> selectSensorList(SensorVo sensorVoParam) {
+    public ResultPage<SensorVo> selectSensorList(SensorVo sensorVoParam) {
         Integer userId = SecurityUtil.getLoginUser().getId();
 
         List<SensorType> sensorTypeList = sensorTypeMapper.selectList(null);
@@ -141,7 +140,7 @@ public class SensorServiceImpl implements SensorService {
             sensorVoList.add(sensorVo);
         }
 
-        return MyPageUtils.pageUtil(sensorVoList, sensorPage.getPageNum(), sensorPage.getPageSize(), (int) sensorPage.getTotal());
+        return ResultPageUtils.pageUtil(sensorVoList, sensorPage.getPageNum(), sensorPage.getPageSize(), (int) sensorPage.getTotal());
     }
 
     /**

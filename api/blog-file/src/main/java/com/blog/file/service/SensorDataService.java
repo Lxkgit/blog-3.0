@@ -2,7 +2,7 @@ package com.blog.file.service;
 
 import com.blog.core.domain.file.device.entity.SensorData;
 import com.blog.core.domain.file.device.vo.SensorDataVo;
-import com.blog.core.result.MyPage;
+import com.blog.core.result.ResultPage;
 
 /**
  * @author lxk
@@ -14,5 +14,5 @@ public interface SensorDataService {
 
     Integer saveSensorData(SensorData sensorData);
 
-    MyPage<SensorDataVo> selectSensorDataList(SensorDataVo sensorDataVo);
+    ResultPage<SensorDataVo> selectSensorDataList(SensorDataVo sensorDataVo);
 }

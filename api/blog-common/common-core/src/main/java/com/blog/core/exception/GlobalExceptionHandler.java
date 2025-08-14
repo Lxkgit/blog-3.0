@@ -1,6 +1,6 @@
 package com.blog.core.exception;
 
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +32,6 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception e) {
-        return ResultFactory.buildFailResult(ErrorMessage.UNKNOWN_ERROR.getCode(), "系统内部错误: " + e.getMessage());
+        return ResultFactory.buildFailResult(ErrorConstant.UNKNOWN_ERROR.getCode(), "系统内部错误: " + e.getMessage());
     }
 }

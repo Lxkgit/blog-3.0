@@ -1,7 +1,7 @@
 package com.blog.core.exception;
 
 
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,12 +22,12 @@ public class ServiceException extends BaseException {
         super(code, errMsg);
     }
 
-    public ServiceException(ErrorMessage errorMessage) {
+    public ServiceException(ErrorConstant errorMessage) {
         super(errorMessage.getCode(), errorMessage.getDesc());
         this.setErrorMessage(errorMessage);
     }
 
-    public ServiceException(ErrorMessage errorMessage, Object data) {
+    public ServiceException(ErrorConstant errorMessage, Object data) {
         super(errorMessage.getCode(), errorMessage.getDesc());
         this.setErrorMessage(errorMessage);
         this.setData(data);

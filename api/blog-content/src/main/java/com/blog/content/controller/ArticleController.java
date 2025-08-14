@@ -4,12 +4,11 @@ package com.blog.content.controller;
 import com.blog.content.service.ArticleService;
 import com.blog.core.domain.content.article.vo.ArticleVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.result.MyPage;
+import com.blog.core.result.ResultPage;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.*;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -76,7 +75,7 @@ public class ArticleController {
     @GetMapping("/list")
     public Result selectArticleByPage(@Validated(value = {SelectListGroup.class}) ArticleVo articleVo) throws ServiceException {
 
-        MyPage<ArticleVo> result = articleService.selectArticleListByPageAndUserId(articleVo);
+        ResultPage<ArticleVo> result = articleService.selectArticleListByPageAndUserId(articleVo);
         return ResultFactory.buildSuccessResult(result);
     }
 

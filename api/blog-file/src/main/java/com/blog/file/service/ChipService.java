@@ -2,7 +2,7 @@ package com.blog.file.service;
 
 import com.blog.core.domain.file.device.vo.ChipVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.result.MyPage;
+import com.blog.core.result.ResultPage;
 
 /**
  * @description: 单片机服务层
@@ -18,7 +18,7 @@ public interface ChipService {
 
     Integer updateChip(ChipVo chipVo) throws ServiceException;
 
-    MyPage<ChipVo> selectChipList(ChipVo chipVo);
+    ResultPage<ChipVo> selectChipList(ChipVo chipVo);
 
     ChipVo selectChipId(Integer id) throws ServiceException;
 

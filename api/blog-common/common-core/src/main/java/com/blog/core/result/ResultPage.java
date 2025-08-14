@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 @Data
-public class MyPage<T> {
+public class ResultPage<T> {
 
     private int page;
 
@@ -21,7 +21,7 @@ public class MyPage<T> {
 
     private List<T> list;
 
-    public MyPage(List<T> list, int page, int size, long total) {
+    public ResultPage(List<T> list, int page, int size, long total) {
         this.page = page;
         this.size = size;
         this.total = total;

@@ -2,7 +2,7 @@ package com.blog.file.service;
 
 import com.blog.core.domain.file.device.vo.SensorVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.result.MyPage;
+import com.blog.core.result.ResultPage;
 
 /**
  * @description: 传感器服务类
@@ -19,7 +19,7 @@ public interface SensorService {
 
     Integer updateSensor(SensorVo sensorVo) throws ServiceException;
 
-    MyPage<SensorVo> selectSensorList(SensorVo sensorVo);
+    ResultPage<SensorVo> selectSensorList(SensorVo sensorVo);
 
     SensorVo selectSensorId(Integer id);
 

@@ -4,11 +4,11 @@ package com.blog.content.service;
 import com.blog.core.domain.content.article.entity.Article;
 import com.blog.core.domain.content.article.vo.ArticleVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.result.MyPage;
+import com.blog.core.result.ResultPage;
 
 public interface ArticleService {
 
-    MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo articleVo) throws ServiceException;
+    ResultPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo articleVo) throws ServiceException;
 
     ArticleVo selectArticleById(int articleId) throws ServiceException;
 

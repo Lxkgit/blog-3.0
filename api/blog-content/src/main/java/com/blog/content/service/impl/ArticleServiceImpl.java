@@ -1,6 +1,5 @@
 package com.blog.content.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.content.feign.UserClient;
 import com.blog.content.mapper.mybatis.ArticleMapper;
@@ -10,8 +9,7 @@ import com.blog.content.mq.send.SendSystemData;
 import com.blog.content.mq.send.SendUserData;
 import com.blog.content.service.ArticleService;
 import com.blog.core.constant.Constant;
-import com.blog.core.constant.ErrorMessage;
-import com.blog.core.domain.auth.entity.Role;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.article.bo.ArticleBo;
 import com.blog.core.domain.content.article.entity.Article;
@@ -19,15 +17,13 @@ import com.blog.core.domain.content.article.entity.ArticleLabel;
 import com.blog.core.domain.content.article.entity.ArticleType;
 import com.blog.core.domain.content.article.vo.ArticleVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.result.MyPage;
-import com.blog.core.result.MyPageUtils;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -143,7 +139,7 @@ public class ArticleServiceImpl implements ArticleService {
         ArticleBo articleBo = new ArticleBo();
         Article oldArticle = articleMapper.selectById(article.getId());
         if (oldArticle == null) {
-            throw new ServiceException(ErrorMessage.ARTICLE_NULL);
+            throw new ServiceException(ErrorConstant.ARTICLE_NULL);
         }
 
         // 修改前文章分类-1
@@ -170,7 +166,7 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     @Override
-    public MyPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo param) throws ServiceException {
+    public ResultPage<ArticleVo> selectArticleListByPageAndUserId(ArticleVo param) throws ServiceException {
 
         QueryWrapper<Article> articleQueryWrapper = new QueryWrapper<>();
 
@@ -190,7 +186,7 @@ public class ArticleServiceImpl implements ArticleService {
             stringBuilder.append(param.getArticleType());
             ArticleType articleType = articleTypeMapper.selectById(Integer.parseInt(param.getArticleType()));
             if (articleType == null) {
-                throw new ServiceException(ErrorMessage.ARTICLE_TYPE_ERROR);
+                throw new ServiceException(ErrorConstant.ARTICLE_TYPE_ERROR);
             }
             while (articleType.getParentId() != 0) {
                 articleType = articleTypeMapper.selectById(articleType.getParentId());
@@ -247,7 +243,7 @@ public class ArticleServiceImpl implements ArticleService {
             setArticleTypeAndLabel(article, articleVo);
             articleVoList.add(articleVo);
         }
-        return MyPageUtils.pageUtil(articleVoList, articlePage.getPageNum(), articlePage.getPageSize(), (int) articlePage.getTotal());
+        return ResultPageUtils.pageUtil(articleVoList, articlePage.getPageNum(), articlePage.getPageSize(), (int) articlePage.getTotal());
     }
 
     /**
@@ -305,7 +301,7 @@ public class ArticleServiceImpl implements ArticleService {
             StringBuilder type = new StringBuilder(articleTypeArr[articleTypeArr.length - 1]);
             ArticleType type1 = articleTypeMapper.selectArticleTypeById(Integer.parseInt(String.valueOf(type)));
             if (type1 == null) {
-                throw new ServiceException(ErrorMessage.ARTICLE_TYPE_ERROR);
+                throw new ServiceException(ErrorConstant.ARTICLE_TYPE_ERROR);
             }
             while (type1.getParentId() != 0) {
                 type.insert(0, type1.getParentId() + ",");
@@ -331,7 +327,7 @@ public class ArticleServiceImpl implements ArticleService {
                 Integer id = Integer.parseInt(label);
                 ArticleLabel articleLabel1 = articleLabelMapper.selectById(id);
                 if (articleLabel1 == null) {
-                    throw new ServiceException(ErrorMessage.ARTICLE_LABEL_NOT_EXISTS);
+                    throw new ServiceException(ErrorConstant.ARTICLE_LABEL_NOT_EXISTS);
                 }
                 articleLabelMapper.updateArticleLabelNumById(Integer.parseInt(label), articleNum);
             }

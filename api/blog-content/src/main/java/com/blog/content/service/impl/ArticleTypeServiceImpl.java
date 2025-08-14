@@ -5,7 +5,7 @@ import com.blog.content.feign.UserClient;
 import com.blog.content.mapper.mybatis.ArticleTypeMapper;
 import com.blog.content.mq.send.SendSystemData;
 import com.blog.content.service.ArticleTypeService;
-import com.blog.core.constant.ErrorMessage;
+import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.article.entity.ArticleType;
 import com.blog.core.domain.content.article.vo.ArticleTypeVo;
@@ -69,10 +69,10 @@ public class ArticleTypeServiceImpl implements ArticleTypeService {
             ArticleType articleType = articleTypeMapper.selectById(Integer.parseInt(id));
             if (articleType != null) {
                 if (!articleType.getNum().equals(0)) {
-                    throw new ServiceException(ErrorMessage.ARTICLE_TYPE_NUM_ERROR);
+                    throw new ServiceException(ErrorConstant.ARTICLE_TYPE_NUM_ERROR);
                 }
             } else {
-                throw new ServiceException(ErrorMessage.ARTICLE_TYPE_ERROR, "id: " + id);
+                throw new ServiceException(ErrorConstant.ARTICLE_TYPE_ERROR, "id: " + id);
             }
         }
         articleTypeMapper.deleteArticleTypeByIds(idSet);
@@ -97,11 +97,11 @@ public class ArticleTypeServiceImpl implements ArticleTypeService {
                 parentId = articleType.getParentId();
                 level++;
             } else {
-                throw new ServiceException(ErrorMessage.ARTICLE_TYPE_PARENT_ERROR);
+                throw new ServiceException(ErrorConstant.ARTICLE_TYPE_PARENT_ERROR);
             }
         }
         if (level > 2) {
-            throw new ServiceException(ErrorMessage.ARTICLE_TYPE_LEVEL_ERROR);
+            throw new ServiceException(ErrorConstant.ARTICLE_TYPE_LEVEL_ERROR);
         }
         articleTypeVo.setUpdateTime(new Date());
         articleTypeMapper.updateArticleType(articleTypeVo);

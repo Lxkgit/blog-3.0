@@ -2,7 +2,7 @@ package com.blog.auth.service;
 
 import com.blog.core.domain.auth.entity.Role;
 import com.blog.core.domain.auth.vo.RoleVo;
-import com.blog.core.result.MyPage;
+import com.blog.core.result.ResultPage;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +27,7 @@ public interface RoleService {
      * @param role
      * @return
      */
-    MyPage<Role> selectRoleList(RoleVo role);
+    ResultPage<Role> selectRoleList(RoleVo role);
 
     /**
      * 新增角色

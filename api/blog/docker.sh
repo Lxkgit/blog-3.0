@@ -82,9 +82,6 @@ reLoad() {
 
 # docker 镜像文件下载
 dockerLoad() {
-	echo "开始下载 openjdk:17 镜像文件..."
-	command="docker pull openjdk:17"
-	reLoad
 
 	echo "开始下载 mysql:8.0.20 镜像文件..."
 	command="docker pull mysql:8.0.20"
@@ -118,9 +115,9 @@ dockerLoad() {
 	command="docker pull minio/minio:RELEASE.2025-05-24T17-08-30Z"
 	reLoad
 	
-	echo "开始下载 xuxueli/xxl-job-admin:2.5.0 镜像文件..."
-	command="docker pull xuxueli/xxl-job-admin:2.5.0"
-	reLoad
+#	echo "开始下载 xuxueli/xxl-job-admin:2.5.0 镜像文件..."
+#	command="docker pull xuxueli/xxl-job-admin:2.5.0"
+#	reLoad
 }
 
 # conda 下载
@@ -190,12 +187,6 @@ addVirtualMemory() {
 	swapon /usr/swap/swapfile
 	free -m
 	echo "/usr/swap/swapfile swap swap defaults 0 0"  >> /etc/fstab
-}
-
-# 安装jdk
-jdk() {
-	echo "正在启动jdk..."
-	docker run -d -it --name jdk --privileged=true --restart=always --network blog_network --ip 172.18.0.2 openjdk:17
 }
 
 # 修改 MySQL 配置文件
@@ -448,7 +439,6 @@ main() {
 	unzipBlog
 	addVirtualMemory
 	conda
-	jdk
 	mysql
 	ftp
 	nginx
@@ -457,7 +447,7 @@ main() {
 	rocketMq
 	elasticsearch
 	minio
-	xxlJob
+#	xxlJob
 
 	startJar
   startPy

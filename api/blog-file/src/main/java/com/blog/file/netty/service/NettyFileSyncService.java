@@ -92,7 +92,7 @@ public class NettyFileSyncService {
         taskEntity.setParams(new Object[]{filePath});
         Class<?>[] paramTypes = new Class<?>[]{String.class};
         taskEntity.setParamsClazz(paramTypes);
-        taskEntity.setTime("20s");
+        taskEntity.setTime("3h");
         taskEntity.setCount(1);
         taskService.createTask(taskEntity);
     }

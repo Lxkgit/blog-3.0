@@ -26,7 +26,7 @@ public class CronUtil {
      */
     public static long getCronNextTimeEpoch(String cronStr) {
 
-        // 创建解析器（以Quartz格式为例）
+        // 创建解析器
         CronDefinition def = CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ);
         CronParser parser = new CronParser(def);
 

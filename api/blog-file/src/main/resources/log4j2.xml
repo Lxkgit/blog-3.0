@@ -32,8 +32,13 @@
                 <!-- 按文件大小滚动（最大 100MB） -->
                 <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
-            <!-- 最多保留 30 天或 10 个文件 -->
-            <DefaultRolloverStrategy max="10"/>
+            <!-- 保留最近 7 天的日志文件 -->
+            <DefaultRolloverStrategy>
+                <Delete basePath="${LOG_DIR}" maxDepth="1">
+                    <IfFileName glob="file-*.log.gz" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingFile>
 
         <!-- 异步日志（提升性能） -->
@@ -50,7 +55,7 @@
         </Logger>
 
         <!-- MyBatis SQL 日志（DEBUG 级别） -->
-        <Logger name="com.example.mapper" level="DEBUG" additivity="false">
+        <Logger name="com.blog.file" level="DEBUG" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="AsyncAppender"/>
         </Logger>

@@ -33,8 +33,13 @@
                 <!-- 按文件大小滚动（最大 100MB） -->
                 <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
-            <!-- 最多保留 30 天或 10 个文件 -->
-            <DefaultRolloverStrategy max="10"/>
+            <!-- 保留最近 7 天的日志文件 -->
+            <DefaultRolloverStrategy>
+                <Delete basePath="${LOG_DIR}" maxDepth="1">
+                    <IfFileName glob="auth-*.log.gz" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingFile>
 
         <!-- 异步日志（提升性能） -->

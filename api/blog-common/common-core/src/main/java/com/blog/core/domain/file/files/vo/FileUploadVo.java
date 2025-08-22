@@ -3,7 +3,7 @@ package com.blog.core.domain.file.files.vo;
 
 import com.blog.core.enums.file.FilePathEnum;
 import com.blog.core.valication.annotation.EnumValidate;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
@@ -22,7 +22,7 @@ public class FileUploadVo {
         /**
          * 上传文件数据
          */
-        @NotNull(message="上传文件不能为空", groups = {AddGroup.class})
+        @NotNull(message="上传文件不能为空", groups = {InsertGroup.class})
         private MultipartFile file;
 
         /**

@@ -35,35 +35,35 @@ public class ArticleVo extends Article {
     /**
      * 文章标题
      */
-    @NotNull(message = "文章标题不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    @NotEmpty(message = "文章标题不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    @Size(min = 1, max = 46, message = "文章标题长度范围是1-46个字符", groups = {AddGroup.class, UpdateGroup.class})
+    @NotNull(message = "文章标题不能为空", groups = {InsertGroup.class, UpdateGroup.class})
+    @NotEmpty(message = "文章标题不能为空", groups = {InsertGroup.class, UpdateGroup.class})
+    @Size(min = 1, max = 46, message = "文章标题长度范围是1-46个字符", groups = {InsertGroup.class, UpdateGroup.class})
     private String title;
 
     /**
      * 文章图片
      */
-    @Size(max = 255, message = "图片链接长度不能超过255个字符", groups = {AddGroup.class, UpdateGroup.class})
+    @Size(max = 255, message = "图片链接长度不能超过255个字符", groups = {InsertGroup.class, UpdateGroup.class})
     private String contentImg;
 
     /**
      * 文章状态（2：置顶 1：发布 0：草稿）
      */
-    @NotNull(message = "文章状态不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    @Equal(value = "0,1,2", message = "文章状态（2：置顶 1：发布 0：草稿）字段错误", groups = {AddGroup.class, UpdateGroup.class})
+    @NotNull(message = "文章状态不能为空", groups = {InsertGroup.class, UpdateGroup.class})
+    @Equal(value = "0,1,2", message = "文章状态（2：置顶 1：发布 0：草稿）字段错误", groups = {InsertGroup.class, UpdateGroup.class})
     private Integer articleStatus;
 
     /**
      * 文章分类 多个id使用 , 间隔
      */
-    @Pattern(regexp = "^$|^[0-9]+(,[0-9]+)+|[0-9]+$", message = "请输入正确的文章分类字符串", groups = {AddGroup.class, UpdateGroup.class})
+    @Pattern(regexp = "^$|^[0-9]+(,[0-9]+)+|[0-9]+$", message = "请输入正确的文章分类字符串", groups = {InsertGroup.class, UpdateGroup.class})
     @Pattern(regexp = "^$|^[0-9]+$", message = "请输入正确的文章分类字符串", groups = {SelectListGroup.class})
     private String articleType;
 
     /**
      * 文章标签 多个id使用 , 间隔
      */
-    @Pattern(regexp = "^$|^[0-9]+(,[0-9]+)+|[0-9]+$", message = "请输入正确的文章标签字符串", groups = {AddGroup.class, UpdateGroup.class})
+    @Pattern(regexp = "^$|^[0-9]+(,[0-9]+)+|[0-9]+$", message = "请输入正确的文章标签字符串", groups = {InsertGroup.class, UpdateGroup.class})
     private String articleLabel;
 
     /**

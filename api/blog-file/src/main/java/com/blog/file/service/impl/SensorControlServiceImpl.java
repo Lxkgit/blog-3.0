@@ -16,7 +16,7 @@ import com.blog.core.result.ResultPage;
 import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.BeanValidationUtil;
 import com.blog.core.utils.SecurityUtil;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import com.blog.file.mapper.*;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.sensor.control.SensorCommandCheckDto;
@@ -368,7 +368,7 @@ public class SensorControlServiceImpl implements SensorControlService {
      */
     private static void validateIvsRuleInfo(SensorCommandCheckDto sensorCommandCheckVo) throws ServiceException {
 
-        Map<String, String> errorMap = BeanValidationUtil.validationBean(sensorCommandCheckVo, AddGroup.class);
+        Map<String, String> errorMap = BeanValidationUtil.validationBean(sensorCommandCheckVo, InsertGroup.class);
 
         if (!CollectionUtils.isEmpty(errorMap)) {
             throw new ServiceException(ErrorConstant.PARAMETER_VERIFICATION_ERROR, errorMap);

@@ -3,14 +3,14 @@
 <mapper namespace="com.blog.content.mapper.mybatis.DocContentMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.content.doc.entity.DocContent">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="user_id" property="userId" jdbcType="INTEGER"/>
-        <id column="catalog_id" property="catalogId" jdbcType="INTEGER"/>
-        <id column="doc_content_md" property="docContentMd" jdbcType="VARCHAR"/>
-        <id column="browse_count" property="browseCount" jdbcType="INTEGER"/>
-        <id column="like_count" property="likeCount" jdbcType="INTEGER"/>
-        <id column="doc_status" property="docStatus" jdbcType="INTEGER"/>
-        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="catalog_id" property="catalogId" jdbcType="INTEGER"/>
+        <result column="doc_content_md" property="docContentMd" jdbcType="VARCHAR"/>
+        <result column="browse_count" property="browseCount" jdbcType="INTEGER"/>
+        <result column="like_count" property="likeCount" jdbcType="INTEGER"/>
+        <result column="doc_status" property="docStatus" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

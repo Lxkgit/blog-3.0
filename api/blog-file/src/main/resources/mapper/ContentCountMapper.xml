@@ -3,10 +3,10 @@
 <mapper namespace="com.blog.file.mapper.ContentCountMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.system.entity.ContentCount">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="user_id" property="userId" jdbcType="INTEGER"/>
-        <id column="doc_count" property="docCount" jdbcType="INTEGER"/>
-        <id column="article_count" property="articleCount" jdbcType="INTEGER"/>
-        <id column="diary_count" property="diaryCount" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="doc_count" property="docCount" jdbcType="INTEGER"/>
+        <result column="article_count" property="articleCount" jdbcType="INTEGER"/>
+        <result column="diary_count" property="diaryCount" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">

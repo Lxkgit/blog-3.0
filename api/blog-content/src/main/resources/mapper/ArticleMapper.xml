@@ -3,18 +3,18 @@
 <mapper namespace="com.blog.content.mapper.mybatis.ArticleMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.content.article.entity.Article">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="user_id" property="userId" jdbcType="INTEGER"/>
-        <id column="title" property="title" jdbcType="VARCHAR"/>
-        <id column="content_md" property="contentMd" jdbcType="VARCHAR"/>
-        <id column="content_img" property="contentImg" jdbcType="VARCHAR"/>
-        <id column="content_memo" property="contentMemo" jdbcType="VARCHAR"/>
-        <id column="article_type" property="articleType" jdbcType="VARCHAR"/>
-        <id column="article_label" property="articleLabel" jdbcType="VARCHAR"/>
-        <id column="article_status" property="articleStatus" jdbcType="INTEGER"/>
-        <id column="browse_count" property="browseCount" jdbcType="INTEGER"/>
-        <id column="like_count" property="likeCount" jdbcType="INTEGER"/>
-        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="content_md" property="contentMd" jdbcType="VARCHAR"/>
+        <result column="content_img" property="contentImg" jdbcType="VARCHAR"/>
+        <result column="content_memo" property="contentMemo" jdbcType="VARCHAR"/>
+        <result column="article_type" property="articleType" jdbcType="VARCHAR"/>
+        <result column="article_label" property="articleLabel" jdbcType="VARCHAR"/>
+        <result column="article_status" property="articleStatus" jdbcType="INTEGER"/>
+        <result column="browse_count" property="browseCount" jdbcType="INTEGER"/>
+        <result column="like_count" property="likeCount" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

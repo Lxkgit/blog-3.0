@@ -2,7 +2,7 @@ package com.blog.core.domain.content.diary.vo;
 
 import com.blog.core.domain.content.diary.entity.Diary;
 import com.blog.core.valication.annotation.Equal;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import com.blog.core.valication.group.DeleteGroup;
 import com.blog.core.valication.group.UpdateGroup;
 import jakarta.validation.constraints.Pattern;
@@ -24,7 +24,7 @@ public class DiaryVo extends Diary {
 
     private Date diaryDate;
 
-    @Equal(value = "0,1", message = "日记状态（1：发布 0：草稿）字段错误", groups = {AddGroup.class, UpdateGroup.class})
+    @Equal(value = "0,1", message = "日记状态（1：发布 0：草稿）字段错误", groups = {InsertGroup.class, UpdateGroup.class})
     private Integer diaryStatus;
 
     @Pattern(regexp = "^[0-9]+(,[0-9]+)+|[0-9]+$", message = "请输入正确的日记id字符串", groups = {DeleteGroup.class})

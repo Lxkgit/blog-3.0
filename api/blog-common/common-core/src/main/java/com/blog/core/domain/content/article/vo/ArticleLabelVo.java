@@ -2,7 +2,7 @@ package com.blog.core.domain.content.article.vo;
 
 import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.domain.content.article.entity.ArticleLabel;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import com.blog.core.valication.group.DeleteGroup;
 import com.blog.core.valication.group.SelectListGroup;
 import com.blog.core.valication.group.UpdateGroup;
@@ -32,16 +32,16 @@ public class ArticleLabelVo extends ArticleLabel {
     /**
      * 标签类型
      */
-    @NotNull(message = "文章标签分类字段不能为空", groups = {AddGroup.class, UpdateGroup.class, SelectListGroup.class})
-    @Min(value = 0, message = "文章分类字段值最小为0", groups = {AddGroup.class, UpdateGroup.class, SelectListGroup.class})
+    @NotNull(message = "文章标签分类字段不能为空", groups = {InsertGroup.class, UpdateGroup.class, SelectListGroup.class})
+    @Min(value = 0, message = "文章分类字段值最小为0", groups = {InsertGroup.class, UpdateGroup.class, SelectListGroup.class})
     private Integer labelType;
 
     /**
      * 标签名称
      */
-    @NotNull(message = "文章标签名称不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    @NotEmpty(message = "文章标签名称不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    @Size(min = 1, max = 20, message = "文章标签长度范围是1-20个字符", groups = {AddGroup.class, UpdateGroup.class})
+    @NotNull(message = "文章标签名称不能为空", groups = {InsertGroup.class, UpdateGroup.class})
+    @NotEmpty(message = "文章标签名称不能为空", groups = {InsertGroup.class, UpdateGroup.class})
+    @Size(min = 1, max = 20, message = "文章标签长度范围是1-20个字符", groups = {InsertGroup.class, UpdateGroup.class})
     private String labelName;
 
     /**

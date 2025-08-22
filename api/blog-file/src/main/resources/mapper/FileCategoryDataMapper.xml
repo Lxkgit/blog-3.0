@@ -3,17 +3,17 @@
 <mapper namespace="com.blog.file.mapper.FileCategoryDataMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.files.entity.FileCategoryData">
         <id column="id" property="id"/>
-        <id column="user_id" property="userId"/>
-        <id column="file_name" property="fileName"/>
-        <id column="file_category_id" property="fileCategoryId"/>
-        <id column="file_url" property="fileUrl"/>
-        <id column="file_size" property="fileSize"/>
-        <id column="file_status" property="fileStatus"/>
-        <id column="file_type" property="fileType"/>
-        <id column="file_json" property="fileJson"/>
-        <id column="file_code" property="fileCode"/>
-        <id column="create_by" property="createBy"/>
-        <id column="create_time" property="createTime"/>
+        <result column="user_id" property="userId"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_category_id" property="fileCategoryId"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="file_status" property="fileStatus"/>
+        <result column="file_type" property="fileType"/>
+        <result column="file_json" property="fileJson"/>
+        <result column="file_code" property="fileCode"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">

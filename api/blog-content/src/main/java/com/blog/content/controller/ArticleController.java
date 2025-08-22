@@ -35,7 +35,7 @@ public class ArticleController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:article:insert')")
-    public Result saveArticle(@RequestBody @Validated(value = {AddGroup.class}) ArticleVo articleVo) throws ServiceException {
+    public Result saveArticle(@RequestBody @Validated(value = {InsertGroup.class}) ArticleVo articleVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(articleService.saveArticle(articleVo));
     }
 

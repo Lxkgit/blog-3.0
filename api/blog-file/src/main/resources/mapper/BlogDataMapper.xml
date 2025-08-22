@@ -3,17 +3,17 @@
 <mapper namespace="com.blog.file.mapper.BlogDataMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.system.entity.BlogData">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="deployment_time" property="deploymentTime" jdbcType="TIMESTAMP"/>
-        <id column="visits" property="visits" jdbcType="INTEGER"/>
-        <id column="user_count" property="userCount" jdbcType="INTEGER"/>
-        <id column="ip_count" property="ipCount" jdbcType="INTEGER"/>
-        <id column="article_count" property="articleCount" jdbcType="INTEGER"/>
-        <id column="article_type_count" property="articleTypeCount" jdbcType="INTEGER"/>
-        <id column="article_label_count" property="articleLabelCount" jdbcType="INTEGER"/>
-        <id column="doc_count" property="docCount" jdbcType="INTEGER"/>
-        <id column="doc_type_count" property="docTypeCount" jdbcType="INTEGER"/>
-        <id column="diary_count" property="diaryCount" jdbcType="INTEGER"/>
-        <id column="img_count" property="imgCount" jdbcType="INTEGER"/>
+        <result column="deployment_time" property="deploymentTime" jdbcType="TIMESTAMP"/>
+        <result column="visits" property="visits" jdbcType="INTEGER"/>
+        <result column="user_count" property="userCount" jdbcType="INTEGER"/>
+        <result column="ip_count" property="ipCount" jdbcType="INTEGER"/>
+        <result column="article_count" property="articleCount" jdbcType="INTEGER"/>
+        <result column="article_type_count" property="articleTypeCount" jdbcType="INTEGER"/>
+        <result column="article_label_count" property="articleLabelCount" jdbcType="INTEGER"/>
+        <result column="doc_count" property="docCount" jdbcType="INTEGER"/>
+        <result column="doc_type_count" property="docTypeCount" jdbcType="INTEGER"/>
+        <result column="diary_count" property="diaryCount" jdbcType="INTEGER"/>
+        <result column="img_count" property="imgCount" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">

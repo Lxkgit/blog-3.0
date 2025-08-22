@@ -12,7 +12,6 @@ import com.blog.file.service.SensorDataService;
 import com.blog.file.service.SensorService;
 import com.blog.file.service.SensorTypeService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +47,7 @@ public class SensorController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:sensor:save')")
-    public Result addSensor( @Validated(value = {AddGroup.class}) @RequestBody SensorVo sensorVo) throws ServiceException {
+    public Result addSensor( @Validated(value = {InsertGroup.class}) @RequestBody SensorVo sensorVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(sensorService.addSensor(sensorVo));
     }
 
@@ -123,7 +122,7 @@ public class SensorController {
      */
     @PostMapping("/control/save")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:save')")
-    public Result addSensorControl( @Validated(value = {AddGroup.class}) @RequestBody SensorControlVo sensorControlVo) throws ServiceException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+    public Result addSensorControl( @Validated(value = {InsertGroup.class}) @RequestBody SensorControlVo sensorControlVo) throws ServiceException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         return ResultFactory.buildSuccessResult(sensorControlService.createSensorControl(sensorControlVo));
     }
 

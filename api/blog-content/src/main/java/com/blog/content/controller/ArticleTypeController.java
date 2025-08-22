@@ -8,7 +8,6 @@ import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.*;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +34,7 @@ public class ArticleTypeController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:article:type:insert')")
-    public Result saveArticleType(@RequestBody @Validated(value = {AddGroup.class}) ArticleTypeVo articleTypeVo) {
+    public Result saveArticleType(@RequestBody @Validated(value = {InsertGroup.class}) ArticleTypeVo articleTypeVo) {
         return ResultFactory.buildSuccessResult(articleTypeService.saveArticleType(articleTypeVo));
     }
 

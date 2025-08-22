@@ -3,16 +3,16 @@
 <mapper namespace="com.blog.file.mapper.FileCategoryMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.files.entity.FileCategory">
         <id column="id" property="id"/>
-        <id column="dir_name" property="dirName"/>
-        <id column="dir_path" property="dirPath"/>
-        <id column="parent_dir" property="parentDir"/>
-        <id column="user_id" property="userId"/>
-        <id column="share_user" property="shareUser"/>
-        <id column="local_file_count" property="localFileCount"/>
-        <id column="remote_file_count" property="remoteFileCount"/>
-        <id column="occupy_space" property="occupySpace"/>
-        <id column="create_by" property="createBy"/>
-        <id column="create_time" property="createTime"/>
+        <result column="dir_name" property="dirName"/>
+        <result column="dir_path" property="dirPath"/>
+        <result column="parent_dir" property="parentDir"/>
+        <result column="user_id" property="userId"/>
+        <result column="share_user" property="shareUser"/>
+        <result column="local_file_count" property="localFileCount"/>
+        <result column="remote_file_count" property="remoteFileCount"/>
+        <result column="occupy_space" property="occupySpace"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">

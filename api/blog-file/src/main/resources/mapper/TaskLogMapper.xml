@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.file.mapper.TaskLogMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.task.entity.TaskLog">
+        <id column="id" property="id"/>
+        <result column="task_uuid" property="taskUUID"/>
+        <result column="index_count" property="indexCount"/>
+        <result column="task_count" property="taskCount"/>
+        <result column="task_result_status" property="taskResultStatus"/>
+        <result column="task_result" property="taskResult"/>
+        <result column="error_msg" property="errorMsg"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>

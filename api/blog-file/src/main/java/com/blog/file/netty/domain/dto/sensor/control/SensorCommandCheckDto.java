@@ -1,7 +1,7 @@
 package com.blog.file.netty.domain.dto.sensor.control;
 
 import com.alibaba.fastjson2.annotation.JSONField;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
@@ -19,8 +19,8 @@ import lombok.Setter;
 public class SensorCommandCheckDto {
 
 
-    @Max(value = 10000,message="命令等待延时范围是0-10000ms",groups={AddGroup.class})
-    @Min(value = 0,message="命令等待延时范围是0-10000ms",groups={AddGroup.class})
+    @Max(value = 10000,message="命令等待延时范围是0-10000ms",groups={InsertGroup.class})
+    @Min(value = 0,message="命令等待延时范围是0-10000ms",groups={InsertGroup.class})
     @JSONField(name = "delay")
     private Integer delay;
 

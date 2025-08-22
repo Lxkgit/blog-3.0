@@ -3,13 +3,13 @@
 <mapper namespace="com.blog.content.mapper.mybatis.ArticleTypeMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.content.article.entity.ArticleType">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="parent_id" property="parentId" jdbcType="INTEGER"/>
-        <id column="type_name" property="typeName" jdbcType="VARCHAR"/>
-        <id column="num" property="num" jdbcType="INTEGER"/>
-        <id column="node" property="node" jdbcType="INTEGER"/>
-        <id column="create_user" property="createUser" jdbcType="INTEGER"/>
-        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="parent_id" property="parentId" jdbcType="INTEGER"/>
+        <result column="type_name" property="typeName" jdbcType="VARCHAR"/>
+        <result column="num" property="num" jdbcType="INTEGER"/>
+        <result column="node" property="node" jdbcType="INTEGER"/>
+        <result column="create_user" property="createUser" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

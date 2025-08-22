@@ -4,13 +4,12 @@ import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import com.blog.core.valication.group.DeleteGroup;
 import com.blog.core.valication.group.SelectIdGroup;
 import com.blog.core.valication.group.UpdateGroup;
 import com.blog.file.service.DeviceService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +37,7 @@ public class DeviceController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:device:save')")
-    public Result addDevice(@Validated(value = {AddGroup.class}) @RequestBody DeviceVo deviceVo) throws ServiceException {
+    public Result addDevice(@Validated(value = {InsertGroup.class}) @RequestBody DeviceVo deviceVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(deviceService.addDevice(deviceVo));
     }
 

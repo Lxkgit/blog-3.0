@@ -7,11 +7,10 @@ import com.blog.core.domain.content.diary.vo.DiaryVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import com.blog.core.valication.group.DeleteGroup;
 import com.blog.core.valication.group.UpdateGroup;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +39,7 @@ public class DiaryController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:diary:insert')")
-    public Result saveDiary(@RequestBody @Validated(value = {AddGroup.class}) DiaryVo diaryVo) {
+    public Result saveDiary(@RequestBody @Validated(value = {InsertGroup.class}) DiaryVo diaryVo) {
         return ResultFactory.buildSuccessResult(diaryService.saveDiary(diaryVo));
     }
 

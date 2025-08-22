@@ -1,7 +1,7 @@
 package com.blog.file.netty.domain.dto.sensor.control;
 
 import com.alibaba.fastjson2.annotation.JSONField;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
@@ -21,8 +21,8 @@ public class SteeringEngine180Dto extends SensorCommandCheckDto {
     /**
      * 舵机命令控制旋转角度
      */
-    @Max(value = 180,message="舵机参数范围为0-180",groups={AddGroup.class})
-    @Min(value = 0,message="舵机参数范围为0-180",groups={AddGroup.class})
+    @Max(value = 180,message="舵机参数范围为0-180",groups={InsertGroup.class})
+    @Min(value = 0,message="舵机参数范围为0-180",groups={InsertGroup.class})
     @JSONField(name = "data")
     private Integer data;
 

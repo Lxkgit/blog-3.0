@@ -3,11 +3,11 @@
 <mapper namespace="com.blog.file.mapper.SensorTemplateMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.device.entity.SensorTemplate">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="user_id" property="userId" jdbcType="INTEGER"/>
-        <id column="sensor_type" property="sensorType" jdbcType="VARCHAR"/>
-        <id column="template" property="template" jdbcType="VARCHAR"/>
-        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="sensor_type" property="sensorType" jdbcType="VARCHAR"/>
+        <result column="template" property="template" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

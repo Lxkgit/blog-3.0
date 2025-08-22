@@ -35,27 +35,27 @@ public class ChipVo extends Chip {
     /**
      * 单片机名称
      */
-    @Size(min = 1, max = 50, message = "设备部署位置长度范围是1-50个字符", groups = {AddGroup.class, UpdateGroup.class})
+    @Size(min = 1, max = 50, message = "设备部署位置长度范围是1-50个字符", groups = {InsertGroup.class, UpdateGroup.class})
     private String chipName;
 
     /**
      * 设备编码
      */
-    @NotNull(message = "单片机编码不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    @NotEmpty(message = "单片机编码不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    @Pattern(regexp = "^[a-zA-Z0-9-_]{1,32}$", message = "单片机编码只允许输入最长32位字母数字下划线和'-'", groups = {AddGroup.class, UpdateGroup.class})
+    @NotNull(message = "单片机编码不能为空", groups = {InsertGroup.class, UpdateGroup.class})
+    @NotEmpty(message = "单片机编码不能为空", groups = {InsertGroup.class, UpdateGroup.class})
+    @Pattern(regexp = "^[a-zA-Z0-9-_]{1,32}$", message = "单片机编码只允许输入最长32位字母数字下划线和'-'", groups = {InsertGroup.class, UpdateGroup.class})
     private String chipCode;
 
     /**
      * 单片机类型
      */
-    @Size(min = 1, max = 50, message = "单片机类型长度范围是1-50个字符", groups = {AddGroup.class, UpdateGroup.class})
+    @Size(min = 1, max = 50, message = "单片机类型长度范围是1-50个字符", groups = {InsertGroup.class, UpdateGroup.class})
     private String chipType;
 
     /**
      * 备注信息
      */
-    @Size(min = 1, max = 255, message = "备注信息长度范围是1-255个字符", groups = {AddGroup.class, UpdateGroup.class})
+    @Size(min = 1, max = 255, message = "备注信息长度范围是1-255个字符", groups = {InsertGroup.class, UpdateGroup.class})
     private String memo;
 
     /**

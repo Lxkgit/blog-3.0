@@ -6,11 +6,10 @@ import com.blog.core.domain.content.article.vo.ArticleLabelTypeVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import com.blog.core.valication.group.DeleteGroup;
 import com.blog.core.valication.group.UpdateGroup;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +36,7 @@ public class ArticleLabelTypeController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:article:label:type:insert')")
-    public Result saveArticleLabelType(@RequestBody @Validated(value = {AddGroup.class}) ArticleLabelTypeVo articleLabelTypeVo) {
+    public Result saveArticleLabelType(@RequestBody @Validated(value = {InsertGroup.class}) ArticleLabelTypeVo articleLabelTypeVo) {
         return ResultFactory.buildSuccessResult(articleLabelTypeService.saveArticleLabelType(articleLabelTypeVo));
     }
 

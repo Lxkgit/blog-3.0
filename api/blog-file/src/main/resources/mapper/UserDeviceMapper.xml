@@ -3,11 +3,11 @@
 <mapper namespace="com.blog.file.mapper.UserDeviceMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.device.entity.UserDevice">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="user_id" property="userId" jdbcType="VARCHAR"/>
-        <id column="device_code" property="deviceCode" jdbcType="VARCHAR"/>
-        <id column="code_status" property="codeStatus" jdbcType="INTEGER"/>
-        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="device_code" property="deviceCode" jdbcType="VARCHAR"/>
+        <result column="code_status" property="codeStatus" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

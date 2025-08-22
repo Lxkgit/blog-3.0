@@ -4,13 +4,12 @@ import com.blog.core.domain.file.device.vo.ChipVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import com.blog.core.valication.group.SelectIdGroup;
 import com.blog.core.valication.group.SelectListGroup;
 import com.blog.core.valication.group.UpdateGroup;
 import com.blog.file.service.ChipService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +36,7 @@ public class ChipController {
      */
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('sys:chip:save')")
-    public Result addChip(@Validated(value = {AddGroup.class}) @RequestBody ChipVo chipVo) throws ServiceException {
+    public Result addChip(@Validated(value = {InsertGroup.class}) @RequestBody ChipVo chipVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(chipService.addChip(chipVo));
     }
 

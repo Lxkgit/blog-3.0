@@ -1,14 +1,11 @@
 package com.blog.auth.controller;
 
-import com.blog.auth.config.oauth.service.AuthService;
 import com.blog.auth.service.UserService;
 import com.blog.core.domain.auth.vo.UserVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.core.valication.group.AddGroup;
 import com.blog.core.valication.group.SelectListGroup;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

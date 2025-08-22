@@ -85,7 +85,7 @@ public class NettyFileSyncService {
      */
     public void deleteTempFile(String filePath) {
         // 定时删除同步文件
-        TaskEntity taskEntity = new TaskEntity();
+        TaskEntity taskEntity = new TaskEntity("blog-system-task-delete-temp-file");
 
         taskEntity.setClazz(NettyFileSyncService.class);
         taskEntity.setMethodName("clearTempFileOrPath");

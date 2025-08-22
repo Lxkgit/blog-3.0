@@ -3,18 +3,18 @@
 <mapper namespace="com.blog.file.mapper.FileSyncLogMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.files.entity.FileSyncLog">
         <id column="id" property="id"/>
-        <id column="user_id" property="userId"/>
-        <id column="file_id" property="fileId"/>
-        <id column="request_source" property="requestSource"/>
-        <id column="sync_type" property="syncType"/>
-        <id column="request_id" property="requestId"/>
-        <id column="request_json" property="requestJson"/>
-        <id column="service_file_path" property="serviceFilePath"/>
-        <id column="device_file_path" property="deviceFilePath"/>
-        <id column="minio_path" property="minioPath"/>
-        <id column="result_type" property="resultType"/>
-        <id column="create_time" property="createTime"/>
-        <id column="create_by" property="createBy"/>
+        <result column="user_id" property="userId"/>
+        <result column="file_id" property="fileId"/>
+        <result column="request_source" property="requestSource"/>
+        <result column="sync_type" property="syncType"/>
+        <result column="request_id" property="requestId"/>
+        <result column="request_json" property="requestJson"/>
+        <result column="service_file_path" property="serviceFilePath"/>
+        <result column="device_file_path" property="deviceFilePath"/>
+        <result column="minio_path" property="minioPath"/>
+        <result column="result_type" property="resultType"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
     </resultMap>
 
 

@@ -3,13 +3,13 @@
 <mapper namespace="com.blog.file.mapper.SensorMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.device.entity.Sensor">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="user_id" property="userId" jdbcType="INTEGER"/>
-        <id column="sensor_name" property="sensorName" jdbcType="VARCHAR"/>
-        <id column="sensor_code" property="sensorCode" jdbcType="VARCHAR"/>
-        <id column="sensor_status" property="sensorStatus" jdbcType="INTEGER"/>
-        <id column="memo" property="memo" jdbcType="VARCHAR"/>
-        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="sensor_name" property="sensorName" jdbcType="VARCHAR"/>
+        <result column="sensor_code" property="sensorCode" jdbcType="VARCHAR"/>
+        <result column="sensor_status" property="sensorStatus" jdbcType="INTEGER"/>
+        <result column="memo" property="memo" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

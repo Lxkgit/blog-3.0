@@ -3,11 +3,11 @@
 <mapper namespace="com.blog.file.mapper.BlogSettingMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.system.entity.BlogSetting">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="setting_type" property="settingType" jdbcType="VARCHAR"/>
-        <id column="user_id" property="userId" jdbcType="INTEGER"/>
-        <id column="type" property="type" jdbcType="INTEGER"/>
-        <id column="title" property="title" jdbcType="VARCHAR"/>
-        <id column="setting" property="setting" jdbcType="VARCHAR"/>
+        <result column="setting_type" property="settingType" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="setting" property="setting" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">

@@ -1,5 +1,6 @@
 package com.blog.task.domain;
 
+import com.blog.core.utils.MyStringUtils;
 import lombok.Data;
 
 /**
@@ -20,6 +21,11 @@ public class TaskEntity {
     private Class<?>[] paramsClazz;
 
     /**
+     * 任务唯一编码
+     */
+    private String taskUUID;
+
+    /**
      * cron 表达式
      */
     private String cron;
@@ -38,7 +44,17 @@ public class TaskEntity {
     private Integer indexCount;
 
     /**
-     * 任务执行次数
+     * 任务执行总次数
+     * -1 为无限执行
      */
     private Integer count;
+
+    public TaskEntity() {
+        // 随机生成任务id
+        this.taskUUID = MyStringUtils.getRandomString(32);
+    }
+
+    public TaskEntity(String taskUUID) {
+        this.taskUUID = taskUUID;
+    }
 }

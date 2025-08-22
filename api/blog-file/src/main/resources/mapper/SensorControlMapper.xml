@@ -3,15 +3,15 @@
 <mapper namespace="com.blog.file.mapper.SensorControlMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.device.entity.SensorControl">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="user_id" property="userId" jdbcType="INTEGER"/>
-        <id column="chip_id" property="chipId" jdbcType="INTEGER"/>
-        <id column="sensor_id" property="sensorId" jdbcType="INTEGER"/>
-        <id column="control_name" property="controlName" jdbcType="VARCHAR"/>
-        <id column="control_message" property="controlMessage" jdbcType="VARCHAR"/>
-        <id column="command_group" property="commandGroup" jdbcType="INTEGER"/>
-        <id column="sensor_id_group" property="sensorIdGroup" jdbcType="VARCHAR"/>
-        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <id column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="chip_id" property="chipId" jdbcType="INTEGER"/>
+        <result column="sensor_id" property="sensorId" jdbcType="INTEGER"/>
+        <result column="control_name" property="controlName" jdbcType="VARCHAR"/>
+        <result column="control_message" property="controlMessage" jdbcType="VARCHAR"/>
+        <result column="command_group" property="commandGroup" jdbcType="INTEGER"/>
+        <result column="sensor_id_group" property="sensorIdGroup" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
 

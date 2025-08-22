@@ -5,20 +5,14 @@ import com.blog.core.domain.file.files.vo.FileUploadVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import com.blog.file.service.ImportService;
 import com.blog.file.service.UploadFileService;
 import io.minio.GetObjectArgs;
-import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.errors.*;
-import io.minio.http.Method;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +26,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: lxk
@@ -61,7 +54,7 @@ public class UploadFileController {
      */
     @PostMapping
     @PreAuthorize("hasAnyAuthority('sys:file:user:upload')")
-    public Result uploadFile(@Validated(value = {AddGroup.class}) FileUploadVo uploadVo) throws ServiceException {
+    public Result uploadFile(@Validated(value = {InsertGroup.class}) FileUploadVo uploadVo) throws ServiceException {
         return ResultFactory.buildSuccessResult(fileUploadService.uploadService(uploadVo));
     }
 

@@ -6,5 +6,5 @@ package com.blog.core.valication.group;
  * @date 2024/1/18 15:06
  */
 
-public interface AddGroup {
+public interface InsertGroup {
 }

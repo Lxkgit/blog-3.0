@@ -19,11 +19,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.cronutils</groupId>
             <artifactId>cron-utils</artifactId>
         </dependency>
@@ -32,6 +27,12 @@
         <dependency>
             <groupId>com.blog</groupId>
             <artifactId>common-redis</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-core</artifactId>
             <version>3.0</version>
         </dependency>
     </dependencies>

@@ -4,8 +4,8 @@
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.device.entity.SensorData">
         <id column="id" property="id" jdbcType="INTEGER"/>
 <!--        <id column="sensor_id" property="sensorId" jdbcType="INTEGER"/>-->
-        <id column="sensor_data" property="sensorData" jdbcType="VARCHAR"/>
-        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="sensor_data" property="sensorData" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
 
     </resultMap>
 

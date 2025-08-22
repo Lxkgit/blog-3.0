@@ -4,7 +4,7 @@ package com.blog.core.domain.file.device.vo;
 import com.blog.core.domain.file.device.entity.Sensor;
 import com.blog.core.domain.file.device.entity.SensorControl;
 import com.blog.core.valication.annotation.Equal;
-import com.blog.core.valication.group.AddGroup;
+import com.blog.core.valication.group.InsertGroup;
 import com.blog.core.valication.group.SelectIdGroup;
 import com.blog.core.valication.group.SelectListGroup;
 import com.blog.core.valication.group.UpdateGroup;
@@ -47,7 +47,7 @@ public class SensorControlVo extends SensorControl {
     /**
      * 是否为命令组 1：命令组 0：单条命令
      */
-    @Equal(value = "0,1", message = "传感器控制命令组必须是0或1", groups = {AddGroup.class})
+    @Equal(value = "0,1", message = "传感器控制命令组必须是0或1", groups = {InsertGroup.class})
     private Integer commandGroup;
 
     /**

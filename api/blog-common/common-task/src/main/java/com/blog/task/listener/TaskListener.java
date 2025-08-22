@@ -2,6 +2,7 @@ package com.blog.task.listener;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONReader;
+import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.redis.service.RedisService;
 import com.blog.task.config.TaskThread;
 import com.blog.task.constant.TaskConstant;
@@ -50,6 +51,8 @@ public class TaskListener implements ApplicationRunner {
         baseTaskThread.execute(this::taskListenerThread);
     }
 
+    // 忽略无限循环与忙等待报错
+    @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
     private void taskListenerThread() {
         while (true) {
             try {
@@ -58,8 +61,9 @@ public class TaskListener implements ApplicationRunner {
                     ZSetOperations.TypedTuple<Object> tuple = redisService.getZSetByIndex(TaskConstant.TASK_QUEUE, 0);
                     if (tuple != null) {
                         // 任务执行时间
-                        double score = tuple.getScore();
-                        long taskTime = (long) score;
+                        Double score = tuple.getScore();
+                        assert score != null;
+                        long taskTime = score.longValue();
 
                         // 当前时间
                         LocalDateTime now = LocalDateTime.now();
@@ -95,16 +99,25 @@ public class TaskListener implements ApplicationRunner {
                                 logger.info("执行任务：{} method:{}", targetClass, methodName);
                                 taskEntity.setIndexCount(taskEntity.getIndexCount() + 1);
                                 baseTaskThread.execute(() -> {
+                                    TaskLog taskLog = new TaskLog();
+                                    taskLog.setTaskUUID(taskEntity.getTaskUUID());
+                                    taskLog.setIndexCount(taskEntity.getIndexCount());
                                     try {
                                         // 使用正确的目标实例
                                         Object result = ReflectionUtils.invokeMethod(method, targetInstance, methodParams);
                                         logger.info("方法执行结果: {}", result);
+                                        if (result != null) {
+                                            taskLog.setTaskResult(result.toString());
+                                        }
                                     } catch (Exception e) {
                                         logger.error("方法执行失败", e);
+                                        taskLog.setErrorMsg(e.getMessage());
                                         // 添加错误处理逻辑
+                                    } finally {
+                                        redisService.setList(TaskConstant.TASK_LOG, JSONObject.toJSONString(taskLog));
                                     }
                                 });
-                                if (taskEntity.getIndexCount() < taskEntity.getCount()) {
+                                if (taskEntity.getIndexCount() < taskEntity.getCount() || taskEntity.getCount() == -1) {
                                     taskService.createTask(taskEntity);
                                 }
                             }

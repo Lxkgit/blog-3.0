@@ -3,14 +3,14 @@
 <mapper namespace="com.blog.file.mapper.FileUploadLogMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.files.entity.FileUploadLog">
         <id column="id" property="id"/>
-        <id column="user_id" property="userId"/>
-        <id column="file_name" property="fileName"/>
-        <id column="file_url" property="fileUrl"/>
-        <id column="file_type" property="fileType"/>
-        <id column="upload_state" property="uploadState"/>
-        <id column="error_msg" property="errorMsg"/>
-        <id column="create_by" property="createBy"/>
-        <id column="create_time" property="createTime"/>
+        <result column="user_id" property="userId"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="file_type" property="fileType"/>
+        <result column="upload_state" property="uploadState"/>
+        <result column="error_msg" property="errorMsg"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">

@@ -181,7 +181,7 @@ addVirtualMemory() {
 	cd /usr
 	mkdir swap
 	cd swap/
-	dd if=/dev/zero of=/usr/swap/swapfile bs=1M count=4096
+	dd if=/dev/zero of=/usr/swap/swapfile bs=1M count=8192
 	du -sh /usr/swap/swapfile
 	mkswap /usr/swap/swapfile
 	swapon /usr/swap/swapfile

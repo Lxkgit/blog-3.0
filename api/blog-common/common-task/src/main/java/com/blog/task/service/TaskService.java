@@ -1,6 +1,7 @@
 package com.blog.task.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.blog.core.domain.file.task.entity.TaskInfo;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
@@ -70,6 +71,8 @@ public class TaskService {
         }
         if (nextTime != 0L) {
             redisService.setZSet(TaskConstant.TASK_QUEUE, JSONObject.toJSONString(taskEntity), nextTime);
+            TaskInfo taskInfo = new TaskInfo();
+            redisService.setList(TaskConstant.TASK_INFO, JSONObject.toJSONString(taskInfo));
         }
     }
 

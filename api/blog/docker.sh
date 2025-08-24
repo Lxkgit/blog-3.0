@@ -42,7 +42,8 @@ dockerStart() {
 	echo "}"  >> /etc/docker/daemon.json
 
 	# 一键安装docker
-	curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+#	curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+  installDocker
   #	判断docker是否正确安装
 	if [ $? -ne 0 ]; then
       echo "docker 安装失败, 脚本执行退出"
@@ -59,6 +60,23 @@ dockerStart() {
 	systemctl enable docker.service
 	# 创建自定义网络
 	docker network create --subnet=172.18.0.0/24 blog_network
+}
+
+installDocker() {
+  mv /opt/package/docker/docker-27.1.1.tgz /root
+  tar -zxvf /root/docker-27.1.1.tgz -C /root
+  sudo cp /root/docker/* /usr/bin/
+  mv /opt/package/docker/docker.service /etc/systemd/system/
+
+  chmod +x /etc/systemd/system/docker.service
+  systemctl daemon-reload
+
+  # 使docker开机自启
+  systemctl enable docker.service
+
+  # 启动docker服务
+  systemctl start docker
+
 }
 
 # 镜像文件重新下载
@@ -432,11 +450,11 @@ startPy() {
 # 主函数
 main() {
 	timer_start=`date "+%Y-%m-%d %H:%M:%S"`
-	
+
+	unzipBlog
 	dockerStart
 	dockerLoad
 	util
-	unzipBlog
 	addVirtualMemory
 	conda
 	mysql

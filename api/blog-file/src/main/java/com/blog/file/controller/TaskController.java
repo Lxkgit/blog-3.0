@@ -50,7 +50,7 @@ public class TaskController {
         return ResultFactory.buildSuccessResult(taskService.selectTaskInfoList());
     }
 
-    @GetMapping("/select/list")
+    @GetMapping("/log/select/list")
     public Result selectTaskLogList() {
         return ResultFactory.buildSuccessResult(taskService.selectTaskLogList());
     }

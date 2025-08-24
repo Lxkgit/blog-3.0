@@ -244,12 +244,6 @@
                 <version>${easyexcel.version}</version>
             </dependency>
 
-            <!-- cron 表达式解析 -->
-            <dependency>
-                <groupId>com.cronutils</groupId>
-                <artifactId>cron-utils</artifactId>
-                <version>9.2.1</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -20,7 +20,7 @@ import com.blog.file.socket.domain.constant.SocketTopic;
 import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.domain.service.SocketMessageSendService;
 import com.blog.task.domain.TaskEntity;
-import com.blog.task.service.TaskService;
+import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public class NettyFileSyncService {
     private SocketService socketService;
 
     @Resource
-    private TaskService taskService;
+    private CreateTaskService taskService;
 
     @Resource
     private UserDeviceMapper userDeviceMapper;
@@ -83,7 +83,7 @@ public class NettyFileSyncService {
     /**
      *  删除临时同步目录文件
      */
-    public void deleteTempFile(String filePath) {
+    public void deleteTempFile(String filePath, String time) {
         // 定时删除同步文件
         TaskEntity taskEntity = new TaskEntity("blog-system-task-delete-temp-file");
 
@@ -92,7 +92,7 @@ public class NettyFileSyncService {
         taskEntity.setParams(new Object[]{filePath});
         Class<?>[] paramTypes = new Class<?>[]{String.class};
         taskEntity.setParamsClazz(paramTypes);
-        taskEntity.setTime("3h");
+        taskEntity.setTime(time);
         taskEntity.setCount(1);
         taskService.createTask(taskEntity);
     }
@@ -102,11 +102,15 @@ public class NettyFileSyncService {
      * 博客数据同步任务-第一步
      * 发送socket导出博客数据任务
      */
-    public void syncBlogDataFirstStep() {
+    public String syncBlogDataFirstStep() {
+        logger.info("正在导出博客文件数据");
         SocketExportBlogFileDto exportBlogFileDto = new SocketExportBlogFileDto();
-        exportBlogFileDto.setBlogFilePath(Constant.FTP_PATH_SYSTEM + "/temp/" + MyStringUtils.getRandomString(6));
+        String blogFilePath = Constant.FTP_PATH_SYSTEM + "/temp/" + MyStringUtils.getRandomString(6);
+        exportBlogFileDto.setBlogFilePath(blogFilePath);
         SocketPacket<SocketExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE, exportBlogFileDto);
         socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
+        deleteTempFile(blogFilePath, "48h");
+        return blogFilePath;
     }
 
     /**
@@ -162,6 +166,7 @@ public class NettyFileSyncService {
      */
     public void clearTempFileOrPath(String path) {
         logger.info("清理文件：{}", path);
+        socketMessageSendService.deleteDir(path);
     }
 
 }

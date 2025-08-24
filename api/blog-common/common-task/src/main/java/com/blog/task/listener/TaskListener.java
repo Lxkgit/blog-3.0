@@ -4,12 +4,10 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONReader;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.redis.service.RedisService;
-import com.blog.task.config.TaskThread;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
-import com.blog.task.service.TaskService;
+import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -43,7 +41,7 @@ public class TaskListener implements ApplicationRunner {
     private Executor baseTaskThread;
 
     @Resource
-    private TaskService taskService;
+    private CreateTaskService taskService;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -71,7 +69,6 @@ public class TaskListener implements ApplicationRunner {
                         long newTime = zonedDateTime.toEpochSecond();
 
                         if (newTime >= taskTime) {
-                            logger.info("开始执行任务");
                             redisService.removeZSetByIndex(TaskConstant.TASK_QUEUE, 0);
                             TaskEntity taskEntity = JSONObject.parseObject(Objects.requireNonNull(tuple.getValue()).toString(), TaskEntity.class, JSONReader.Feature.SupportClassForName);
 

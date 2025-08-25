@@ -19,7 +19,7 @@ spring:
     multipart:
       max-file-size: 500MB # 设置单个文件大小
       max-request-size: 500MB # 设置单次请求文件的总大小
-  data:,
+  data:
     redis:
       database: 0
       host: 172.18.0.6

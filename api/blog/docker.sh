@@ -142,7 +142,8 @@ dockerLoad() {
 conda() {
 	echo "开始下载 Anaconda ... "
 	cd /opt/
-	wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
+	mv /opt/package/python/Anaconda3-2024.10-1-Linux-x86_64.sh /opt/
+#	wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
 	echo "开始安装 Anaconda ... "
 	sh Anaconda3-2024.10-1-Linux-x86_64.sh<<EOF
 

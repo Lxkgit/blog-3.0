@@ -21,6 +21,11 @@ public class TaskEntity {
     private Class<?>[] paramsClazz;
 
     /**
+     * 任务名称
+     */
+    private String taskName;
+
+    /**
      * 任务唯一编码
      */
     private String taskUUID;

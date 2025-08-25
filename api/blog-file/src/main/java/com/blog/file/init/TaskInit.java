@@ -52,6 +52,7 @@ public class TaskInit implements ApplicationRunner {
         taskEntity.setParams(null);
         taskEntity.setParamsClazz(null);
 
+        taskEntity.setTaskName("定时备份博客数据");
         taskEntity.setCount(-1);
         taskEntity.setCron("0 0 0 * * *");
 

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 
 /**
@@ -77,9 +78,17 @@ public class CreateTaskService {
             }
         }
         if (nextTime != 0L) {
-            redisService.setZSet(TaskConstant.TASK_QUEUE, JSONObject.toJSONString(taskEntity), nextTime);
             TaskInfo taskInfo = new TaskInfo();
+            taskInfo.setTaskUUID(taskEntity.getTaskUUID());
+            taskInfo.setTaskName(taskEntity.getTaskName());
+            taskInfo.setTaskJson(JSONObject.toJSONString(taskEntity));
+            taskInfo.setTaskCron(taskEntity.getCron());
+            taskInfo.setTaskTime(taskEntity.getTime());
+            taskInfo.setTaskCount(taskEntity.getCount());
+            taskInfo.setCreateTime(new Date());
+
             redisService.setList(TaskConstant.TASK_INFO, JSONObject.toJSONString(taskInfo));
+            redisService.setZSet(TaskConstant.TASK_QUEUE, JSONObject.toJSONString(taskEntity), nextTime);
         }
     }
 

@@ -1,10 +1,13 @@
 package com.blog.file.redis;
 
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.Executor;
 
 /**
  * @Description redis 数据监听
@@ -17,9 +20,12 @@ public class RedisListener implements ApplicationRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisListener.class);
 
+    @Resource
+    private Executor systemTaskThread;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        redisListenerThread();
+        systemTaskThread.execute(this::redisListenerThread);
     }
 
 

@@ -4,12 +4,14 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONReader;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.redis.service.RedisService;
+import com.blog.task.config.SpringContextHolder;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
 import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -80,7 +82,15 @@ public class TaskListener implements ApplicationRunner {
                                 Object[] methodParams = taskEntity.getParams();
 
                                 // 2. 获取目标类的实例
-                                Object targetInstance = targetClass.getDeclaredConstructor().newInstance();
+                                Object targetInstance;
+                                try {
+                                    // 尝试从Spring容器获取Bean
+                                    targetInstance = SpringContextHolder.getBean(targetClass);
+                                } catch (Exception e) {
+                                    // 如果获取失败，说明该类不是Spring管理的Bean
+                                    logger.warn("类 {} 不是Spring Bean，将使用反射创建实例", targetClass.getName());
+                                    targetInstance = targetClass.getDeclaredConstructor().newInstance();
+                                }
 
                                 // 3. 查找方法
                                 Method method = ReflectionUtils.findMethod(targetClass, methodName, paramTypes);
@@ -95,13 +105,14 @@ public class TaskListener implements ApplicationRunner {
                                 // 5. 提交任务（捕获所有必要变量）
                                 logger.info("执行任务：{} method:{}", targetClass, methodName);
                                 taskEntity.setIndexCount(taskEntity.getIndexCount() + 1);
+                                Object finalTargetInstance = targetInstance;
                                 baseTaskThread.execute(() -> {
                                     TaskLog taskLog = new TaskLog();
                                     taskLog.setTaskUUID(taskEntity.getTaskUUID());
                                     taskLog.setIndexCount(taskEntity.getIndexCount());
                                     try {
                                         // 使用正确的目标实例
-                                        Object result = ReflectionUtils.invokeMethod(method, targetInstance, methodParams);
+                                        Object result = ReflectionUtils.invokeMethod(method, finalTargetInstance, methodParams);
                                         logger.info("方法执行结果: {}", result);
                                         if (result != null) {
                                             taskLog.setTaskResult(result.toString());
@@ -114,9 +125,6 @@ public class TaskListener implements ApplicationRunner {
                                         redisService.setList(TaskConstant.TASK_LOG, JSONObject.toJSONString(taskLog));
                                     }
                                 });
-                                if (taskEntity.getIndexCount() < taskEntity.getCount() || taskEntity.getCount() == -1) {
-                                    taskService.createTask(taskEntity);
-                                }
                             }
                         }
                     }

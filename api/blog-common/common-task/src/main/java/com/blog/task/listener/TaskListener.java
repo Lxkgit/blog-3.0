@@ -11,7 +11,6 @@ import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -43,7 +42,7 @@ public class TaskListener implements ApplicationRunner {
     private Executor baseTaskThread;
 
     @Resource
-    private CreateTaskService taskService;
+    private CreateTaskService createTaskService;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -125,7 +124,13 @@ public class TaskListener implements ApplicationRunner {
                                         redisService.setList(TaskConstant.TASK_LOG, JSONObject.toJSONString(taskLog));
                                     }
                                 });
+
+                                if (taskEntity.getCount() == -1 || taskEntity.getIndexCount() < taskEntity.getCount()) {
+                                    // 创建下一次任务
+                                    createTaskService.createTask(taskEntity);
+                                }
                             }
+
                         }
                     }
                 }

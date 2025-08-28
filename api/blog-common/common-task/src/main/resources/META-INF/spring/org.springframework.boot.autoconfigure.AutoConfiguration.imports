@@ -1,3 +1,4 @@
 com.blog.task.config.TaskThread
 com.blog.task.listener.TaskListener
 com.blog.task.service.CreateTaskService
+com.blog.task.config.SpringContextHolder

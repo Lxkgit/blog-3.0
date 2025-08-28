@@ -10,11 +10,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -87,7 +91,13 @@ public class CreateTaskService {
             taskInfo.setTaskCount(taskEntity.getCount());
             taskInfo.setCreateTime(new Date());
 
-            redisService.setList(TaskConstant.TASK_INFO, JSONObject.toJSONString(taskInfo));
+            List<Object> taskList = redisService.getList(TaskConstant.TASK_INFO, 0, -1);
+
+            Set<String> UUIDSet = taskList.stream().filter(obj -> obj instanceof TaskInfo)
+                    .map(obj -> (TaskInfo) obj).map(TaskInfo::getTaskUUID).collect(Collectors.toSet());
+            if (!CollectionUtils.isEmpty(UUIDSet) && !UUIDSet.contains(taskInfo.getTaskUUID())) {
+                redisService.setList(TaskConstant.TASK_INFO, JSONObject.toJSONString(taskInfo));
+            }
             redisService.setZSet(TaskConstant.TASK_QUEUE, JSONObject.toJSONString(taskEntity), nextTime);
         }
     }

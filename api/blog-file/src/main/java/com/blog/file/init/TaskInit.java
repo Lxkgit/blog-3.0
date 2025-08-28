@@ -1,7 +1,7 @@
 package com.blog.file.init;
 
 import com.blog.file.netty.service.NettyFileSyncService;
-import com.blog.file.socket.SocketService;
+import com.blog.file.socket.service.SocketService;
 import com.blog.task.domain.TaskEntity;
 import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;

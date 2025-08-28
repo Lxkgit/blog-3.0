@@ -1,5 +1,6 @@
 package com.blog.file.socket.controller;
 
+import com.blog.file.config.SpringContextHolder;
 import com.blog.file.socket.service.SocketService;
 import jakarta.annotation.Resource;
 import jakarta.websocket.*;
@@ -7,6 +8,8 @@ import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Component;
 
 /**
  * @Description socket服务接口类
@@ -14,13 +17,13 @@ import org.slf4j.LoggerFactory;
  * @CreateTime 2025-08-28
  */
 
+@Component
 @ServerEndpoint("/socket/{type}/{id}")
 public class SocketController {
 
     private static final Logger logger = LoggerFactory.getLogger(SocketController.class);
 
-    @Resource
-    private SocketService socketService;
+    private final SocketService socketService = SpringContextHolder.getBean(SocketService.class);
 
     // 当前连接的元数据
     private String connectionType;

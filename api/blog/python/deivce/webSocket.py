@@ -182,54 +182,71 @@ async def handle_messages(ws):
                     logger.info(f"文件移动完成: {msg}")
                     await ws.send(json.dumps(msg))
                 elif receiveMsg.get("topic") == "export_blog_file":
-                    blogFilePath = receiveMsg.get('data').get('blogFilePath')
-                    logger.info(f"调用导出博客数据脚本: {blogFilePath}")
-                    # 导出博客文件数据
-                    execute_shell_script(SHELL_PATH["EXPORT_BLOG_FILE"])
-                    # 文件移动到ftp目录中 ftp目录由服务器指定
-                    move_file_or_directory("/opt/docker/files/temp/blog/blog.zip", blogFilePath)
-                    # 删除临时文件
-                    delete_file_or_directory("/opt/docker/files/temp/blog/*")
-                    # 执行完成响应socket
-                    msg = {
-                        'requestId': receiveMsg.get("requestId"),
-                        'socketPacketType': 'response',
-                        'topic': receiveMsg.get("topic"),
-                        'data': {
-                            'blogFilePath': blogFilePath,
-                            'blogFileName': 'blog.zip'
-                        }
-                    }
-                    logger.info(f"博客数据导出任务执行完成: {msg}")
-                    await ws.send(json.dumps(msg))
+                    await topic_export_blog_file(ws, receiveMsg)
                 elif receiveMsg.get("topic") == "delete_file_or_dir":
-                    logger.info(f"执行文件删除操作: {receiveMsg.get('data')}")
-                    dirPath = receiveMsg.get('data').get('dirPath')
-                    fileName = receiveMsg.get('data').get('fileName')
-
-                    # python 特色的三目运算符 [当条件为真时的值] if [条件] else [当条件为假时的值]
-                    dirPath = dirPath[:-1] if dirPath.endswith('/') else dirPath
-
-                    if not fileName:
-                        deleteResult = delete_file_or_directory(dirPath + "/" + fileName)
-                    else:
-                        deleteResult = delete_file_or_directory(dirPath)
-                        # 执行完成响应socket
-                    msg = {
-                        'requestId': receiveMsg.get("requestId"),
-                        'socketPacketType': 'response',
-                        'topic': receiveMsg.get("topic"),
-                        'data': {
-                            'dirPath': dirPath,
-                            'fileName': fileName,
-                            'result': deleteResult
-                        }
-                    }
-                    logger.info(f"博客数据导出任务执行完成: {msg}")
-                    await ws.send(json.dumps(msg))
+                    await topic_delete_file_or_dir(ws, receiveMsg)
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")
 
+# export_blog_file topic 处理方法
+async def topic_export_blog_file(ws, receiveMsg):
+    blogFilePath = receiveMsg.get('data').get('blogFilePath')
+    logger.info(f"调用导出博客数据脚本: {blogFilePath}")
+    # 导出博客文件数据
+    execute_shell_script(SHELL_PATH["EXPORT_BLOG_FILE"])
+    # 文件移动到ftp目录中 ftp目录由服务器指定
+    move_file_or_directory("/opt/docker/files/temp/blog/blog.zip", blogFilePath)
+    # 删除临时文件
+    delete_file_or_directory("/opt/docker/files/temp/blog")
+    # 执行完成响应socket
+    msg = {
+        'requestId': receiveMsg.get("requestId"),
+        'socketPacketType': 'response',
+        'topic': receiveMsg.get("topic"),
+        'data': {
+            'blogFilePath': blogFilePath,
+            'blogFileName': 'blog.zip'
+        }
+    }
+    logger.info(f"博客数据导出任务执行完成: {msg}")
+    await ws.send(json.dumps(msg))
+
+# delete_file_or_dir topic 处理方法
+async def topic_delete_file_or_dir(ws, receiveMsg):
+    """处理删除文件或目录的请求"""
+    logger.info(f"执行文件删除操作: {receiveMsg.get('data')}")
+    data = receiveMsg.get('data', {})
+    dirPath = data.get('dirPath', '')
+    fileName = data.get('fileName')
+
+    # 验证必要参数
+    if not dirPath:
+        deleteResult = "缺少必需的参数: dirPath"
+    else:
+        # 规范化路径（移除末尾斜杠）
+        dirPath = dirPath.rstrip('/')
+
+        if fileName:
+            target_path = f"{dirPath}/{fileName}"
+            logger.info(f"删除文件: {target_path}")
+            deleteResult = delete_file_or_directory(target_path)
+        else:
+            logger.info(f"删除目录: {dirPath}")
+            deleteResult = delete_file_or_directory(dirPath)
+
+    # 构造响应消息
+    msg = {
+        'requestId': receiveMsg.get("requestId"),
+        'socketPacketType': 'response',
+        'topic': receiveMsg.get("topic"),
+        'data': {
+            'dirPath': dirPath,
+            'fileName': fileName,
+            'result': deleteResult
+        }
+    }
+    logger.info(f"文件删除操作执行完成: {msg}")
+    await ws.send(json.dumps(msg))
 
 # 执行Shell脚本
 def execute_shell_script(shell_script_path):
@@ -312,11 +329,13 @@ def delete_file_or_directory(path):
         bool: 删除成功返回True，否则返回False
     """
     try:
+        logger.info(f"尝试删除文件或目录: {path}")
         # 转换为绝对路径
         target = Path(path).resolve()
 
         # 基本安全校验
         if not target.exists():
+            logger.warning(f"路径不存在: {target}")
             return False
 
         # 关键目录保护（防止误删系统文件）
@@ -327,25 +346,39 @@ def delete_file_or_directory(path):
             Path("/bin"),
             Path("/usr"),
             Path("/var"),
-            Path("/lib")
+            Path("/lib"),
         ]
 
         # 检查是否尝试删除受保护路径
-        if any(target == p or target.is_relative_to(p) for p in protected_paths):
-            return False
+        for protected in protected_paths:
+            protected_abs = protected.resolve()
+            try:
+                if target == protected_abs:
+                    logger.error(f"尝试删除受保护路径: {target}")
+                    return False
+            except ValueError:
+                # 处理路径解析错误
+                continue
 
-        logger.info(f"删除目录或文件：{path}")
         # 执行删除操作
         if target.is_file():
+            os.chmod(target, 0o777)  # 确保有权限删除
             os.remove(target)
+            logger.info(f"文件已删除: {target}")
         elif target.is_dir():
-            shutil.rmtree(target)
+            shutil.rmtree(target, ignore_errors=False)
+            logger.info(f"目录已删除: {target}")
         else:
-            return False  # 跳过特殊文件类型
+            logger.warning(f"特殊文件类型，跳过: {target}")
+            return False
 
         return True
 
-    except Exception:
+    except PermissionError as e:
+        logger.error(f"权限不足，无法删除: {str(e)}")
+        return False
+    except Exception as e:
+        logger.error(f"文件删除错误: {str(e)}", exc_info=True)
         return False
 
 

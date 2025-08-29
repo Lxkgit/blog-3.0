@@ -38,7 +38,7 @@ public class NettyClientInitializer extends ChannelInitializer<Channel> {
                 .addLast(new StringDecoder(CharsetUtil.UTF_8))
                 .addLast(new StringEncoder(CharsetUtil.UTF_8))
                 // 心跳检测  多长时间没有触发读事件 多长时间没有触发写事件 多长时间没有触发读写事件 时间单位
-                .addLast(new IdleStateHandler(0, 35, 0, TimeUnit.SECONDS))
+                .addLast(new IdleStateHandler(0, 30, 0, TimeUnit.SECONDS))
                 // 自定义的处理入站出站的 handler
                 .addLast(nettyClientHandler);
     }

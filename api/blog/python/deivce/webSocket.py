@@ -389,7 +389,7 @@ async def send_heartbeat(websocket):
         while True:
             try:
                 msg = {
-                    'topic': 'heart',
+                    'topic': 'heartbeat',
                     'data': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
                 }
                 await websocket.send(json.dumps(msg))

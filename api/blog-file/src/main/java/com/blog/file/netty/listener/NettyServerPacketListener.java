@@ -69,9 +69,12 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         Integer userId = Integer.parseInt(registerCode.split(":")[0]);
         String deviceCode = registerCode.split(":")[1];
         String data = event.getNettyPacket().getData().toString();
-        logger.info("netty 收到消息，channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
-                channelId, requestId, nettyPacketType, topic, deviceCode, data);
 
+        if (!nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
+            // 只输出非心跳消息
+            logger.info("netty 收到消息，channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
+                    channelId, requestId, nettyPacketType, topic, deviceCode, data);
+        }
         if (!nettyServerHandler.checkContainByDeviceCode(deviceCode)) {
             nettyServerHandler.closeChannelByDeviceCode(deviceCode);
         }

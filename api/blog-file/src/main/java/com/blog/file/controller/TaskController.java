@@ -1,11 +1,13 @@
 package com.blog.file.controller;
 
-import com.blog.core.domain.file.task.vo.TaskInfoVo;
+import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.valication.group.InsertGroup;
 import com.blog.file.service.TaskService;
+import com.blog.task.domain.TaskEntity;
 import jakarta.annotation.Resource;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,26 +24,9 @@ public class TaskController {
     @Resource
     private TaskService taskService;
 
-    /**
-     * 创建传感器
-     *
-     */
-    @PostMapping("/insert")
-//    @PreAuthorize("hasAnyAuthority('sys:sensor:save')")
-    public Result insertTask(@Validated(value = {InsertGroup.class}) @RequestBody TaskInfoVo taskInfoVo) {
-        taskService.insertTask(taskInfoVo);
-        return ResultFactory.buildSuccessResult();
-    }
-
-    @DeleteMapping("/delete")
-    public Result deleteTask(@RequestParam(value = "id") Integer id) {
-        taskService.deleteTask(id);
-        return ResultFactory.buildSuccessResult();
-    }
-
     @PostMapping("/update")
-    public Result updateTask(@RequestBody TaskInfoVo taskInfoVo) {
-        taskService.updateTask(taskInfoVo);
+    public Result updateTask(@RequestBody TaskEntity entity) {
+       taskService.updateTask(entity);
         return ResultFactory.buildSuccessResult();
     }
 
@@ -51,8 +36,8 @@ public class TaskController {
     }
 
     @GetMapping("/log/select/list")
-    public Result selectTaskLogList() {
-        return ResultFactory.buildSuccessResult(taskService.selectTaskLogList());
+    public Result selectTaskLogList(TaskLogVo taskLogVo) {
+        return ResultFactory.buildSuccessResult(taskService.selectTaskLogList(taskLogVo));
     }
 
 }

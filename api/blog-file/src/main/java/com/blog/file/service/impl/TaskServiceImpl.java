@@ -1,10 +1,13 @@
 package com.blog.file.service.impl;
 
-import com.blog.core.domain.file.task.vo.TaskInfoVo;
+import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.domain.file.task.vo.TaskLogVo;
-import com.blog.file.mapper.TaskInfoMapper;
 import com.blog.file.mapper.TaskLogMapper;
 import com.blog.file.service.TaskService;
+import com.blog.redis.service.RedisService;
+import com.blog.task.constant.TaskConstant;
+import com.blog.task.domain.TaskEntity;
+import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -20,33 +23,36 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService {
 
     @Resource
-    private TaskInfoMapper taskInfoMapper;
-
-    @Resource
     private TaskLogMapper taskLogMapper;
 
+    @Resource
+    private RedisService redisService;
+
     @Override
-    public void insertTask(TaskInfoVo taskInfoVo) {
-        taskInfoMapper.insert(taskInfoVo);
+    public void updateTask(TaskEntity taskInfoParam) {
+        List<Object> taskList = redisService.getList(TaskConstant.TASK_ENTITY, 0, -1);
+        for (int i = 0; i< taskList.size(); i++) {
+            TaskEntity taskEntity = (TaskEntity) taskList.get(i);
+            if (taskEntity.getTaskUUID().equals(taskInfoParam.getTaskUUID())) {
+                taskEntity.setParams(taskInfoParam.getParams());
+                taskEntity.setCron(taskInfoParam.getCron());
+                taskEntity.setTime(taskInfoParam.getTime());
+                taskEntity.setCount(taskInfoParam.getCount());
+                taskEntity.setTaskStatus(taskInfoParam.getTaskStatus());
+            }
+            redisService.updateListByIndex(TaskConstant.TASK_ENTITY, i, taskEntity);
+        }
+
     }
 
     @Override
-    public void updateTask(TaskInfoVo taskInfoVo) {
-        taskInfoMapper.updateById(taskInfoVo);
+    public List<Object> selectTaskInfoList() {
+        return redisService.getList(TaskConstant.TASK_ENTITY, 0, -1);
     }
 
     @Override
-    public void deleteTask(Integer id) {
-        taskInfoMapper.deleteById(id);
-    }
-
-    @Override
-    public List<TaskInfoVo> selectTaskInfoList() {
-        return List.of();
-    }
-
-    @Override
-    public List<TaskLogVo> selectTaskLogList() {
-        return List.of();
+    public List<TaskLog> selectTaskLogList(TaskLogVo taskLogVo) {
+        PageHelper.startPage(taskLogVo.getPageNum(), taskLogVo.getPageNum());
+        return taskLogMapper.selectList(null);
     }
 }

@@ -1,7 +1,6 @@
 package com.blog.task.service;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.blog.core.domain.file.task.entity.TaskInfo;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
@@ -82,21 +81,20 @@ public class CreateTaskService {
             }
         }
         if (nextTime != 0L) {
-            TaskInfo taskInfo = new TaskInfo();
-            taskInfo.setTaskUUID(taskEntity.getTaskUUID());
-            taskInfo.setTaskName(taskEntity.getTaskName());
-            taskInfo.setTaskJson(JSONObject.toJSONString(taskEntity));
-            taskInfo.setTaskCron(taskEntity.getCron());
-            taskInfo.setTaskTime(taskEntity.getTime());
-            taskInfo.setTaskCount(taskEntity.getCount());
-            taskInfo.setCreateTime(new Date());
 
-            List<Object> taskList = redisService.getList(TaskConstant.TASK_INFO, 0, -1);
+            List<Object> taskList = redisService.getList(TaskConstant.TASK_ENTITY, 0, -1);
 
-            Set<String> UUIDSet = taskList.stream().filter(obj -> obj instanceof TaskInfo)
-                    .map(obj -> (TaskInfo) obj).map(TaskInfo::getTaskUUID).collect(Collectors.toSet());
-            if (!CollectionUtils.isEmpty(UUIDSet) && !UUIDSet.contains(taskInfo.getTaskUUID())) {
-                redisService.setList(TaskConstant.TASK_INFO, JSONObject.toJSONString(taskInfo));
+            Set<String> UUIDSet = taskList.stream().filter(obj -> obj instanceof TaskEntity)
+                    .map(obj -> (TaskEntity) obj).map(TaskEntity::getTaskUUID).collect(Collectors.toSet());
+            if (CollectionUtils.isEmpty(UUIDSet)) {
+                redisService.setList(TaskConstant.TASK_ENTITY, JSONObject.toJSONString(taskEntity));
+            }
+            if (!CollectionUtils.isEmpty(UUIDSet) && !UUIDSet.contains(taskEntity.getTaskUUID())) {
+                redisService.setList(TaskConstant.TASK_ENTITY, JSONObject.toJSONString(taskEntity));
+            }
+            // 任务状态为0的任务不创建执行队列
+            if (taskEntity.getTaskStatus() != null && taskEntity.getTaskStatus() == 0) {
+                return;
             }
             redisService.setZSet(TaskConstant.TASK_QUEUE, JSONObject.toJSONString(taskEntity), nextTime);
         }

@@ -15,6 +15,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 public class SocketMessageListener {
 
@@ -36,8 +38,11 @@ public class SocketMessageListener {
         String topic = event.getSocketPacket().getTopic();
 
         String data = event.getSocketPacket().getData().toString();
-        logger.info("socket 收到消息，type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
-                type, id, requestId, socketPacketType, topic, data);
+         if(!SocketPacketType.HEARTBEAT.equals(topic)) {
+             // 心跳消息不打印
+             logger.info("socket 收到消息，type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
+                     type, id, requestId, socketPacketType, topic, data);
+         }
         if (SocketPacketType.REGISTER.equals(socketPacketType)) {
 
         } else if (SocketPacketType.HEARTBEAT.equals(socketPacketType)) {

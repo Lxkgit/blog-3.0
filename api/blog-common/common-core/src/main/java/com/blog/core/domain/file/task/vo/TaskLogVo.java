@@ -13,4 +13,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TaskLogVo extends TaskLog {
+
+    private Integer pageNum;
+
+    private Integer pageSize;
 }

@@ -12,18 +12,37 @@ import lombok.Data;
 @Data
 public class TaskEntity {
 
+    /**
+     * 任务执行方法所属类
+     */
     private Class<?> clazz;
 
+    /**
+     * 任务执行方法名称
+     */
     private String methodName;
 
+    /**
+     * 任务执行方法参数
+     */
     private Object[] params;
 
+    /**
+     * 任务执行方法参数类
+     */
     private Class<?>[] paramsClazz;
 
     /**
      * 任务名称
      */
     private String taskName;
+
+    /**
+     * 任务状态
+     * 1 正常
+     * 0 停用
+     */
+    private Integer taskStatus;
 
     /**
      * 任务唯一编码

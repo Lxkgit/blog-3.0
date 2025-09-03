@@ -21,6 +21,8 @@
       "Action": ["s3:GetObject"],
       "Resource": [
         "arn:aws:s3:::blog/*/diary/*",
+        "arn:aws:s3:::blog/*/device/*",
+        "arn:aws:s3:::blog/*/other/*",
         "arn:aws:s3:::blog/*/user/*"
       ]
     }

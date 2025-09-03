@@ -21,10 +21,13 @@ import com.blog.core.result.ResultPage;
 import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
+import com.blog.mq.service.MQProducerService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +43,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArticleServiceImpl.class);
 
     @Resource
     private UserClient userClient;
@@ -84,10 +89,15 @@ public class ArticleServiceImpl implements ArticleService {
 
         articleMapper.insert(articleVo);
 
-        // 发送博客用户新增文章mq消息
-        sendUserData.sendUserData(SendUserData.article, userId, 1);
-        // 发送博客系统新增文章mq消息
-        sendSystemData.sendSystemData(SendSystemData.article, 1);
+        try {
+            // 发送博客用户新增文章mq消息
+            sendUserData.sendUserData(SendUserData.article, userId, 1);
+            // 发送博客系统新增文章mq消息
+            sendSystemData.sendSystemData(SendSystemData.article, 1);
+        } catch (Exception e) {
+            logger.error("mq消息发送失败: {}", e.getMessage());
+        }
+
         return articleVo.getId();
     }
 

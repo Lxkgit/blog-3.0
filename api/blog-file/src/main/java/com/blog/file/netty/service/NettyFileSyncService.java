@@ -133,7 +133,7 @@ public class NettyFileSyncService {
     public void syncDeviceFile() {
         Integer userId = 1;
         // 文件存储minio中路径
-        String minioPath = "/"+ userId + "/device";
+        String minioPath = "/"+ userId + "/user/img";
         // servicePath 为文件在ftp system用户目录下的相对路径
         String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
         // devicePath 为树莓派设备上的绝对路径

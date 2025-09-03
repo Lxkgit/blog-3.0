@@ -207,7 +207,7 @@ addVirtualMemory() {
 	free -m
 	echo "/usr/swap/swapfile swap swap defaults 0 0"  >> /etc/fstab
 }
-
+mi
 # 修改 MySQL 配置文件
 updateMysqlConf() {
 	echo "开始修改MySQL配置文件..."

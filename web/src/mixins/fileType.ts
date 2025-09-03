@@ -14,10 +14,13 @@ export default function () {
       type.value = "图片"
     } else if (zip.indexOf(fileType) != -1) {
       type.key = 2;
-      type.value = "压缩文件"
+      type.value = "压缩包"
     } else if (video.indexOf(fileType) != -1) {
       type.key = 3;
       type.value = "视频"
+    } else {
+      type.key = 4;
+      type.value = "其它"
     }
     return type
   }

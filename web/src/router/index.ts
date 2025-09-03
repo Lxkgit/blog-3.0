@@ -174,6 +174,16 @@ const router = createRouter({
           },
         },
         {
+          path: 'tool/task',
+          name: 'Task',
+          component: () => import('@/views/admin/tool/Task.vue'),
+          meta: {
+            title: '定时任务',
+            keepAlive: false,
+            isAuth: true,
+          },
+        },
+        {
           path: 'tool/calendar',
           name: 'Calendar',
           component: () => import('@/views/admin/tool/Calendar.vue'),

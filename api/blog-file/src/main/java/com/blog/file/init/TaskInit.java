@@ -29,6 +29,7 @@ public class TaskInit implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         logger.info("启动系统任务");
         blogDateSyncTask();
+        deviceFileUploadTask();
     }
 
     /**
@@ -57,7 +58,6 @@ public class TaskInit implements ApplicationRunner {
         taskEntity.setCron("0 0 0 * * *");
 
         createTaskService.createTask(taskEntity);
-//        nettyFileSyncService.syncBlogDataFirstStep();
     }
 
     /**
@@ -74,10 +74,18 @@ public class TaskInit implements ApplicationRunner {
      * 2. 删除临时文件
      */
     public void deviceFileUploadTask() {
+        TaskEntity taskEntity = new TaskEntity();
+        taskEntity.setTaskUUID("blog-system-task-sync-device-img");
 
+        taskEntity.setClazz(NettyFileSyncService.class);
+        taskEntity.setMethodName("syncDeviceFile");
+        taskEntity.setParams(null);
+        taskEntity.setParamsClazz(null);
 
+        taskEntity.setTaskName("定时上传树莓派数据");
+        taskEntity.setCount(-1);
+        taskEntity.setCron("0 0 0 * * *");
 
-        logger.info("定时任务 执行：文件同步任务-设备端文件上传任务");
-        nettyFileSyncService.syncDeviceFile();
+        createTaskService.createTask(taskEntity);
     }
 }

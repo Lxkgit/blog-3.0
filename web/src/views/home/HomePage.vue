@@ -132,6 +132,7 @@ const scrollHandle = () => {
   }
 }
 onMounted(() => {
+  store.menuIndex = '1'
   CarouselData()
   load()
   // 监听滚动事件

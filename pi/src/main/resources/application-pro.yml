@@ -36,5 +36,3 @@ ftp:
   port: 61121
   username: system
   password: Ftp@Admin123*.
-
-  basePath: /opt/files

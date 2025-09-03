@@ -117,6 +117,7 @@ const sizeChange = (size: any) => {
 }
 
 onMounted(() => {
+  // store.menuIndex = '2'
   articleData(1, size.value, articleTypeId.value);
 });
 

@@ -293,12 +293,7 @@ function roleFn(): any {
    */
   const updateRolePerFun = () => {
     updateRolePerDialog.value = false;
-    if (roleId.value === 1) {
-      ElMessage({
-        message: "超级管理员权限无法修改",
-        type: "error",
-      });
-    } else {
+    
       updateRolePerApi({
         id: roleId.value,
         menuIds: rolePer.value,
@@ -310,7 +305,7 @@ function roleFn(): any {
           });
         }
       });
-    }
+
   };
 
   /**

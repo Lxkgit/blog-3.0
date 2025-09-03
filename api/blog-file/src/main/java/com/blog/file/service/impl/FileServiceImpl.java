@@ -176,6 +176,7 @@ public class FileServiceImpl implements FileService {
         FileCategory fileCategory = getFileDir(fileDataVo);
         LambdaQueryWrapper<FileCategoryData> dateWrapper = new LambdaQueryWrapper<>();
         dateWrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
+        dateWrapper.orderByDesc(FileCategoryData::getId);
         List<FileCategoryData> fileList = fileCategoryDataMapper.selectList(dateWrapper);
         for (FileCategoryData fileCategoryData : fileList) {
             fileCategoryData.setFileUrl(authFile(fileCategoryData.getFileUrl()));
@@ -306,7 +307,7 @@ public class FileServiceImpl implements FileService {
             fileCategoryData.setFileUrl(fileUrl);
             fileCategoryData.setFileSize(0);
             fileCategoryData.setFileStatus(0);
-            fileCategoryData.setFileType(fileName.substring(fileName.lastIndexOf(".")));
+            fileCategoryData.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1));
             fileCategoryData.setCreateBy("userName");
             fileCategoryData.setCreateTime(new Date());
 

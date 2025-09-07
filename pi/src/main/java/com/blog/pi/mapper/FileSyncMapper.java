@@ -1,4 +1,4 @@
-package com.blog.pi.dao;
+package com.blog.pi.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.pi.domain.entity.FileSync;
@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 @Mapper
-public interface FileSyncDAO extends BaseMapper<FileSync> {
+public interface FileSyncMapper extends BaseMapper<FileSync> {
 }

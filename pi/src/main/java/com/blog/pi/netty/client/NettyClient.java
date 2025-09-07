@@ -2,7 +2,7 @@ package com.blog.pi.netty.client;
 
 
 import com.blog.pi.config.PiSystemConfig;
-import com.blog.pi.dao.RegisterSettingDAO;
+import com.blog.pi.mapper.RegisterSettingMapper;
 import com.blog.pi.netty.dto.NettyReplayMessage;
 import com.blog.redis.constant.NettyRedisConstant;
 import com.blog.redis.service.RedisService;
@@ -13,14 +13,12 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,7 +38,7 @@ public class NettyClient implements CommandLineRunner {
     private final NettyClientInitializer nettyClientInitializer;
 
     @Resource
-    private RegisterSettingDAO registerSettingDAO;
+    private RegisterSettingMapper registerSettingDAO;
 
     @Resource
     private PiSystemConfig piSystemConfig;

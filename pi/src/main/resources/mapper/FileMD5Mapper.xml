@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.pi.mapper.FileMD5Mapper">
+    <resultMap id="BaseResultMap" type="com.blog.pi.domain.entity.FileMD5">
+        <id column="id" property="id"/>
+        <id column="file_md5" property="fileMD5"/>
+        <id column="file_count" property="fileCount"/>
+        <id column="create_time" property="createTime"/>
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, file_md5, file_count, create_time
+    </sql>
+
+</mapper>

@@ -1,4 +1,4 @@
-package com.blog.pi.dao;
+package com.blog.pi.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.pi.domain.entity.RegisterSetting;
@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 @Mapper
-public interface RegisterSettingDAO extends BaseMapper<RegisterSetting> {
+public interface RegisterSettingMapper extends BaseMapper<RegisterSetting> {
 }

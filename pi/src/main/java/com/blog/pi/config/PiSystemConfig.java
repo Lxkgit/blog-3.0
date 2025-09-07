@@ -2,7 +2,7 @@ package com.blog.pi.config;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.blog.pi.dao.RegisterSettingDAO;
+import com.blog.pi.mapper.RegisterSettingMapper;
 import com.blog.pi.domain.entity.RegisterSetting;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class PiSystemConfig {
     public static Map<String, JSONObject> registerConfigMap = new HashMap<>();
 
     @Resource
-    private RegisterSettingDAO registerSettingDAO;
+    private RegisterSettingMapper registerSettingDAO;
 
     /**
      * 加载注册配置信息

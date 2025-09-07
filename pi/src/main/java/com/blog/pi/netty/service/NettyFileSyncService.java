@@ -3,29 +3,29 @@ package com.blog.pi.netty.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.pi.config.PiSystemConfig;
-import com.blog.pi.dao.FileSyncDAO;
+import com.blog.pi.domain.entity.FileMD5;
+import com.blog.pi.mapper.FileMD5Mapper;
+import com.blog.pi.mapper.FileSyncMapper;
 import com.blog.pi.domain.entity.FileSync;
 import com.blog.pi.ftp.FtpUtil;
-import com.blog.pi.mqtt.MqttMessageListener;
 import com.blog.pi.netty.client.NettyClient;
 import com.blog.pi.netty.dto.NettyPacket;
 import com.blog.pi.netty.dto.NettyResponse;
 import com.blog.pi.netty.dto.file.NettySyncFileDto;
 import com.blog.pi.netty.enums.NettyTopic;
-import com.blog.pi.netty.enums.NettyTopicEnum;
 import com.blog.pi.socket.SocketService;
 import com.blog.pi.socket.domain.SocketPacket;
 import com.blog.pi.socket.domain.constant.SocketConstant;
 import com.blog.pi.socket.domain.constant.SocketTopic;
 import com.blog.pi.socket.domain.dto.SocketMoveFileDto;
+import com.blog.pi.utils.MD5Util;
 import com.blog.pi.utils.MyStringUtils;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.util.*;
@@ -51,10 +51,13 @@ public class NettyFileSyncService {
     private SocketService socketService;
 
     @Resource
-    private FileSyncDAO fileSyncDAO;
+    private FileSyncMapper fileSyncDAO;
 
     @Resource
     private PiSystemConfig piSystemConfig;
+
+    @Resource
+    private FileMD5Mapper fileMD5Mapper;
 
     /**
      * 下载服务器指定文件
@@ -179,6 +182,24 @@ public class NettyFileSyncService {
         if (nettySyncFileDto.getSyncType().equals(2)) {
             List<String> fileNameList = moveFileDto.getFileNameList();
             for (String fileName : fileNameList) {
+                // 上次文件
+                File file = new File(moveFileDto.getTargetDirectory() + "/" + fileName);
+                String md5 = MD5Util.getFileMd5(file);
+                LambdaQueryWrapper<FileMD5> wrapper = new LambdaQueryWrapper<>();
+                wrapper.eq(FileMD5::getFileMD5, md5);
+                FileMD5 fileMD5 = fileMD5Mapper.selectOne(wrapper);
+                if (fileMD5 != null) {
+                    fileMD5.setFileCount(fileMD5.getFileCount() + 1);
+                    fileMD5Mapper.updateById(fileMD5);
+                    return;
+                } else {
+                    fileMD5 = new FileMD5();
+                    fileMD5.setFileMD5(md5);
+                    fileMD5.setFileCount(1);
+                    fileMD5.setCreateTime(new Date());
+                    fileMD5Mapper.insert(fileMD5);
+                }
+
                 ftpUtil.uploadFtpFile(moveFileDto.getTargetDirectory(), fileName, moveFileDto.getServicePath(), fileName);
 
                 // 上传完成一个文件

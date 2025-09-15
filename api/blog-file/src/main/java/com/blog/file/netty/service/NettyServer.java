@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,7 +50,11 @@ public class NettyServer implements CommandLineRunner {
     @Value("${netty.port}")
     private Integer port;
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    /**
+     * 使用自定义线程池
+     */
+    @Resource
+    private Executor baseThread;
 
     @Lazy
     @Resource
@@ -85,7 +90,7 @@ public class NettyServer implements CommandLineRunner {
             ChannelFuture future = serverBootstrap.bind(port).sync();
             if (future.isSuccess()) {
                 logger.info("Netty 服务端启动成功 端口: {}", port);
-                executor.execute(replayThread);
+                baseThread.execute(replayThread);
             }
             channel = future.channel();
         } catch (Exception e) {

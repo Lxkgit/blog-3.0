@@ -23,19 +23,11 @@ public class NettyMessageReplayThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyMessageReplayThread.class);
 
-    private static RedisService redisService;
-
-    private static NettyClient nettyClient;
+    @Resource
+    private RedisService redisService;
 
     @Resource
-    private void setRedisService(RedisService redisService) {
-        NettyMessageReplayThread.redisService = redisService;
-    }
-
-    @Resource
-    private void setNettyClient(NettyClient nettyClient) {
-        NettyMessageReplayThread.nettyClient = nettyClient;
-    }
+    private NettyClient nettyClient;
 
     @Override
     public void run() {

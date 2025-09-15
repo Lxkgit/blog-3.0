@@ -2,23 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.blog.content.mapper.mybatis.ArticleMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.content.article.entity.Article">
-        <id column="id" property="id" jdbcType="INTEGER"/>
-        <result column="user_id" property="userId" jdbcType="INTEGER"/>
-        <result column="title" property="title" jdbcType="VARCHAR"/>
-        <result column="content_md" property="contentMd" jdbcType="VARCHAR"/>
-        <result column="content_img" property="contentImg" jdbcType="VARCHAR"/>
-        <result column="content_memo" property="contentMemo" jdbcType="VARCHAR"/>
-        <result column="article_type" property="articleType" jdbcType="VARCHAR"/>
-        <result column="article_label" property="articleLabel" jdbcType="VARCHAR"/>
-        <result column="article_status" property="articleStatus" jdbcType="INTEGER"/>
-        <result column="browse_count" property="browseCount" jdbcType="INTEGER"/>
-        <result column="like_count" property="likeCount" jdbcType="INTEGER"/>
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="title" property="title"/>
+        <result column="content_md" property="contentMd"/>
+        <result column="content_img" property="contentImg"/>
+        <result column="content_memo" property="contentMemo"/>
+        <result column="article_file" property="articleFile"/>
+        <result column="article_type" property="articleType"/>
+        <result column="article_label" property="articleLabel"/>
+        <result column="article_status" property="articleStatus"/>
+        <result column="browse_count" property="browseCount"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, user_id, title, content_md, content_img, content_memo, article_type, article_label,
+        id
+        , user_id, title, content_md, content_img, content_memo, article_file, article_type, article_label,
          article_status, browse_count, like_count, create_time, update_time
     </sql>
 
@@ -76,6 +78,9 @@
             </if>
             <if test="contentMemo !=null">
                 content_memo = #{contentMemo},
+            </if>
+            <if test="articleFile !=null">
+                article_file = #{articleFile},
             </if>
             <if test="articleType !=null">
                 article_type = #{articleType},

@@ -43,7 +43,7 @@ public class SensorControlService {
             }
         }
 
-        if (sensorCommandVoList.size() > 0) {
+        if (!sensorCommandVoList.isEmpty()) {
             CommandSendThread commandThread = new CommandSendThread(sensorCommandVoList);
             CommandThreadService.commandSendPool.execute(commandThread);
         }

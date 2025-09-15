@@ -161,6 +161,7 @@ public class FileServiceImpl implements FileService {
         FileCategory fileCategory = getFileDir(fileDataVo);
         LambdaQueryWrapper<FileCategory> childWrapper = new LambdaQueryWrapper<>();
         childWrapper.eq(FileCategory::getParentDir, fileCategory.getId());
+        childWrapper.orderByDesc(FileCategory::getCreateTime);
         return fileCategoryMapper.selectList(childWrapper);
     }
 

@@ -6,11 +6,28 @@ mysqlPassword="MySql@Admin123*."
 # redis登陆密码
 redisPassword="redis-960@*"
 
+# 服务器相关依赖下载
+installUtil(){
+	echo "下载服务器环境所需依赖..."
+	# 解决docker启动异常
+  sudo apt install -y iptables
+}
+
 # 安装并配置docker
 dockerStart() {
   echo "启动docker ... "
+  # 配置docker下载镜像源
+  mkdir -p /etc/docker
+  rm -rf /etc/docker/daemon.json
+  touch /etc/docker/daemon.json
+  echo "{"  >> /etc/docker/daemon.json
+  echo '  "registry-mirrors": ['  >> /etc/docker/daemon.json
+  echo '      "https://docker.m.daocloud.io",'  >> /etc/docker/daemon.json
+  echo '      "https://docker.1panel.live"'  >> /etc/docker/daemon.json
+  echo "  ]"  >> /etc/docker/daemon.json
+  echo "}"  >> /etc/docker/daemon.json
   # 一键安装docker
-	curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+	installDocker
   #	判断docker是否正确安装
 	if [ $? -ne 0 ]; then
       echo "docker 安装失败, 脚本执行退出" >&2
@@ -26,6 +43,22 @@ dockerStart() {
 	systemctl enable docker.service
 	# 创建自定义网络
 	docker network create --subnet=172.18.0.0/24 blog_network
+}
+
+installDocker() {
+  mv /opt/package/docker/docker-27.1.1.tgz /root
+  tar -zxvf /root/docker-27.1.1.tgz -C /root
+  sudo cp /root/docker/* /usr/bin/
+  mv /opt/package/docker/docker.service /etc/systemd/system/
+
+  chmod +x /etc/systemd/system/docker.service
+  systemctl daemon-reload
+
+  # 使docker开机自启
+  systemctl enable docker.service
+
+  # 启动docker服务
+  systemctl start docker
 }
 
 unzipPi() {
@@ -236,11 +269,12 @@ startPy() {
 main() {
   timer_start=`date "+%Y-%m-%d %H:%M:%S"`
 
-  dockerStart
   unzipPi
+  installUtil
+  dockerStart
   installConda
   dockerLoad
-  installJdk
+#  installJdk
   installMysql
   installMqtt
   installRedis

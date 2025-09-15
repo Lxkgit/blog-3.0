@@ -259,6 +259,7 @@ mysql() {
 # 创建 ftp 工作目录
 createFtpDir() {
 	mkdir -p /opt/docker/files/ftp
+	chmod 777 /opt/docker/files/ftp
 }
 
 # 启动 ftp

@@ -5,6 +5,8 @@ import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileUploadVo;
 import com.blog.core.exception.ServiceException;
 
+import java.util.List;
+
 /**
  * @author: lxk
  * @date: 2022/7/7 20:50
@@ -16,6 +18,8 @@ public interface UploadFileService {
     FileCategoryData uploadService(FileUploadVo uploadVo) throws ServiceException;
 
     void deleteFile(Integer id) throws ServiceException;
+
+    void deleteFile(List<Integer> idList) throws ServiceException;
 
     String authFile(String path, Integer time) throws ServiceException;
 

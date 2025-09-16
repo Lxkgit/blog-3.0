@@ -14,7 +14,6 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,8 +38,8 @@ public class CreateTaskService {
         if (taskEntity.getIndexCount() == null) {
             taskEntity.setIndexCount(0);
         }
-        if (taskEntity.getCron() != null && !taskEntity.getCron().isEmpty()) {
-            CronExpression expression = CronExpression.parse(taskEntity.getCron());
+        if (taskEntity.getTaskCron() != null && !taskEntity.getTaskCron().isEmpty()) {
+            CronExpression expression = CronExpression.parse(taskEntity.getTaskCron());
             LocalDateTime now = LocalDateTime.now();
             // 获取下一次执行时间
             LocalDateTime nextExecution = expression.next(now);
@@ -50,7 +49,7 @@ public class CreateTaskService {
             }
             nextTime = nextExecution.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
         } else {
-            String time = taskEntity.getTime();
+            String time = taskEntity.getTaskTime();
             if (time == null || time.isEmpty()) {
                 logger.error("任务创建失败 cron 与 time 字段不能同时为空");
                 return;

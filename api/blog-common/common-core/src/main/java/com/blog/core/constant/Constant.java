@@ -79,4 +79,11 @@ public class Constant {
 
     // 博客系统数据文件临时存放目录
     public static final String BLOG_DATA_PATH_TEMP = "/opt/docker/files/temp/blog";
+
+    // 博客数据文件同步任务
+    public static final String TASK_SYNC_BLOG_FILE = "blog-system-task-sync-blog-file";
+    // 博客文件同步任务
+    public static final String TASK_SYNC_DEVICE_FILE = "blog-system-task-sync-device-file";
+    // 服务器临时文件删除任务
+    public static final String TASK_DELETE_TEMP_FILE = "blog-system-task-delete-temp-file";
 }

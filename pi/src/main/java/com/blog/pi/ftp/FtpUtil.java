@@ -1,9 +1,7 @@
 package com.blog.pi.ftp;
 
 import com.blog.pi.config.PiSystemConfig;
-import com.blog.pi.netty.client.NettyMessageReplayThread;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;

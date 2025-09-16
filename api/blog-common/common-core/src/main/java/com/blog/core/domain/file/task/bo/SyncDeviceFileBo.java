@@ -1,0 +1,28 @@
+package com.blog.core.domain.file.task.bo;
+
+import lombok.Data;
+
+/**
+ * @Description
+ * @Author lxk
+ * @CreateTime 2025-09-16
+ */
+
+@Data
+public class SyncDeviceFileBo {
+
+    /**
+     * minio中文件存储路径
+     */
+    private String minioPath;
+
+    /**
+     * 树莓派中文件存储绝对路径
+     */
+    private String devicePath;
+
+    /**
+     * 单次任务同步文件数量
+     */
+    private Integer count;
+}

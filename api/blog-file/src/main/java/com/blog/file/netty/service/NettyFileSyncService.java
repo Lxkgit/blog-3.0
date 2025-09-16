@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.device.entity.UserDevice;
+import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.netty.domain.dto.NettyPacket;
@@ -85,15 +86,22 @@ public class NettyFileSyncService {
      */
     public void deleteTempFile(String filePath, String time) {
         // 定时删除同步文件
-        TaskEntity taskEntity = new TaskEntity("blog-system-task-delete-temp-file");
+        TaskEntity taskEntity = new TaskEntity(Constant.TASK_DELETE_TEMP_FILE);
+
+//        taskBase.setTaskUUID(Constant.TASK_SYNC_DEVICE_FILE);
+//        taskBase.setClazz(NettyFileSyncService.class);
+//        taskBase.setMethodName("syncDeviceFile");
+//        taskBase.setTaskName("定时上传树莓派数据");
+//        taskBase.setParamsClazz(new Class<?>[]{SyncDeviceFileBo.class});
+//        taskBase.setParamTemplate(null);
 
         taskEntity.setClazz(NettyFileSyncService.class);
         taskEntity.setMethodName("clearTempFileOrPath");
-        taskEntity.setParams(new Object[]{filePath});
+        taskEntity.setTaskParams(new Object[]{filePath});
         Class<?>[] paramTypes = new Class<?>[]{String.class};
         taskEntity.setParamsClazz(paramTypes);
-        taskEntity.setTime(time);
-        taskEntity.setCount(1);
+        taskEntity.setTaskTime(time);
+        taskEntity.setTaskCount(1);
         taskService.createTask(taskEntity);
     }
 
@@ -130,16 +138,16 @@ public class NettyFileSyncService {
         syncFileSend(nettySyncFileDto, 1);
     }
 
-    public void syncDeviceFile() {
+    public void syncDeviceFile(SyncDeviceFileBo bo) {
         Integer userId = 1;
         // 文件存储minio中路径
-        String minioPath = "/"+ userId + "/user/img";
+        String minioPath = "/"+ userId + bo.getMinioPath();
         // servicePath 为文件在ftp system用户目录下的相对路径
         String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
         // devicePath 为树莓派设备上的绝对路径
-        String devicePath = "/mnt/test";
+        String devicePath = bo.getDevicePath();
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
-        nettySyncFileDto.setCount(3);
+        nettySyncFileDto.setCount(bo.getCount());
         syncFileSend(nettySyncFileDto, userId);
     }
 

@@ -18,6 +18,8 @@ import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.mapper.DeviceInfoMapper;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.service.DeviceService;
+import com.blog.redis.constant.FileRedisConstant;
+import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,9 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Resource
     private DeviceInfoMapper deviceInfoMapper;
+
+    @Resource
+    private RedisService redisService;
 
     /**
      * 新增设备
@@ -114,8 +119,8 @@ public class DeviceServiceImpl implements DeviceService {
         if (device != null) {
             throw new ServiceException(ErrorConstant.DEVICE_CODE_EXISTS);
         }
-        Device oldDevice = deviceMapper.selectById(deviceVo.getId());
-        // 设备编码变化需要重新连接netty通道
+//        Device oldDevice = deviceMapper.selectById(deviceVo.getId());
+//        // 设备编码变化需要重新连接netty通道
 //        if (!oldDevice.getDeviceCode().equals(deviceVo.getDeviceCode())) {
 //            DeviceStatusSchedule.removeChannelByRegisterId(oldDevice.getDeviceCode(), deviceMapper);
 //        }
@@ -133,7 +138,14 @@ public class DeviceServiceImpl implements DeviceService {
         Integer userId = SecurityUtil.getLoginUser().getId();
         LambdaQueryWrapper<Device> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Device::getUserId, userId);
-        return deviceMapper.selectList(wrapper);
+        List<Device> deviceList = deviceMapper.selectList(wrapper);
+        for (Device device : deviceList) {
+            device.setDeviceStatus(0);
+            if (redisService.hasKey(FileRedisConstant.FILE_DEVICE_STATUS + device.getDeviceCode())) {
+                device.setDeviceStatus(1);
+            }
+        }
+        return deviceList;
     }
 
 
@@ -159,6 +171,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     /**
      * 查询设备详细信息
+     *
      * @param id 设备id
      * @return
      */

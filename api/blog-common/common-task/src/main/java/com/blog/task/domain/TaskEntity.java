@@ -13,6 +13,11 @@ import lombok.Data;
 public class TaskEntity {
 
     /**
+     * 基础任务唯一编码
+     */
+    private String taskUUID;
+
+    /**
      * 任务执行方法所属类
      */
     private Class<?> clazz;
@@ -21,11 +26,6 @@ public class TaskEntity {
      * 任务执行方法名称
      */
     private String methodName;
-
-    /**
-     * 任务执行方法参数
-     */
-    private Object[] params;
 
     /**
      * 任务执行方法参数类
@@ -38,6 +38,16 @@ public class TaskEntity {
     private String taskName;
 
     /**
+     * 子任务id
+     */
+    private String childTaskId;
+
+    /**
+     * 任务执行方法参数
+     */
+    private Object[] taskParams;
+
+    /**
      * 任务状态
      * 1 正常
      * 0 停用
@@ -45,14 +55,9 @@ public class TaskEntity {
     private Integer taskStatus;
 
     /**
-     * 任务唯一编码
-     */
-    private String taskUUID;
-
-    /**
      * cron 表达式
      */
-    private String cron;
+    private String taskCron;
 
     /**
      * 任务启动时间，秒不支持小数
@@ -60,7 +65,7 @@ public class TaskEntity {
      * 3m   3分钟后执行
      * 50s  50秒后执行
      */
-    private String time;
+    private String taskTime;
 
     /**
      * 当前执行次数
@@ -71,7 +76,7 @@ public class TaskEntity {
      * 任务执行总次数
      * -1 为无限执行
      */
-    private Integer count;
+    private Integer taskCount;
 
     public TaskEntity() {
         // 随机生成任务id

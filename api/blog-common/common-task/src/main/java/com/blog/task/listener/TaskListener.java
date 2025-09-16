@@ -78,7 +78,7 @@ public class TaskListener implements ApplicationRunner {
                                 Class<?> targetClass = taskEntity.getClazz();
                                 String methodName = taskEntity.getMethodName();
                                 Class<?>[] paramTypes = taskEntity.getParamsClazz(); // 改为数组
-                                Object[] methodParams = taskEntity.getParams();
+                                Object[] methodParams = taskEntity.getTaskParams();
 
                                 // 2. 获取目标类的实例
                                 Object targetInstance;
@@ -125,7 +125,7 @@ public class TaskListener implements ApplicationRunner {
                                     }
                                 });
 
-                                if (taskEntity.getCount() == -1 || taskEntity.getIndexCount() < taskEntity.getCount()) {
+                                if (taskEntity.getTaskCount() == -1 || taskEntity.getIndexCount() < taskEntity.getTaskCount()) {
                                     // 创建下一次任务
                                     createTaskService.createTask(taskEntity);
                                 }

@@ -8,4 +8,8 @@ package com.blog.redis.constant;
 
 public class FileRedisConstant {
 
+    /**
+     * device 在线状态
+     */
+    public final static String FILE_DEVICE_STATUS = "FILE:DEVICE:STATUS:";
 }

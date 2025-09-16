@@ -129,11 +129,13 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException {
-        uploadFileService.deleteFile(fileCategoryData.getId());
-        LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(FileCategoryData::getId, fileCategoryData.getId());
-        wrapper.eq(FileCategoryData::getUserId, SecurityUtil.getLoginUser().getId());
-        fileCategoryDataMapper.delete(wrapper);
+        if (CollectionUtils.isNotEmpty(fileCategoryData.getIdList())) {
+            LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(FileCategoryData::getUserId, SecurityUtil.getLoginUser().getId());
+            wrapper.in(FileCategoryData::getId, fileCategoryData.getIdList());
+            fileCategoryDataMapper.delete(wrapper);
+            uploadFileService.deleteFile(fileCategoryData.getIdList());
+        }
     }
 
     /**

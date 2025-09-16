@@ -34,10 +34,10 @@ public class TaskServiceImpl implements TaskService {
         for (int i = 0; i< taskList.size(); i++) {
             TaskEntity taskEntity = (TaskEntity) taskList.get(i);
             if (taskEntity.getTaskUUID().equals(taskInfoParam.getTaskUUID())) {
-                taskEntity.setParams(taskInfoParam.getParams());
-                taskEntity.setCron(taskInfoParam.getCron());
-                taskEntity.setTime(taskInfoParam.getTime());
-                taskEntity.setCount(taskInfoParam.getCount());
+                taskEntity.setTaskParams(taskInfoParam.getTaskParams());
+                taskEntity.setTaskCron(taskInfoParam.getTaskCron());
+                taskEntity.setTaskTime(taskInfoParam.getTaskTime());
+                taskEntity.setTaskCount(taskInfoParam.getTaskCount());
                 taskEntity.setTaskStatus(taskInfoParam.getTaskStatus());
             }
             redisService.updateListByIndex(TaskConstant.TASK_ENTITY, i, taskEntity);

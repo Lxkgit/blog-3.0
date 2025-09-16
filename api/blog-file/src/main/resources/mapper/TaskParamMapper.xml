@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.blog.file.mapper.TaskParamMapper">
+
+    <!-- resultMap -->
+    <resultMap id="TaskInfoResultMap" type="com.blog.core.domain.file.task.entity.TaskParam">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="taskUUID" column="task_uuid"/>
+        <result property="childTaskId" column="child_task_id"/>
+        <result property="paramJson" column="param_json"/>
+        <result property="taskCount" column="task_count"/>
+        <result property="taskCron" column="task_cron"/>
+        <result property="taskTime" column="task_time"/>
+        <result property="taskStatus" column="task_status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        , user_id, task_uuid, child_task_id, param_json, task_count, task_cron, task_time, task_status, create_time, update_time
+    </sql>
+
+    <!-- 插入 -->
+    <insert id="insertTask" parameterType="com.blog.core.domain.file.task.entity.TaskParam" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO task_param
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="taskUUID != null">task_uuid,</if>
+            <if test="childTaskId != null">child_task_id,</if>
+            <if test="paramJson != null">param_json,</if>
+            <if test="taskCount != null">task_count,</if>
+            <if test="taskCron != null">task_cron,</if>
+            <if test="taskTime != null">task_time,</if>
+            <if test="taskStatus != null">task_status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="taskUUID != null">#{taskUUID},</if>
+            <if test="childTaskId != null">#{childTaskId},</if>
+            <if test="paramJson != null">#{paramJson},</if>
+            <if test="taskCount != null">#{taskCount},</if>
+            <if test="taskCron != null">#{taskCron},</if>
+            <if test="taskTime != null">#{taskTime},</if>
+            <if test="taskStatus != null">#{taskStatus},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <!-- 更新 -->
+    <update id="updateTask" parameterType="com.blog.core.domain.file.task.entity.TaskParam">
+        UPDATE task_param
+        <set>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="taskUUID != null">task_uuid = #{taskUUID},</if>
+            <if test="childTaskId != null">child_task_id = #{childTaskId},</if>
+            <if test="paramJson != null">param_json = #{paramJson},</if>
+            <if test="taskCount != null">task_count = #{taskCount},</if>
+            <if test="taskCron != null">task_cron = #{taskCron},</if>
+            <if test="taskTime != null">task_time = #{taskTime},</if>
+            <if test="taskStatus != null">task_status = #{taskStatus},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteTaskById" parameterType="int">
+        DELETE
+        FROM task_param
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 查询（根据 taskUUID 可作为网格编码） -->
+    <select id="selectTaskByTaskUUID" resultMap="TaskInfoResultMap" parameterType="string">
+        SELECT <include refid="Base_Column_List"/>
+        FROM task_param
+        <where>
+            task_status != 1
+            <if test="taskUUID != null and taskUUID != ''">
+                and task_uuid = #{taskUUID}
+            </if>
+        </where>
+    </select>
+
+    <!-- 通用条件查询（可扩展） -->
+    <select id="selectTaskList" resultMap="TaskInfoResultMap"
+            parameterType="com.blog.core.domain.file.task.entity.TaskParam">
+        SELECT
+        id, user_id, task_uuid, child_task_id, param_json, task_count, task_cron, task_time, task_status, create_time, update_time
+        FROM task_param
+        <where>
+            <if test="userId != null">AND user_id = #{userId}</if>
+            <if test="taskUUID != null and taskUUID != ''">AND task_uuid = #{taskUUID}</if>
+            <if test="taskStatus != null">AND task_status = #{taskStatus}</if>
+        </where>
+    </select>
+
+</mapper>

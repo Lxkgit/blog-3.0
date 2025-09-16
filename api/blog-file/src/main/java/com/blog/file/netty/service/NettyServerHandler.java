@@ -106,7 +106,8 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
             // 处理泛型：new TypeReference<NettyPacket<Object>>() {}.getType()
             // TypeReference：解决Java泛型类型擦除问题，保留NettyPacket<Object>的类型信息，确保反序列化时能正确识别泛型类型
             // NettyPacket：自定义的泛型类，可能用于封装网络传输的数据包，Object表示其携带的数据类型可以是任意对象
-            NettyPacket<Object> nettyPacket = JSONObject.parseObject(msg.toString(), new TypeReference<NettyPacket<Object>>() {}.getType());
+            NettyPacket<Object> nettyPacket = JSONObject.parseObject(msg.toString(), new TypeReference<NettyPacket<Object>>() {
+            }.getType());
             // 发布自定义Netty数据包处理事件
             applicationEventPublisher.publishEvent(new NettyPacketEvent(ctx.channel().id(), nettyPacket));
         } catch (Exception e) {
@@ -145,6 +146,12 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
     }
 
+    /**
+     * 校验设备编码是否存在于设备表中
+     *
+     * @param deviceCode
+     * @return
+     */
     public boolean checkContainByDeviceCode(String deviceCode) {
         Set<String> deviceCodeSet;
         if (redisService.hasKey(NettyRedisConstant.NETTY_DEVICE_CODE)) {
@@ -160,6 +167,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * 根据通道id移除netty客户端连接
+     *
      * @param channelId
      */
     public void closeChannelByChannelId(ChannelId channelId) {
@@ -179,6 +187,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * 根据设备编码移除通道
+     *
      * @param deviceCode
      */
     public void closeChannelByDeviceCode(String deviceCode) {

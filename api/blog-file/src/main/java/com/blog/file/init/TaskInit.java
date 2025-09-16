@@ -1,15 +1,26 @@
 package com.blog.file.init;
 
+import com.alibaba.fastjson2.JSONObject;
+import com.blog.core.constant.Constant;
+import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
+import com.blog.core.domain.file.task.entity.TaskParam;
+import com.blog.file.mapper.TaskParamMapper;
 import com.blog.file.netty.service.NettyFileSyncService;
 import com.blog.file.socket.service.SocketService;
+import com.blog.redis.service.RedisService;
+import com.blog.task.constant.TaskConstant;
+import com.blog.task.domain.TaskBase;
 import com.blog.task.domain.TaskEntity;
 import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class TaskInit implements ApplicationRunner {
@@ -24,6 +35,12 @@ public class TaskInit implements ApplicationRunner {
 
     @Resource
     private NettyFileSyncService nettyFileSyncService;
+
+    @Resource
+    private TaskParamMapper taskParamMapper;
+
+    @Resource
+    private RedisService redisService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -45,19 +62,32 @@ public class TaskInit implements ApplicationRunner {
      * 4. socket移动文件完成，netty再次回应消息，响应同步数据成功
      */
     public void blogDateSyncTask() {
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setTaskUUID("blog-system-task-sync-blog-file");
+        TaskBase taskBase =  new TaskBase();
+        taskBase.setTaskUUID(Constant.TASK_SYNC_BLOG_FILE);
+        taskBase.setClazz(NettyFileSyncService.class);
+        taskBase.setMethodName("syncBlogDataFirstStep");
+        taskBase.setTaskName("定时备份博客数据");
+        taskBase.setParamsClazz(null);
+        taskBase.setParamTemplate(null);
 
-        taskEntity.setClazz(NettyFileSyncService.class);
-        taskEntity.setMethodName("syncBlogDataFirstStep");
-        taskEntity.setParams(null);
-        taskEntity.setParamsClazz(null);
+        // 创建主任务
+        redisService.setList(TaskConstant.TASK_BASE, taskBase);
 
-        taskEntity.setTaskName("定时备份博客数据");
-        taskEntity.setCount(-1);
-        taskEntity.setCron("0 0 0 * * *");
+        List<TaskParam> paramList = taskParamMapper.selectTaskByTaskUUID(Constant.TASK_SYNC_BLOG_FILE);
 
-        createTaskService.createTask(taskEntity);
+        for (TaskParam taskParam : paramList) {
+            // 创建并启动子任务
+            TaskEntity taskEntity = new TaskEntity();
+            BeanUtils.copyProperties(taskBase, taskEntity);
+            // 子任务执行参数
+            taskEntity.setChildTaskId(taskParam.getChildTaskId());
+            taskEntity.setTaskParams(null);
+            taskEntity.setTaskCount(taskParam.getTaskCount());
+            taskEntity.setTaskCron(taskParam.getTaskCron());
+
+            createTaskService.createTask(taskEntity);
+        }
+
     }
 
     /**
@@ -74,18 +104,49 @@ public class TaskInit implements ApplicationRunner {
      * 2. 删除临时文件
      */
     public void deviceFileUploadTask() {
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setTaskUUID("blog-system-task-sync-device-img");
+        TaskBase taskBase =  new TaskBase();
+        taskBase.setTaskUUID(Constant.TASK_SYNC_DEVICE_FILE);
+        taskBase.setClazz(NettyFileSyncService.class);
+        taskBase.setMethodName("syncDeviceFile");
+        taskBase.setTaskName("定时上传树莓派数据");
+        taskBase.setParamsClazz(new Class<?>[]{SyncDeviceFileBo.class});
+        taskBase.setParamTemplate(null);
 
-        taskEntity.setClazz(NettyFileSyncService.class);
-        taskEntity.setMethodName("syncDeviceFile");
-        taskEntity.setParams(null);
-        taskEntity.setParamsClazz(null);
+        // 创建主任务
+        redisService.setList(TaskConstant.TASK_BASE, taskBase);
 
-        taskEntity.setTaskName("定时上传树莓派数据");
-        taskEntity.setCount(-1);
-        taskEntity.setCron("0 0 0 * * *");
+        List<TaskParam> paramList = taskParamMapper.selectTaskByTaskUUID(Constant.TASK_SYNC_DEVICE_FILE);
 
-        createTaskService.createTask(taskEntity);
+        for (TaskParam taskParam : paramList) {
+            // 创建并启动子任务
+            TaskEntity taskEntity = new TaskEntity();
+            BeanUtils.copyProperties(taskBase, taskEntity);
+
+            SyncDeviceFileBo syncDeviceFileBo = JSONObject.parseObject(taskParam.getParamJson(), SyncDeviceFileBo.class);
+
+            // 子任务执行参数
+            taskEntity.setChildTaskId(taskParam.getChildTaskId());
+            taskEntity.setTaskParams(new Object[]{syncDeviceFileBo});
+            taskEntity.setTaskCount(taskParam.getTaskCount());
+            taskEntity.setTaskCron(taskParam.getTaskCron());
+
+            createTaskService.createTask(taskEntity);
+        }
+
+//        // 创建并启动子任务
+//        TaskEntity taskEntity = new TaskEntity();
+//        BeanUtils.copyProperties(taskBase, taskEntity);
+//
+//        SyncDeviceFileBo syncDeviceFileBo = new SyncDeviceFileBo();
+//        syncDeviceFileBo.setMinioPath("/user/img");
+//        syncDeviceFileBo.setDevicePath("/mnt/test");
+//        syncDeviceFileBo.setCount(3);
+//        // 子任务执行参数
+//        taskEntity.setChildTaskId("system");
+//        taskEntity.setTaskParams(new Object[]{syncDeviceFileBo});
+//        taskEntity.setTaskCount(-1);
+//        taskEntity.setTaskCron("0 0 0 * * *");
+//
+//        createTaskService.createTask(taskEntity);
     }
 }

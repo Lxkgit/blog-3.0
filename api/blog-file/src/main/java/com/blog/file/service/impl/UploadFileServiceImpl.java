@@ -18,6 +18,7 @@ import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.file.service.UploadFileService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegLogCallback;
@@ -36,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: lxk
@@ -141,6 +143,19 @@ public class UploadFileServiceImpl implements UploadFileService {
         FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
         String fileName = minioService.getFileName(fileCategoryData.getFileUrl());
         minioService.deleteFile(fileCategory.getDirPath(), fileName);
+    }
+
+    @Override
+    public void deleteFile(List<Integer> idList) throws ServiceException {
+        if (CollectionUtils.isNotEmpty(idList)) {
+            for (Integer id : idList) {
+                FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(id);
+                FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
+                String fileName = minioService.getFileName(fileCategoryData.getFileUrl());
+                minioService.deleteFile(fileCategory.getDirPath(), fileName);
+            }
+        }
+
     }
 
     @Override

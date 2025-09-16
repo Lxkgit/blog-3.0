@@ -15,6 +15,8 @@ import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.netty.event.NettyPacketEvent;
 import com.blog.file.netty.service.*;
+import com.blog.redis.constant.FileRedisConstant;
+import com.blog.redis.service.RedisService;
 import io.netty.channel.ChannelId;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +58,9 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     @Resource
     private NettyServerHandler nettyServerHandler;
 
+    @Resource
+    private RedisService redisService;
+
     @SneakyThrows
     @Async
     @Override
@@ -82,7 +87,8 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             // netty 通道注册
             deviceRegister(userId, deviceCode, channelId, data);
         } else if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
-            // 心跳消息
+            // 心跳消息 收到消息设置设备在线3分钟
+            redisService.setString(FileRedisConstant.FILE_DEVICE_STATUS + deviceCode, data, 180);
         } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
             // 处理单片机、传感器注册数据
             if (topic.equals(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic())) {

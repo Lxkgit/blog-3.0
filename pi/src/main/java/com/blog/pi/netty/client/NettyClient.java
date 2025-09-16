@@ -17,8 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,6 +54,15 @@ public class NettyClient implements CommandLineRunner {
     @Value("${netty.port}")
     private Integer port;
 
+    /**
+     * 使用自定义线程池
+     */
+    @Resource
+    private Executor baseThread;
+
+    @Lazy
+    @Resource
+    private NettyMessageReplayThread replayThread;
 
     @Override
     public void run(String... args) {
@@ -76,6 +87,7 @@ public class NettyClient implements CommandLineRunner {
             future.addListener((ChannelFutureListener) futureListener -> {
                 if (futureListener.isSuccess()) {
                     logger.info("netty 连接成功");
+                    baseThread.execute(replayThread);
                 } else {
                     logger.warn("netty 连接失败，30秒后尝试重新连接");
                     futureListener.channel().eventLoop().schedule((Runnable) this::run, 30, TimeUnit.SECONDS);

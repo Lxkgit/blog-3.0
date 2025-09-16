@@ -30,6 +30,8 @@ public class NettyMessageReplayThread implements Runnable {
     private NettyClient nettyClient;
 
     @Override
+    // 忽略无限循环与忙等待报错
+    @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
     public void run() {
         logger.info("netty 消息重发线程启动");
         while (true) {

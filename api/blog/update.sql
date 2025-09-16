@@ -17,3 +17,6 @@ CREATE TABLE `task_param`
     PRIMARY KEY (`id`),
     KEY             `idx_task_uuid` (`task_uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='任务参数表';
+
+INSERT INTO `blog_file`.`task_param`(`id`, `user_id`, `task_uuid`, `child_task_id`, `param_json`, `task_count`, `task_cron`, `task_time`, `task_status`, `create_time`, `update_time`) VALUES (1, 1, 'blog-system-task-sync-blog-file', 'system-sync-blog-file', NULL, -1, '0 0 0 * * *', NULL, 1, '2025-09-16 22:34:20', '2025-09-16 22:34:23');
+INSERT INTO `blog_file`.`task_param`(`id`, `user_id`, `task_uuid`, `child_task_id`, `param_json`, `task_count`, `task_cron`, `task_time`, `task_status`, `create_time`, `update_time`) VALUES (2, 1, 'blog-system-task-sync-device-file', 'system-sync-device-file', '{ \"minioPath\": \"/user/img\", \"devicePath\": \"/mnt/test\", \"count\": 10 }', -1, '0 0 0 * * *', NULL, 1, '2025-09-16 22:34:26', '2025-09-16 22:34:31');

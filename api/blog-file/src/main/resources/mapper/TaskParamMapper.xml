@@ -80,7 +80,8 @@
 
     <!-- 查询（根据 taskUUID 可作为网格编码） -->
     <select id="selectTaskByTaskUUID" resultMap="TaskInfoResultMap" parameterType="string">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM task_param
         <where>
             task_status != 1
@@ -94,7 +95,8 @@
     <select id="selectTaskList" resultMap="TaskInfoResultMap"
             parameterType="com.blog.core.domain.file.task.entity.TaskParam">
         SELECT
-        id, user_id, task_uuid, child_task_id, param_json, task_count, task_cron, task_time, task_status, create_time, update_time
+        id, user_id, task_uuid, child_task_id, param_json, task_count, task_cron, task_time, task_status, create_time,
+        update_time
         FROM task_param
         <where>
             <if test="userId != null">AND user_id = #{userId}</if>

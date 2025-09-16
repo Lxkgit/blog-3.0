@@ -47,6 +47,7 @@ public class TaskInit implements ApplicationRunner {
         logger.info("启动系统任务");
         blogDateSyncTask();
         deviceFileUploadTask();
+        deleteTempFile();
     }
 
     /**
@@ -132,21 +133,21 @@ public class TaskInit implements ApplicationRunner {
 
             createTaskService.createTask(taskEntity);
         }
+    }
 
-//        // 创建并启动子任务
-//        TaskEntity taskEntity = new TaskEntity();
-//        BeanUtils.copyProperties(taskBase, taskEntity);
-//
-//        SyncDeviceFileBo syncDeviceFileBo = new SyncDeviceFileBo();
-//        syncDeviceFileBo.setMinioPath("/user/img");
-//        syncDeviceFileBo.setDevicePath("/mnt/test");
-//        syncDeviceFileBo.setCount(3);
-//        // 子任务执行参数
-//        taskEntity.setChildTaskId("system");
-//        taskEntity.setTaskParams(new Object[]{syncDeviceFileBo});
-//        taskEntity.setTaskCount(-1);
-//        taskEntity.setTaskCron("0 0 0 * * *");
-//
-//        createTaskService.createTask(taskEntity);
+    /**
+     * 清理服务器临时文件任务
+     */
+    public void deleteTempFile() {
+        TaskBase taskBase =  new TaskBase();
+        taskBase.setTaskUUID(Constant.TASK_DELETE_TEMP_FILE);
+        taskBase.setClazz(NettyFileSyncService.class);
+        taskBase.setMethodName("clearTempFileOrPath");
+        taskBase.setParamsClazz(new Class<?>[]{String.class});
+        taskBase.setTaskName("清理服务器临时文件");
+        taskBase.setParamTemplate(null);
+
+        // 创建主任务
+        redisService.setList(TaskConstant.TASK_BASE, taskBase);
     }
 }

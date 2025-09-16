@@ -20,12 +20,16 @@ import com.blog.file.socket.domain.constant.SocketTopic;
 import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.domain.service.SocketMessageSendService;
 import com.blog.file.socket.service.SocketService;
+import com.blog.redis.service.RedisService;
+import com.blog.task.constant.TaskConstant;
+import com.blog.task.domain.TaskBase;
 import com.blog.task.domain.TaskEntity;
 import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,13 +55,16 @@ public class NettyFileSyncService {
     private SocketService socketService;
 
     @Resource
-    private CreateTaskService taskService;
+    private CreateTaskService createTaskService;
 
     @Resource
     private UserDeviceMapper userDeviceMapper;
 
     @Resource
     private SocketMessageSendService socketMessageSendService;
+
+    @Resource
+    private RedisService redisService;
 
     /**
      * netty消息发送文件同步到服务器
@@ -85,26 +92,20 @@ public class NettyFileSyncService {
      *  删除临时同步目录文件
      */
     public void deleteTempFile(String filePath, String time) {
-        // 定时删除同步文件
-        TaskEntity taskEntity = new TaskEntity(Constant.TASK_DELETE_TEMP_FILE);
-
-//        taskBase.setTaskUUID(Constant.TASK_SYNC_DEVICE_FILE);
-//        taskBase.setClazz(NettyFileSyncService.class);
-//        taskBase.setMethodName("syncDeviceFile");
-//        taskBase.setTaskName("定时上传树莓派数据");
-//        taskBase.setParamsClazz(new Class<?>[]{SyncDeviceFileBo.class});
-//        taskBase.setParamTemplate(null);
-
-        taskEntity.setClazz(NettyFileSyncService.class);
-        taskEntity.setMethodName("clearTempFileOrPath");
-        taskEntity.setTaskParams(new Object[]{filePath});
-        Class<?>[] paramTypes = new Class<?>[]{String.class};
-        taskEntity.setParamsClazz(paramTypes);
-        taskEntity.setTaskTime(time);
-        taskEntity.setTaskCount(1);
-        taskService.createTask(taskEntity);
+        List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
+        for (Object o : taskList) {
+            TaskBase taskBase = (TaskBase) o;
+            if (taskBase.getTaskUUID().equals(Constant.TASK_DELETE_TEMP_FILE)) {
+                // 定时删除同步文件
+                TaskEntity taskEntity = new TaskEntity();
+                BeanUtils.copyProperties(taskBase, taskEntity);
+                taskEntity.setTaskParams(new Object[]{filePath});
+                taskEntity.setTaskTime(time);
+                taskEntity.setTaskCount(1);
+                createTaskService.createTask(taskEntity);
+            }
+        }
     }
-
 
     /**
      * 博客数据同步任务-第一步

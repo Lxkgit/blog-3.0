@@ -48,5 +48,5 @@ public class TaskBase {
      * 1 是
      * 0 否
      */
-    private String childTaskFlag;
+    private Integer childTaskFlag;
 }

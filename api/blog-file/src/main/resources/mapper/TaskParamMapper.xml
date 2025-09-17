@@ -8,7 +8,6 @@
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
         <result property="taskUUID" column="task_uuid"/>
-        <result property="childTaskId" column="child_task_id"/>
         <result property="paramJson" column="param_json"/>
         <result property="taskCount" column="task_count"/>
         <result property="taskCron" column="task_cron"/>
@@ -20,7 +19,7 @@
 
     <sql id="Base_Column_List">
         id
-        , user_id, task_uuid, child_task_id, param_json, task_count, task_cron, task_time, task_status, create_time, update_time
+        , user_id, task_uuid, param_json, task_count, task_cron, task_time, task_status, create_time, update_time
     </sql>
 
     <!-- 插入 -->
@@ -30,7 +29,6 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="userId != null">user_id,</if>
             <if test="taskUUID != null">task_uuid,</if>
-            <if test="childTaskId != null">child_task_id,</if>
             <if test="paramJson != null">param_json,</if>
             <if test="taskCount != null">task_count,</if>
             <if test="taskCron != null">task_cron,</if>
@@ -42,7 +40,6 @@
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
             <if test="taskUUID != null">#{taskUUID},</if>
-            <if test="childTaskId != null">#{childTaskId},</if>
             <if test="paramJson != null">#{paramJson},</if>
             <if test="taskCount != null">#{taskCount},</if>
             <if test="taskCron != null">#{taskCron},</if>
@@ -59,7 +56,6 @@
         <set>
             <if test="userId != null">user_id = #{userId},</if>
             <if test="taskUUID != null">task_uuid = #{taskUUID},</if>
-            <if test="childTaskId != null">child_task_id = #{childTaskId},</if>
             <if test="paramJson != null">param_json = #{paramJson},</if>
             <if test="taskCount != null">task_count = #{taskCount},</if>
             <if test="taskCron != null">task_cron = #{taskCron},</if>
@@ -79,12 +75,17 @@
     </delete>
 
     <!-- 查询（根据 taskUUID 可作为网格编码） -->
-    <select id="selectTaskByTaskUUID" resultMap="TaskInfoResultMap" parameterType="string">
+    <select id="selectTaskByTaskUUID" resultMap="TaskInfoResultMap" parameterType="com.blog.core.domain.file.task.vo.TaskParamVo">
         SELECT
         <include refid="Base_Column_List"/>
         FROM task_param
         <where>
-            task_status != 1
+            <if test="taskStatusList != null and taskStatusList.size > 0">
+                and task_status in
+                <foreach collection="taskStatusList" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
             <if test="taskUUID != null and taskUUID != ''">
                 and task_uuid = #{taskUUID}
             </if>
@@ -95,7 +96,7 @@
     <select id="selectTaskList" resultMap="TaskInfoResultMap"
             parameterType="com.blog.core.domain.file.task.entity.TaskParam">
         SELECT
-        id, user_id, task_uuid, child_task_id, param_json, task_count, task_cron, task_time, task_status, create_time,
+        id, user_id, task_uuid, param_json, task_count, task_cron, task_time, task_status, create_time,
         update_time
         FROM task_param
         <where>

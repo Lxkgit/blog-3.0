@@ -81,16 +81,16 @@ public class CreateTaskService {
         }
         if (nextTime != 0L) {
 
-            List<Object> taskList = redisService.getList(TaskConstant.TASK_ENTITY, 0, -1);
-
-            Set<String> UUIDSet = taskList.stream().filter(obj -> obj instanceof TaskEntity)
-                    .map(obj -> (TaskEntity) obj).map(TaskEntity::getTaskUUID).collect(Collectors.toSet());
-            if (CollectionUtils.isEmpty(UUIDSet)) {
-                redisService.setList(TaskConstant.TASK_ENTITY, JSONObject.toJSONString(taskEntity));
-            }
-            if (!CollectionUtils.isEmpty(UUIDSet) && !UUIDSet.contains(taskEntity.getTaskUUID())) {
-                redisService.setList(TaskConstant.TASK_ENTITY, JSONObject.toJSONString(taskEntity));
-            }
+//            List<Object> taskList = redisService.getList(TaskConstant.TASK_ENTITY, 0, -1);
+//
+//            Set<String> UUIDSet = taskList.stream().filter(obj -> obj instanceof TaskEntity)
+//                    .map(obj -> (TaskEntity) obj).map(TaskEntity::getTaskUUID).collect(Collectors.toSet());
+//            if (CollectionUtils.isEmpty(UUIDSet)) {
+//                redisService.setList(TaskConstant.TASK_ENTITY, JSONObject.toJSONString(taskEntity));
+//            }
+//            if (!CollectionUtils.isEmpty(UUIDSet) && !UUIDSet.contains(taskEntity.getTaskUUID())) {
+//                redisService.setList(TaskConstant.TASK_ENTITY, JSONObject.toJSONString(taskEntity));
+//            }
             // 任务状态为0的任务不创建执行队列
             if (taskEntity.getTaskStatus() != null && taskEntity.getTaskStatus() == 0) {
                 return;

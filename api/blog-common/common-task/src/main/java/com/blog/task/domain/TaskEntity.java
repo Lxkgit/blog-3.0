@@ -40,7 +40,7 @@ public class TaskEntity {
     /**
      * 子任务id
      */
-    private String childTaskId;
+    private Integer taskParamId;
 
     /**
      * 任务执行方法参数

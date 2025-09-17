@@ -26,11 +26,6 @@ public class TaskParam {
     private String taskUUID;
 
     /**
-     * 子任务编码
-     */
-    private String childTaskId;
-
-    /**
      * json格式任务执行参数
      */
     private String paramJson;

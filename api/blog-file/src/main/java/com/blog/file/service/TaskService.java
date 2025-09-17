@@ -1,7 +1,9 @@
 package com.blog.file.service;
 
 import com.blog.core.domain.file.task.entity.TaskLog;
+import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskLogVo;
+import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.task.domain.TaskEntity;
 
 import java.util.List;
@@ -14,9 +16,11 @@ import java.util.List;
 
 public interface TaskService {
 
-    void updateTask(TaskEntity taskInfoVo);
+    void updateTask(TaskParamVo taskParamVo);
 
-    List<Object> selectTaskInfoList();
+    List<Object> selectTaskBaseList();
+
+    List<TaskParam> selectTaskEntityById(TaskParamVo taskParamVo);
 
     List<TaskLog> selectTaskLogList(TaskLogVo taskLogVo);
 }

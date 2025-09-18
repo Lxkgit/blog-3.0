@@ -1,8 +1,8 @@
 package com.blog.file.service.impl;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.blog.core.constant.Constant;
-import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskLogVo;
@@ -12,16 +12,17 @@ import com.blog.file.mapper.TaskParamMapper;
 import com.blog.file.service.TaskService;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
-import com.blog.task.domain.TaskBase;
 import com.blog.task.domain.TaskEntity;
 import com.blog.task.service.CreateTaskService;
 import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Description 任务服务实现类
@@ -31,6 +32,8 @@ import java.util.List;
 
 @Service
 public class TaskServiceImpl implements TaskService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     @Resource
     private TaskLogMapper taskLogMapper;
@@ -47,25 +50,52 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void updateTask(TaskParamVo taskParamVo) {
         taskParamMapper.updateById(taskParamVo);
+        TaskParam taskParam = taskParamMapper.selectById(taskParamVo.getId());
+        Set<Object> objSet = redisService.getZSetList(TaskConstant.TASK_QUEUE, 0, -1);
 
-//        List<Object> taskBaseList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
-//        for (Object taskBaseObj : taskBaseList) {
-//            TaskBase taskBase = (TaskBase) taskBaseObj;
-//            if (taskBase.getTaskUUID().equals(taskParamVo.getTaskUUID())) {
-//                List<Object> taskList = redisService.getList(TaskConstant.TASK_QUEUE, 0, -1);
-//                redisService.delKey(TaskConstant.TASK_QUEUE);
-//                for (Object o : taskList) {
-//                    TaskEntity taskEntity = (TaskEntity) o;
-//                    if (taskEntity.getTaskParamId().equals(taskParamVo.getId())) {
-//                        taskEntity.setTaskCron(taskParamVo.getTaskCron());
-//                        taskEntity.setTaskTime(taskParamVo.getTaskTime());
-//
-////                taskEntity.setTaskParams();
-//                    }
-//                }
-//                redisService.setList(TaskConstant.TASK_QUEUE, taskList);
-//            }
-//        }
+        for (Object obj : objSet) {
+            TaskEntity taskEntity = (TaskEntity) obj;
+            if (taskEntity.getChildTaskCode().equals(taskParam.getChildTaskCode())) {
+                redisService.removeZSetByMember(TaskConstant.TASK_QUEUE, obj);
+                createChildTask(taskEntity, taskParam);
+            }
+        }
+
+
+    }
+
+    /**
+     * 创建定时任务
+     *
+     * @param taskEntity 任务基础参数
+     * @param taskParam  任务配置参数
+     */
+    @Override
+    public void createChildTask(TaskEntity taskEntity, TaskParam taskParam) {
+        try {
+            taskEntity.setChildTaskCode(taskParam.getChildTaskCode());
+            taskEntity.setTaskCron(taskParam.getTaskCron());
+            taskEntity.setTaskTime(taskParam.getTaskTime());
+            taskEntity.setTaskCount(taskParam.getTaskCount());
+            // 填充任务参数
+            if (StringUtils.isNotEmpty(taskParam.getParamClazz()) && StringUtils.isNotEmpty(taskParam.getParamJson())) {
+                JSONArray jsonClazzArray = JSONArray.parseArray(taskParam.getParamClazz());
+                JSONArray jsonParamArray = JSONArray.parseArray(taskParam.getParamJson());
+                taskEntity.setTaskParams(new Object[jsonParamArray.size()]);
+                for (int i = 0; i < jsonParamArray.size(); i++) {
+                    // 获取参数所属类
+                    Class<?> clazz = Class.forName(jsonClazzArray.getString(i));
+                    // 获取参数数据
+                    JSONObject jsonObject = (JSONObject) jsonParamArray.get(i);
+                    // 转为Java对象
+                    Object paramObj = JSON.parseObject(jsonObject.toJSONString(), clazz);
+                    taskEntity.getTaskParams()[i] = paramObj;
+                }
+            }
+            createTaskService.createTask(taskEntity);
+        } catch (Exception e) {
+            logger.error("任务 {} 创建异常: {}", taskEntity, e.getMessage());
+        }
     }
 
     @Override
@@ -75,7 +105,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskParam> selectTaskEntityById(TaskParamVo taskParamVo) {
-        return taskParamMapper.selectTaskByTaskUUID(taskParamVo);
+        return taskParamMapper.selectTaskByTaskCode(taskParamVo);
     }
 
     @Override
@@ -83,4 +113,6 @@ public class TaskServiceImpl implements TaskService {
         PageHelper.startPage(taskLogVo.getPageNum(), taskLogVo.getPageNum());
         return taskLogMapper.selectList(null);
     }
+
+
 }

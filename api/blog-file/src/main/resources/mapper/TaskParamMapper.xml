@@ -7,7 +7,9 @@
     <resultMap id="TaskInfoResultMap" type="com.blog.core.domain.file.task.entity.TaskParam">
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
-        <result property="taskUUID" column="task_uuid"/>
+        <result property="taskCode" column="task_code"/>
+        <result property="childTaskCode" column="child_task_code"/>
+        <result property="paramClazz" column="param_clazz"/>
         <result property="paramJson" column="param_json"/>
         <result property="taskCount" column="task_count"/>
         <result property="taskCron" column="task_cron"/>
@@ -19,7 +21,7 @@
 
     <sql id="Base_Column_List">
         id
-        , user_id, task_uuid, param_json, task_count, task_cron, task_time, task_status, create_time, update_time
+        , user_id, task_code, child_task_code, param_clazz, param_json, task_count, task_cron, task_time, task_status, create_time, update_time
     </sql>
 
     <!-- 插入 -->
@@ -28,7 +30,8 @@
         INSERT INTO task_param
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="userId != null">user_id,</if>
-            <if test="taskUUID != null">task_uuid,</if>
+            <if test="taskCode != null">task_code,</if>
+            <if test="childTaskCode != null">child_task_code,</if>
             <if test="paramJson != null">param_json,</if>
             <if test="taskCount != null">task_count,</if>
             <if test="taskCron != null">task_cron,</if>
@@ -39,7 +42,8 @@
         </trim>
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
-            <if test="taskUUID != null">#{taskUUID},</if>
+            <if test="taskCode != null">#{taskCode},</if>
+            <if test="childTaskCode != null">#{childTaskCode},</if>
             <if test="paramJson != null">#{paramJson},</if>
             <if test="taskCount != null">#{taskCount},</if>
             <if test="taskCron != null">#{taskCron},</if>
@@ -55,7 +59,8 @@
         UPDATE task_param
         <set>
             <if test="userId != null">user_id = #{userId},</if>
-            <if test="taskUUID != null">task_uuid = #{taskUUID},</if>
+            <if test="taskCode != null">task_code = #{taskCode},</if>
+            <if test="childTaskCode != null">child_task_code = #{childTaskCode},</if>
             <if test="paramJson != null">param_json = #{paramJson},</if>
             <if test="taskCount != null">task_count = #{taskCount},</if>
             <if test="taskCron != null">task_cron = #{taskCron},</if>
@@ -75,7 +80,7 @@
     </delete>
 
     <!-- 查询（根据 taskUUID 可作为网格编码） -->
-    <select id="selectTaskByTaskUUID" resultMap="TaskInfoResultMap" parameterType="com.blog.core.domain.file.task.vo.TaskParamVo">
+    <select id="selectTaskByTaskCode" resultMap="TaskInfoResultMap" parameterType="com.blog.core.domain.file.task.vo.TaskParamVo">
         SELECT
         <include refid="Base_Column_List"/>
         FROM task_param
@@ -86,8 +91,8 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="taskUUID != null and taskUUID != ''">
-                and task_uuid = #{taskUUID}
+            <if test="taskCode != null and taskCode != ''">
+                and task_code = #{taskCode}
             </if>
         </where>
     </select>
@@ -95,13 +100,11 @@
     <!-- 通用条件查询（可扩展） -->
     <select id="selectTaskList" resultMap="TaskInfoResultMap"
             parameterType="com.blog.core.domain.file.task.entity.TaskParam">
-        SELECT
-        id, user_id, task_uuid, param_json, task_count, task_cron, task_time, task_status, create_time,
-        update_time
+        SELECT <include refid="Base_Column_List"/>
         FROM task_param
         <where>
             <if test="userId != null">AND user_id = #{userId}</if>
-            <if test="taskUUID != null and taskUUID != ''">AND task_uuid = #{taskUUID}</if>
+            <if test="taskCode != null and taskCode != ''">AND task_code = #{taskCode}</if>
             <if test="taskStatus != null">AND task_status = #{taskStatus}</if>
         </where>
     </select>

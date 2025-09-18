@@ -15,7 +15,7 @@ public class TaskEntity {
     /**
      * 基础任务唯一编码
      */
-    private String taskUUID;
+    private String taskCode;
 
     /**
      * 任务执行方法所属类
@@ -40,7 +40,7 @@ public class TaskEntity {
     /**
      * 子任务id
      */
-    private Integer taskParamId;
+    private String childTaskCode;
 
     /**
      * 任务执行方法参数
@@ -80,10 +80,10 @@ public class TaskEntity {
 
     public TaskEntity() {
         // 随机生成任务id
-        this.taskUUID = MyStringUtils.getRandomString(32);
+        this.taskCode = MyStringUtils.getRandomString(32);
     }
 
     public TaskEntity(String taskUUID) {
-        this.taskUUID = taskUUID;
+        this.taskCode = taskUUID;
     }
 }

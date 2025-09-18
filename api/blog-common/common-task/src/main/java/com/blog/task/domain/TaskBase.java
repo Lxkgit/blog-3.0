@@ -2,8 +2,6 @@ package com.blog.task.domain;
 
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * @Description 基础任务
  * @Author lxk
@@ -16,7 +14,7 @@ public class TaskBase {
     /**
      * 基础任务唯一编码
      */
-    private String taskUUID;
+    private String taskCode;
 
     /**
      * 任务执行方法所属类

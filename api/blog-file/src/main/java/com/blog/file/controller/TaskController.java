@@ -23,6 +23,40 @@ public class TaskController {
     private TaskService taskService;
 
     /**
+     * 创建任务
+     *
+     * @param taskParamVo
+     * @return
+     */
+    @PostMapping("/insert")
+    public Result insertTask(@RequestBody TaskParamVo taskParamVo) {
+        return ResultFactory.buildSuccessResult();
+    }
+
+    /**
+     * 删除任务
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/delete")
+    public Result deleteTask(@RequestParam(value = "id") Integer id) {
+        return ResultFactory.buildSuccessResult();
+    }
+
+    /**
+     * 修改任务
+     *
+     * @param taskParamVo
+     * @return
+     */
+    @PostMapping("/update")
+    public Result updateTask(@RequestBody TaskParamVo taskParamVo) {
+        taskService.updateTask(taskParamVo);
+        return ResultFactory.buildSuccessResult();
+    }
+
+    /**
      * 查询主任务列表
      *
      * @return
@@ -43,13 +77,13 @@ public class TaskController {
         return ResultFactory.buildSuccessResult(taskService.selectTaskEntityById(taskParamVo));
     }
 
-    @PostMapping("/update")
-    public Result updateTask(@RequestBody TaskParamVo taskParamVo) {
-        taskService.updateTask(taskParamVo);
-        return ResultFactory.buildSuccessResult();
-    }
 
-
+    /**
+     * 查询任务执行日志
+     *
+     * @param taskLogVo
+     * @return
+     */
     @GetMapping("/log/select/list")
     public Result selectTaskLogList(TaskLogVo taskLogVo) {
         return ResultFactory.buildSuccessResult(taskService.selectTaskLogList(taskLogVo));

@@ -95,7 +95,7 @@ public class NettyFileSyncService {
         List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
         for (Object o : taskList) {
             TaskBase taskBase = (TaskBase) o;
-            if (taskBase.getTaskUUID().equals(Constant.TASK_DELETE_TEMP_FILE)) {
+            if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
                 // 定时删除同步文件
                 TaskEntity taskEntity = new TaskEntity();
                 BeanUtils.copyProperties(taskBase, taskEntity);

@@ -595,7 +595,10 @@ public class RedisService {
      */
     public Long getZSetSize(String key) {
         try {
-            return redisTemplate.opsForZSet().size(key);
+            if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+                return redisTemplate.opsForZSet().size(key);
+            }
+            return 0L;
         } catch (Exception e) {
             logger.info("redis错误信息:{} error: ", e.getMessage(), e);
             return 0L;
@@ -616,6 +619,15 @@ public class RedisService {
         } catch (Exception e) {
             logger.info("redis错误信息:{} error: ", e.getMessage(), e);
             return false;
+        }
+    }
+
+    public Set<Object> getZSetList(String key, long start, long end) {
+        try {
+            return redisTemplate.opsForZSet().range(key, start, end);
+        } catch (Exception e) {
+            logger.info("redis错误信息:{} error: ", e.getMessage(), e);
+            return null;
         }
     }
 
@@ -647,6 +659,21 @@ public class RedisService {
             ZSetOperations.TypedTuple<Object> tuple = tuples.iterator().next();
             Object member = tuple.getValue();
 
+            // 删除该成员
+            redisTemplate.opsForZSet().remove(key, member);
+        } catch (Exception e) {
+            logger.info("redis错误信息:{} error: ", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 根据ZSet成员删除数据
+     *
+     * @param key    key
+     * @param member 数据
+     */
+    public void removeZSetByMember(String key, Object member) {
+        try {
             // 删除该成员
             redisTemplate.opsForZSet().remove(key, member);
         } catch (Exception e) {

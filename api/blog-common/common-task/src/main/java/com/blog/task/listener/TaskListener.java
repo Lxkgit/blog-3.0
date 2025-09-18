@@ -107,7 +107,7 @@ public class TaskListener implements ApplicationRunner {
                                 Object finalTargetInstance = targetInstance;
                                 baseTaskThread.execute(() -> {
                                     TaskLog taskLog = new TaskLog();
-                                    taskLog.setTaskUUID(taskEntity.getTaskUUID());
+                                    taskLog.setTaskUUID(taskEntity.getTaskCode());
                                     taskLog.setIndexCount(taskEntity.getIndexCount());
                                     try {
                                         // 使用正确的目标实例

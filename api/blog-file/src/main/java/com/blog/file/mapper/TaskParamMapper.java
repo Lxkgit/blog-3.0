@@ -16,5 +16,5 @@ import java.util.List;
 @Mapper
 public interface TaskParamMapper extends BaseMapper<TaskParam> {
 
-    List<TaskParam> selectTaskByTaskUUID(TaskParamVo taskParamVo);
+    List<TaskParam> selectTaskByTaskCode(TaskParamVo taskParamVo);
 }

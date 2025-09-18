@@ -1,5 +1,7 @@
 package com.blog.file.init;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
@@ -7,6 +9,7 @@ import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.file.mapper.TaskParamMapper;
 import com.blog.file.netty.service.NettyFileSyncService;
+import com.blog.file.service.TaskService;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskBase;
@@ -38,9 +41,14 @@ public class TaskInit implements ApplicationRunner {
     @Resource
     private RedisService redisService;
 
+    @Resource
+    private TaskService taskService;
+
     @Override
     public void run(ApplicationArguments args) {
         logger.info("启动系统任务");
+        redisService.delKey(TaskConstant.TASK_BASE);
+        redisService.delKey(TaskConstant.TASK_QUEUE);
         blogDateSyncTask();
         deviceFileUploadTask();
         deleteTempFile();
@@ -60,7 +68,7 @@ public class TaskInit implements ApplicationRunner {
      */
     public void blogDateSyncTask() {
         TaskBase taskBase = new TaskBase();
-        taskBase.setTaskUUID(Constant.TASK_SYNC_BLOG_FILE);
+        taskBase.setTaskCode(Constant.TASK_SYNC_BLOG_FILE);
         taskBase.setClazz(NettyFileSyncService.class);
         taskBase.setMethodName("syncBlogDataFirstStep");
         taskBase.setTaskName("定时备份博客数据");
@@ -71,22 +79,8 @@ public class TaskInit implements ApplicationRunner {
         // 创建主任务
         redisService.setList(TaskConstant.TASK_BASE, taskBase);
         TaskParamVo taskParamVo = new TaskParamVo();
-        taskParamVo.setTaskUUID(Constant.TASK_SYNC_BLOG_FILE);
-        taskParamVo.setTaskStatusList(new ArrayList<>(Arrays.asList(1, 2)));
-        List<TaskParam> paramList = taskParamMapper.selectTaskByTaskUUID(taskParamVo);
-
-        for (TaskParam taskParam : paramList) {
-            // 创建并启动子任务
-            TaskEntity taskEntity = new TaskEntity();
-            BeanUtils.copyProperties(taskBase, taskEntity);
-            // 子任务执行参数
-            taskEntity.setTaskParamId(taskParam.getId());
-            taskEntity.setTaskParams(null);
-            taskEntity.setTaskCount(taskParam.getTaskCount());
-            taskEntity.setTaskCron(taskParam.getTaskCron());
-
-            createTaskService.createTask(taskEntity);
-        }
+        taskParamVo.setTaskCode(Constant.TASK_SYNC_BLOG_FILE);
+        createInitTask(taskBase, taskParamVo);
 
     }
 
@@ -105,7 +99,7 @@ public class TaskInit implements ApplicationRunner {
      */
     public void deviceFileUploadTask() {
         TaskBase taskBase = new TaskBase();
-        taskBase.setTaskUUID(Constant.TASK_SYNC_DEVICE_FILE);
+        taskBase.setTaskCode(Constant.TASK_SYNC_DEVICE_FILE);
         taskBase.setClazz(NettyFileSyncService.class);
         taskBase.setMethodName("syncDeviceFile");
         taskBase.setTaskName("定时上传树莓派数据");
@@ -117,23 +111,19 @@ public class TaskInit implements ApplicationRunner {
         redisService.setList(TaskConstant.TASK_BASE, taskBase);
 
         TaskParamVo taskParamVo = new TaskParamVo();
-        taskParamVo.setTaskUUID(Constant.TASK_SYNC_DEVICE_FILE);
+        taskParamVo.setTaskCode(Constant.TASK_SYNC_DEVICE_FILE);
+        createInitTask(taskBase, taskParamVo);
+    }
+
+    private void createInitTask(TaskBase taskBase, TaskParamVo taskParamVo) {
         taskParamVo.setTaskStatusList(new ArrayList<>(Arrays.asList(1, 2)));
-        List<TaskParam> paramList = taskParamMapper.selectTaskByTaskUUID(taskParamVo);
+        List<TaskParam> paramList = taskParamMapper.selectTaskByTaskCode(taskParamVo);
 
         for (TaskParam taskParam : paramList) {
             // 创建并启动子任务
             TaskEntity taskEntity = new TaskEntity();
             BeanUtils.copyProperties(taskBase, taskEntity);
-
-            SyncDeviceFileBo syncDeviceFileBo = JSONObject.parseObject(taskParam.getParamJson(), SyncDeviceFileBo.class);
-            // 子任务执行参数
-            taskEntity.setTaskParamId(taskParam.getId());
-            taskEntity.setTaskParams(new Object[]{syncDeviceFileBo});
-            taskEntity.setTaskCount(taskParam.getTaskCount());
-            taskEntity.setTaskCron(taskParam.getTaskCron());
-
-            createTaskService.createTask(taskEntity);
+            taskService.createChildTask(taskEntity, taskParam);
         }
     }
 
@@ -142,7 +132,7 @@ public class TaskInit implements ApplicationRunner {
      */
     public void deleteTempFile() {
         TaskBase taskBase = new TaskBase();
-        taskBase.setTaskUUID(Constant.TASK_DELETE_TEMP_FILE);
+        taskBase.setTaskCode(Constant.TASK_DELETE_TEMP_FILE);
         taskBase.setClazz(NettyFileSyncService.class);
         taskBase.setMethodName("clearTempFileOrPath");
         taskBase.setParamsClazz(new Class<?>[]{String.class});

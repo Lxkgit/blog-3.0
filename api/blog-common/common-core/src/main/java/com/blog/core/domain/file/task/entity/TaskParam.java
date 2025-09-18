@@ -23,7 +23,17 @@ public class TaskParam {
     /**
      * 主任务编码
      */
-    private String taskUUID;
+    private String taskCode;
+
+    /**
+     * 子任务编码
+     */
+    private String childTaskCode;
+
+    /**
+     * json格式参数类
+     */
+    private String paramClazz;
 
     /**
      * json格式任务执行参数

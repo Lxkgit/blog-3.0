@@ -2,6 +2,7 @@ package com.blog.pi.netty.dto;
 
 
 import com.blog.pi.config.PiSystemConfig;
+import com.blog.pi.domain.common.MsgHead;
 import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.utils.MyUUID;
 import lombok.Data;
@@ -27,6 +28,11 @@ public class NettyPacket<T> implements Serializable {
      *  netty 消息唯一序列号
      */
     private String requestId;
+
+    /**
+     * 消息头
+     */
+    private MsgHead msgHead;
 
     /**
      * netty 请求类型

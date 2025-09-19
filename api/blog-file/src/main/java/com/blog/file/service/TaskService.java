@@ -25,4 +25,6 @@ public interface TaskService {
     List<TaskLog> selectTaskLogList(TaskLogVo taskLogVo);
 
     void createChildTask(TaskEntity taskEntity, TaskParam taskParam);
+
+    void startTask(String childTaskCode);
 }

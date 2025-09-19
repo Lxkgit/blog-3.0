@@ -179,9 +179,6 @@ async def handle_messages(ws):
                         move_file_or_directory(sourceDirectory + "/" + filename, targetDirectory)
                     # 执行完成响应socket
                     msg = {
-                        "requestId": receiveMsg.get("requestId"),
-                        "socketPacketType": "response",
-                        "topic": receiveMsg.get("topic"),
                         "data": {
                             "type": receiveMsg.get('data').get("type"),
                             "data": receiveMsg.get('data').get("data"),
@@ -191,7 +188,7 @@ async def handle_messages(ws):
                         }
                     }
                     logger.info(f"博客数据导出任务执行完成: {msg}")
-                    await ws.send(json.dumps(msg))
+                    await ws.send(json.dumps(build_msg(receiveMsg, msg))
                 elif receiveMsg.get("topic") == "delete_file_or_dir":
                     logger.info(f"执行文件删除操作: {receiveMsg.get('data')}")
                     dirPath = receiveMsg.get('data').get('dirPath')
@@ -206,9 +203,6 @@ async def handle_messages(ws):
                         deleteResult = delete_file_or_directory(dirPath)
                         # 执行完成响应socket
                     msg = {
-                        'requestId': receiveMsg.get("requestId"),
-                        'socketPacketType': 'response',
-                        'topic': receiveMsg.get("topic"),
                         'data': {
                             'dirPath': dirPath,
                             'fileName': fileName,
@@ -216,11 +210,23 @@ async def handle_messages(ws):
                         }
                     }
                     logger.info(f"博客数据导出任务执行完成: {msg}")
-                    await ws.send(json.dumps(msg))
+                    await ws.send(json.dumps(build_msg(receiveMsg, msg))
 
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")
 
+# socket 响应消息公共部分
+def build_msg(receiveMsg, private_data: dict):
+    # 公共部分
+    common = {
+        "requestId": receiveMsg.get("requestId"),
+        "socketPacketType": "response",
+        "topic": receiveMsg.get("topic"),
+        "msgHead": receiveMsg.get("msgHead")
+    }
+    # 合并公共和私有
+    msg = {**common, **private_data}
+    return msg
 
 # 执行Shell脚本
 def execute_shell_script(shell_script_path):

@@ -3,6 +3,8 @@ package com.blog.task.domain;
 import com.blog.core.utils.MyStringUtils;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Description
  * @Author lxk
@@ -30,7 +32,7 @@ public class TaskEntity {
     /**
      * 任务执行方法参数类
      */
-    private Class<?>[] paramsClazz;
+    private List<Class<?>> paramsClazz;
 
     /**
      * 任务名称
@@ -45,7 +47,7 @@ public class TaskEntity {
     /**
      * 任务执行方法参数
      */
-    private Object[] taskParams;
+    private List<Object> taskParams;
 
     /**
      * 任务状态

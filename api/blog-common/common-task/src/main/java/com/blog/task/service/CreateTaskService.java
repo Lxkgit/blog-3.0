@@ -1,6 +1,7 @@
 package com.blog.task.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
@@ -14,6 +15,7 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,22 +40,9 @@ public class CreateTaskService {
         if (taskEntity.getIndexCount() == null) {
             taskEntity.setIndexCount(0);
         }
-        if (taskEntity.getTaskCron() != null && !taskEntity.getTaskCron().isEmpty()) {
-            CronExpression expression = CronExpression.parse(taskEntity.getTaskCron());
-            LocalDateTime now = LocalDateTime.now();
-            // 获取下一次执行时间
-            LocalDateTime nextExecution = expression.next(now);
-            if (nextExecution == null) {
-                logger.error("cron 表达式错误");
-                return;
-            }
-            nextTime = nextExecution.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
-        } else {
+        if (taskEntity.getTaskTime() != null && !taskEntity.getTaskTime().isEmpty()) {
             String time = taskEntity.getTaskTime();
-            if (time == null || time.isEmpty()) {
-                logger.error("任务创建失败 cron 与 time 字段不能同时为空");
-                return;
-            }
+
             char lastChar = time.charAt(time.length() - 1);
             double timeDouble = Double.parseDouble(time.substring(0, time.length() - 1));
 
@@ -78,6 +67,21 @@ public class CreateTaskService {
                 ZonedDateTime zonedDateTime = afterTime.atZone(ZoneId.systemDefault());
                 nextTime = zonedDateTime.toEpochSecond();
             }
+        } else {
+            String cron = taskEntity.getTaskCron();
+            if (cron == null || cron.isEmpty()) {
+                logger.error("任务创建失败 cron 与 time 字段不能同时为空");
+                return;
+            }
+            CronExpression expression = CronExpression.parse(taskEntity.getTaskCron());
+            LocalDateTime now = LocalDateTime.now();
+            // 获取下一次执行时间
+            LocalDateTime nextExecution = expression.next(now);
+            if (nextExecution == null) {
+                logger.error("cron 表达式错误");
+                return;
+            }
+            nextTime = nextExecution.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
         }
         if (nextTime != 0L) {
             // 任务状态为0的任务不创建执行队列
@@ -86,6 +90,35 @@ public class CreateTaskService {
             }
             redisService.setZSet(TaskConstant.TASK_QUEUE, taskEntity, nextTime);
         }
+    }
+
+    public void recordSuccessTaskLog(String taskUUID) {
+        TaskLog taskLog = new TaskLog();
+        taskLog.setTaskResultStatus(1);
+        taskLog.setTaskUUID(taskUUID);
+        taskLog.setEndTime(new Date());
+        // 创建任务启动执行日志
+        redisService.setList(TaskConstant.TASK_LOG, taskLog);
+    }
+
+    public void recordSuccessTaskLog(String taskUUID, String taskResult) {
+        TaskLog taskLog = new TaskLog();
+        taskLog.setTaskResultStatus(1);
+        taskLog.setTaskResult(taskResult);
+        taskLog.setTaskUUID(taskUUID);
+        taskLog.setEndTime(new Date());
+        // 创建任务启动执行日志
+        redisService.setList(TaskConstant.TASK_LOG, taskLog);
+    }
+
+    public void recordFailTaskLog(String taskUUID, String errorMsg) {
+        TaskLog taskLog = new TaskLog();
+        taskLog.setTaskResultStatus(0);
+        taskLog.setTaskUUID(taskUUID);
+        taskLog.setEndTime(new Date());
+        taskLog.setErrorMsg(errorMsg);
+        // 创建任务启动执行日志
+        redisService.setList(TaskConstant.TASK_LOG, taskLog);
     }
 
 

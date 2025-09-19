@@ -1,6 +1,7 @@
 package com.blog.file.netty.domain.dto;
 
 
+import com.blog.core.domain.common.MsgHead;
 import com.blog.file.netty.domain.common.NettyConstant;
 import com.blog.file.netty.domain.enums.NettyPacketType;
 import lombok.Data;
@@ -28,6 +29,11 @@ public class NettyPacket<T> implements Serializable {
      *  netty 消息唯一序列号
      */
     private String requestId;
+
+    /**
+     * 消息头
+     */
+    private MsgHead msgHead;
 
     /**
      * netty 请求类型

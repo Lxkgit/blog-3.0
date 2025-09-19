@@ -1,5 +1,6 @@
 package com.blog.file.socket.domain;
 
+import com.blog.core.domain.common.MsgHead;
 import com.blog.file.netty.domain.common.NettyConstant;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.enums.NettyPacketType;
@@ -23,6 +24,11 @@ public class SocketPacket<T> {
     private String requestId;
 
     /**
+     * 消息头
+     */
+    private MsgHead msgHead;
+
+    /**
      * socket 请求类型
      */
     private String socketPacketType;
@@ -42,9 +48,20 @@ public class SocketPacket<T> {
      */
     private T data;
 
+    public static <T> SocketPacket<T> buildRequest(String topic, MsgHead msgHead, T param) {
+        SocketPacket<T> socketPacket = new SocketPacket<>();
+        socketPacket.setRequestId(UUID.randomUUID().toString());
+        socketPacket.setMsgHead(msgHead);
+        socketPacket.setTopic(topic);
+        socketPacket.setSocketPacketType(SocketPacketType.REQUEST);
+        socketPacket.setData(param);
+        return socketPacket;
+    }
+
     public static <T> SocketPacket<T> buildRequest(String topic, T param) {
         SocketPacket<T> socketPacket = new SocketPacket<>();
         socketPacket.setRequestId(UUID.randomUUID().toString());
+        socketPacket.setMsgHead(null);
         socketPacket.setTopic(topic);
         socketPacket.setSocketPacketType(SocketPacketType.REQUEST);
         socketPacket.setData(param);

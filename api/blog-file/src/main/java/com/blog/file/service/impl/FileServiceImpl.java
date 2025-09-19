@@ -268,7 +268,7 @@ public class FileServiceImpl implements FileService {
             // 发送netty消息
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
             nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettyFileSyncService.syncFileSend(nettySyncFileDto, userId);
+            nettyFileSyncService.syncFileSend(null, nettySyncFileDto, userId);
         } else if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
             // 文件同步到远程
             String exportPath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
@@ -283,7 +283,7 @@ public class FileServiceImpl implements FileService {
             // 发送netty消息
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
             nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettyFileSyncService.syncFileSend(nettySyncFileDto, userId);
+            nettyFileSyncService.syncFileSend(null, nettySyncFileDto, userId);
         }
     }
 

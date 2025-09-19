@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -103,7 +104,7 @@ public class TaskInit implements ApplicationRunner {
         taskBase.setClazz(NettyFileSyncService.class);
         taskBase.setMethodName("syncDeviceFile");
         taskBase.setTaskName("定时上传树莓派数据");
-        taskBase.setParamsClazz(new Class<?>[]{SyncDeviceFileBo.class});
+        taskBase.setParamsClazz(new ArrayList<>(List.of(SyncDeviceFileBo.class)));
         taskBase.setParamTemplate(null);
         taskBase.setChildTaskFlag(1);
 
@@ -135,7 +136,7 @@ public class TaskInit implements ApplicationRunner {
         taskBase.setTaskCode(Constant.TASK_DELETE_TEMP_FILE);
         taskBase.setClazz(NettyFileSyncService.class);
         taskBase.setMethodName("clearTempFileOrPath");
-        taskBase.setParamsClazz(new Class<?>[]{String.class});
+        taskBase.setParamsClazz(new ArrayList<>(List.of(String.class)));
         taskBase.setTaskName("清理服务器临时文件");
         taskBase.setParamTemplate(null);
         taskBase.setChildTaskFlag(0);

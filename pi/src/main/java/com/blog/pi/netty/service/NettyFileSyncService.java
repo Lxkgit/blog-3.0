@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.pi.config.PiSystemConfig;
+import com.blog.pi.domain.common.MsgHead;
 import com.blog.pi.domain.entity.FileMD5;
 import com.blog.pi.mapper.FileMD5Mapper;
 import com.blog.pi.mapper.FileSyncMapper;
@@ -71,7 +72,7 @@ public class NettyFileSyncService {
      * @param data      netty收到的消息
      * @param requestId 本次请求唯一编码
      */
-    public void syncBlogFile(String data, String requestId) {
+    public void syncBlogFile(String data, String requestId, MsgHead msgHead) {
         // 响应服务端处理结果
         // 响应服务端处理结果
         Map<String, Object> map = new HashMap<>();
@@ -100,8 +101,9 @@ public class NettyFileSyncService {
             moveFileDto.setSourceDirectory(basePath);
             moveFileDto.setFileNameList(fileNameList);
             moveFileDto.setTargetDirectory("/opt/docker/files/temp/test" + "/" + MyStringUtils.getRandomString(6));
-            SocketPacket<SocketMoveFileDto> message = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, moveFileDto);
-            socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, message);
+            SocketPacket<SocketMoveFileDto> socketPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, moveFileDto);
+            socketPacket.setMsgHead(msgHead);
+            socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, socketPacket);
         } else if (nettySyncBlogFile.getSyncType().equals(2)) {
             uploadBlogFileFirstStep(requestId, nettySyncBlogFile, basePath);
         }

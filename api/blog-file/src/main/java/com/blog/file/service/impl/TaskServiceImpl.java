@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -81,7 +82,7 @@ public class TaskServiceImpl implements TaskService {
             if (StringUtils.isNotEmpty(taskParam.getParamClazz()) && StringUtils.isNotEmpty(taskParam.getParamJson())) {
                 JSONArray jsonClazzArray = JSONArray.parseArray(taskParam.getParamClazz());
                 JSONArray jsonParamArray = JSONArray.parseArray(taskParam.getParamJson());
-                taskEntity.setTaskParams(new Object[jsonParamArray.size()]);
+                taskEntity.setTaskParams(new ArrayList<>());
                 for (int i = 0; i < jsonParamArray.size(); i++) {
                     // 获取参数所属类
                     Class<?> clazz = Class.forName(jsonClazzArray.getString(i));
@@ -89,7 +90,7 @@ public class TaskServiceImpl implements TaskService {
                     JSONObject jsonObject = (JSONObject) jsonParamArray.get(i);
                     // 转为Java对象
                     Object paramObj = JSON.parseObject(jsonObject.toJSONString(), clazz);
-                    taskEntity.getTaskParams()[i] = paramObj;
+                    taskEntity.getTaskParams().add(paramObj);
                 }
             }
             createTaskService.createTask(taskEntity);
@@ -114,5 +115,25 @@ public class TaskServiceImpl implements TaskService {
         return taskLogMapper.selectList(null);
     }
 
+    /**
+     * 立即执行子任务
+     * 单次任务执行完成之后不会创建下一次执行任务，
+     * 多次以及循环任务记录执行次数
+     *
+     * @param childTaskCode 子任务编码
+     */
+    @Override
+    public void startTask(String childTaskCode) {
+        TaskParam taskParam = taskParamMapper.selectTaskByChildTaskCode(childTaskCode);
 
+        Set<Object> objSet = redisService.getZSetList(TaskConstant.TASK_QUEUE, 0, -1);
+
+        for (Object obj : objSet) {
+            TaskEntity taskEntity = (TaskEntity) obj;
+            if (taskEntity.getChildTaskCode().equals(taskParam.getChildTaskCode())) {
+                redisService.removeZSetByMember(TaskConstant.TASK_QUEUE, obj);
+                redisService.setZSet(TaskConstant.TASK_QUEUE, taskEntity, 0);
+            }
+        }
+    }
 }

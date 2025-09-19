@@ -2,6 +2,8 @@ package com.blog.task.domain;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Description 基础任务
  * @Author lxk
@@ -29,7 +31,7 @@ public class TaskBase {
     /**
      * 任务执行方法参数类
      */
-    private Class<?>[] paramsClazz;
+    private List<Class<?>> paramsClazz;
 
     /**
      * 任务参数配置模板

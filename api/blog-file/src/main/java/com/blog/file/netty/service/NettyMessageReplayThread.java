@@ -43,13 +43,20 @@ public class NettyMessageReplayThread implements Runnable {
             }
 
             Map<Object, Object> map = redisService.getAllHash(NettyRedisConstant.NETTY_SEND_QUEUE);
-            map.forEach((k, v) -> {
-                String key = k.toString();
-                NettyReplayMessage replayMessage = JSONObject.parseObject((String) v, NettyReplayMessage.class);
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                String key = entry.getKey().toString();
+
+                NettyReplayMessage replayMessage = JSONObject.parseObject((String) entry.getValue(), NettyReplayMessage.class);
                 // 消息首次发送时间
                 LocalDateTime firstSendTime = replayMessage.getFirstSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 // 消息最近发送时间
-                LocalDateTime lastSendTime = replayMessage.getLastSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime lastSendTime;
+                if (replayMessage.getLastSendTime() == null) {
+                    lastSendTime = firstSendTime;
+                } else {
+                    lastSendTime = replayMessage.getLastSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                }
+
                 // 当前时间
                 LocalDateTime nowDate = LocalDateTime.now();
 
@@ -68,12 +75,14 @@ public class NettyMessageReplayThread implements Runnable {
                     // 首次发送消息与当前时间大于指定消息有效时间 丢弃消息
                     if (effectiveDuration.toMinutes() > replayMessage.getEffectiveTime()) {
                         logger.info("netty 消息超过有效时间，丢弃此消息 msg:{}", replayMessage.getMessage());
+                        redisService.deleteAllHash(NettyRedisConstant.NETTY_SEND_QUEUE, entry.getValue());
                     } else {
                         Duration lastDuration = Duration.between(lastSendTime, nowDate);
                         resendMessage(lastDuration, key, replayMessage);
                     }
                 }
-            });
+            }
+
 
             try {
                 Thread.sleep(30);

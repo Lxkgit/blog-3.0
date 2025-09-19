@@ -2,6 +2,7 @@ package com.blog.pi.socket;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.blog.pi.domain.common.MsgHead;
 import com.blog.pi.netty.dto.file.NettySyncFileDto;
 import com.blog.pi.netty.service.NettyFileSyncService;
 import com.blog.pi.socket.domain.SocketPacketEvent;
@@ -34,6 +35,7 @@ public class SocketMessageListener {
         String requestId = event.getSocketPacket().getRequestId();
         String socketPacketType = event.getSocketPacket().getSocketPacketType();
         String topic = event.getSocketPacket().getTopic();
+        MsgHead msgHead = event.getSocketPacket().getMsgHead();
 
         String data = event.getSocketPacket().getData().toString();
         logger.info("socket 收到消息，type:{} id:{} requestId:{} socketPacketType:{} topic:{} data:{}",

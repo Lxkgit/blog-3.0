@@ -1,5 +1,6 @@
 package com.blog.pi.socket.domain;
 
+import com.blog.pi.domain.common.MsgHead;
 import com.blog.pi.socket.domain.constant.SocketPacketType;
 import lombok.Data;
 
@@ -18,6 +19,11 @@ public class SocketPacket<T> {
      * socket 消息唯一序列号
      */
     private String requestId;
+
+    /**
+     * 消息头
+     */
+    private MsgHead msgHead;
 
     /**
      * socket 请求类型

@@ -1,6 +1,7 @@
 package com.blog.file.socket;
 
 import com.alibaba.fastjson2.JSON;
+import com.blog.core.domain.common.MsgHead;
 import com.blog.file.netty.service.NettyFileSyncService;
 import com.blog.file.socket.domain.SocketPacketEvent;
 import com.blog.file.socket.domain.constant.SocketPacketType;
@@ -36,6 +37,7 @@ public class SocketMessageListener {
         String requestId = event.getSocketPacket().getRequestId();
         String socketPacketType = event.getSocketPacket().getSocketPacketType();
         String topic = event.getSocketPacket().getTopic();
+        MsgHead msgHead = event.getSocketPacket().getMsgHead();
 
         String data = event.getSocketPacket().getData().toString();
          if(!SocketPacketType.HEARTBEAT.equals(topic)) {
@@ -51,7 +53,7 @@ public class SocketMessageListener {
 
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
             if (SocketTopic.SOCKET_EXPORT_BLOG_FILE.equals(topic)) {
-                nettyFileSyncService.syncBlogDataSecondStep(data);
+                nettyFileSyncService.syncBlogDataSecondStep(data, msgHead);
             } else if (SocketTopic.SOCKET_DELETE_FILE_OR_DIR.equals(topic)) {
                 SocketDeleteFileOrDirDto dto = JSON.parseObject(data, SocketDeleteFileOrDirDto.class);
                 if (StringUtils.isNotEmpty(dto.getFileName())) {

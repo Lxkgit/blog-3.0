@@ -16,9 +16,4 @@ public class TaskConstant {
      * 任务执行日志缓存
      */
     public static final String TASK_LOG = "TASK:LOG";
-
-    /**
-     * 任务执行详情
-     */
-    public static final String TASK_ENTITY = "TASK:ENTITY";
 }

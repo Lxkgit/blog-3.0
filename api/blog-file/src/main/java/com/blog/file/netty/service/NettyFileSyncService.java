@@ -4,6 +4,8 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
+import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.common.TaskMsgHead;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
 import com.blog.core.utils.MyStringUtils;
@@ -32,6 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -71,7 +76,7 @@ public class NettyFileSyncService {
      *
      * @param nettySyncFileDto 同步文件参数
      */
-    public void syncFileSend(NettySyncFileDto nettySyncFileDto, Integer userId) {
+    public void syncFileSend(MsgHead msgHead, NettySyncFileDto nettySyncFileDto, Integer userId) {
 
         // 获取用户默认同步数据设备
         LambdaQueryWrapper<UserDevice> userDeviceLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -83,13 +88,14 @@ public class NettyFileSyncService {
             String registerId = device.getDeviceCode();
 
             NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
+            nettyPacket.setMsgHead(msgHead);
             nettyServer.sendByRegisterIdLimitTime(registerId, JSON.toJSONString(nettyPacket), 8 * 60);
         }
 //        deleteTempFile(nettySyncFileDto.getServiceFilePath());
     }
 
     /**
-     *  删除临时同步目录文件
+     * 删除临时同步目录文件
      */
     public void deleteTempFile(String filePath, String time) {
         List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
@@ -99,7 +105,7 @@ public class NettyFileSyncService {
                 // 定时删除同步文件
                 TaskEntity taskEntity = new TaskEntity();
                 BeanUtils.copyProperties(taskBase, taskEntity);
-                taskEntity.setTaskParams(new Object[]{filePath});
+                taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
                 taskEntity.setTaskTime(time);
                 taskEntity.setTaskCount(1);
                 createTaskService.createTask(taskEntity);
@@ -111,12 +117,14 @@ public class NettyFileSyncService {
      * 博客数据同步任务-第一步
      * 发送socket导出博客数据任务
      */
-    public String syncBlogDataFirstStep() {
+    public String syncBlogDataFirstStep(MsgHead msgHead) {
         logger.info("正在导出博客文件数据");
         SocketExportBlogFileDto exportBlogFileDto = new SocketExportBlogFileDto();
         String blogFilePath = Constant.FTP_PATH_SYSTEM + "/temp/" + MyStringUtils.getRandomString(6);
         exportBlogFileDto.setBlogFilePath(blogFilePath);
-        SocketPacket<SocketExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE, exportBlogFileDto);
+
+        SocketPacket<SocketExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE,
+                msgHead, exportBlogFileDto);
         socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
         deleteTempFile(blogFilePath, "48h");
         return blogFilePath;
@@ -126,7 +134,7 @@ public class NettyFileSyncService {
      * 博客数据同步任务-第二步
      * 收到socket消息，组合netty消息，发送到设备
      */
-    public void syncBlogDataSecondStep(String data) {
+    public void syncBlogDataSecondStep(String data, MsgHead msgHead) {
 
         SocketExportBlogFileDto socketExportBlogFileDto = JSONObject.parseObject(data, SocketExportBlogFileDto.class);
         // 此处将文件在ftp的全路径转换为在ftp/system用户目录下的路径
@@ -136,20 +144,20 @@ public class NettyFileSyncService {
 
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
         nettySyncFileDto.setFileNameList(List.of(fileName));
-        syncFileSend(nettySyncFileDto, 1);
+        syncFileSend(msgHead, nettySyncFileDto, 1);
     }
 
-    public void syncDeviceFile(SyncDeviceFileBo bo) {
+    public void syncDeviceFile(SyncDeviceFileBo bo, MsgHead msgHead) {
         Integer userId = 1;
         // 文件存储minio中路径
-        String minioPath = "/"+ userId + bo.getMinioPath();
+        String minioPath = "/" + userId + bo.getMinioPath();
         // servicePath 为文件在ftp system用户目录下的相对路径
         String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
         // devicePath 为树莓派设备上的绝对路径
         String devicePath = bo.getDevicePath();
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
         nettySyncFileDto.setCount(bo.getCount());
-        syncFileSend(nettySyncFileDto, userId);
+        syncFileSend(msgHead, nettySyncFileDto, userId);
     }
 
     /**

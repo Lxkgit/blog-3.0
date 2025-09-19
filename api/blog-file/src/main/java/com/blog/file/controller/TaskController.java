@@ -61,7 +61,7 @@ public class TaskController {
      *
      * @return
      */
-    @GetMapping("/select/list")
+    @GetMapping("/select/base/list")
     public Result selectTaskBaseList() {
         return ResultFactory.buildSuccessResult(taskService.selectTaskBaseList());
     }
@@ -72,11 +72,21 @@ public class TaskController {
      * @param taskParamVo
      * @return
      */
-    @GetMapping("/select/id")
+    @GetMapping("/select/child/id")
     public Result selectTaskEntityById(@RequestBody TaskParamVo taskParamVo) {
         return ResultFactory.buildSuccessResult(taskService.selectTaskEntityById(taskParamVo));
     }
 
+    /**
+     * 立即执行任务
+     *
+     * @return
+     */
+    @GetMapping("/start")
+    public Result startTask(@RequestParam(value = "childTaskCode") String childTaskCode) {
+        taskService.startTask(childTaskCode);
+        return ResultFactory.buildSuccessResult();
+    }
 
     /**
      * 查询任务执行日志

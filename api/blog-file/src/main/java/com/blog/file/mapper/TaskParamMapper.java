@@ -17,4 +17,6 @@ import java.util.List;
 public interface TaskParamMapper extends BaseMapper<TaskParam> {
 
     List<TaskParam> selectTaskByTaskCode(TaskParamVo taskParamVo);
+
+    TaskParam selectTaskByChildTaskCode(String childTaskCode);
 }

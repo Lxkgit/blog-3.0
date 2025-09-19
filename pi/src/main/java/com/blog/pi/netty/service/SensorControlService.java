@@ -2,6 +2,7 @@ package com.blog.pi.netty.service;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.blog.pi.domain.common.MsgHead;
 import com.blog.pi.netty.client.NettyClient;
 import com.blog.pi.netty.dto.NettyPacket;
 import com.blog.pi.netty.dto.NettyResponse;
@@ -27,7 +28,7 @@ public class SensorControlService {
     @Resource
     private NettyClient nettyClient;
 
-    public void sendCommand(String command, String requestId) {
+    public void sendCommand(String command, String requestId, MsgHead msgHead) {
         JSONObject jsonObject = JSONObject.parseObject(command);
         List<SensorCommandVo> sensorCommandVoList = new ArrayList<>();
         if (SensorTypeEnum.DUO_JI.getSensorCode().equals(jsonObject.get("sensorType"))) {
@@ -51,6 +52,7 @@ public class SensorControlService {
         // 响应服务端处理结果
         NettyResponse nettyResponse = new NettyResponse(true);
         NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, "",nettyResponse);
+        nettyPacket.setMsgHead(msgHead);
         nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
 
     }

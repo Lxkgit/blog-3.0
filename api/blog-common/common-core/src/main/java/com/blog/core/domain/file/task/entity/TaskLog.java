@@ -18,6 +18,16 @@ public class TaskLog {
     /**
      * 任务唯一编码
      */
+    private String taskCode;
+
+    /**
+     * 子任务唯一编码
+     */
+    private String childTaskCode;
+
+    /**
+     * 任务执行流水号
+     */
     private String taskUUID;
 
     /**
@@ -47,8 +57,14 @@ public class TaskLog {
     private String errorMsg;
 
     /**
-     * 创建时间
+     * 开始时间
      */
-    private Date createTime;
+    private Date startTime;
+
+    /**
+     * 结束时间
+     */
+    private Date endTime;
+
 
 }

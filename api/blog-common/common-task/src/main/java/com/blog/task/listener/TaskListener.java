@@ -2,6 +2,8 @@ package com.blog.task.listener;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONReader;
+import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.common.TaskMsgHead;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.redis.service.RedisService;
 import com.blog.task.config.SpringContextHolder;
@@ -15,13 +17,14 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 /**
@@ -71,14 +74,23 @@ public class TaskListener implements ApplicationRunner {
 
                         if (newTime >= taskTime) {
                             redisService.removeZSetByIndex(TaskConstant.TASK_QUEUE, 0);
-                            TaskEntity taskEntity = JSONObject.parseObject(Objects.requireNonNull(tuple.getValue()).toString(), TaskEntity.class, JSONReader.Feature.SupportClassForName);
+                            TaskEntity taskEntity = (TaskEntity) tuple.getValue();
 
                             if (taskEntity != null) {
                                 // 1. 提前获取所有必要值（避免线程异步问题）
                                 Class<?> targetClass = taskEntity.getClazz();
                                 String methodName = taskEntity.getMethodName();
-                                Class<?>[] paramTypes = taskEntity.getParamsClazz(); // 改为数组
-                                Object[] methodParams = taskEntity.getTaskParams();
+                                List<Class<?>> paramTypes = CollectionUtils.isEmpty(taskEntity.getParamsClazz()) ? new ArrayList<>() : taskEntity.getParamsClazz(); // 改为数组
+                                List<Object> methodParams = CollectionUtils.isEmpty(taskEntity.getTaskParams()) ? new ArrayList<>() : taskEntity.getTaskParams();
+
+                                // 定时任务添加任务执行头数据
+                                paramTypes.add(MsgHead.class);
+                                TaskMsgHead taskMsgHead = new TaskMsgHead();
+                                taskMsgHead.setTaskCode(taskEntity.getTaskCode());
+                                taskMsgHead.setChildTaskCode(taskEntity.getChildTaskCode());
+                                String taskUUID = UUID.randomUUID().toString().replace("-", "");
+                                taskMsgHead.setTaskUUID(taskUUID);
+                                methodParams.add(MsgHead.buildTaskMsgHead(taskMsgHead));
 
                                 // 2. 获取目标类的实例
                                 Object targetInstance;
@@ -92,7 +104,7 @@ public class TaskListener implements ApplicationRunner {
                                 }
 
                                 // 3. 查找方法
-                                Method method = ReflectionUtils.findMethod(targetClass, methodName, paramTypes);
+                                Method method = ReflectionUtils.findMethod(targetClass, methodName, paramTypes.toArray(new Class[0]));
                                 if (method == null) {
                                     logger.error("类:{} 中不存在:{} 方法", targetClass, methodName);
                                     throw new IllegalArgumentException();
@@ -107,11 +119,15 @@ public class TaskListener implements ApplicationRunner {
                                 Object finalTargetInstance = targetInstance;
                                 baseTaskThread.execute(() -> {
                                     TaskLog taskLog = new TaskLog();
-                                    taskLog.setTaskUUID(taskEntity.getTaskCode());
+                                    taskLog.setTaskCode(taskEntity.getTaskCode());
+                                    taskLog.setChildTaskCode(taskEntity.getChildTaskCode());
+                                    taskLog.setTaskUUID(taskUUID);
                                     taskLog.setIndexCount(taskEntity.getIndexCount());
+                                    taskLog.setTaskCount(taskEntity.getTaskCount());
+                                    taskLog.setStartTime(new Date());
                                     try {
                                         // 使用正确的目标实例
-                                        Object result = ReflectionUtils.invokeMethod(method, finalTargetInstance, methodParams);
+                                        Object result = ReflectionUtils.invokeMethod(method, finalTargetInstance, methodParams.toArray());
                                         logger.info("方法执行结果: {}", result);
                                         if (result != null) {
                                             taskLog.setTaskResult(result.toString());
@@ -121,7 +137,8 @@ public class TaskListener implements ApplicationRunner {
                                         taskLog.setErrorMsg(e.getMessage());
                                         // 添加错误处理逻辑
                                     } finally {
-                                        redisService.setList(TaskConstant.TASK_LOG, JSONObject.toJSONString(taskLog));
+                                        // 创建任务启动执行日志
+                                        redisService.setList(TaskConstant.TASK_LOG, taskLog);
                                     }
                                 });
 

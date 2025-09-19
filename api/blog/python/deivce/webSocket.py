@@ -19,7 +19,6 @@ CONFIG = {
     "INITIAL_RETRY_DELAY": 5,  # 初始重试延迟(秒)
     "MAX_RETRY_DELAY": 60,  # 最大重试延迟(秒)
     "CONNECT_TIMEOUT": 15,  # 连接超时(秒)
-
 }
 
 SHELL_PATH = {
@@ -168,25 +167,42 @@ async def handle_messages(ws):
             receiveMsg = json.loads(message)
             if receiveMsg.get("socketPacketType") == "request":
                 if receiveMsg.get("topic") == "move_file":
-                    logger.info(f"调用文件同步脚本: {receiveMsg.get('data')}")
-                    # await execute_shell_script(ws, SHELL_PATH["EXPORT_SCRIPT"], receiveMsg)
-                    msg = {
-                        "requestId": receiveMsg.get("requestId"),
-                        "socketPacketType": "response",
-                        "topic": receiveMsg.get("topic"),
-                        "data": {
-                            "fileResult": receiveMsg.get('data'),
-                            "sqlResult": "sqlResult"
-                        }
-                    }
-                    logger.info(f"文件移动完成: {msg}")
-                    await ws.send(json.dumps(msg))
+                    await topic_move_file(ws, receiveMsg)
                 elif receiveMsg.get("topic") == "export_blog_file":
                     await topic_export_blog_file(ws, receiveMsg)
                 elif receiveMsg.get("topic") == "delete_file_or_dir":
                     await topic_delete_file_or_dir(ws, receiveMsg)
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")
+
+
+# socket 响应消息公共部分
+def build_msg(receiveMsg, private_data: dict):
+    # 公共部分
+    common = {
+        "requestId": receiveMsg.get("requestId"),
+        "socketPacketType": "response",
+        "topic": receiveMsg.get("topic"),
+        "msgHead": receiveMsg.get("msgHead")
+    }
+    # 合并公共和私有
+    msg = {**common, **private_data}
+    return msg
+
+
+# export_blog_file topic 处理方法
+async def topic_move_file(ws, receiveMsg):
+    logger.info(f"调用文件同步脚本: {receiveMsg.get('data')}")
+    # await execute_shell_script(ws, SHELL_PATH["EXPORT_SCRIPT"], receiveMsg)
+    msg = {
+        "data": {
+            "fileResult": receiveMsg.get('data'),
+            "sqlResult": "sqlResult"
+        }
+    }
+    logger.info(f"文件移动完成: {msg}")
+    await ws.send(json.dumps(build_msg(receiveMsg, msg))
+
 
 # export_blog_file topic 处理方法
 async def topic_export_blog_file(ws, receiveMsg):
@@ -200,16 +216,14 @@ async def topic_export_blog_file(ws, receiveMsg):
     delete_file_or_directory("/opt/docker/files/temp/blog")
     # 执行完成响应socket
     msg = {
-        'requestId': receiveMsg.get("requestId"),
-        'socketPacketType': 'response',
-        'topic': receiveMsg.get("topic"),
         'data': {
             'blogFilePath': blogFilePath,
             'blogFileName': 'blog.zip'
         }
     }
     logger.info(f"博客数据导出任务执行完成: {msg}")
-    await ws.send(json.dumps(msg))
+    await ws.send(json.dumps(build_msg(receiveMsg, msg))
+
 
 # delete_file_or_dir topic 处理方法
 async def topic_delete_file_or_dir(ws, receiveMsg):
@@ -236,9 +250,6 @@ async def topic_delete_file_or_dir(ws, receiveMsg):
 
     # 构造响应消息
     msg = {
-        'requestId': receiveMsg.get("requestId"),
-        'socketPacketType': 'response',
-        'topic': receiveMsg.get("topic"),
         'data': {
             'dirPath': dirPath,
             'fileName': fileName,
@@ -246,7 +257,8 @@ async def topic_delete_file_or_dir(ws, receiveMsg):
         }
     }
     logger.info(f"文件删除操作执行完成: {msg}")
-    await ws.send(json.dumps(msg))
+    await ws.send(json.dumps(build_msg(receiveMsg, msg))
+
 
 # 执行Shell脚本
 def execute_shell_script(shell_script_path):

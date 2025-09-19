@@ -97,6 +97,14 @@
         </where>
     </select>
 
+    <!-- 查询（根据 taskUUID 可作为网格编码） -->
+    <select id="selectTaskByChildTaskCode" resultMap="TaskInfoResultMap" parameterType="java.lang.String">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM task_param
+        where child_task_code = #{childTaskCode}
+    </select>
+
     <!-- 通用条件查询（可扩展） -->
     <select id="selectTaskList" resultMap="TaskInfoResultMap"
             parameterType="com.blog.core.domain.file.task.entity.TaskParam">

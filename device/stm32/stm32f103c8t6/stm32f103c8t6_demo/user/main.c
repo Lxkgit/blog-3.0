@@ -16,6 +16,7 @@
 
 //C库
 #include <string.h>
+#include <stdio.h>
 
 #define ESP8266_ONENET_INFO		"AT+CIPSTART=\"TCP\",\"192.168.137.38\",1883\r\n"
 
@@ -65,6 +66,10 @@ int main(void)
 	unsigned short timeCount = 0;	//发送间隔变量
 	
 	unsigned char *dataPtr = NULL;
+	char jsonStr[100];
+	    char atCommand[200];
+	
+	char str5[128] = "AT+MQTTPUB=0,\"pubtest\",\"{temp:1;humi:1}\",0,0\r\n";
 	
 	Hardware_Init();				//初始化外围硬件
 	
@@ -73,21 +78,35 @@ int main(void)
 	
 	UsartPrintf(USART_DEBUG, "Connect MQTTs Server...\r\n");
 	while(ESP8266_SendCmd("AT+MQTTUSERCFG=0,1,\"STM32\",\"admin\",\"public\",0,0,\"\"\r\n", "OK"))
-		DelayXms(500);
+		DelayXms(5000);
 	UsartPrintf(USART_DEBUG, "MQTT INIT ...\r\n");
-	while(ESP8266_SendCmd("AT+MQTTCONN=0,\"192.168.137.38\",1883,1\r\n", "CONNECTED"))
-		DelayXms(500);
+	while(ESP8266_SendCmd("AT+MQTTCONN=0,\"192.168.137.153\",1883,1\r\n", "CONNECTED"))
+		DelayXms(5000);
 	UsartPrintf(USART_DEBUG, "Connect MQTT Server Success\r\n");
 
 	
 	while(1)
 	{
-//		DHT11_Read_Data(&temp,&humi);//
-//		UsartPrintf(USART_DEBUG, "P4****temp %d ,humi %d\r\n",temp,humi);
+		DHT11_Read_Data(&temp,&humi);//
+		UsartPrintf(USART_DEBUG, "P4****temp %d ,humi %d\r\n",temp,humi);
+
+
+//		snprintf(str5, sizeof(str5), "AT+MQTTPUB=0,\"pubtest\",\"{\"temp\":%d,\"humi\":%d}\",0,0\r\n", temp, humi);
+	
+		// 1. 构建JSON字符串，内部双引号用\转义
+    
+    sprintf(jsonStr, "{\\\"temp\\\":%d\\\, \\\"humi\\\":%d}", temp, humi);
+		
+		
+    sprintf(atCommand, "AT+MQTTPUB=0,\"pubtest\",\"%s\",0,0\r\n", jsonStr);
+		
+
+		ESP8266_SendCmd(atCommand, "OK");
+	
 		
 //		if(++timeCount >= 500)									//发送间隔5s
 //		{
-////			SHT20_GetValue();
+//			SHT20_GetValue();
 //			
 //			UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
 //			OneNet_SendData();									//发送数据
@@ -99,7 +118,7 @@ int main(void)
 //		dataPtr = ESP8266_GetIPD(0);
 //		if(dataPtr != NULL)
 //			OneNet_RevPro(dataPtr);
-		DelayMs(10);
+		DelayMs(10000);
 	
 	}
 

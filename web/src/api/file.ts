@@ -212,3 +212,20 @@ export const selectSensorTemplateByChipOrSensorIdApi = (params: any) => {
     const uri = "/file/sensorTemplate/chipOrSensorId"
     return api.get(uri, params)
 }
+
+// --------------定时任务接口-------------
+
+export const selectTaskBaseListApi = () => {
+    const uri = "/file/task/select/base/list"
+    return api.get(uri)
+}
+
+export const selectTaskEntityByIdApi = (params: any) => {
+    const uri = "/file/task/select/child/id"
+    return api.get(uri, params)
+}
+
+export const startTaskApi = (params: any) => {
+    const uri = "/file/task/start"
+    return api.get(uri, params)
+}

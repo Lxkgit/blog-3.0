@@ -91,6 +91,9 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="userId != null and userId != ''">
+                and user_id = #{userId}
+            </if>
             <if test="taskCode != null and taskCode != ''">
                 and task_code = #{taskCode}
             </if>

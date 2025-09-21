@@ -7,6 +7,7 @@ import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.TaskLogMapper;
 import com.blog.file.mapper.TaskParamMapper;
 import com.blog.file.service.TaskService;
@@ -105,7 +106,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskParam> selectTaskEntityById(TaskParamVo taskParamVo) {
+    public List<TaskParam> selectTaskEntityById(String taskCode) {
+        TaskParamVo taskParamVo = new TaskParamVo();
+        taskParamVo.setTaskCode(taskCode);
+        taskParamVo.setUserId(SecurityUtil.getLoginUser().getId());
         return taskParamMapper.selectTaskByTaskCode(taskParamVo);
     }
 

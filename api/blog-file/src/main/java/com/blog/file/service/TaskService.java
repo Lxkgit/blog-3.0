@@ -20,7 +20,7 @@ public interface TaskService {
 
     List<Object> selectTaskBaseList();
 
-    List<TaskParam> selectTaskEntityById(TaskParamVo taskParamVo);
+    List<TaskParam> selectTaskEntityById(String taskCode);
 
     List<TaskLog> selectTaskLogList(TaskLogVo taskLogVo);
 

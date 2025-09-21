@@ -7,7 +7,7 @@
       <el-button type="primary" plain @click="createArticleLabelTypeDialog = true">新增</el-button>
       <el-button :disabled="ids.length > 0 ? false : true" type="danger" plain
         @click="deleteArticleLabelTypeByIdsFun()">删除</el-button>
-      <el-table :data="articleLabelTypeList.list" style="width: 100%; height: calc(100vh - 278px);"
+      <el-table lazy :load="load" :data="articleLabelTypeList.list" style="width: 100%; height: calc(100vh - 278px);"
         @selection-change="selected">
         <el-table-column type="selection" width="55">
         </el-table-column>F
@@ -69,8 +69,8 @@
             </el-select>
           </el-form-item>
           <el-form-item v-if="createForm.type === 'label'" label="分类组织结构：">
-            <el-tree-select v-model="createForm.labelType" :data="articleLabelTypeList.list" :render-after-expand="false"
-              check-strictly clearable />
+            <el-tree-select v-model="createForm.labelType" :data="articleLabelTypeList.list"
+              :render-after-expand="false" check-strictly clearable />
           </el-form-item>
           <el-form-item>
             <el-button @click="createArticleLabelTypeDialog = false">取消</el-button>
@@ -124,6 +124,12 @@ const getArticleLabelTypeListFun = () => {
       console.log(res)
     }
   })
+}
+
+const load = () => {
+  setTimeout(() => {
+    
+  }, 1000)
 }
 
 const saveArticleLabelFun = () => {
@@ -197,4 +203,3 @@ const deleteArticleLabelByIdsFun = (id: any) => {
   text-align: left;
 }
 </style>
-

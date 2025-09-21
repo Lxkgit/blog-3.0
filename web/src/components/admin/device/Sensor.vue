@@ -46,10 +46,10 @@
       width: 45%;
       height: 200px;
       margin-bottom: 20px;
-      
+
     " :key="id">
     <div style="display: flex">
-      <div style="width: 80%; display: flex">
+      <div style="width: 85%; display: flex">
 
         <div style="flex: 1;">
           <div style="margin-bottom: 10px;">

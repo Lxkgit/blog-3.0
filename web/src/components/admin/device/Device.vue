@@ -10,7 +10,7 @@
       margin-bottom: 20px;
     ">
       <div style="display: flex">
-        <div style="width: 80%; display: flex;">
+        <div style="width: 85%; display: flex;">
           <div style="flex: 1;">
             <div style="margin-bottom: 10px;">
               <el-button @click="openDevice(device)" type='primary' text>
@@ -50,9 +50,9 @@
             </div>
           </div>
         </div>
-        <div style="width: 20%">
+        <!-- <div style="width: 18%">
           <MyIcon type="icon-device" />
-        </div>
+        </div> -->
       </div>
     </el-card>
 

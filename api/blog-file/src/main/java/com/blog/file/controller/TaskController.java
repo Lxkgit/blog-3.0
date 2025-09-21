@@ -69,12 +69,12 @@ public class TaskController {
     /**
      * 查询子任务
      *
-     * @param taskParamVo
+     * @param taskCode
      * @return
      */
     @GetMapping("/select/child/id")
-    public Result selectTaskEntityById(@RequestBody TaskParamVo taskParamVo) {
-        return ResultFactory.buildSuccessResult(taskService.selectTaskEntityById(taskParamVo));
+    public Result selectTaskEntityById(@RequestParam("taskCode") String taskCode) {
+        return ResultFactory.buildSuccessResult(taskService.selectTaskEntityById(taskCode));
     }
 
     /**

@@ -22,7 +22,7 @@ public interface TaskService {
 
     List<TaskParam> selectTaskEntityById(String taskCode);
 
-    List<TaskLog> selectTaskLogList(TaskLogVo taskLogVo);
+    List<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
 
     void createChildTask(TaskEntity taskEntity, TaskParam taskParam);
 

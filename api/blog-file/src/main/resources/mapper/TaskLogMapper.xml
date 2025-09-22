@@ -9,8 +9,14 @@
         <result column="task_result_status" property="taskResultStatus"/>
         <result column="task_result" property="taskResult"/>
         <result column="error_msg" property="errorMsg"/>
-        <result column="create_time" property="createTime"/>
     </resultMap>
 
+    <select id="selectTaskLogList" resultType="com.blog.core.domain.file.task.vo.TaskLogVo">
+        select l.*, c.logCount
+        from task_log l
+                 left join (select task_uuid, count(task_uuid) as logCount from task_log group by task_uuid) c
+                           on l.task_uuid = c.task_uuid
+        where task_log_type = 1
+    </select>
 
 </mapper>

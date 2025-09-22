@@ -114,9 +114,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskLog> selectTaskLogList(TaskLogVo taskLogVo) {
+    public List<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo) {
         PageHelper.startPage(taskLogVo.getPageNum(), taskLogVo.getPageNum());
-        return taskLogMapper.selectList(null);
+        return taskLogMapper.selectTaskLogList();
     }
 
     /**

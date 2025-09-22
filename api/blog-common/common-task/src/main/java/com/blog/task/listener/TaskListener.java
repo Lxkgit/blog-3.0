@@ -122,6 +122,7 @@ public class TaskListener implements ApplicationRunner {
                                     taskLog.setTaskCode(taskEntity.getTaskCode());
                                     taskLog.setChildTaskCode(taskEntity.getChildTaskCode());
                                     taskLog.setTaskUUID(taskUUID);
+                                    taskLog.setTaskLogType(1);
                                     taskLog.setIndexCount(taskEntity.getIndexCount());
                                     taskLog.setTaskCount(taskEntity.getTaskCount());
                                     taskLog.setStartTime(new Date());

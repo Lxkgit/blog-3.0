@@ -17,4 +17,6 @@ public class TaskLogVo extends TaskLog {
     private Integer pageNum;
 
     private Integer pageSize;
+
+    private Integer logCount;
 }

@@ -31,6 +31,13 @@ public class TaskLog {
     private String taskUUID;
 
     /**
+     * 任务日志类型
+     * 1 发起任务日志
+     * 2 响应任务日志
+     */
+    private Integer taskLogType;
+
+    /**
      * 当前执行次数
      */
     private Integer indexCount;

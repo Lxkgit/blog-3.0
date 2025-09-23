@@ -213,6 +213,16 @@ const router = createRouter({
             isAuth: true,
           },
         },
+         {
+          path: 'log/task',
+          name: 'TaskLog',
+          component: () => import('@/views/admin/log/TaskLog.vue'),
+          meta: {
+            title: '定时任务日志',
+            keepAlive: false,
+            isAuth: true,
+          },
+        },
         {
           path: 'setting/web',
           name: 'WebSetting',

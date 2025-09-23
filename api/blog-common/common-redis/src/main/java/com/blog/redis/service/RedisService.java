@@ -474,6 +474,15 @@ public class RedisService {
         }
     }
 
+    public Object getListLeftPop(String key) {
+        try {
+            return redisTemplate.opsForList().leftPop(key);
+        } catch (Exception e) {
+            logger.info("redis错误信息:{} error: ", e.getMessage(), e);
+            return null;
+        }
+    }
+
     /**
      * 将list放入缓存
      *

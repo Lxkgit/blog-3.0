@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -46,7 +47,7 @@ public class RedisListener implements ApplicationRunner {
         while (true) {
             try {
                 insertTaskLog();
-                Thread.sleep(1000);
+                Thread.sleep(60 * 1000);
             } catch (Exception e) {
                 logger.error("redis 数据处理异常：{}", e.getMessage(), e);
             }
@@ -57,12 +58,16 @@ public class RedisListener implements ApplicationRunner {
      * 记录任务日志
      */
     private void insertTaskLog() {
-        List<Object> list = redisService.getList(TaskConstant.TASK_LOG, 0, -1);
-        if (CollectionUtils.isNotEmpty(list)) {
-            for (Object o : list) {
+        try {
+            Object o = redisService.getListLeftPop(TaskConstant.TASK_LOG);
+            if (!ObjectUtils.isEmpty(o)) {
                 TaskLog taskLog = (TaskLog) o;
+                taskLog.setId(null);
                 taskLogMapper.insert(taskLog);
             }
+        } catch (Exception e) {
+            logger.error("日志写入失败: {}", e.getMessage(), e);
         }
+
     }
 }

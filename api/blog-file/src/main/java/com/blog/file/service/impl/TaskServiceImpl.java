@@ -3,10 +3,14 @@ package com.blog.file.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.core.domain.auth.entity.Role;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.TaskLogMapper;
 import com.blog.file.mapper.TaskParamMapper;
@@ -16,6 +20,7 @@ import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
 import com.blog.task.service.CreateTaskService;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -114,9 +119,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo) {
-        PageHelper.startPage(taskLogVo.getPageNum(), taskLogVo.getPageNum());
-        return taskLogMapper.selectTaskLogList();
+    public ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo) {
+        PageHelper.startPage(taskLogVo.getPageNum(), taskLogVo.getPageSize());
+        List<TaskLogVo> taskLogVoList = taskLogMapper.selectTaskLogList();
+        return ResultPageUtils.pageUtil(taskLogVoList, taskLogVo.getPageNum(), taskLogVo.getPageSize(), new PageInfo<>(taskLogVoList).getTotal());
     }
 
     /**

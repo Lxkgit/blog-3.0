@@ -119,6 +119,7 @@ public class TaskListener implements ApplicationRunner {
                                 Object finalTargetInstance = targetInstance;
                                 baseTaskThread.execute(() -> {
                                     TaskLog taskLog = new TaskLog();
+                                    taskLog.setTaskName(taskEntity.getTaskName());
                                     taskLog.setTaskCode(taskEntity.getTaskCode());
                                     taskLog.setChildTaskCode(taskEntity.getChildTaskCode());
                                     taskLog.setTaskUUID(taskUUID);

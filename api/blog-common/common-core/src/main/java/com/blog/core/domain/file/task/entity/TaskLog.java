@@ -1,5 +1,6 @@
 package com.blog.core.domain.file.task.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.util.Date;
@@ -16,6 +17,11 @@ public class TaskLog {
     private Integer id;
 
     /**
+     * 任务名称
+     */
+    private String taskName;
+
+    /**
      * 任务唯一编码
      */
     private String taskCode;
@@ -28,6 +34,7 @@ public class TaskLog {
     /**
      * 任务执行流水号
      */
+    @TableField(value = "task_uuid")
     private String taskUUID;
 
     /**

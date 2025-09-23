@@ -18,5 +18,8 @@ public class TaskLogVo extends TaskLog {
 
     private Integer pageSize;
 
+    /**
+     * 当前任务流水号下日志数量
+     */
     private Integer logCount;
 }

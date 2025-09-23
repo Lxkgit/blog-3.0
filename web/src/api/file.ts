@@ -229,3 +229,10 @@ export const startTaskApi = (params: any) => {
     const uri = "/file/task/start"
     return api.get(uri, params)
 }
+
+export const selectTaskLogListApi = (params: any) => {
+    const uri = "/file/task/log/select/list"
+    return api.get(uri, params)
+}
+
+

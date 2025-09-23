@@ -3,13 +3,23 @@
 <mapper namespace="com.blog.file.mapper.TaskLogMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.file.task.entity.TaskLog">
         <id column="id" property="id"/>
+        <result column="task_name" property="taskName"/>
+        <result column="task_code" property="taskCode"/>
+        <result column="child_task_code" property="childTaskCode"/>
         <result column="task_uuid" property="taskUUID"/>
+        <result column="task_log_type" property="taskLogType"/>
         <result column="index_count" property="indexCount"/>
         <result column="task_count" property="taskCount"/>
         <result column="task_result_status" property="taskResultStatus"/>
         <result column="task_result" property="taskResult"/>
         <result column="error_msg" property="errorMsg"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
     </resultMap>
+
+
+
+
 
     <select id="selectTaskLogList" resultType="com.blog.core.domain.file.task.vo.TaskLogVo">
         select l.*, c.logCount

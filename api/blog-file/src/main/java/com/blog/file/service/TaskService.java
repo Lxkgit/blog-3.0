@@ -4,6 +4,7 @@ import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
+import com.blog.core.result.ResultPage;
 import com.blog.task.domain.TaskEntity;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public interface TaskService {
 
     List<TaskParam> selectTaskEntityById(String taskCode);
 
-    List<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
+    ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
 
     void createChildTask(TaskEntity taskEntity, TaskParam taskParam);
 

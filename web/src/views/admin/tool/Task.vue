@@ -4,10 +4,8 @@
       <span>定时任务</span>
     </div>
     <el-card style="margin: 18px 2%;width: 95%">
-      <el-button type="primary" plain @click="">新增</el-button>
-      <el-button type="danger" plain @click="">删除</el-button>
       <el-table @expand-change="selectTaskEntityByIdFun"  row-key="taskCode" :expand-row-keys="expandedRowKeys" :data="baseTaskList.data"
-        style="width: 100%; height: calc(100vh - 278px);">
+        style="width: 100%; height: calc(100vh - 246px);">
         <el-table-column type="expand">
           <template #default="props">
             <div m="4">

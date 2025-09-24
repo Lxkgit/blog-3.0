@@ -81,7 +81,7 @@ onMounted(() => {
 watch(
   () => store.isLogin,
   (newVal) => {
-    console.log('用户登陆状态改变:' + newVal)
+    console.log('用户主题色改变:' + newVal)
     reConnectWebSocketAll()
   },
 )

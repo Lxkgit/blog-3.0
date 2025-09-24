@@ -194,6 +194,16 @@ const router = createRouter({
           },
         },
         {
+          path: 'tool/map',
+          name: 'Map',
+          component: () => import('@/views/admin/tool/map/MapView.vue'),
+          meta: {
+            title: '地图',
+            keepAlive: false,
+            isAuth: true,
+          },
+        },
+        {
           path: 'file',
           name: 'File',
           component: () => import('@/views/admin/file/UserFile.vue'),
@@ -213,7 +223,7 @@ const router = createRouter({
             isAuth: true,
           },
         },
-         {
+        {
           path: 'log/task',
           name: 'TaskLog',
           component: () => import('@/views/admin/log/TaskLog.vue'),

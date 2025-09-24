@@ -99,4 +99,15 @@ public class TaskController {
         return ResultFactory.buildSuccessResult(taskService.selectTaskLogList(taskLogVo));
     }
 
+    /**
+     * 查询任务执行日志
+     *
+     * @param taskUUID
+     * @return
+     */
+    @GetMapping("/log/select/id")
+    public Result selectTaskLogByTaskUUID(@RequestParam("taskUUID") String taskUUID) {
+        return ResultFactory.buildSuccessResult(taskService.selectTaskLogByTaskUUID(taskUUID));
+    }
+
 }

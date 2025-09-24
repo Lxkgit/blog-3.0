@@ -241,8 +241,7 @@ onMounted(() => {
     margin: 0 auto;
     background: white;
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    border: 1px solid #f0f0f0;
+    box-shadow: 0 1px 3px rgba(19, 193, 206, 0.05);
 }
 
 .calendar-header {
@@ -262,7 +261,6 @@ onMounted(() => {
 
 .nav-button {
     background: none;
-    border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 6px 14px;
     cursor: pointer;
@@ -278,6 +276,7 @@ onMounted(() => {
 
 .calendar-grid {
     display: grid;
+    /* repeat(7, 1fr) 表示重复 7 次，1fr: 每列占用 1 份剩余空间 */
     grid-template-columns: repeat(7, 1fr);
     background: white;
 }
@@ -292,10 +291,10 @@ onMounted(() => {
     border-bottom: 1px solid var(--border-color);
 }
 .calendar-day {
-    height: 83px;
+    height: 80px;
     padding: 12px;
-    border-right: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid rgba(var(--el-color-primary-rgb), 0.2);
+    border-bottom: 1px solid rgba(var(--el-color-primary-rgb), 0.2);
     position: relative;
     background: white;
     cursor: pointer;
@@ -318,7 +317,6 @@ onMounted(() => {
 
 .today {
     background: #f0f7ff !important;
-    border: 2px solid var(--today-border) !important;
 }
 
 .date-number {
@@ -455,8 +453,6 @@ onMounted(() => {
 
 .nav-button {
     background: none;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
     padding: 6px 14px;
     cursor: pointer;
     transition: all 0.2s;
@@ -464,9 +460,7 @@ onMounted(() => {
 }
 
 .nav-button:hover {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
+    color: var(--el-color-primary);
 }
 
 .calendar-grid {

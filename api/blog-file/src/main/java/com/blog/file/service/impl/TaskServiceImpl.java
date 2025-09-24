@@ -125,6 +125,14 @@ public class TaskServiceImpl implements TaskService {
         return ResultPageUtils.pageUtil(taskLogVoList, taskLogVo.getPageNum(), taskLogVo.getPageSize(), new PageInfo<>(taskLogVoList).getTotal());
     }
 
+    @Override
+    public List<TaskLog> selectTaskLogByTaskUUID(String taskUUID) {
+        LambdaQueryWrapper<TaskLog> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TaskLog::getTaskUUID, taskUUID);
+        queryWrapper.orderByAsc(TaskLog::getId);
+        return taskLogMapper.selectList(queryWrapper);
+    }
+
     /**
      * 立即执行子任务
      * 单次任务执行完成之后不会创建下一次执行任务，

@@ -235,4 +235,10 @@ export const selectTaskLogListApi = (params: any) => {
     return api.get(uri, params)
 }
 
+export const selectTaskLogByTaskUUIDApi = (params: any) => {
+    const uri = "/file/task/log/select/id"
+    return api.get(uri, params)
+}
+
+
 

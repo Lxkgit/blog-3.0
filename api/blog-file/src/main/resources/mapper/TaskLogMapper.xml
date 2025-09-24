@@ -27,6 +27,7 @@
                  left join (select task_uuid, count(task_uuid) as logCount from task_log group by task_uuid) c
                            on l.task_uuid = c.task_uuid
         where task_log_type = 1
+        order by l.id desc
     </select>
 
 </mapper>

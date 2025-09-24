@@ -25,6 +25,8 @@ public interface TaskService {
 
     ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
 
+    List<TaskLog> selectTaskLogByTaskUUID(String taskUUID);
+
     void createChildTask(TaskEntity taskEntity, TaskParam taskParam);
 
     void startTask(String childTaskCode);

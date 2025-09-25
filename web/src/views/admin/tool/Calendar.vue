@@ -260,6 +260,7 @@ onMounted(() => {
 }
 
 .nav-button {
+    border: 2px solid #e0e0e0;
     background: none;
     border-radius: 4px;
     padding: 6px 14px;

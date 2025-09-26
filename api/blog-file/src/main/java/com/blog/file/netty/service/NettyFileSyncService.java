@@ -5,14 +5,13 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.common.MsgHead;
-import com.blog.core.domain.common.TaskMsgHead;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
-import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
+import com.blog.file.netty.domain.dto.file.NettyFileSyncDto;
 import com.blog.file.netty.domain.enums.NettyTopic;
 import com.blog.file.service.FileService;
 import com.blog.file.socket.domain.SocketPacket;
@@ -29,13 +28,13 @@ import com.blog.task.domain.TaskEntity;
 import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -167,7 +166,7 @@ public class NettyFileSyncService {
      * @param deviceCode
      * @param userId
      */
-    public void syncFileReceive(NettyUploadBlogFileDto nettyUploadBlogFileDto, String deviceCode, Integer userId) {
+    public void syncFileReceive(NettyFileSyncDto nettyUploadBlogFileDto, String deviceCode, Integer userId, MsgHead msgHead) {
         if (nettyUploadBlogFileDto.getSyncResult().equals(0)) {
 
         } else if (nettyUploadBlogFileDto.getSyncResult().equals(1)) {
@@ -175,6 +174,9 @@ public class NettyFileSyncService {
             socketMessageSendService.deleteDir(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath());
         } else if (nettyUploadBlogFileDto.getSyncResult().equals(2)) {
             fileService.fileImportMinio(nettyUploadBlogFileDto);
+            if (msgHead!= null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
+                createTaskService.recordSuccessTaskLog(msgHead.getTaskMsgHead().getTaskUUID());
+            }
         }
     }
 

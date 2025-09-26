@@ -17,4 +17,6 @@ import java.util.List;
 public interface TaskLogMapper extends BaseMapper<TaskLog> {
 
     List<TaskLogVo> selectTaskLogList();
+
+    void updateTaskLogEndTimeByTaskUUID(String taskUUID);
 }

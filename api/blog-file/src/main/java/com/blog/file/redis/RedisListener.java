@@ -1,5 +1,6 @@
 package com.blog.file.redis;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.file.mapper.TaskLogMapper;
 import com.blog.redis.service.RedisService;
@@ -64,6 +65,7 @@ public class RedisListener implements ApplicationRunner {
                 TaskLog taskLog = (TaskLog) o;
                 taskLog.setId(null);
                 taskLogMapper.insert(taskLog);
+                taskLogMapper.updateTaskLogEndTimeByTaskUUID(taskLog.getTaskUUID());
             }
         } catch (Exception e) {
             logger.error("日志写入失败: {}", e.getMessage(), e);

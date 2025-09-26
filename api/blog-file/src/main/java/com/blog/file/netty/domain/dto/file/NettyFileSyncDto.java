@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class NettyUploadBlogFileDto {
+public class NettyFileSyncDto {
 
     /**
      * 同步文件所属用户
@@ -26,6 +26,8 @@ public class NettyUploadBlogFileDto {
      * 上传文件数量
      */
     private Integer count;
+
+    private boolean
 
     //  文件定时同步响应字段
     /**

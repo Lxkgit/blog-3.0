@@ -1,7 +1,6 @@
 package com.blog.file.service.impl;
 
 
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.files.entity.FileCategory;
@@ -15,9 +14,8 @@ import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
-import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
+import com.blog.file.netty.domain.dto.file.NettyFileSyncDto;
 import com.blog.file.netty.service.NettyFileSyncService;
-import com.blog.file.netty.service.NettyServer;
 import com.blog.file.service.FileService;
 import com.blog.file.service.UploadFileService;
 import jakarta.annotation.Resource;
@@ -293,7 +291,7 @@ public class FileServiceImpl implements FileService {
      * @param nettyUploadBlogFileDto
      */
     @Override
-    public void fileImportMinio(NettyUploadBlogFileDto nettyUploadBlogFileDto) {
+    public void fileImportMinio(NettyFileSyncDto nettyUploadBlogFileDto) {
         Integer userId = nettyUploadBlogFileDto.getUserId();
         String minioPath = nettyUploadBlogFileDto.getMinioPath();
         Integer categoryId = createDirWithUserId(minioPath);

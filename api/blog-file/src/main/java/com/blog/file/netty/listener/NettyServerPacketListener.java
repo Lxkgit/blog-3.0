@@ -3,10 +3,11 @@ package com.blog.file.netty.listener;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.file.netty.domain.dto.NettyPacket;
-import com.blog.file.netty.domain.dto.file.NettyUploadBlogFileDto;
+import com.blog.file.netty.domain.dto.file.NettyFileSyncDto;
 import com.blog.file.netty.domain.dto.register.NettyRegisterDto;
 import com.blog.file.netty.domain.enums.NettyPacketType;
 import com.blog.file.netty.domain.enums.NettyTopic;
@@ -69,6 +70,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         String nettyPacketType = event.getNettyPacket().getNettyPacketType();
         String requestId = event.getNettyPacket().getRequestId();
         String topic = event.getNettyPacket().getTopic();
+        MsgHead msgHead = event.getNettyPacket().getMsgHead();
 
         String registerCode = event.getNettyPacket().getRegisterCode();
         Integer userId = Integer.parseInt(registerCode.split(":")[0]);
@@ -104,9 +106,10 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             nettyServer.sendByRegisterIdNotRetry(registerCode, JSONObject.toJSONString(nettyResponse));
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             if (NettyTopic.BLOG_FILE_SYNC.equals(topic)) {
+                // 文件同步上传响应数据处理
                 JSONObject jsonObject = JSONObject.parseObject(data);
-                NettyUploadBlogFileDto nettyUploadBlogFileDto = JSONObject.parseObject(jsonObject.getString("message"), NettyUploadBlogFileDto.class);
-                nettyFileSyncService.syncFileReceive(nettyUploadBlogFileDto, deviceCode, userId);
+                NettyFileSyncDto nettyFileSyncDto = JSONObject.parseObject(jsonObject.getString("message"), NettyFileSyncDto.class);
+                nettyFileSyncService.syncFileReceive(nettyFileSyncDto, deviceCode, userId, msgHead);
             }
 
             // 接收响应

@@ -9,12 +9,12 @@ import com.blog.pi.domain.common.MsgHead;
 import com.blog.pi.domain.entity.FileMD5;
 import com.blog.pi.mapper.FileMD5Mapper;
 import com.blog.pi.mapper.FileSyncMapper;
-import com.blog.pi.domain.entity.FileSync;
 import com.blog.pi.ftp.FtpUtil;
 import com.blog.pi.netty.client.NettyClient;
 import com.blog.pi.netty.dto.NettyPacket;
 import com.blog.pi.netty.dto.NettyResponse;
 import com.blog.pi.netty.dto.file.NettySyncFileDto;
+import com.blog.pi.netty.dto.file.NettyFileSyncDto;
 import com.blog.pi.netty.enums.NettyTopic;
 import com.blog.pi.socket.SocketService;
 import com.blog.pi.socket.domain.SocketPacket;
@@ -206,13 +206,14 @@ public class NettyFileSyncService {
 
                 // 上传完成一个文件
                 String requestId = moveFileDto.getRequestId();
+
                 // 响应服务端处理结果
-                Map<String, Object> map = new HashMap<>();
-                map.put("syncResult", 2);
-                map.put("serviceFilePath", moveFileDto.getServicePath());
-                map.put("fileNameList", new ArrayList<>(List.of(fileName)));
-                map.put("minioPath", nettySyncFileDto.getMinioPath());
-                NettyResponse nettyResponse = new NettyResponse(true, JSONObject.toJSONString(map));
+                NettyFileSyncDto fileSyncDto = new NettyFileSyncDto();
+                fileSyncDto.setServiceFilePath(moveFileDto.getServicePath());
+                fileSyncDto.setSyncResult(2);
+                fileSyncDto.setFileNameList(new ArrayList<>(List.of(fileName)));
+                fileSyncDto.setMinioPath(nettySyncFileDto.getMinioPath());
+                NettyResponse nettyResponse = new NettyResponse(true, JSONObject.toJSONString(fileSyncDto));
                 NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopic.BLOG_FILE_SYNC, nettyResponse);
                 nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
             }

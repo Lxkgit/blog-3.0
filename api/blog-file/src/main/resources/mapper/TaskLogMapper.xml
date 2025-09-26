@@ -30,4 +30,10 @@
         order by l.id desc
     </select>
 
+    <update id="updateTaskLogEndTimeByTaskUUID">
+        update task_log
+        set end_time = now()
+        where task_uuid = #{taskUUID} and task_log_type = 1
+    </update>
+
 </mapper>

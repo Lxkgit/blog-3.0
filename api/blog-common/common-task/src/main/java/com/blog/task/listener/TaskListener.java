@@ -132,10 +132,12 @@ public class TaskListener implements ApplicationRunner {
                                         Object result = ReflectionUtils.invokeMethod(method, finalTargetInstance, methodParams.toArray());
                                         logger.info("方法执行结果: {}", result);
                                         if (result != null) {
+                                            taskLog.setTaskResultStatus(1);
                                             taskLog.setTaskResult(result.toString());
                                         }
                                     } catch (Exception e) {
                                         logger.error("方法执行失败", e);
+                                        taskLog.setTaskResultStatus(0);
                                         taskLog.setErrorMsg(e.getMessage());
                                         // 添加错误处理逻辑
                                     } finally {
@@ -146,6 +148,7 @@ public class TaskListener implements ApplicationRunner {
 
                                 if (taskEntity.getTaskCount() == -1 || taskEntity.getIndexCount() < taskEntity.getTaskCount()) {
                                     // 创建下一次任务
+                                    taskEntity.setIndexCount(taskEntity.getIndexCount() + 1);
                                     createTaskService.createTask(taskEntity);
                                 }
                             }

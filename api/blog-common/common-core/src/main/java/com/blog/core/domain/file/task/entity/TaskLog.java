@@ -1,6 +1,8 @@
 package com.blog.core.domain.file.task.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.util.Date;
@@ -14,6 +16,7 @@ import java.util.Date;
 @Data
 public class TaskLog {
 
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**

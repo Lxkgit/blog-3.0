@@ -6,7 +6,7 @@
     <el-card style="margin: 18px 2%; width: 95%">
       <el-table
         @expand-change="selectTaskLogByTaskUUIDFun"
-        row-key="taskCode"
+        row-key="taskUUID"
         :expand-row-keys="expandedRowKeys"
         :data="taskLogList.data"
         stripe
@@ -16,23 +16,39 @@
           <template #default="props">
             <div m="4">
               <el-table :data="props.row.childLog" border stripe style="width: 93%; float: right">
-                <el-table-column label="任务执行结果" prop="taskResultStatus" width="120" />
-                <el-table-column label="任务执行返回数据" prop="taskResult" />
+                <el-table-column label="任务执行结果" prop="taskResultStatus" width="120">
+                  <template #default="scope">
+                    <el-tag v-if="scope.row.taskResultStatus === 1" type="success"> 成功 </el-tag>
+                    <el-tag v-if="scope.row.taskResultStatus === 0" type="warning"> 失败 </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="任务执行返回数据">
+                  <template #default="scope">
+                    {{
+                      scope.row.taskResultStatus === 0 ? scope.row.errorMsg : scope.row.taskResult
+                    }}
+                  </template>
+                </el-table-column>
+
                 <el-table-column label="上报时间" prop="startTime" width="160" />
               </el-table>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="taskName" label="任务名称"  />
+        <el-table-column prop="taskName" label="任务名称" />
         <el-table-column prop="childTaskCode" label="子任务编码" />
         <el-table-column prop="indexCount" label="当前执行次数" width="110" />
-        <el-table-column prop="taskCount" label="任务执行总数" width="110" />
+        <el-table-column prop="taskCount" label="任务执行总数" width="110">
+          <template #default="scope">
+            {{ scope.row.taskCount != -1 ? scope.row.taskCount : '∞' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="logCount" label="日志数量" width="110" />
-        <el-table-column prop="startTime" label="开始时间" width="160"/>
-        <el-table-column prop="endTime" label="结束时间" width="160"/>
+        <el-table-column prop="startTime" label="开始时间" width="160" />
+        <el-table-column prop="endTime" label="结束时间" width="160" />
         <el-table-column label="消耗时间" width="150">
           <template #default="scope">
-              {{ diffFormat(scope.row.startTime, scope.row.endTime) }}
+            {{ diffFormat(scope.row.startTime, scope.row.endTime) }}
           </template>
         </el-table-column>
       </el-table>

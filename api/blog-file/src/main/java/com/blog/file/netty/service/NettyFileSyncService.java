@@ -167,12 +167,12 @@ public class NettyFileSyncService {
      * @param userId
      */
     public void syncFileReceive(NettyFileSyncDto nettyUploadBlogFileDto, String deviceCode, Integer userId, MsgHead msgHead) {
-        if (nettyUploadBlogFileDto.getSyncResult().equals(0)) {
+        if (nettyUploadBlogFileDto.getSyncType().equals(0)) {
 
-        } else if (nettyUploadBlogFileDto.getSyncResult().equals(1)) {
+        } else if (nettyUploadBlogFileDto.getSyncType().equals(1)) {
             // 文件传输都是使用ftp system用户下相对路径
             socketMessageSendService.deleteDir(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath());
-        } else if (nettyUploadBlogFileDto.getSyncResult().equals(2)) {
+        } else if (nettyUploadBlogFileDto.getSyncType().equals(2)) {
             fileService.fileImportMinio(nettyUploadBlogFileDto);
             if (msgHead!= null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
                 createTaskService.recordSuccessTaskLog(msgHead.getTaskMsgHead().getTaskUUID());

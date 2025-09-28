@@ -27,16 +27,19 @@ public class NettyFileSyncDto {
      */
     private Integer count;
 
-    private boolean
-
     //  文件定时同步响应字段
     /**
-     * syncResult 文件同步状态
+     * syncType 文件同步类型
      * 0 请求已收到
-     * 1 下载完成
-     * 2 上传完成
+     * 1 下载
+     * 2 上传
      */
-    private Integer syncResult;
+    private Integer syncType;
+
+    /**
+     * 同步结果
+     */
+    private Boolean syncResult;
 
     private String minioPath;
 

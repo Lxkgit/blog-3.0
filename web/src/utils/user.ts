@@ -64,34 +64,40 @@ function user() {
     })
   }
 
-  const refreshTokenFun = () => {
-    if (!isLogin.value) {
-      if (
-        store.userLocal.refresh_token !== null &&
-        store.userLocal.refresh_token !== undefined &&
-        store.userLocal.refresh_token !== ''
-      ) {
-        userTokenApi({
-          // 客户端id
-          clientId: 'dianshang',
-          // 客户端密码
-          clientSecret: '123456',
-          // 授权码获取token
-          grantType: 'refresh_token',
-          username: store.userLocal.username,
-          password: store.userLocal.password,
-          refreshToken: store.userLocal.refresh_token,
-        }).then((res: any) => {
-          //把token放入Cookie中
-          store.userSession.access_token = res.result.access_token
-          store.userSession.rz_id = res.result.rz_id
-          store.userSession.user_id = res.result.user_id
-          store.userLocal.refresh_token = res.result.refresh_token
-          store.isLogin = true
-          userInfoFun()
-          location.reload()
-        })
+  const refreshTokenFun = async (): Promise<boolean> => {
+    if (isLogin.value) {
+      return true // 已登录
+    }
+
+    const refreshToken = store.userLocal.refresh_token
+    if (!refreshToken) {
+      return false // 没有 refresh_token
+    }
+
+    try {
+      const res: any = await userTokenApi({
+        clientId: 'dianshang',
+        clientSecret: '123456',
+        grantType: 'refresh_token',
+        username: store.userLocal.username,
+        password: store.userLocal.password,
+        refreshToken,
+      })
+
+      if (res.code === 200) {
+        store.userSession.access_token = res.result.access_token
+        store.userSession.rz_id = res.result.rz_id
+        store.userSession.user_id = res.result.user_id
+        store.userLocal.refresh_token = res.result.refresh_token
+        store.isLogin = true
+        userInfoFun()
+        location.reload()
+        return true
+      } else {
+        return false
       }
+    } catch (err) {
+      return false
     }
   }
 

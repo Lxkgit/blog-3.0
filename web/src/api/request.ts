@@ -1,78 +1,97 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import { systemStore } from "@/store/system"
+import { systemStore } from '@/store/system'
+import user from '@/utils/user'
+import { useRouter } from 'vue-router'
 
-export function request(config: any) {
+export function  request(config: any) {
+  let { refreshTokenFun } = user()
+  const router = useRouter()
   const store = systemStore()
   const token = store.userSession.access_token
   const rz_id = store.userSession.rz_id
   // 创建axios的实例
   const instance = axios.create({
-    baseURL: "/api",
-    timeout: 50000
+    baseURL: '/api',
+    timeout: 50000,
   })
   // 请求拦截器配置
-  instance.interceptors.request.use(config => {
-    if (token) {
-      config.headers.Authorization = 'Bearer ' + token
-      config.headers.rzId = rz_id
-    }
-    return config
-  }, error => {
-    console.log(error)
-    return Promise.reject(new Error(error))
-  })
+  instance.interceptors.request.use(
+    (config) => {
+      if (token) {
+        config.headers.Authorization = 'Bearer ' + token
+        config.headers.rzId = rz_id
+      }
+      return config
+    },
+    (error) => {
+      console.log(error)
+      return Promise.reject(new Error(error))
+    },
+  )
 
   // 响应拦截器配置
-  instance.interceptors.response.use(response => {
-    if (response.data.code === "200") {
-      response.data.code = 200
-    } else {
-      console.log(response)
-      if (response.data.result != null) {
-        if(response.data.result.data  != null) {
-          ElMessage.error(response.data.result.data)
+  instance.interceptors.response.use(
+    (response) => {
+      if (response.data.code === '200') {
+        response.data.code = 200
+      } else {
+        console.log(response)
+        if (response.data.result != null) {
+          if (response.data.result.data != null) {
+            ElMessage.error(response.data.result.data)
+          } else {
+            ElMessage.error(response.data.result)
+          }
         } else {
-          ElMessage.error(response.data.result)
+          ElMessage.error(response.data.message)
+        }
+      }
+      return response.data
+    },
+    (error) => {
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            return Promise.reject(error.response.data)
+          case 401:
+            localStorage.clear()
+            sessionStorage.clear()
+            ElMessage.error('对不起，您暂无权限访问此接口，请登录重试！')
+            break
+          case 403:
+            let resultFlag = false;
+            const checkToken = async () => {
+              const flag = await refreshTokenFun() // 等待异步完成
+              resultFlag = flag
+              if (!flag) {
+                localStorage.clear()
+                sessionStorage.clear()
+                ElMessage.error('对不起，您暂无权限访问此接口！')
+                router.push('/')
+              }
+            }
+            checkToken()
+            break
+          case 404:
+            console.log('404啦')
+            break
+          case 500:
+            console.log('500啦')
+            ElMessage.error('后端接口异常，请稍候重试！')
+            break
+          default:
+            return Promise.reject(error)
         }
       } else {
-        ElMessage.error(response.data.message)
+        ElMessage.error('请求超时，检查网络状态或刷新重试！')
       }
-    }
-    return response.data
-  }, error => {
-    if (error.response) {
-      switch (error.response.status) {
-        case 400:
-          return Promise.reject(error.response.data)
-        case 401:
-          localStorage.clear()
-          sessionStorage.clear()
-          ElMessage.error('对不起，您暂无权限访问此接口，请登录重试！')
-          break
-        case 403:
-          localStorage.clear()
-          sessionStorage.clear()
-          ElMessage.error('对不起，您暂无权限访问此接口！')
-          break
-        case 404:
-          console.log("404啦")
-          break
-        case 500:
-          console.log("500啦")
-          ElMessage.error('后端接口异常，请稍候重试！')
-          break
-        default:
-          return Promise.reject(error)
-      }
-    } else {
-      ElMessage.error('请求超时，检查网络状态或刷新重试！')
-    }
 
-    return Promise.reject(error)
-  })
+      return Promise.reject(error)
+    },
+  )
   // 发送真正的网络请求
-  return instance(config);
+  return instance(config)
 }
 
 export default request

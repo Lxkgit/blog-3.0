@@ -1,6 +1,5 @@
 package com.blog.file.controller;
 
-import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.exception.ServiceException;
@@ -8,10 +7,11 @@ import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.file.service.FileService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @description: 文件服务接口类
@@ -56,14 +56,14 @@ public class FileController {
 
     /**
      *
-     * @param fileCategoryDataVo
+     * @param idList
      * @return
      * @throws ServiceException
      */
     @DeleteMapping("/delete/file")
     @PreAuthorize("hasAnyAuthority('sys:file:user:delete')")
-    public Result deleteFile(@Validated FileCategoryDataVo fileCategoryDataVo) throws ServiceException {
-        fileService.deleteFile(fileCategoryDataVo);
+    public Result deleteFile(@Validated @RequestParam(value = "idList") List<Integer> idList) throws ServiceException {
+        fileService.deleteFile(idList);
         return ResultFactory.buildSuccessResult();
     }
 
@@ -97,8 +97,8 @@ public class FileController {
      * @param fileCategoryVo
      * @return
      */
-    @GetMapping("/move/file")
-    public Result moveFile(@Validated FileCategoryVo fileCategoryVo) throws ServiceException {
+    @PostMapping("/move/file")
+    public Result moveFile(@RequestBody FileCategoryVo fileCategoryVo) throws ServiceException {
         fileService.moveFile(fileCategoryVo);
         return ResultFactory.buildSuccessResult();
     }

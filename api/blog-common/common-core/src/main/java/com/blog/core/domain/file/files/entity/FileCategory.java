@@ -33,6 +33,11 @@ public class FileCategory {
     private String dirPath;
 
     /**
+     * 目录类型 1:普通目录 2:评分目录
+     */
+    private Integer dirType;
+
+    /**
      * 父目录id
      */
     private Integer parentDir;

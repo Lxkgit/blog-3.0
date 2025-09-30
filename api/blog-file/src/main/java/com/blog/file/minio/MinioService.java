@@ -135,13 +135,17 @@ public class MinioService {
     /**
      * 移动单个文件
      *
-     * @param sourcePath 文件原存储路径
-     * @param targetPath 文件移动目标路径
+     * @param sourcePath 文件原存储路径(带文件名称)
+     * @param targetDir 文件移动目标路径
      * @throws Exception
      */
-    public void moveFile(String sourcePath, String targetPath) throws ServiceException {
-        logger.info("minio 移动文件: sourcePath:{} targetPath:{}", sourcePath, targetPath);
+    public String moveFile(String sourcePath, String targetDir) throws ServiceException {
+        logger.info("minio 移动文件: sourcePath:{} targetDir:{}", sourcePath, targetDir);
         try {
+            // 获取文件名
+            String fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
+            String targetPath = targetDir.endsWith("/") ? targetDir + fileName : targetDir + "/" + fileName;
+
             // 复制文件到新位置
             minioClient.copyObject(
                     CopyObjectArgs.builder()
@@ -159,12 +163,14 @@ public class MinioService {
                             .bucket(bucket)
                             .object(sourcePath)
                             .build());
+
+            return ip + ":9000/" + bucket + targetPath;
         } catch (Exception e) {
             logger.error("minio移动文件异常:{}", e.getMessage(), e);
             throw new ServiceException(e.getMessage());
         }
-
     }
+
 
     /**
      * 文件授权

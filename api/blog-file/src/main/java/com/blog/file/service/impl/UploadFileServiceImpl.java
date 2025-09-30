@@ -85,7 +85,7 @@ public class UploadFileServiceImpl implements UploadFileService {
             path = "/" + userId + filePath + typePath;
         }
 
-        Integer categoryId = createFileCategory(path);
+        Integer categoryId = createFileCategory(path, 1);
         String newFileName = DateUtil.formatDateTimeNoSpaces() + "_" + MyStringUtils.getRandomString(6) + "_" + fileName;
 
         String fileUrl = minioService.uploadFile(uploadVo.getFile(), path + "/" + newFileName);
@@ -150,9 +150,11 @@ public class UploadFileServiceImpl implements UploadFileService {
         if (CollectionUtils.isNotEmpty(idList)) {
             for (Integer id : idList) {
                 FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(id);
-                FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
-                String fileName = minioService.getFileName(fileCategoryData.getFileUrl());
-                minioService.deleteFile(fileCategory.getDirPath(), fileName);
+                if (fileCategoryData != null) {
+                    FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
+                    String fileName = minioService.getFileName(fileCategoryData.getFileUrl());
+                    minioService.deleteFile(fileCategory.getDirPath(), fileName);
+                }
             }
         }
 
@@ -169,7 +171,7 @@ public class UploadFileServiceImpl implements UploadFileService {
      * @param path 文件上传路径
      * @return 文件直属目录id
      */
-    public Integer createFileCategory(String path) {
+    public Integer createFileCategory(String path, Integer dirType) {
         Integer userId = SecurityUtil.getLoginUser().getId();
         String userName = SecurityUtil.getLoginUser().getUsername();
         String[] pathArray = path.split("/");
@@ -187,6 +189,7 @@ public class UploadFileServiceImpl implements UploadFileService {
                     category = new FileCategory();
                     category.setDirName(str);
                     category.setDirPath(dirPath.toString());
+                    category.setDirType(dirType);
                     category.setParentDir(resultFileCategoryId);
                     category.setUserId(userId);
                     category.setCreateBy(userName);

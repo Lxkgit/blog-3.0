@@ -18,3 +18,6 @@ CREATE TABLE task_log
     INDEX              idx_child_task_code (child_task_code),
     INDEX              idx_task_uuid (task_uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='任务执行记录表';
+
+ALTER TABLE `file_category`
+    ADD COLUMN `dir_type` tinyint NULL COMMENT '目录类型 1:普通目录 2:评分目录' AFTER `dir_path`;

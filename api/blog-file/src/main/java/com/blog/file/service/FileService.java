@@ -27,7 +27,7 @@ public interface FileService {
 
     void moveFile(FileCategoryVo fileCategoryVo) throws ServiceException;
 
-    void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException;
+    void deleteFile(List<Integer> idList) throws ServiceException;
 
     void syncFile(FileCategoryDataVo fileDataVo) throws ServiceException;
 

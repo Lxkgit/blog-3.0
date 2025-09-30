@@ -244,13 +244,7 @@
                   "
                   class="file_item"
                 >
-                  <div
-                    style="
-                      height: 125px;
-                      display: flex;
-                      align-items: center;
-                    "
-                  >
+                  <div style="height: 125px; display: flex; align-items: center">
                     <img
                       v-if="fileTypeEnum(item.fileType).key === 1"
                       :src="item.fileUrl"
@@ -260,21 +254,51 @@
                     />
                     <div
                       v-else-if="fileTypeEnum(item.fileType).key === 2"
-                      style="display: flex; flex-direction: column; justify-content: center; width: 100%; height: 100%;"
+                      style="
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        width: 100%;
+                        height: 100%;
+                      "
                     >
-                      <MyIcon :title="fileTypeEnum(item.fileType).value" style="transform: scale(5)" type="icon-zip" />
+                      <MyIcon
+                        :title="fileTypeEnum(item.fileType).value"
+                        style="transform: scale(5)"
+                        type="icon-zip"
+                      />
                     </div>
                     <div
                       v-else-if="fileTypeEnum(item.fileType).key === 3"
-                      style="display: flex; flex-direction: column; justify-content: center; width: 100%; height: 100%;"
+                      style="
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        width: 100%;
+                        height: 100%;
+                      "
                     >
-                      <MyIcon :title="fileTypeEnum(item.fileType).value" style="transform: scale(6)" type="icon-video" />
+                      <MyIcon
+                        :title="fileTypeEnum(item.fileType).value"
+                        style="transform: scale(6)"
+                        type="icon-video"
+                      />
                     </div>
                     <div
                       v-else
-                      style="display: flex; flex-direction: column; justify-content: center; width: 100%; height: 100%;"
+                      style="
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        width: 100%;
+                        height: 100%;
+                      "
                     >
-                      <MyIcon :title="fileTypeEnum(item.fileType).value" style="transform: scale(5)" type="icon-file" />
+                      <MyIcon
+                        :title="fileTypeEnum(item.fileType).value"
+                        style="transform: scale(5)"
+                        type="icon-file"
+                      />
                     </div>
                     <div class="show_icon">
                       <MyIcon
@@ -388,15 +412,15 @@
         </el-form-item>
         <el-form-item label="目录类型: " prop="dirType">
           <el-radio-group v-model="menu.dirFile.dirType">
-            <el-radio border :label="0">
-              本地
-              <el-tooltip content="文件存放本地服务器" placement="top" @click.stop.prevent>
+            <el-radio border :label="1">
+              普通目录
+              <el-tooltip content="普通目录" placement="top" @click.stop.prevent>
                 <MyIcon type="icon-wenhaofill" />
               </el-tooltip>
             </el-radio>
-            <el-radio border :label="1">
-              同步
-              <el-tooltip content="文件存放远程树莓派" placement="top" @click.stop.prevent>
+            <el-radio border :label="2">
+              评分目录
+              <el-tooltip content="用于对文件质量分类存放" placement="top" @click.stop.prevent>
                 <MyIcon type="icon-wenhaofill" /> </el-tooltip
             ></el-radio>
           </el-radio-group>
@@ -472,8 +496,26 @@
                         style="margin-right: 10px"
                       />{{ item.fileName }}
                     </div>
-                    <div class="dir-icon" @click.stop="">
-                      <MyIcon class="my-icon" title="视频移动" type="icon-file-move" />
+                    <div class="dir-icon" @click="">
+                      <el-dropdown>
+                        <span class="el-dropdown-link">
+                          <MyIcon class="my-icon" title="视频移动" type="icon-file-move" />
+                        </span>
+                        <template #dropdown>
+                          <el-dropdown-menu>
+                            <el-dropdown-item
+                              v-for="(dir, rowIndex) in dirList.data"
+                              :key="rowIndex"
+                              @click="moveFileFun(dir, item)"
+                            >
+                              {{ dir.dirName }}
+                            </el-dropdown-item>
+                            <el-dropdown-item @click="moveFileFun(null, item)">
+                              删除
+                            </el-dropdown-item>
+                          </el-dropdown-menu>
+                        </template>
+                      </el-dropdown>
                     </div>
                   </div>
                   <div class="video-duration">
@@ -512,6 +554,7 @@ import {
   uploadApi,
   saveFileDirApi,
   syncFileApi,
+  moveFileApi,
 } from '@/api/file'
 import icon from '@/utils/icon'
 import { onMounted, onBeforeUnmount, ref, reactive, nextTick } from 'vue'
@@ -547,6 +590,7 @@ let {
   deleteFileDirFun,
   deleteFileFun,
   syncFileFun,
+  moveFileFun,
 } = fileFn()
 
 let {
@@ -672,6 +716,8 @@ function videoFn(): any {
   }
 
   const handleDialogClose = () => {
+    video.showVideoDialog = false
+    selectFileDirOrFileFun()
     nextTick(() => {
       // 确保播放器已初始化
       if (videoPlayerRef.value) {
@@ -777,6 +823,7 @@ function fileFn(): any {
           saveFileDirApi({
             dirPath: filePath.value,
             dirName: menu.dirFile.name,
+            dirType: menu.dirFile.dirType,
           }).then((res: any) => {
             if (res.code === 200) {
               menu.dirFile.name = ''
@@ -817,6 +864,7 @@ function fileFn(): any {
   const refreshDir = () => {
     menu.visible = false
     selectFileDirOrFileFun()
+    ElMessage.success({ message: '刷新成功', type: 'success' })
   }
 
   /**
@@ -916,7 +964,7 @@ function fileFn(): any {
     } else if (fileTypeEnum(file.fileType).key === 3) {
       playVideo(file)
     } else {
-      ElMessage.warning(fileTypeEnum(file.fileType).value + " 类型文件不支持查看")
+      ElMessage.warning(fileTypeEnum(file.fileType).value + ' 类型文件不支持查看')
     }
   }
 
@@ -968,6 +1016,15 @@ function fileFn(): any {
     openDialog()
   }
 
+  const removeVideo = (file: any) => {
+    video.videoList = video.videoList.filter((v) => v.id !== file.id)
+    if (video.videoList.length === 0) {
+      handleDialogClose()
+      return
+    }
+    nextVideo(1)
+  }
+
   /**
    * 删除目录
    */
@@ -988,7 +1045,7 @@ function fileFn(): any {
    */
   const deleteFileFun = (item: any) => {
     deleteFileApi({
-      id: item.id,
+      idList: item.id,
     }).then((res: any) => {
       if (res.code === 200) {
         ElMessage.success('文件删除成功')
@@ -997,6 +1054,10 @@ function fileFn(): any {
     })
   }
 
+  /**
+   * 同步文件
+   * @param item
+   */
   const syncFileFun = (item: any) => {
     let syncStatus: any
     if (item.fileStatus === 0 || item.fileStatus === 4) {
@@ -1015,6 +1076,27 @@ function fileFn(): any {
     } else {
       ElMessage.error('文件状态异常')
     }
+  }
+
+  /**
+   * 移动文件
+   * @param dir
+   * @param file
+   */
+  const moveFileFun = (dir: any, file: any) => {
+    if (dir === null) {
+      deleteFileFun(file)
+    } else {
+      moveFileApi({
+        id: file.id,
+        newDirId: dir.id,
+      }).then((res: any) => {
+        if (res.code === 200) {
+          ElMessage.success('文件移动成功')
+        }
+      })
+    }
+    removeVideo(file)
   }
 
   return {
@@ -1042,6 +1124,7 @@ function fileFn(): any {
     deleteFileDirFun,
     deleteFileFun,
     syncFileFun,
+    moveFileFun,
   }
 }
 </script>

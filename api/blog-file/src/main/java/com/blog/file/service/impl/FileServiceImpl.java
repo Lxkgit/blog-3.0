@@ -63,9 +63,9 @@ public class FileServiceImpl implements FileService {
     @Override
     public void createDir(FileCategoryVo fileCategoryVo) throws ServiceException {
         if (StringUtils.isEmpty(fileCategoryVo.getDirPath())) {
-            createDir("/" + fileCategoryVo.getDirName());
+            createDir("/" + fileCategoryVo.getDirName(), fileCategoryVo.getDirType());
         } else {
-            createDir(fileCategoryVo.getDirPath() + "/" + fileCategoryVo.getDirName());
+            createDir(fileCategoryVo.getDirPath() + "/" + fileCategoryVo.getDirName(), fileCategoryVo.getDirType());
         }
     }
 
@@ -74,10 +74,10 @@ public class FileServiceImpl implements FileService {
      *
      * @param path 目录
      */
-    public void createDir(String path) {
+    public void createDir(String path, Integer dirType) {
         Integer userId = SecurityUtil.getLoginUser().getId();
         String createDir = "/" + userId + path;
-        uploadFileService.createFileCategory(createDir);
+        uploadFileService.createFileCategory(createDir, dirType);
     }
 
     /**
@@ -87,7 +87,7 @@ public class FileServiceImpl implements FileService {
      */
     public Integer createDirWithUserId(String path) {
         SecurityUtil.setSystem();
-        return uploadFileService.createFileCategory(path);
+        return uploadFileService.createFileCategory(path, 1);
     }
 
     /**
@@ -122,17 +122,17 @@ public class FileServiceImpl implements FileService {
     /**
      * 删除云盘文件
      *
-     * @param fileCategoryData
+     * @param idList
      * @throws ServiceException
      */
     @Override
-    public void deleteFile(FileCategoryDataVo fileCategoryData) throws ServiceException {
-        if (CollectionUtils.isNotEmpty(fileCategoryData.getIdList())) {
+    public void deleteFile(List<Integer> idList) throws ServiceException {
+        if (CollectionUtils.isNotEmpty(idList)) {
             LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(FileCategoryData::getUserId, SecurityUtil.getLoginUser().getId());
-            wrapper.in(FileCategoryData::getId, fileCategoryData.getIdList());
+            wrapper.in(FileCategoryData::getId, idList);
             fileCategoryDataMapper.delete(wrapper);
-            uploadFileService.deleteFile(fileCategoryData.getIdList());
+            uploadFileService.deleteFile(idList);
         }
     }
 
@@ -147,7 +147,13 @@ public class FileServiceImpl implements FileService {
         FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(fileCategoryVo.getId());
         FileCategory oldFileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
         FileCategory newFileCategory = fileCategoryMapper.selectById(fileCategoryVo.getNewDirId());
-        minioService.moveFile(oldFileCategory.getDirPath() + "/" + fileCategoryData.getFileUrl().lastIndexOf("/"), newFileCategory.getDirName());
+        String fileUrl = minioService.moveFile(oldFileCategory.getDirPath() + "/" + fileCategoryData.getFileUrl().substring(fileCategoryData.getFileUrl().lastIndexOf("/") + 1),
+                oldFileCategory.getDirPath() + "/" + newFileCategory.getDirName()+ "/");
+
+        // 更新文件信息
+        fileCategoryData.setFileUrl(fileUrl);
+        fileCategoryData.setFileCategoryId(fileCategoryVo.getNewDirId());
+        fileCategoryDataMapper.updateById(fileCategoryData);
     }
 
     /**

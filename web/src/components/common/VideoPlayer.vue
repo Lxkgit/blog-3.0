@@ -126,6 +126,7 @@ watch(() => props.destroyPlayer, (newVal) => {
 // 监听视频源变化
 watch(() => props.videoSrc, (newSrc) => {
   console.log("监听视频源变化-watch")
+  console.log("视频源:" + newSrc)
   if (player && newSrc) {
     player.src({
       type: 'video/mp4',

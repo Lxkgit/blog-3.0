@@ -23,5 +23,5 @@ public interface UploadFileService {
 
     String authFile(String path, Integer time) throws ServiceException;
 
-    Integer createFileCategory(String path);
+    Integer createFileCategory(String path, Integer dirType);
 }

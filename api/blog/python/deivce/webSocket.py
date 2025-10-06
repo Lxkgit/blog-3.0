@@ -201,7 +201,7 @@ async def topic_move_file(ws, receiveMsg):
         }
     }
     logger.info(f"文件移动完成: {msg}")
-    await ws.send(json.dumps(build_msg(receiveMsg, msg))
+    await ws.send(json.dumps(build_msg(receiveMsg, msg)))
 
 
 # export_blog_file topic 处理方法
@@ -222,7 +222,7 @@ async def topic_export_blog_file(ws, receiveMsg):
         }
     }
     logger.info(f"博客数据导出任务执行完成: {msg}")
-    await ws.send(json.dumps(build_msg(receiveMsg, msg))
+    await ws.send(json.dumps(build_msg(receiveMsg, msg)))
 
 
 # delete_file_or_dir topic 处理方法
@@ -257,7 +257,7 @@ async def topic_delete_file_or_dir(ws, receiveMsg):
         }
     }
     logger.info(f"文件删除操作执行完成: {msg}")
-    await ws.send(json.dumps(build_msg(receiveMsg, msg))
+    await ws.send(json.dumps(build_msg(receiveMsg, msg)))
 
 
 # 执行Shell脚本

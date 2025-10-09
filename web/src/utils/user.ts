@@ -94,6 +94,7 @@ function user() {
         location.reload()
         return true
       } else {
+        localStorage.clear()
         return false
       }
     } catch (err) {

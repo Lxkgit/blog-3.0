@@ -146,6 +146,12 @@ public class NettyFileSyncService {
         syncFileSend(msgHead, nettySyncFileDto, 1);
     }
 
+    /**
+     * 定时任务请求树莓派文件上传
+     *
+     * @param bo
+     * @param msgHead
+     */
     public void syncDeviceFile(SyncDeviceFileBo bo, MsgHead msgHead) {
         Integer userId = 1;
         // 文件存储minio中路径
@@ -174,7 +180,7 @@ public class NettyFileSyncService {
             socketMessageSendService.deleteDir(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath());
         } else if (nettyUploadBlogFileDto.getSyncType().equals(2)) {
             fileService.fileImportMinio(nettyUploadBlogFileDto);
-            if (msgHead!= null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
+            if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
                 createTaskService.recordSuccessTaskLog(msgHead.getTaskMsgHead().getTaskUUID());
             }
         }

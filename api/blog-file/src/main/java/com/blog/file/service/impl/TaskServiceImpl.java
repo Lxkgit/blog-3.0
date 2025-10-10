@@ -62,7 +62,7 @@ public class TaskServiceImpl implements TaskService {
 
         for (Object obj : objSet) {
             TaskEntity taskEntity = (TaskEntity) obj;
-            if (taskEntity.getChildTaskCode().equals(taskParam.getChildTaskCode())) {
+            if (taskParam.getChildTaskCode().equals(taskEntity.getChildTaskCode())) {
                 redisService.removeZSetByMember(TaskConstant.TASK_QUEUE, obj);
                 createChildTask(taskEntity, taskParam);
             }
@@ -148,7 +148,7 @@ public class TaskServiceImpl implements TaskService {
 
         for (Object obj : objSet) {
             TaskEntity taskEntity = (TaskEntity) obj;
-            if (taskEntity.getChildTaskCode().equals(taskParam.getChildTaskCode())) {
+            if (taskParam.getChildTaskCode().equals(taskEntity.getChildTaskCode())) {
                 redisService.removeZSetByMember(TaskConstant.TASK_QUEUE, obj);
                 redisService.setZSet(TaskConstant.TASK_QUEUE, taskEntity, 0);
             }

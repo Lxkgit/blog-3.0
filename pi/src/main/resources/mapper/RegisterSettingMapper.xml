@@ -3,8 +3,8 @@
 <mapper namespace="com.blog.pi.mapper.RegisterSettingMapper">
     <resultMap id="BaseResultMap" type="com.blog.pi.domain.entity.RegisterSetting">
         <id column="id" property="id"/>
-        <id column="setting_name" property="settingName"/>
-        <id column="setting" property="setting"/>
+        <result column="setting_name" property="settingName"/>
+        <result column="setting" property="setting"/>
     </resultMap>
 
     <sql id="Base_Column_List">

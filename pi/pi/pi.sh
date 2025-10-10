@@ -100,8 +100,18 @@ createPythonEnv() {
 	conda create --name py3 python=3.9 -y
 	conda activate py3
 
+  # 安装 websockets，用于 WebSocket 通信
   pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade websockets
-	pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade psutil
+  # 安装 psutil，用于获取系统和进程信息
+  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade psutil
+	# 安装 numpy，用于数组运算和人脸向量计算
+  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade numpy
+  # 安装 dlib，face_recognition 的底层依赖库
+  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade dlib
+  # 安装 face_recognition，用于人脸检测与识别
+  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade face_recognition
+  # 安装 pymysql，用于 Python 连接 MySQL 数据库
+  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pymysql
 }
 
 # docker 镜像加载

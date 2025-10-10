@@ -3,10 +3,10 @@
 <mapper namespace="com.blog.pi.mapper.SensorDataMapper">
     <resultMap id="BaseResultMap" type="com.blog.pi.domain.entity.SensorData">
         <id column="id" property="id"/>
-        <id column="chip_type" property="chipType"/>
-        <id column="sensor_type" property="sensorType"/>
-        <id column="data" property="data"/>
-        <id column="create_time" property="createTime"/>
+        <result column="chip_type" property="chipType"/>
+        <result column="sensor_type" property="sensorType"/>
+        <result column="data" property="data"/>
+        <result column="create_time" property="createTime"/>
     </resultMap>
 
 

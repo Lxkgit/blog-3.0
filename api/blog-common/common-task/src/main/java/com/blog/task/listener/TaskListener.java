@@ -148,7 +148,6 @@ public class TaskListener implements ApplicationRunner {
 
                                 if (taskEntity.getTaskCount() == -1 || taskEntity.getIndexCount() < taskEntity.getTaskCount()) {
                                     // 创建下一次任务
-                                    taskEntity.setIndexCount(taskEntity.getIndexCount() + 1);
                                     createTaskService.createTask(taskEntity);
                                 }
                             }

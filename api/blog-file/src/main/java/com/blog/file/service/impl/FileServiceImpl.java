@@ -109,6 +109,12 @@ public class FileServiceImpl implements FileService {
         if (fileCategory == null) {
             throw new ServiceException("目录不存在");
         }
+        LambdaQueryWrapper<FileCategory> parentWrapper = new LambdaQueryWrapper<>();
+        parentWrapper.eq(FileCategory::getParentDir, fileCategory.getId());
+        List<FileCategory> categoryList = fileCategoryMapper.selectList(parentWrapper);
+        if (CollectionUtils.isNotEmpty(categoryList)) {
+            throw new ServiceException("当前目录下存在未删除目录");
+        }
         LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
         dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
         List<FileCategoryData> fileCategoryDataList = fileCategoryDataMapper.selectList(dataWrapper);

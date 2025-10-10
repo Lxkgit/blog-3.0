@@ -3,9 +3,9 @@
 <mapper namespace="com.blog.pi.mapper.FileMD5Mapper">
     <resultMap id="BaseResultMap" type="com.blog.pi.domain.entity.FileMD5">
         <id column="id" property="id"/>
-        <id column="file_md5" property="fileMD5"/>
-        <id column="file_count" property="fileCount"/>
-        <id column="create_time" property="createTime"/>
+        <result column="file_md5" property="fileMD5"/>
+        <result column="file_count" property="fileCount"/>
+        <result column="create_time" property="createTime"/>
 
     </resultMap>
 

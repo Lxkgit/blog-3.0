@@ -79,7 +79,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
 
         if (!nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
             // 只输出非心跳消息
-            logger.info("netty 收到消息，channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
+            logger.info("===== netty 收到消息 ===== channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
                     channelId, requestId, nettyPacketType, topic, deviceCode, data);
         }
         if (!nettyServerHandler.checkContainByDeviceCode(deviceCode)) {

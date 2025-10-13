@@ -38,8 +38,11 @@ public class SocketMessageListener {
         MsgHead msgHead = event.getSocketPacket().getMsgHead();
 
         String data = event.getSocketPacket().getData().toString();
-        logger.info("socket 收到消息，type:{} id:{} requestId:{} socketPacketType:{} topic:{} data:{}",
-                type, id, requestId, socketPacketType, topic, data);
+        if (!SocketPacketType.HEARTBEAT.equals(topic) && !"system".equals(topic)) {
+            // 心跳与系统上报消息不打印
+            logger.info("socket 收到消息，type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
+                    type, id, requestId, socketPacketType, topic, data);
+        }
         if (SocketPacketType.REGISTER.equals(socketPacketType)) {
 
         } else if (SocketPacketType.HEARTBEAT.equals(socketPacketType)) {

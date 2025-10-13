@@ -80,8 +80,8 @@ public class TaskListener implements ApplicationRunner {
                                 // 1. 提前获取所有必要值（避免线程异步问题）
                                 Class<?> targetClass = taskEntity.getClazz();
                                 String methodName = taskEntity.getMethodName();
-                                List<Class<?>> paramTypes = CollectionUtils.isEmpty(taskEntity.getParamsClazz()) ? new ArrayList<>() : taskEntity.getParamsClazz(); // 改为数组
-                                List<Object> methodParams = CollectionUtils.isEmpty(taskEntity.getTaskParams()) ? new ArrayList<>() : taskEntity.getTaskParams();
+                                List<Class<?>> paramTypes = CollectionUtils.isEmpty(taskEntity.getParamsClazz()) ? new ArrayList<>() : new ArrayList<>(taskEntity.getParamsClazz()); // 改为数组
+                                List<Object> methodParams = CollectionUtils.isEmpty(taskEntity.getTaskParams()) ? new ArrayList<>() : new ArrayList<>(taskEntity.getTaskParams());
 
                                 // 定时任务添加任务执行头数据
                                 paramTypes.add(MsgHead.class);
@@ -114,7 +114,7 @@ public class TaskListener implements ApplicationRunner {
                                 method.setAccessible(true);
 
                                 // 5. 提交任务（捕获所有必要变量）
-                                logger.info("执行任务：{} method:{}", targetClass, methodName);
+                                logger.info("===== 执行任务 ===== targetClass: {} method: {}", targetClass, methodName);
                                 taskEntity.setIndexCount(taskEntity.getIndexCount() + 1);
                                 Object finalTargetInstance = targetInstance;
                                 baseTaskThread.execute(() -> {
@@ -130,13 +130,13 @@ public class TaskListener implements ApplicationRunner {
                                     try {
                                         // 使用正确的目标实例
                                         Object result = ReflectionUtils.invokeMethod(method, finalTargetInstance, methodParams.toArray());
-                                        logger.info("方法执行结果: {}", result);
+                                        logger.info("===== 方法执行结果 ===== result: {}", result);
                                         if (result != null) {
                                             taskLog.setTaskResultStatus(1);
                                             taskLog.setTaskResult(result.toString());
                                         }
                                     } catch (Exception e) {
-                                        logger.error("方法执行失败", e);
+                                        logger.error("方法执行失败:{}", e.getMessage(), e);
                                         taskLog.setTaskResultStatus(0);
                                         taskLog.setErrorMsg(e.getMessage());
                                         // 添加错误处理逻辑

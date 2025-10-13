@@ -117,7 +117,7 @@ public class NettyFileSyncService {
      * 发送socket导出博客数据任务
      */
     public String syncBlogDataFirstStep(MsgHead msgHead) {
-        logger.info("正在导出博客文件数据");
+        logger.info("===== 定时任务-博客数据同步-socket导出数据 ===== MsgHead: {}", msgHead);
         SocketExportBlogFileDto exportBlogFileDto = new SocketExportBlogFileDto();
         String blogFilePath = Constant.FTP_PATH_SYSTEM + "/temp/" + MyStringUtils.getRandomString(6);
         exportBlogFileDto.setBlogFilePath(blogFilePath);
@@ -134,7 +134,7 @@ public class NettyFileSyncService {
      * 收到socket消息，组合netty消息，发送到设备
      */
     public void syncBlogDataSecondStep(String data, MsgHead msgHead) {
-
+        logger.info("===== 定时任务-博客数据同步-文件同步树莓派 ===== data：{} MsgHead: {}", data, msgHead);
         SocketExportBlogFileDto socketExportBlogFileDto = JSONObject.parseObject(data, SocketExportBlogFileDto.class);
         // 此处将文件在ftp的全路径转换为在ftp/system用户目录下的路径
         String serviceFilePath = socketExportBlogFileDto.getBlogFilePath().substring(Constant.FTP_PATH_SYSTEM.length());
@@ -153,6 +153,7 @@ public class NettyFileSyncService {
      * @param msgHead
      */
     public void syncDeviceFile(SyncDeviceFileBo bo, MsgHead msgHead) {
+        logger.info("===== 定时任务-树莓派文件上传 ===== SyncDeviceFileBo: {} MsgHead: {}", bo, msgHead);
         Integer userId = 1;
         // 文件存储minio中路径
         String minioPath = "/" + userId + bo.getMinioPath();
@@ -161,6 +162,7 @@ public class NettyFileSyncService {
         // devicePath 为树莓派设备上的绝对路径
         String devicePath = bo.getDevicePath();
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
+        nettySyncFileDto.setUserId(userId);
         nettySyncFileDto.setCount(bo.getCount());
         syncFileSend(msgHead, nettySyncFileDto, userId);
     }
@@ -173,6 +175,7 @@ public class NettyFileSyncService {
      * @param userId
      */
     public void syncFileReceive(NettyFileSyncDto nettyUploadBlogFileDto, String deviceCode, Integer userId, MsgHead msgHead) {
+        logger.info("==== 服务器文件同步-netty消息响应处理 ===== NettyFileSyncDto: {} MsgHead: {}", nettyUploadBlogFileDto, msgHead);
         if (nettyUploadBlogFileDto.getSyncType().equals(0)) {
 
         } else if (nettyUploadBlogFileDto.getSyncType().equals(1)) {
@@ -187,10 +190,13 @@ public class NettyFileSyncService {
     }
 
     /**
+     * 定时清理服务器文件
      *
+     * @param path    文件路径
+     * @param msgHead 消息头
      */
-    public void clearTempFileOrPath(String path) {
-        logger.info("清理文件：{}", path);
+    public void clearTempFileOrPath(String path, MsgHead msgHead) {
+        logger.info("===== 定时任务-清理服务器文件 ===== path: {} MsgHead: {}", path, msgHead);
         socketMessageSendService.deleteDir(path);
     }
 

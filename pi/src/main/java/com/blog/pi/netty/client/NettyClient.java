@@ -115,6 +115,7 @@ public class NettyClient implements CommandLineRunner {
      * @param retry 是否重发
      */
     public void sendMsg(String requestId, String msg, boolean retry) {
+        logger.info("===== netty 发送消息 ===== requestId: {} msg: {} retry: {}", requestId, msg, retry);
         if (channel != null && channel.isActive()) {
             channel.writeAndFlush(msg);
         } else {

@@ -17,6 +17,7 @@ import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.file.service.UploadFileService;
+import com.blog.file.util.VideoUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -101,7 +102,7 @@ public class UploadFileServiceImpl implements UploadFileService {
             fileCategoryData.setFileType(fileType);
             if (FileTypeEnum.getTypeEnumByFileType(fileType).getFileType() == 3) {
                 // 如果是视频文件，解析视频获取时间长度
-                fileCategoryData.setFileJson(resolveVideo(uploadVo.getFile()));
+                fileCategoryData.setFileJson(VideoUtil.resolveVideo(uploadVo.getFile()));
             }
             fileCategoryData.setCreateBy(userName);
             fileCategoryData.setCreateTime(new Date());
@@ -109,32 +110,6 @@ public class UploadFileServiceImpl implements UploadFileService {
             return fileCategoryData;
         }
         return null;
-    }
-
-    public String resolveVideo(MultipartFile file) {
-        JSONObject result = new JSONObject();
-        try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(file.getInputStream())) {
-            grabber.start();
-            result.put("durationSeconds", (double) grabber.getLengthInTime() / 1_000_000.0);
-            result.put("frameRate", grabber.getFrameRate());
-            result.put("width", grabber.getImageWidth());
-            result.put("height", grabber.getImageHeight());
-            result.put("format", grabber.getFormat());
-            grabber.stop();
-        } catch (Exception e) {
-            logger.error("视频文件解析异常:{}", e.getMessage());
-            result.put("success", false);
-            result.put("error", e.getClass().getSimpleName());
-            result.put("message", e.getMessage());
-        } finally {
-            try {
-                file.getInputStream().close();
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
-        }
-
-        return result.toJSONString();
     }
 
     @Override

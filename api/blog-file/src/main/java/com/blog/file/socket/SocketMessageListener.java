@@ -40,11 +40,11 @@ public class SocketMessageListener {
         MsgHead msgHead = event.getSocketPacket().getMsgHead();
 
         String data = event.getSocketPacket().getData().toString();
-         if(!SocketPacketType.HEARTBEAT.equals(topic)) {
-             // 心跳消息不打印
-             logger.info("socket 收到消息，type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
-                     type, id, requestId, socketPacketType, topic, data);
-         }
+        if (!SocketPacketType.HEARTBEAT.equals(topic) && !"system".equals(topic)) {
+            // 心跳与系统上报消息不打印
+            logger.info("===== socket 收到消息 ===== type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
+                    type, id, requestId, socketPacketType, topic, data);
+        }
         if (SocketPacketType.REGISTER.equals(socketPacketType)) {
 
         } else if (SocketPacketType.HEARTBEAT.equals(socketPacketType)) {
@@ -59,13 +59,12 @@ public class SocketMessageListener {
                 if (StringUtils.isNotEmpty(dto.getFileName())) {
                     logger.info("文件删除结果 result:{} path: {} fileName: {}", dto.getResult(), dto.getDirPath(), dto.getFileName());
                 } else {
-                    logger.info("目录删除结果 result:{} path: {}", dto.getResult(), dto.getDirPath());
+                    logger.info("文件删除结果 result:{} path: {}", dto.getResult(), dto.getDirPath());
                 }
             }
         }
 
     }
-
 
 
 }

@@ -73,13 +73,9 @@ public class NettyFileSyncService {
      * @param requestId 本次请求唯一编码
      */
     public void syncBlogFile(String data, String requestId, MsgHead msgHead) {
-        // 响应服务端处理结果
-        // 响应服务端处理结果
+        logger.info("===== 文件同步 ===== data: {} requestId: {} MsgHead：{}", data, requestId, msgHead);
         Map<String, Object> map = new HashMap<>();
-        // syncResult 文件同步状态
-        // 0 请求已收到
-        // 1 下载完成
-        // 2 上传完成
+        // syncResult 文件同步状态 0:请求已收到 1:下载完成 2:上传完成
         map.put("syncResult", 0);
         NettyResponse nettyResponse = new NettyResponse(true, JSONObject.toJSONString(map));
         NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, NettyTopic.BLOG_FILE_SYNC, nettyResponse);
@@ -164,6 +160,7 @@ public class NettyFileSyncService {
      * @param basePath
      */
     private void uploadBlogFileFirstStep(String requestId, NettySyncFileDto nettySyncBlogFile, String basePath) {
+        logger.info("===== socket 移动待上传文件-服务器请求 ===== requestId: {} NettySyncFileDto: {} basePath: {}", requestId, nettySyncBlogFile, basePath);
         SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
         moveFileDto.setRequestId(requestId);
         moveFileDto.setType(0);
@@ -189,11 +186,14 @@ public class NettyFileSyncService {
      * @param moveFileDto
      */
     public void updateBlogFileSecondStep(SocketMoveFileDto moveFileDto) {
+        logger.info("===== socket 移动待上传文件-python脚本响应 ===== SocketMoveFileDto: {}", moveFileDto);
         NettySyncFileDto nettySyncFileDto = JSONObject.parseObject(moveFileDto.getData(), NettySyncFileDto.class);
         if (nettySyncFileDto.getSyncType().equals(2)) {
             List<String> fileNameList = moveFileDto.getFileNameList();
+            logger.info("上传文件列表: {}", fileNameList);
             for (String fileName : fileNameList) {
-                // 上次文件
+                // 上传文件
+                logger.info("当前上传文件: {}", fileName);
                 File file = new File(moveFileDto.getTargetDirectory() + "/" + fileName);
                 String md5 = MD5Util.getFileMd5(file);
                 LambdaQueryWrapper<FileMD5> wrapper = new LambdaQueryWrapper<>();

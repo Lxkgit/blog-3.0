@@ -258,8 +258,8 @@ mysql() {
 
 # 创建 ftp 工作目录
 createFtpDir() {
-	mkdir -p /opt/docker/files/ftp
-	chmod 777 /opt/docker/files/ftp
+	mkdir -p /opt/docker/files/ftp/system/temp/
+	chmod 777 /opt/docker/files/ftp/system/temp/
 }
 
 # 启动 ftp
@@ -405,6 +405,8 @@ startJar() {
   mv /opt/package/jar/* /opt/docker/files/jar
   sed -i 's/\r$//' /opt/docker/files/jar/run.sh
   chmod +x /opt/docker/files/jar/run.sh
+  sed -i 's/\r$//' /opt/docker/files/jar/restart.sh
+  chmod +x /opt/docker/files/jar/restart.sh
   mkdir -p /opt/docker/files/logs
   # 等待nacos启动
   echo "3分钟后启动博客服务..."

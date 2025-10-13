@@ -7,7 +7,9 @@ import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
+import com.blog.core.enums.file.FileTypeEnum;
 import com.blog.core.exception.ServiceException;
+import com.blog.core.utils.FileMultipartFileConverter;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
@@ -18,6 +20,7 @@ import com.blog.file.netty.domain.dto.file.NettyFileSyncDto;
 import com.blog.file.netty.service.NettyFileSyncService;
 import com.blog.file.service.FileService;
 import com.blog.file.service.UploadFileService;
+import com.blog.file.util.VideoUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -37,7 +44,8 @@ import java.util.*;
 @Service
 public class FileServiceImpl implements FileService {
 
-    private static final Logger log = LoggerFactory.getLogger(FileServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
+
     @Resource
     private FileCategoryMapper fileCategoryMapper;
 
@@ -304,13 +312,19 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public void fileImportMinio(NettyFileSyncDto nettyUploadBlogFileDto) {
+        logger.info("===== 文件导入minio ===== NettyFileSyncDto: {} ", nettyUploadBlogFileDto);
         Integer userId = nettyUploadBlogFileDto.getUserId();
         String minioPath = nettyUploadBlogFileDto.getMinioPath();
         Integer categoryId = createDirWithUserId(minioPath);
         List<FileCategoryData> fileCategoryDataList = new ArrayList<>();
         for (String fileName : nettyUploadBlogFileDto.getFileNameList()) {
 
-            minioService.importFile(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName, minioPath);
+            // 文件本地存放目录
+            String localFilePath = Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName;
+
+            // 文件转为 MultipartFile
+            File file = new File(localFilePath);
+            MultipartFile multipartFile = FileMultipartFileConverter.fileToMultipartFile(file);
 
             String fileUrl = minioService.getFileUrl(minioPath, fileName);
             FileCategoryData fileCategoryData = new FileCategoryData();
@@ -318,11 +332,14 @@ public class FileServiceImpl implements FileService {
             fileCategoryData.setFileName(fileName);
             fileCategoryData.setFileCategoryId(categoryId);
             fileCategoryData.setFileUrl(fileUrl);
-            fileCategoryData.setFileSize(0);
+            fileCategoryData.setFileSize((int) multipartFile.getSize());
             fileCategoryData.setFileStatus(0);
             fileCategoryData.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1));
-            fileCategoryData.setCreateBy("userName");
+            fileCategoryData.setFileJson(VideoUtil.resolveVideo(multipartFile));
+            fileCategoryData.setCreateBy("system");
             fileCategoryData.setCreateTime(new Date());
+
+            minioService.importFile(localFilePath, minioPath);
 
             fileCategoryDataList.add(fileCategoryData);
         }

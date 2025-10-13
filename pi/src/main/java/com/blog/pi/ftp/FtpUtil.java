@@ -102,7 +102,7 @@ public class FtpUtil {
      * @return 文件上传是否成功
      */
     public boolean uploadFtpFile(String sourceFilePath, String sourceFileName, String targetFilePath, String targetFileName) {
-        logger.info("ftp 上传文件  sourcePath: {}, sourceFileName: {}, targetName: {}, targetFileName: {}", sourceFilePath, sourceFileName, targetFilePath, targetFileName);
+        logger.info("===== ftp 上传文件 ===== sourcePath: {}, sourceFileName: {}, targetName: {}, targetFileName: {}", sourceFilePath, sourceFileName, targetFilePath, targetFileName);
         boolean initSuccess = this.init();
         if (!initSuccess) {
             return false;
@@ -149,7 +149,7 @@ public class FtpUtil {
      * @return 下载结果
      */
     public boolean downloadFtpFile(String serviceFilePath, String serviceFileName, String localFilePath, String localFileName) {
-        logger.info("ftp 下载文件 pathName:{} fileName:{}", serviceFilePath, serviceFileName);
+        logger.info("===== ftp 下载文件 ===== pathName:{} fileName:{}", serviceFilePath, serviceFileName);
         init();
         try {
             createDir(localFilePath);
@@ -200,12 +200,12 @@ public class FtpUtil {
      * @return 删除结果
      */
     public boolean removeFile(String pathName, String fileName) {
-        logger.info("ftp 删除文件  pathName: {}, fileName: {}", pathName, fileName);
+        logger.info("===== ftp 删除文件 ===== pathName: {}, fileName: {}", pathName, fileName);
         init();
         try {
             ftpClient.changeWorkingDirectory(new String(pathName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
             boolean success = ftpClient.deleteFile(new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
-            logger.info("ftp 文件删除结果 " + success);
+            logger.info("ftp 文件删除结果 {}", success);
             return success;
         } catch (IOException e) {
             logger.error("ftp 文件删除失败", e);

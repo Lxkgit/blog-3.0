@@ -104,14 +104,14 @@ createPythonEnv() {
   pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade websockets
   # 安装 psutil，用于获取系统和进程信息
   pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade psutil
-	# 安装 numpy，用于数组运算和人脸向量计算
-  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade numpy
-  # 安装 dlib，face_recognition 的底层依赖库
-  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade dlib
-  # 安装 face_recognition，用于人脸检测与识别
-  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade face_recognition
-  # 安装 pymysql，用于 Python 连接 MySQL 数据库
-  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pymysql
+#	# 安装 numpy，用于数组运算和人脸向量计算
+#  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade numpy
+#  # 安装 dlib，face_recognition 的底层依赖库
+#  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade dlib
+#  # 安装 face_recognition，用于人脸检测与识别
+#  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade face_recognition
+#  # 安装 pymysql，用于 Python 连接 MySQL 数据库
+#  pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pymysql
 }
 
 # docker 镜像加载
@@ -213,15 +213,22 @@ mountDisk() {
   mv /opt/package/conf/99-automount.rules /etc/udev/rules.d/
   sed -i 's/\r$//' /etc/udev/rules.d/99-automount.rules
 
-  # 重载配置
-  sudo udevadm control --reload
+  # 重新初始化 systemd 状态
+  sudo systemctl daemon-reexec
+
+  # 重新加载所有服务定义文件
   sudo systemctl daemon-reload
 
-  # 启用服务（使启动时生效）
-  sudo systemctl enable automount@mydrive.service
+  # 重新加载 udev 规则
+  sudo udevadm control --reload-rules
 
-  # 立即测试启动挂载
-  sudo systemctl start automount@mydrive.service
+  # 启用服务开机自动挂载
+  sudo systemctl enable automount@E80499A6049977F0.service
+  sudo systemctl enable automount@08B4EB81B4EB701C.service
+
+  # 手动启动一次，验证挂载是否成功
+  sudo systemctl start automount@E80499A6049977F0.service
+  sudo systemctl start automount@08B4EB81B4EB701C.service
 }
 
 startJar() {

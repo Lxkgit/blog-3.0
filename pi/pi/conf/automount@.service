@@ -1,15 +1,28 @@
 [Unit]
-Description=Automount USB Drive %i
-Requires=systemd-udev-settle.service
-After=systemd-udev-settle.service
+Description=Automount NTFS Drive %I
+After=network.target local-fs.target
 
 [Service]
 Type=oneshot
-# 挂载命令（设备存在时才执行）
-ExecStart=/bin/sh -c "if [ -e /dev/disk/by-uuid/E80499A6049977F0 ]; then /bin/mount -t ntfs-3g -o uid=1000,gid=1000,umask=000,nofail,errors=remount-ro /dev/disk/by-uuid/E80499A6049977F0 /mnt/disk; fi"
-# 卸载命令
-ExecStop=/bin/umount -l /mnt/disk
 RemainAfterExit=yes
+ExecStart=/usr/bin/bash -c '\
+  UUID_PATH="/dev/disk/by-uuid/%I"; \
+  MOUNTPOINT="/mnt/%I"; \
+  if [ -b "$UUID_PATH" ]; then \
+    mkdir -p "$MOUNTPOINT"; \
+    mount -t ntfs-3g -o uid=1000,gid=1000,umask=000 "$UUID_PATH" "$MOUNTPOINT"; \
+    echo "Mounted $UUID_PATH on $MOUNTPOINT"; \
+  else \
+    echo "Device $UUID_PATH not found"; \
+  fi'
+
+ExecStop=/usr/bin/bash -c '\
+  UUID_PATH="/dev/disk/by-uuid/%I"; \
+  MOUNTPOINT="/mnt/%I"; \
+  if mountpoint -q "$MOUNTPOINT"; then \
+    umount "$MOUNTPOINT"; \
+    echo "Unmounted $UUID_PATH"; \
+  fi'
 
 [Install]
 WantedBy=multi-user.target

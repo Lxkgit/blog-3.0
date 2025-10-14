@@ -1,7 +1,6 @@
-package com.blog.file.util;
+package com.blog.file.utils;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.blog.mq.config.RocketMQConfig;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

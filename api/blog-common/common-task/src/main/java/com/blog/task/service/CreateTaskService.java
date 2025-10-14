@@ -92,34 +92,11 @@ public class CreateTaskService {
         }
     }
 
-    public void recordSuccessTaskLog(String taskUUID) {
-        TaskLog taskLog = new TaskLog();
-        taskLog.setTaskResultStatus(1);
-        taskLog.setTaskUUID(taskUUID);
-        taskLog.setEndTime(new Date());
+    public void recordTaskLog(TaskLog taskLog) {
         // 创建任务启动执行日志
         redisService.setList(TaskConstant.TASK_LOG, taskLog);
     }
 
-    public void recordSuccessTaskLog(String taskUUID, String taskResult) {
-        TaskLog taskLog = new TaskLog();
-        taskLog.setTaskResultStatus(1);
-        taskLog.setTaskResult(taskResult);
-        taskLog.setTaskUUID(taskUUID);
-        taskLog.setEndTime(new Date());
-        // 创建任务启动执行日志
-        redisService.setList(TaskConstant.TASK_LOG, taskLog);
-    }
-
-    public void recordFailTaskLog(String taskUUID, String errorMsg) {
-        TaskLog taskLog = new TaskLog();
-        taskLog.setTaskResultStatus(0);
-        taskLog.setTaskUUID(taskUUID);
-        taskLog.setEndTime(new Date());
-        taskLog.setErrorMsg(errorMsg);
-        // 创建任务启动执行日志
-        redisService.setList(TaskConstant.TASK_LOG, taskLog);
-    }
 
 
 }

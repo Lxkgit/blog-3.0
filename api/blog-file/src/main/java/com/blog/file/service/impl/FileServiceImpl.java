@@ -7,7 +7,6 @@ import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
-import com.blog.core.enums.file.FileTypeEnum;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.FileMultipartFileConverter;
 import com.blog.core.utils.MyStringUtils;
@@ -20,7 +19,7 @@ import com.blog.file.netty.domain.dto.file.NettyFileSyncDto;
 import com.blog.file.netty.service.NettyFileSyncService;
 import com.blog.file.service.FileService;
 import com.blog.file.service.UploadFileService;
-import com.blog.file.util.VideoUtil;
+import com.blog.file.utils.VideoUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,8 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.*;
 
 /**

@@ -8,6 +8,27 @@ import java.util.List;
 public class NettyFileSyncDto {
 
     /**
+     * 同步文件所属用户
+     */
+    private Integer userId;
+
+    /**
+     * 设备上传文件目录
+     */
+    private String deviceFilePath;
+
+    /**
+     * 设备上传文件至服务器目录
+     */
+    private String serviceFilePath;
+
+    /**
+     * 上传文件数量
+     */
+    private Integer count;
+
+    //  文件定时同步响应字段
+    /**
      * syncType 文件同步类型
      * 0 请求已收到
      * 1 下载
@@ -20,30 +41,7 @@ public class NettyFileSyncDto {
      */
     private Boolean syncResult;
 
-    /**
-     * 文件名称列表
-     */
-    private List<String> fileNameList;
-
-    /**
-     * 文件写入minio路径
-     */
     private String minioPath;
 
-    /**
-     * 设备上传文件至服务器目录
-     */
-    private String serviceFilePath;
-
-
-
-    /**
-     * 设备上传文件目录
-     */
-    private String deviceFilePath;
-
-    /**
-     * 上传文件数量
-     */
-    private Integer count;
+    private List<String> fileNameList;
 }

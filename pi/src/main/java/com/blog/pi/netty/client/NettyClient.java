@@ -86,10 +86,10 @@ public class NettyClient implements CommandLineRunner {
             //客户端断线重连逻辑
             future.addListener((ChannelFutureListener) futureListener -> {
                 if (futureListener.isSuccess()) {
-                    logger.info("netty 连接成功");
+                    logger.info("===== netty 连接成功 =====");
                     baseThread.execute(replayThread);
                 } else {
-                    logger.warn("netty 连接失败，30秒后尝试重新连接");
+                    logger.warn("===== netty 连接失败，30秒后尝试重新连接 =====");
                     futureListener.channel().eventLoop().schedule((Runnable) this::run, 30, TimeUnit.SECONDS);
                 }
             });
@@ -119,7 +119,7 @@ public class NettyClient implements CommandLineRunner {
         if (channel != null && channel.isActive()) {
             channel.writeAndFlush(msg);
         } else {
-            logger.warn("netty 连接已断开");
+            logger.warn("===== netty 连接已断开 ===== requestId: {} msg: {} retry: {}", requestId, msg, retry);
         }
         if (retry) {
             NettyReplayMessage nettyReplayMessage = new NettyReplayMessage(msg);

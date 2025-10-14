@@ -33,11 +33,11 @@ public class NettyMessageReplayThread implements Runnable {
     // 忽略无限循环与忙等待报错
     @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
     public void run() {
-        logger.info("netty 消息重发线程启动");
+        logger.info("===== netty 消息重发线程启动 =====");
         while (true) {
             Set<Object> allValues = redisService.getSetByKey(NettyRedisConstant.NETTY_RECEIVE_QUEUE);
             if (CollectionUtils.isNotEmpty(allValues)) {
-                logger.info("netty 收到消息：{}", allValues);
+                logger.info("===== netty 收到消息 ===== allValues: {}", allValues);
                 redisService.delKey(NettyRedisConstant.NETTY_RECEIVE_QUEUE);
                 if (CollectionUtils.isNotEmpty(allValues)) {
                     for (Object value : allValues) {
@@ -61,7 +61,7 @@ public class NettyMessageReplayThread implements Runnable {
                     // 检查时间差是否超过五分钟
                     if (duration.toMinutes() > 5) {
                         if (replayMessage.getTryTime() < 5) {
-                            logger.info("netty 消息重发 requestId: {} msg:{}", k, v);
+                            logger.info("===== netty 消息重发 ===== requestId: {} msg:{}", k, v);
                             nettyClient.sendMsg(key, replayMessage.getMessage(), false);
                             replayMessage.setTryTime(replayMessage.getTryTime() + 1);
                             redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, key, replayMessage);

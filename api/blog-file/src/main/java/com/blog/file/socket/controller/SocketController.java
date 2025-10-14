@@ -40,7 +40,7 @@ public class SocketController {
 
         Integer count = socketService.socketOpen(session, type, id);
 
-        logger.info("socket连接 type:{} id:{} 加入，当前{}连接数: {}", type, id, type, count);
+        logger.info("===== socket连接 ===== type:{} id:{} 加入，当前{}连接数: {}", type, id, type, count);
     }
 
     /**

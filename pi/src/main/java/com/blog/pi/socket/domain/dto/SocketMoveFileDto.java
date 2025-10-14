@@ -16,7 +16,7 @@ public class SocketMoveFileDto {
     private String requestId;
 
     /**
-     * 上下文类型
+     * 上下文类型: 用于文件移动操作，识别上下文类型，执行对应方法流程
      * 0：data数据转换为 NettySyncFileDto.class
      */
     private Integer type;

@@ -1,11 +1,9 @@
 package com.blog.file.service.impl;
 
 
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
-import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileUploadVo;
 import com.blog.core.enums.file.FilePathEnum;
 import com.blog.core.enums.file.FileTypeEnum;
@@ -17,26 +15,14 @@ import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.file.service.UploadFileService;
-import com.blog.file.util.VideoUtil;
+import com.blog.file.utils.VideoUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bytedeco.javacv.FFmpegFrameGrabber;
-import org.bytedeco.javacv.FFmpegLogCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.List;
 

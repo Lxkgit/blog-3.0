@@ -12,6 +12,11 @@ import lombok.Data;
 public class SyncDeviceFileBo {
 
     /**
+     * 同步任务所属用户
+     */
+    private Integer userId;
+
+    /**
      * minio中文件存储路径
      */
     private String minioPath;
@@ -25,4 +30,9 @@ public class SyncDeviceFileBo {
      * 单次任务同步文件数量
      */
     private Integer count;
+
+    /**
+     * 同步目录下最大待处理文件数量
+     */
+    private Integer maxFileCount;
 }

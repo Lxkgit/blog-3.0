@@ -70,10 +70,11 @@ public class NettyPacket<T> implements Serializable {
         return nettyPacket;
     }
 
-    public static <T> NettyPacket<T> buildResponse(String requestId, String topic, T data) {
+    public static <T> NettyPacket<T> buildResponse(String requestId, String topic, MsgHead msgHead, T data) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
-        nettyPacket.setTopic(topic);
         nettyPacket.setRequestId(requestId);
+        nettyPacket.setTopic(topic);
+        nettyPacket.setMsgHead(msgHead);
         nettyPacket.setUsername("gszero");
         nettyPacket.setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
         nettyPacket.setNettyPacketType(NettyPacketType.RESPONSE.getValue());

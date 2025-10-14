@@ -89,12 +89,12 @@ public class NettyServer implements CommandLineRunner {
             // 绑定端口，开始接收进来的连接
             ChannelFuture future = serverBootstrap.bind(port).sync();
             if (future.isSuccess()) {
-                logger.info("Netty 服务端启动成功 端口: {}", port);
+                logger.info("===== Netty 服务端启动成功 ===== port: {}", port);
                 baseThread.execute(replayThread);
             }
             channel = future.channel();
         } catch (Exception e) {
-            logger.error("Netty 服务端启动异常 error: {}", e.getMessage());
+            logger.error("===== Netty 服务端启动异常 ===== error: {}", e.getMessage(), e);
         }
     }
 
@@ -122,7 +122,7 @@ public class NettyServer implements CommandLineRunner {
             logger.warn("通道: {} 不存在，消息发送异常", channelId);
             return false;
         }
-        logger.info("netty 发送消息, channelId:{}, registerId:{}, msg:{}, retry:{}", channelId, registerId, msg, retry);
+        logger.info("===== netty 发送消息 ===== channelId:{}, registerId:{}, msg:{}, retry:{}", channelId, registerId, msg, retry);
         ctx.writeAndFlush(msg);
         return true;
     }

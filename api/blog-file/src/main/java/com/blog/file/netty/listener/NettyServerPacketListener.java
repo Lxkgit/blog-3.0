@@ -41,11 +41,10 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServerPacketListener.class);
 
-
     private final NettyServer nettyServer;
 
     @Resource
-    private DeviceMapper deviceDAO;
+    private DeviceMapper deviceMapper;
 
     @Resource
     private NettyDeviceService nettyDeviceData;
@@ -159,7 +158,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             // 当前设备未注册 首次注册创建设备
             if (selectDevice.getCodeStatus() == 0) {
                 device.setCreateTime(new Date());
-                deviceDAO.insert(device);
+                deviceMapper.insert(device);
 
                 // 将设备状态修改为已注册
                 UserDevice userDevice = new UserDevice();
@@ -172,7 +171,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
                 // 当前设备已注册 更新设备数据
                 QueryWrapper<Device> wrapper = new QueryWrapper<>();
                 wrapper.eq("user_id", userId).eq("device_code", deviceCode);
-                deviceDAO.update(device, wrapper);
+                deviceMapper.update(device, wrapper);
             }
         }
     }

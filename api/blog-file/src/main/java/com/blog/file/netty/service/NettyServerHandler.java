@@ -1,14 +1,12 @@
 package com.blog.file.netty.service;
 
 
-import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.netty.event.NettyPacketEvent;
-import com.blog.file.netty.schedule.DeviceStatusSchedule;
 import com.blog.redis.constant.NettyRedisConstant;
 import com.blog.redis.service.RedisService;
 import io.netty.channel.ChannelHandler;
@@ -19,10 +17,8 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 

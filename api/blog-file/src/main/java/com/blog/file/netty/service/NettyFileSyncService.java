@@ -6,8 +6,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.file.device.entity.UserDevice;
+import com.blog.core.domain.file.files.entity.FileCategory;
+import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
 import com.blog.core.utils.MyStringUtils;
+import com.blog.file.mapper.FileCategoryDataMapper;
+import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
@@ -21,6 +25,7 @@ import com.blog.file.socket.domain.constant.SocketTopic;
 import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.domain.service.SocketMessageSendService;
 import com.blog.file.socket.service.SocketService;
+import com.blog.file.task.TaskLogService;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskBase;
@@ -69,6 +74,15 @@ public class NettyFileSyncService {
 
     @Resource
     private RedisService redisService;
+
+    @Resource
+    private TaskLogService taskLogService;
+
+    @Resource
+    private FileCategoryMapper fileCategoryMapper;
+
+    @Resource
+    private FileCategoryDataMapper fileCategoryDataMapper;
 
     /**
      * netty消息发送文件同步到服务器
@@ -154,17 +168,31 @@ public class NettyFileSyncService {
      */
     public void syncDeviceFile(SyncDeviceFileBo bo, MsgHead msgHead) {
         logger.info("===== 定时任务-树莓派文件上传 ===== SyncDeviceFileBo: {} MsgHead: {}", bo, msgHead);
-        Integer userId = 1;
-        // 文件存储minio中路径
-        String minioPath = "/" + userId + bo.getMinioPath();
-        // servicePath 为文件在ftp system用户目录下的相对路径
-        String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
-        // devicePath 为树莓派设备上的绝对路径
-        String devicePath = bo.getDevicePath();
-        NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
-        nettySyncFileDto.setUserId(userId);
-        nettySyncFileDto.setCount(bo.getCount());
-        syncFileSend(msgHead, nettySyncFileDto, userId);
+        Integer userId = bo.getUserId();
+
+        LambdaQueryWrapper<FileCategory> fileCategoryLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        fileCategoryLambdaQueryWrapper.eq(FileCategory::getDirPath, "/" + userId + bo.getMinioPath());
+        FileCategory fileCategory = fileCategoryMapper.selectOne(fileCategoryLambdaQueryWrapper);
+        if (fileCategory != null) {
+            LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
+            int fileCount = fileCategoryDataMapper.selectCount(wrapper).intValue();
+            // 当前目录下超过目录下最大待处理文件时 不进行同步
+            if (fileCount > bo.getMaxFileCount()) {
+                return;
+            }
+
+            // 文件存储minio中路径
+            String minioPath = "/" + userId + bo.getMinioPath();
+            // servicePath 为文件在ftp system用户目录下的相对路径
+            String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
+            // devicePath 为树莓派设备上的绝对路径
+            String devicePath = bo.getDevicePath();
+            NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
+            nettySyncFileDto.setUserId(userId);
+            nettySyncFileDto.setCount(bo.getCount());
+            syncFileSend(msgHead, nettySyncFileDto, userId);
+        }
     }
 
     /**
@@ -176,16 +204,18 @@ public class NettyFileSyncService {
      */
     public void syncFileReceive(NettyFileSyncDto nettyUploadBlogFileDto, String deviceCode, Integer userId, MsgHead msgHead) {
         logger.info("==== 服务器文件同步-netty消息响应处理 ===== NettyFileSyncDto: {} MsgHead: {}", nettyUploadBlogFileDto, msgHead);
-        if (nettyUploadBlogFileDto.getSyncType().equals(0)) {
-
-        } else if (nettyUploadBlogFileDto.getSyncType().equals(1)) {
+        if (nettyUploadBlogFileDto.getSyncType().equals(1)) {
             // 文件传输都是使用ftp system用户下相对路径
             socketMessageSendService.deleteDir(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath());
         } else if (nettyUploadBlogFileDto.getSyncType().equals(2)) {
-            fileService.fileImportMinio(nettyUploadBlogFileDto);
-            if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
-                createTaskService.recordSuccessTaskLog(msgHead.getTaskMsgHead().getTaskUUID());
+            if (nettyUploadBlogFileDto.getSyncResult()) {
+                fileService.fileImportMinio(nettyUploadBlogFileDto);
             }
+        }
+
+        // 文件同步 任务请求头不为空时记录任务日志
+        if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
+            taskLogService.recordTaskLog(nettyUploadBlogFileDto, msgHead);
         }
     }
 

@@ -45,10 +45,11 @@ public class SocketPacket<T> {
      */
     private T data;
 
-    public static <T> SocketPacket<T> buildRequest(String topic, T param) {
+    public static <T> SocketPacket<T> buildRequest(String topic, MsgHead msgHead, T param) {
         SocketPacket<T> socketPacket = new SocketPacket<>();
         socketPacket.setRequestId(UUID.randomUUID().toString());
         socketPacket.setTopic(topic);
+        socketPacket.setMsgHead(msgHead);
         socketPacket.setSocketPacketType(SocketPacketType.REQUEST);
         socketPacket.setData(param);
         return socketPacket;

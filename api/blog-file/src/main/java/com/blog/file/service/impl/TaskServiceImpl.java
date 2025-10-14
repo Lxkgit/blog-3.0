@@ -101,7 +101,7 @@ public class TaskServiceImpl implements TaskService {
             }
             createTaskService.createTask(taskEntity);
         } catch (Exception e) {
-            logger.error("任务 {} 创建异常: {}", taskEntity, e.getMessage());
+            logger.error("任务 {} 创建异常: {}", taskEntity, e.getMessage(), e);
         }
     }
 

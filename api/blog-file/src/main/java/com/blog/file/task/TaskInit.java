@@ -1,8 +1,5 @@
-package com.blog.file.init;
+package com.blog.file.task;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
 import com.blog.core.domain.file.task.entity.TaskParam;
@@ -25,16 +22,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Component
 public class TaskInit implements ApplicationRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskInit.class);
-
-    @Resource
-    private CreateTaskService createTaskService;
 
     @Resource
     private TaskParamMapper taskParamMapper;
@@ -110,12 +103,17 @@ public class TaskInit implements ApplicationRunner {
 
         // 创建主任务
         redisService.setList(TaskConstant.TASK_BASE, taskBase);
-
         TaskParamVo taskParamVo = new TaskParamVo();
         taskParamVo.setTaskCode(Constant.TASK_SYNC_DEVICE_FILE);
         createInitTask(taskBase, taskParamVo);
     }
 
+    /**
+     * 创建子任务
+     *
+     * @param taskBase
+     * @param taskParamVo
+     */
     private void createInitTask(TaskBase taskBase, TaskParamVo taskParamVo) {
         taskParamVo.setTaskStatusList(new ArrayList<>(Arrays.asList(1, 2)));
         List<TaskParam> paramList = taskParamMapper.selectTaskByTaskCode(taskParamVo);

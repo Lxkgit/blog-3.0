@@ -3,7 +3,6 @@ package com.blog.pi.socket;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.pi.domain.common.MsgHead;
-import com.blog.pi.netty.dto.file.NettySyncFileDto;
 import com.blog.pi.netty.service.NettyFileSyncService;
 import com.blog.pi.socket.domain.SocketPacketEvent;
 import com.blog.pi.socket.domain.constant.SocketPacketType;
@@ -40,7 +39,7 @@ public class SocketMessageListener {
         String data = event.getSocketPacket().getData().toString();
         if (!SocketPacketType.HEARTBEAT.equals(topic) && !"system".equals(topic)) {
             // 心跳与系统上报消息不打印
-            logger.info("socket 收到消息，type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
+            logger.info("===== socket 收到消息 ===== type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
                     type, id, requestId, socketPacketType, topic, data);
         }
         if (SocketPacketType.REGISTER.equals(socketPacketType)) {
@@ -54,14 +53,9 @@ public class SocketMessageListener {
                 JSONObject jsonObject = JSONObject.parseObject(data);
                 if (jsonObject.getInteger("type").equals(0)) {
                     SocketMoveFileDto dto = JSON.parseObject(data, SocketMoveFileDto.class);
-                    nettyFileSyncService.updateBlogFileSecondStep(dto);
+                    nettyFileSyncService.updateBlogFileSecondStep(dto, msgHead);
                 }
-
             }
         }
-
     }
-
-
-
 }

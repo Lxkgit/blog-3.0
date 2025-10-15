@@ -8,7 +8,7 @@ export default function () {
     let type = { key: 0, value: "" }
     let img = ["jpg", "png"];
     let zip = ["zip", "7z"];
-    let video = ["mp4", "m3u8"];
+    let video = ["mp4", "m3u8", "mov"];
     if (img.indexOf(fileType) != -1) {
       type.key = 1;
       type.value = "图片"

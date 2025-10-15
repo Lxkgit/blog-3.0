@@ -1022,7 +1022,7 @@ function fileFn(): any {
       handleDialogClose()
       return
     }
-    nextVideo(1)
+    nextVideo(0)
   }
 
   /**

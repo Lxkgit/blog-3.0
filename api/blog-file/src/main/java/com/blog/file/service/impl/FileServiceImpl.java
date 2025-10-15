@@ -325,13 +325,13 @@ public class FileServiceImpl implements FileService {
 
             String fileUrl = minioService.getFileUrl(minioPath, fileName);
             FileCategoryData fileCategoryData = new FileCategoryData();
-            fileCategoryData.setUserId(userId);
+            fileCategoryData.setUserId(1);
             fileCategoryData.setFileName(fileName);
             fileCategoryData.setFileCategoryId(categoryId);
             fileCategoryData.setFileUrl(fileUrl);
             fileCategoryData.setFileSize((int) multipartFile.getSize());
             fileCategoryData.setFileStatus(0);
-            fileCategoryData.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1));
+            fileCategoryData.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase());
             fileCategoryData.setFileJson(VideoUtil.resolveVideo(multipartFile));
             fileCategoryData.setCreateBy("system");
             fileCategoryData.setCreateTime(new Date());

@@ -59,7 +59,7 @@ public class FtpUtil {
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftpClient.disconnect();
             } else {
-                logger.info("ftp 连接成功");
+                logger.info("===== ftp 连接成功 =====");
                 ftpClient.setControlEncoding("UTF-8");
                 ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
                 ftpClient.enterLocalPassiveMode();
@@ -93,7 +93,7 @@ public class FtpUtil {
     }
 
     /**
-     * 上传文件到ftp服务器
+     * 上传文件到ftp服务器（流式处理，防止OOM）
      *
      * @param sourceFilePath 源文件位置
      * @param sourceFileName 源文件名称
@@ -103,41 +103,39 @@ public class FtpUtil {
      */
     public boolean uploadFtpFile(String sourceFilePath, String sourceFileName, String targetFilePath, String targetFileName) {
         logger.info("===== ftp 上传文件 ===== sourcePath: {}, sourceFileName: {}, targetName: {}, targetFileName: {}", sourceFilePath, sourceFileName, targetFilePath, targetFileName);
-        boolean initSuccess = this.init();
+        boolean initSuccess = init();
         if (!initSuccess) {
             return false;
         }
-        InputStream inputStream = null;
-        try {
-            File file = new File(sourceFilePath + "/" + sourceFileName);
-            byte[] bytes = Files.readAllBytes(file.toPath());
-            inputStream = new ByteArrayInputStream(bytes);
+
+        File file = new File(sourceFilePath, sourceFileName);
+        try (InputStream inputStream = new FileInputStream(file)) {
+
+            // 确保目录存在
             createDirectoryByPathName(new String(targetFilePath.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+
+            // 文件名转码
             String fn = new String(targetFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+
+            // 上传文件（FTPClient 会自动从流读取数据上传）
             boolean success = ftpClient.storeFile(fn, inputStream);
-            logger.info("ftp 文件上传结果:{}", success);
+            logger.info("ftp 文件上传结果: {}", success);
             return success;
-        } catch (Exception e) {
+
+        } catch (IOException e) {
             logger.error("ftp 文件上传失败", e);
+            return false;
         } finally {
-            if (!ftpClient.isConnected()) {
+            if (ftpClient != null && ftpClient.isConnected()) {
                 try {
+                    ftpClient.logout();
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    logger.error("ftp 文件上传失败:{}", e.getMessage(), e);
-                }
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    logger.error("ftp 文件上传失败:{}", e.getMessage(), e);
+                    logger.warn("关闭 ftp 连接异常: {}", e.getMessage(), e);
                 }
             }
         }
-        return false;
     }
-
 
     /**
      * 下载服务器文件
@@ -150,25 +148,36 @@ public class FtpUtil {
      */
     public boolean downloadFtpFile(String serviceFilePath, String serviceFileName, String localFilePath, String localFileName) {
         logger.info("===== ftp 下载文件 ===== pathName:{} fileName:{}", serviceFilePath, serviceFileName);
-        init();
+        boolean initSuccess = init();
+        if (!initSuccess) {
+            return false;
+        }
+
         try {
             createDir(localFilePath);
-            ftpClient.changeWorkingDirectory(new String(serviceFilePath.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
-            File localFile = new File(localFilePath + File.separatorChar + localFileName);
-            OutputStream os = new FileOutputStream(localFile);
-            boolean success = ftpClient.retrieveFile(new String(serviceFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1), os);
-            os.close();
-            logger.info("ftp 文件下载结果:{}", success);
-            return success;
+            ftpClient.changeWorkingDirectory(
+                    new String(serviceFilePath.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1)
+            );
+
+            File localFile = new File(localFilePath, localFileName);
+            try (OutputStream os = new FileOutputStream(localFile)) {
+                boolean success = ftpClient.retrieveFile(
+                        new String(serviceFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1),
+                        os
+                );
+                logger.info("ftp 文件下载结果:{}", success);
+                return success;
+            }
         } catch (IOException e) {
             logger.error("ftp 文件下载失败:{}", e.getMessage(), e);
         } finally {
-            if (!ftpClient.isConnected()) {
+            if (ftpClient.isConnected()) {
                 try {
                     ftpClient.completePendingCommand();
+                    ftpClient.logout();
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    logger.error("ftp 文件下载失败:{}", e.getMessage(), e);
+                    logger.error("ftp 文件下载关闭连接失败:{}", e.getMessage(), e);
                 }
             }
         }

@@ -175,7 +175,7 @@ public class NettyFileSyncService {
      * @param moveFileDto
      */
     public void updateBlogFileSecondStep(SocketMoveFileDto moveFileDto, MsgHead msgHead) {
-        logger.info("===== socket 移动待上传文件-python脚本响应 ===== SocketMoveFileDto: {}", moveFileDto);
+        logger.info("===== socket 移动待上传文件-python脚本响应 ===== SocketMoveFileDto: {} MsgHead: {}", moveFileDto, msgHead);
         NettySyncFileDto nettySyncFileDto = JSONObject.parseObject(moveFileDto.getData(), NettySyncFileDto.class);
         if (nettySyncFileDto.getSyncType().equals(2)) {
             List<String> fileNameList = moveFileDto.getFileNameList();

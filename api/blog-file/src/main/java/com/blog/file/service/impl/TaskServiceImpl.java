@@ -67,8 +67,6 @@ public class TaskServiceImpl implements TaskService {
                 createChildTask(taskEntity, taskParam);
             }
         }
-
-
     }
 
     /**
@@ -81,6 +79,7 @@ public class TaskServiceImpl implements TaskService {
     public void createChildTask(TaskEntity taskEntity, TaskParam taskParam) {
         try {
             taskEntity.setChildTaskCode(taskParam.getChildTaskCode());
+            taskEntity.setUserId(taskParam.getUserId());
             taskEntity.setTaskCron(taskParam.getTaskCron());
             taskEntity.setTaskTime(taskParam.getTaskTime());
             taskEntity.setTaskCount(taskParam.getTaskCount());

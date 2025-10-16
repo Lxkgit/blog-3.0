@@ -90,7 +90,7 @@ public class TaskListener implements ApplicationRunner {
                                 taskMsgHead.setChildTaskCode(taskEntity.getChildTaskCode());
                                 String taskUUID = UUID.randomUUID().toString().replace("-", "");
                                 taskMsgHead.setTaskUUID(taskUUID);
-                                methodParams.add(MsgHead.buildTaskMsgHead(taskMsgHead));
+                                methodParams.add(MsgHead.buildTaskMsgHead(taskEntity.getUserId(), taskMsgHead));
 
                                 // 2. 获取目标类的实例
                                 Object targetInstance;

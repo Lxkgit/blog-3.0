@@ -3,6 +3,7 @@ package com.blog.file.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
+import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
@@ -308,9 +309,9 @@ public class FileServiceImpl implements FileService {
      * @param nettyUploadBlogFileDto
      */
     @Override
-    public void fileImportMinio(NettyFileSyncDto nettyUploadBlogFileDto) {
+    public void fileImportMinio(NettyFileSyncDto nettyUploadBlogFileDto, MsgHead msgHead) {
         logger.info("===== 文件导入minio ===== NettyFileSyncDto: {} ", nettyUploadBlogFileDto);
-        Integer userId = nettyUploadBlogFileDto.getUserId();
+        Integer userId = msgHead.getUserId();
         String minioPath = nettyUploadBlogFileDto.getMinioPath();
         Integer categoryId = createDirWithUserId(minioPath);
         List<FileCategoryData> fileCategoryDataList = new ArrayList<>();
@@ -325,7 +326,7 @@ public class FileServiceImpl implements FileService {
 
             String fileUrl = minioService.getFileUrl(minioPath, fileName);
             FileCategoryData fileCategoryData = new FileCategoryData();
-            fileCategoryData.setUserId(1);
+            fileCategoryData.setUserId(userId);
             fileCategoryData.setFileName(fileName);
             fileCategoryData.setFileCategoryId(categoryId);
             fileCategoryData.setFileUrl(fileUrl);

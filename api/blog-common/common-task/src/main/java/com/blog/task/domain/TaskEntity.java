@@ -50,6 +50,11 @@ public class TaskEntity {
     private List<Object> taskParams;
 
     /**
+     * 任务所属用户id
+     */
+    private Integer userId;
+
+    /**
      * 任务状态
      * 1 正常
      * 0 停用

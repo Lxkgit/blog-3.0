@@ -166,7 +166,7 @@ public class NettyFileSyncService {
      * @param bo
      * @param msgHead
      */
-    public void syncDeviceFile(SyncDeviceFileBo bo, MsgHead msgHead) {
+    public String syncDeviceFile(SyncDeviceFileBo bo, MsgHead msgHead) {
         logger.info("===== 定时任务-树莓派文件上传 ===== SyncDeviceFileBo: {} MsgHead: {}", bo, msgHead);
         Integer userId = bo.getUserId();
 
@@ -179,7 +179,7 @@ public class NettyFileSyncService {
             int fileCount = fileCategoryDataMapper.selectCount(wrapper).intValue();
             // 当前目录下超过目录下最大待处理文件时 不进行同步
             if (fileCount > bo.getMaxFileCount()) {
-                return;
+                return "当前目录下文件超过最大数量: " + bo.getMaxFileCount();
             }
 
             // 文件存储minio中路径
@@ -193,6 +193,7 @@ public class NettyFileSyncService {
             nettySyncFileDto.setCount(bo.getCount());
             syncFileSend(msgHead, nettySyncFileDto, userId);
         }
+        return "消息发送完成";
     }
 
     /**
@@ -208,9 +209,7 @@ public class NettyFileSyncService {
             // 文件传输都是使用ftp system用户下相对路径
             socketMessageSendService.deleteDir(Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath());
         } else if (nettyUploadBlogFileDto.getSyncType().equals(2)) {
-            if (nettyUploadBlogFileDto.getSyncResult()) {
-                fileService.fileImportMinio(nettyUploadBlogFileDto);
-            }
+            fileService.fileImportMinio(nettyUploadBlogFileDto, msgHead);
         }
 
         // 文件同步 任务请求头不为空时记录任务日志
@@ -225,9 +224,10 @@ public class NettyFileSyncService {
      * @param path    文件路径
      * @param msgHead 消息头
      */
-    public void clearTempFileOrPath(String path, MsgHead msgHead) {
+    public String clearTempFileOrPath(String path, MsgHead msgHead) {
         logger.info("===== 定时任务-清理服务器文件 ===== path: {} MsgHead: {}", path, msgHead);
         socketMessageSendService.deleteDir(path);
+        return "删除文件: " + path;
     }
 
 }

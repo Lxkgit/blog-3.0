@@ -69,7 +69,7 @@ public class MinioService {
         fileUploadLogMapper.insert(fileUploadLog);
         try {
             InputStream inputStream = file.getInputStream();
-            logger.info("minio 上传文件: path:{}", path);
+            logger.info("===== minio 上传文件 ===== path:{}", path);
             ObjectWriteResponse response = minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
                     .object(path)
@@ -119,7 +119,7 @@ public class MinioService {
      * @param fileName 文件名称
      */
     public void deleteFile(String path, String fileName) throws ServiceException {
-        logger.info("minio 删除文件: path:{} fileName:{}", path, fileName);
+        logger.info("===== minio 删除文件 ===== path:{} fileName:{}", path, fileName);
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
@@ -140,7 +140,7 @@ public class MinioService {
      * @throws Exception
      */
     public String moveFile(String sourcePath, String targetDir) throws ServiceException {
-        logger.info("minio 移动文件: sourcePath:{} targetDir:{}", sourcePath, targetDir);
+        logger.info("===== minio 移动文件 ===== sourcePath:{} targetDir:{}", sourcePath, targetDir);
         try {
             // 获取文件名
             String fileName = sourcePath.substring(sourcePath.lastIndexOf("/") + 1);
@@ -234,7 +234,7 @@ public class MinioService {
      * @param minioPath     minio中文件位置
      */
     public void importFile(String localFilePath, String minioPath) {
-        logger.info("minio 导入文件: localFilePath:{} minioPath:{}", localFilePath, minioPath);
+        logger.info("===== minio 导入文件 ===== localFilePath:{} minioPath:{}", localFilePath, minioPath);
         File file = new File(localFilePath);
         if (!file.exists() || !file.isFile()) {
             logger.error("minio 文件导入异常: 文件{}不存在", localFilePath);

@@ -1,5 +1,6 @@
 package com.blog.file.service;
 
+import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
@@ -31,7 +32,7 @@ public interface FileService {
 
     void syncFile(FileCategoryDataVo fileDataVo) throws ServiceException;
 
-    void fileImportMinio(NettyFileSyncDto nettyUploadBlogFileDto);
+    void fileImportMinio(NettyFileSyncDto nettyUploadBlogFileDto, MsgHead msgHead);
 //
 //    boolean syncFileList(List<FileCategoryDataVo> fileDataVoList);
 }

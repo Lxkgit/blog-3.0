@@ -322,7 +322,6 @@ public class FileServiceImpl implements FileService {
 
             // 文件转为 MultipartFile
             File file = new File(localFilePath);
-            MultipartFile multipartFile = FileMultipartFileConverter.fileToMultipartFile(file);
 
             String fileUrl = minioService.getFileUrl(minioPath, fileName);
             FileCategoryData fileCategoryData = new FileCategoryData();
@@ -330,10 +329,10 @@ public class FileServiceImpl implements FileService {
             fileCategoryData.setFileName(fileName);
             fileCategoryData.setFileCategoryId(categoryId);
             fileCategoryData.setFileUrl(fileUrl);
-            fileCategoryData.setFileSize((int) multipartFile.getSize());
+            fileCategoryData.setFileSize((int) file.length());
             fileCategoryData.setFileStatus(0);
             fileCategoryData.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase());
-            fileCategoryData.setFileJson(VideoUtil.resolveVideo(multipartFile));
+            fileCategoryData.setFileJson(VideoUtil.resolveVideo(file));
             fileCategoryData.setCreateBy("system");
             fileCategoryData.setCreateTime(new Date());
 

@@ -6,7 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @Description
@@ -18,94 +21,120 @@ public class VideoUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoUtil.class);
 
+    /**
+     * 解析 MultipartFile 类型的视频文件
+     */
     public static String resolveVideo(MultipartFile file) {
         if (!isVideoFile(file)) {
-            // 不是视频类型文件
-            return null;
+            return buildErrorResult("MultipartFile", "上传文件不是视频文件");
         }
+
+        File tempFile = null;
+        try {
+            // MultipartFile 写入临时文件
+            tempFile = File.createTempFile("video-", ".tmp");
+            try (InputStream in = file.getInputStream();
+                 OutputStream out = new FileOutputStream(tempFile)) {
+                in.transferTo(out);
+            }
+
+            return parseVideoInfo(tempFile);
+
+        } catch (Exception e) {
+            return buildErrorResult(e, null);
+        } finally {
+            if (tempFile != null && tempFile.exists()) {
+                if (!tempFile.delete()) {
+                    logger.warn("临时文件删除失败: {}", tempFile.getAbsolutePath());
+                }
+            }
+        }
+    }
+
+    /**
+     * 解析 File 类型的视频文件
+     */
+    public static String resolveVideo(File file) {
+        if (!isVideoFile(file)) {
+            return buildErrorResult("File", "导入文件不是视频文件");
+        }
+        return parseVideoInfo(file);
+    }
+
+    /**
+     * 使用 FFmpegFrameGrabber 解析视频信息
+     */
+    private static String parseVideoInfo(File file) {
         JSONObject result = new JSONObject();
-        try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(file.getInputStream())) {
+        try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(file)) {
             grabber.start();
-            result.put("durationSeconds", (double) grabber.getLengthInTime() / 1_000_000.0);
+
+            result.put("durationSeconds", grabber.getLengthInTime() / 1_000_000.0);
             result.put("frameRate", grabber.getFrameRate());
             result.put("width", grabber.getImageWidth());
             result.put("height", grabber.getImageHeight());
             result.put("format", grabber.getFormat());
+            result.put("success", true);
+
             grabber.stop();
         } catch (Exception e) {
-            logger.error("视频文件解析异常:{}", e.getMessage());
-            result.put("success", false);
-            result.put("error", e.getClass().getSimpleName());
-            result.put("message", e.getMessage());
-        } finally {
-            try {
-                file.getInputStream().close();
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
+            return buildErrorResult(e, file);
         }
-
         return result.toJSONString();
     }
 
     /**
-     * 判断文件是否为视频类型文件
-     *
-     * @param file
-     * @return
+     * 判断 MultipartFile 是否为视频文件
      */
     public static boolean isVideoFile(MultipartFile file) {
         if (file == null || file.isEmpty()) return false;
 
-        // 1. MIME判断
         String contentType = file.getContentType();
         if (contentType != null && contentType.startsWith("video/")) return true;
 
-        // 2. 扩展名判断
         String fileName = file.getOriginalFilename();
-        if (fileName != null) {
-            String lower = fileName.toLowerCase();
-            if (lower.matches(".*\\.(mp4|avi|mov|wmv|flv|mkv|3gp|webm)$")) return true;
-        }
-
-        // 3. Magic Number 检测
-        return isVideoFileByMagic(file);
+        return isVideoFile(fileName);
     }
 
-    private static boolean isVideoFileByMagic(MultipartFile file) {
-        if (file == null || file.isEmpty()) return false;
-        try (InputStream is = file.getInputStream()) {
-            byte[] header = new byte[12];
-            int bytesRead = is.read(header, 0, 12);
-            if (bytesRead < 12) return false;
-
-            // 常见视频文件头匹配
-            String hex = bytesToHex(header).toUpperCase();
-
-            // MP4 文件头（前4字节一般是ftyp）
-            if (hex.contains("66747970")) return true; // "ftyp"
-            // AVI
-            if (hex.startsWith("52494646") && hex.endsWith("41564920")) return true; // RIFF....AVI
-            // MKV / WebM
-            if (hex.startsWith("1A45DFA3")) return true;
-            // FLV
-            if (hex.startsWith("464C56")) return true;
-            // QuickTime MOV
-            if (hex.contains("66747970")) return true;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+    /**
+     * 判断 File 是否为视频文件
+     */
+    public static boolean isVideoFile(File file) {
+        if (file == null || !file.exists() || file.isDirectory()) return false;
+        return isVideoFile(file.getName());
     }
 
-    private static String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
+    /**
+     * 判断文件名是否为视频文件
+     */
+    private static boolean isVideoFile(String fileName) {
+        if (fileName == null) return false;
+        String lower = fileName.toLowerCase();
+        return lower.matches(".*\\.(mp4|avi|mov|wmv|flv|mkv|3gp|webm|m4v)$");
     }
 
+    /**
+     * 统一异常结果封装
+     */
+    private static String buildErrorResult(Exception e, File file) {
+        JSONObject result = new JSONObject();
+        String filePath = (file != null) ? file.getAbsolutePath() : "N/A";
+        logger.error("视频文件解析异常: {} - 文件: {}", e.getMessage(), filePath, e);
+        result.put("success", false);
+        result.put("error", e.getClass().getSimpleName());
+        result.put("message", e.getMessage());
+        result.put("file", filePath);
+        return result.toJSONString();
+    }
 
+    /**
+     * 非异常类错误（例如文件类型不支持）
+     */
+    private static String buildErrorResult(String error, String message) {
+        JSONObject result = new JSONObject();
+        result.put("success", false);
+        result.put("error", error);
+        result.put("message", message);
+        return result.toJSONString();
+    }
 }

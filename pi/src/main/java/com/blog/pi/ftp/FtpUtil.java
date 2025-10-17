@@ -108,7 +108,8 @@ public class FtpUtil {
             return false;
         }
 
-        File file = new File(sourceFilePath, sourceFileName);
+        Path filePath = Paths.get(sourceFilePath, sourceFileName);
+        File file = filePath.toFile();
         try (InputStream inputStream = new FileInputStream(file)) {
 
             // 确保目录存在
@@ -118,6 +119,7 @@ public class FtpUtil {
             String fn = new String(targetFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
 
             // 上传文件（FTPClient 会自动从流读取数据上传）
+            logger.info("===== 开始上传文件 ===== fileName: {}", filePath.getFileName());
             boolean success = ftpClient.storeFile(fn, inputStream);
             logger.info("ftp 文件上传结果: {}", success);
             return success;
@@ -128,6 +130,7 @@ public class FtpUtil {
         } finally {
             if (ftpClient != null && ftpClient.isConnected()) {
                 try {
+                    ftpClient.completePendingCommand();
                     ftpClient.logout();
                     ftpClient.disconnect();
                 } catch (IOException e) {

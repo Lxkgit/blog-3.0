@@ -143,8 +143,8 @@ public class FileServiceImpl implements FileService {
             LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(FileCategoryData::getUserId, SecurityUtil.getLoginUser().getId());
             wrapper.in(FileCategoryData::getId, idList);
-            fileCategoryDataMapper.delete(wrapper);
             uploadFileService.deleteFile(idList);
+            fileCategoryDataMapper.delete(wrapper);
         }
     }
 
@@ -160,7 +160,7 @@ public class FileServiceImpl implements FileService {
         FileCategory oldFileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
         FileCategory newFileCategory = fileCategoryMapper.selectById(fileCategoryVo.getNewDirId());
         String fileUrl = minioService.moveFile(oldFileCategory.getDirPath() + "/" + fileCategoryData.getFileUrl().substring(fileCategoryData.getFileUrl().lastIndexOf("/") + 1),
-                oldFileCategory.getDirPath() + "/" + newFileCategory.getDirName()+ "/");
+                oldFileCategory.getDirPath() + "/" + newFileCategory.getDirName() + "/");
 
         // 更新文件信息
         fileCategoryData.setFileUrl(fileUrl);
@@ -329,17 +329,20 @@ public class FileServiceImpl implements FileService {
             fileCategoryData.setFileName(fileName);
             fileCategoryData.setFileCategoryId(categoryId);
             fileCategoryData.setFileUrl(fileUrl);
-            fileCategoryData.setFileSize((int) file.length());
+            fileCategoryData.setFileSize(file.length());
             fileCategoryData.setFileStatus(0);
             fileCategoryData.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase());
             fileCategoryData.setFileJson(VideoUtil.resolveVideo(file));
             fileCategoryData.setCreateBy("system");
             fileCategoryData.setCreateTime(new Date());
 
-            minioService.importFile(localFilePath, minioPath);
-
+            boolean importFlag = minioService.importFile(localFilePath, minioPath);
+            logger.info("文件导入minio结果: {}", importFlag);
             fileCategoryDataList.add(fileCategoryData);
         }
+
+        // 文件导入成功之后删除文件
+        nettyFileSyncService.deleteTempFile(nettyUploadBlogFileDto.getServiceFilePath(), "1m");
 
         if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
             fileCategoryDataMapper.insert(fileCategoryDataList);

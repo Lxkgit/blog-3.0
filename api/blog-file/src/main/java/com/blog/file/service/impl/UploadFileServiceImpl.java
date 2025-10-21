@@ -83,7 +83,7 @@ public class UploadFileServiceImpl implements UploadFileService {
             fileCategoryData.setFileName(fileName);
             fileCategoryData.setFileCategoryId(categoryId);
             fileCategoryData.setFileUrl(fileUrl);
-            fileCategoryData.setFileSize((int) uploadVo.getFile().getSize());
+            fileCategoryData.setFileSize(uploadVo.getFile().getSize());
             fileCategoryData.setFileStatus(0);
             fileCategoryData.setFileType(fileType);
             if (FileTypeEnum.getTypeEnumByFileType(fileType).getFileType() == 3) {

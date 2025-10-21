@@ -496,11 +496,11 @@
                         style="margin-right: 10px"
                       />{{ item.fileName }}
                     </div>
-                    <div class="dir-icon" @click="">
+                    <div  @click="">
                       <el-dropdown>
-                        <span class="el-dropdown-link">
-                          <MyIcon class="my-icon" title="视频移动" type="icon-file-move" />
-                        </span>
+                        <el-button type="primary">
+                          移动
+                        </el-button>
                         <template #dropdown>
                           <el-dropdown-menu>
                             <el-dropdown-item
@@ -526,9 +526,6 @@
                 <div class="video-info" v-else>
                   <div class="video-title">
                     <div>{{ item.fileName }}</div>
-                    <div class="dir-icon" @click.stop="">
-                      <MyIcon class="my-icon" title="视频移动" type="icon-file-move" />
-                    </div>
                   </div>
                   <div class="video-duration">
                     <MyIcon title="视频时长" type="icon-time" />

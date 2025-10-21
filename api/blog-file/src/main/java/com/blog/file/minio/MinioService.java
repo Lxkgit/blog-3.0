@@ -233,7 +233,7 @@ public class MinioService {
      * @param localFilePath 服务器中文件位置
      * @param minioPath     minio中文件位置
      */
-    public void importFile(String localFilePath, String minioPath) {
+    public boolean importFile(String localFilePath, String minioPath) {
         logger.info("===== minio 导入文件 ===== localFilePath:{} minioPath:{}", localFilePath, minioPath);
         File file = new File(localFilePath);
         if (!file.exists() || !file.isFile()) {
@@ -249,8 +249,13 @@ public class MinioService {
                     .stream(inputStream, file.length(), -1)
                     .contentType(contentType)
                     .build());
+
+            logger.info("MinIO 文件导入成功: {}", response);
+            return true;
+
         } catch (Exception e) {
-            logger.error("minio导入文件异常:{}", e.getMessage(), e);
+            logger.error("MinIO 导入文件异常: {}", e.getMessage(), e);
+            return false;
         }
     }
 

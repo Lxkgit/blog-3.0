@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.pi.config.PiSystemConfig;
+import com.blog.pi.constant.Constant;
 import com.blog.pi.domain.common.MsgHead;
 import com.blog.pi.domain.entity.FileMD5;
 import com.blog.pi.mapper.FileMD5Mapper;
@@ -52,12 +53,6 @@ public class NettyFileSyncService {
     private SocketService socketService;
 
     @Resource
-    private FileSyncMapper fileSyncDAO;
-
-    @Resource
-    private PiSystemConfig piSystemConfig;
-
-    @Resource
     private FileMD5Mapper fileMD5Mapper;
 
     /**
@@ -86,7 +81,7 @@ public class NettyFileSyncService {
         // 解析netty接收数据
         NettySyncFileDto nettySyncBlogFile = JSON.parseObject(data, NettySyncFileDto.class);
         // 获取文件存储基础路径
-        String basePath = "/opt/docker/files/temp" + "/" + MyStringUtils.getRandomString(6);
+        String basePath = "/opt/docker/files/temp/blogBak/";
 
         if (nettySyncBlogFile.getSyncType().equals(1)) {
             // 下载服务器文件
@@ -94,11 +89,11 @@ public class NettyFileSyncService {
 
             SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
             moveFileDto.setRequestId(requestId);
-            moveFileDto.setType(0);
+            moveFileDto.setType(1);
             moveFileDto.setData(data);
             moveFileDto.setSourceDirectory(basePath);
             moveFileDto.setFileNameList(fileNameList);
-            moveFileDto.setTargetDirectory("/opt/docker/files/temp/test" + "/" + MyStringUtils.getRandomString(6));
+            moveFileDto.setTargetDirectory(Constant.DISK_PATH_TEMP + "/blogBak");
             SocketPacket<SocketMoveFileDto> socketPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, msgHead, moveFileDto);
             socketPacket.setMsgHead(msgHead);
             socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, socketPacket);
@@ -152,7 +147,7 @@ public class NettyFileSyncService {
         logger.info("===== socket 移动待上传文件-服务器请求 ===== requestId: {} NettySyncFileDto: {} basePath: {}", requestId, nettySyncBlogFile, basePath);
         SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
         moveFileDto.setRequestId(requestId);
-        moveFileDto.setType(0);
+        moveFileDto.setType(2);
         moveFileDto.setData(JSONObject.toJSONString(nettySyncBlogFile));
         moveFileDto.setSourceDirectory(nettySyncBlogFile.getDeviceFilePath());
         moveFileDto.setTargetDirectory(basePath);
@@ -172,17 +167,17 @@ public class NettyFileSyncService {
     /**
      * 上传文件
      *
-     * @param moveFileDto
+     * @param responseMoveFileDto
      */
-    public void updateBlogFileSecondStep(SocketMoveFileDto moveFileDto, MsgHead msgHead) {
-        logger.info("===== socket 移动待上传文件-python脚本响应 ===== SocketMoveFileDto: {} MsgHead: {}", moveFileDto, msgHead);
-        NettySyncFileDto nettySyncFileDto = JSONObject.parseObject(moveFileDto.getData(), NettySyncFileDto.class);
+    public void updateBlogFileSecondStep(SocketMoveFileDto responseMoveFileDto, MsgHead msgHead) {
+        logger.info("===== socket 移动待上传文件-python脚本响应 ===== SocketMoveFileDto: {} MsgHead: {}", responseMoveFileDto, msgHead);
+        NettySyncFileDto nettySyncFileDto = JSONObject.parseObject(responseMoveFileDto.getData(), NettySyncFileDto.class);
         if (nettySyncFileDto.getSyncType().equals(2)) {
-            List<String> fileNameList = moveFileDto.getFileNameList();
+            List<String> fileNameList = responseMoveFileDto.getFileNameList();
             for (String fileName : fileNameList) {
                 // 上传文件
                 logger.info("===== 当前上传文件 ===== fileName: {}", fileName);
-                File file = new File(moveFileDto.getTargetDirectory() + "/" + fileName);
+                File file = new File(responseMoveFileDto.getTargetDirectory() + "/" + fileName);
                 String md5 = MD5Util.getFileMd5(file);
                 LambdaQueryWrapper<FileMD5> wrapper = new LambdaQueryWrapper<>();
                 wrapper.eq(FileMD5::getFileMD5, md5);
@@ -200,14 +195,14 @@ public class NettyFileSyncService {
                     fileMD5Mapper.insert(fileMD5);
                 }
 
-                Boolean uploadFlag = ftpUtil.uploadFtpFile(moveFileDto.getTargetDirectory(), fileName, moveFileDto.getServicePath(), fileName);
+                Boolean uploadFlag = ftpUtil.uploadFtpFile(responseMoveFileDto.getTargetDirectory(), fileName, responseMoveFileDto.getServicePath(), fileName);
 
                 // 上传完成一个文件
-                String requestId = moveFileDto.getRequestId();
+                String requestId = responseMoveFileDto.getRequestId();
 
                 // 响应服务端处理结果
                 NettyFileSyncDto fileSyncDto = new NettyFileSyncDto();
-                fileSyncDto.setServiceFilePath(moveFileDto.getServicePath());
+                fileSyncDto.setServiceFilePath(responseMoveFileDto.getServicePath());
                 fileSyncDto.setSyncType(2);
                 fileSyncDto.setSyncResult(uploadFlag);
                 fileSyncDto.setFileNameList(new ArrayList<>(List.of(fileName)));
@@ -217,5 +212,14 @@ public class NettyFileSyncService {
                 nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
             }
         }
+
+        SocketMoveFileDto requestMoveFileDto = new SocketMoveFileDto();
+        requestMoveFileDto.setType(1);
+        requestMoveFileDto.setSourceDirectory(responseMoveFileDto.getTargetDirectory());
+        requestMoveFileDto.setTargetDirectory(Constant.DISK_PATH_TEMP + "/video");
+        SocketPacket<SocketMoveFileDto> socketPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, null, requestMoveFileDto);
+        socketPacket.setMsgHead(msgHead);
+        socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, socketPacket);
+
     }
 }

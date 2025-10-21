@@ -384,6 +384,7 @@ importMinio() {
 
 	# 导入文件后删除数据
 	rm -rf /opt/docker/minio/blog
+	rm -rf /opt/docker/minio/files.zip
 }
 
 # 启动 minio

@@ -45,7 +45,7 @@ public class FileCategoryData {
     /**
      * 文件大小（kb）
      */
-    private Integer fileSize;
+    private Long fileSize;
 
     /**
      * 同步文件位置状态 0:本地服务器 1:正在同步本地服务器 2:等待同步 3:正在同步远程服务器 4:远程服务器

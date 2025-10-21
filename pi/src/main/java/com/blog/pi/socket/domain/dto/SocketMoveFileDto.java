@@ -17,7 +17,8 @@ public class SocketMoveFileDto {
 
     /**
      * 上下文类型: 用于文件移动操作，识别上下文类型，执行对应方法流程
-     * 0：data数据转换为 NettySyncFileDto.class
+     * 1: 简单的文件或目录移动，无上下文流程
+     * 2: 树莓派文件上传流程 updateBlogFileSecondStep
      */
     private Integer type;
 

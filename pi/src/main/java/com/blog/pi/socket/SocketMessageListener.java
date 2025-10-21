@@ -50,9 +50,9 @@ public class SocketMessageListener {
 
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
             if (SocketTopic.SOCKET_MOVE_FILE.equals(topic)) {
-                JSONObject jsonObject = JSONObject.parseObject(data);
-                if (jsonObject.getInteger("type").equals(0)) {
-                    SocketMoveFileDto dto = JSON.parseObject(data, SocketMoveFileDto.class);
+                SocketMoveFileDto dto = JSON.parseObject(data, SocketMoveFileDto.class);
+                logger.info("文件或目录: {} 已移动到: {} 目录下", dto.getSourceDirectory(), dto.getTargetDirectory());
+                if (dto.getType().equals(2)) {
                     nettyFileSyncService.updateBlogFileSecondStep(dto, msgHead);
                 }
             }

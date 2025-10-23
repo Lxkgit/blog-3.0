@@ -31,6 +31,11 @@ public class MsgHead {
      */
     private TaskMsgHead taskMsgHead;
 
+    /**
+     * netty 消息头
+     */
+    private NettyMsgHead nettyMsgHead;
+
     public static MsgHead buildTaskMsgHead(Integer userId, TaskMsgHead taskMsgHead) {
         MsgHead msgHead = new MsgHead();
         msgHead.setMsgType(1);

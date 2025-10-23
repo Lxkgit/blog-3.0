@@ -2,11 +2,14 @@ package com.blog.file.netty.domain.dto;
 
 
 import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.common.NettyMsgHead;
 import com.blog.file.netty.domain.common.NettyConstant;
 import com.blog.file.netty.domain.enums.NettyPacketType;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.BeanUtils;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
@@ -18,17 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * 自定义Netty数据包
  */
+
 @Data
 public class NettyPacket<T> implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 3450384644298931566L;
 
     public static Map<String, NettyPacket<Object>> MESSAGE_QUEUE = new ConcurrentHashMap<>();
-
-    /**
-     *  netty 消息唯一序列号
-     */
-    private String requestId;
 
     /**
      * 消息头
@@ -36,48 +36,68 @@ public class NettyPacket<T> implements Serializable {
     private MsgHead msgHead;
 
     /**
-     * netty 请求类型
-     */
-    private String nettyPacketType;
-
-    /**
-     * netty 消息Topic
-     */
-    private String topic;
-
-    /**
-     * 消息所属用户
-     */
-    private String username;
-
-    /**
-     * netty注册id
-     */
-    private String registerCode;
-
-    /**
      * netty 消息内容
      */
     private T data;
 
+    /**
+     * 构建netty请求消息
+     *
+     * @param topic
+     * @param param
+     * @param <T>
+     * @return
+     */
     public static <T> NettyPacket<T> buildRequest(String topic, T param) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
-        nettyPacket.setRequestId(UUID.randomUUID().toString());
-        nettyPacket.setTopic(topic);
-        nettyPacket.setRegisterCode(NettyConstant.NETTY_DEVICE_CODE);
-        nettyPacket.setNettyPacketType(NettyPacketType.REQUEST.getValue());
+        MsgHead msgHead = buildNettyMsgHead(UUID.randomUUID().toString(), topic, NettyPacketType.REQUEST);
+        nettyPacket.setMsgHead(msgHead);
         nettyPacket.setData(param);
         return nettyPacket;
     }
 
-    public static <T> NettyPacket<T> buildResponse(String requestId, T data) {
+    /**
+     * 构建netty响应消息
+     *
+     * @param requestId
+     * @param topic
+     * @param data
+     * @param <T>
+     * @return
+     */
+    public static <T> NettyPacket<T> buildResponse(String requestId, String topic, T data) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
-        nettyPacket.setRequestId(requestId);
-        nettyPacket.setTopic("response");
-        nettyPacket.setRegisterCode(NettyConstant.NETTY_DEVICE_CODE);
-        nettyPacket.setNettyPacketType(NettyPacketType.RESPONSE.getValue());
+        MsgHead msgHead = buildNettyMsgHead(requestId, topic, NettyPacketType.RESPONSE);
+        nettyPacket.setMsgHead(msgHead);
         nettyPacket.setData(data);
         return nettyPacket;
+    }
+
+    /**
+     * 构建netty请求头消息
+     *
+     * @param requestId
+     * @param topic
+     * @param response
+     * @return
+     */
+    private static @NotNull MsgHead buildNettyMsgHead(String requestId, String topic, NettyPacketType response) {
+        MsgHead msgHead = new MsgHead();
+        NettyMsgHead nettyMsgHead = new NettyMsgHead();
+        nettyMsgHead.setRequestId(requestId);
+        nettyMsgHead.setTopic(topic);
+        nettyMsgHead.setRegisterCode(NettyConstant.NETTY_DEVICE_CODE);
+        nettyMsgHead.setNettyPacketType(response.getValue());
+        msgHead.setNettyMsgHead(nettyMsgHead);
+        return msgHead;
+    }
+
+    public void setMsgHead(MsgHead msgHead) {
+        if (this.msgHead == null) {
+            this.msgHead = msgHead;
+        } else {
+            BeanUtils.copyProperties(msgHead, this.msgHead);
+        }
     }
 
     public static void request(String requestId, NettyPacket<Object> nettyResponse) {

@@ -67,17 +67,13 @@ public class MqttMessageListener implements MqttCallback {
             if (topic.equals(MQTTTopicEnum.CHIP_SENSOR_REGISTER.getTopic())) {
 
                 // 发送 Netty 单片机设备注册消息
-                NettyPacket<String> nettyRequest = NettyPacket.buildRequest(data);
-                nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
-                nettyRequest.setTopic(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic());
-                nettyClient.sendMsg(nettyRequest.getRequestId(), JSONObject.toJSONString(nettyRequest), true);
+                NettyPacket<String> nettyRequest = NettyPacket.buildRequest(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic(), data);
+                nettyClient.sendMsg(nettyRequest.getMsgHead().getNettyMsgHead().getRequestId(), JSONObject.toJSONString(nettyRequest), true);
             } else if (topic.equals(MQTTTopicEnum.SENSOR_DATA.getTopic())) {
 
                 // 发送 Netty 传感器数据
-                NettyPacket<String> nettyRequest = NettyPacket.buildRequest(data);
-                nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
-                nettyRequest.setTopic(NettyTopicEnum.SENSOR_DATA.getTopic());
-                nettyClient.sendMsg(nettyRequest.getRequestId(), JSONObject.toJSONString(nettyRequest), true);
+                NettyPacket<String> nettyRequest = NettyPacket.buildRequest(NettyTopicEnum.SENSOR_DATA.getTopic(), data);
+                nettyClient.sendMsg(nettyRequest.getMsgHead().getNettyMsgHead().getRequestId(), JSONObject.toJSONString(nettyRequest), true);
             }
 
 //            MQTTSensorData mqttSensorData = JSONObject.toJavaObject(JSONObject.parseObject(data), MQTTSensorData.class);

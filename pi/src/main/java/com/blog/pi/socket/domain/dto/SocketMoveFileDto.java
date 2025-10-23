@@ -11,11 +11,6 @@ import java.util.List;
 public class SocketMoveFileDto {
 
     /**
-     * netty 消息id
-     */
-    private String requestId;
-
-    /**
      * 上下文类型: 用于文件移动操作，识别上下文类型，执行对应方法流程
      * 1: 简单的文件或目录移动，无上下文流程
      * 2: 树莓派文件上传流程 updateBlogFileSecondStep
@@ -51,5 +46,12 @@ public class SocketMoveFileDto {
      * 文件名称列表
      */
     private List<String> fileNameList;
+
+    /**
+     * 文件移动后是否删除源文件所属目录
+     * 0: 否
+     * 1: 是
+     */
+    private Integer dirDeleteFlag;
 
 }

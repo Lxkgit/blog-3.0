@@ -5,13 +5,12 @@ import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
 import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.file.mapper.TaskParamMapper;
-import com.blog.file.netty.service.NettyFileSyncService;
+import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.file.service.TaskService;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskBase;
 import com.blog.task.domain.TaskEntity;
-import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public class TaskInit implements ApplicationRunner {
     public void blogDateSyncTask() {
         TaskBase taskBase = new TaskBase();
         taskBase.setTaskCode(Constant.TASK_SYNC_BLOG_FILE);
-        taskBase.setClazz(NettyFileSyncService.class);
+        taskBase.setClazz(NettySyncFileService.class);
         taskBase.setMethodName("syncBlogDataFirstStep");
         taskBase.setTaskName("定时备份博客数据");
         taskBase.setParamsClazz(null);
@@ -94,7 +93,7 @@ public class TaskInit implements ApplicationRunner {
     public void deviceFileUploadTask() {
         TaskBase taskBase = new TaskBase();
         taskBase.setTaskCode(Constant.TASK_SYNC_DEVICE_FILE);
-        taskBase.setClazz(NettyFileSyncService.class);
+        taskBase.setClazz(NettySyncFileService.class);
         taskBase.setMethodName("syncDeviceFile");
         taskBase.setTaskName("定时上传树莓派数据");
         taskBase.setParamsClazz(new ArrayList<>(List.of(SyncDeviceFileBo.class)));
@@ -132,7 +131,7 @@ public class TaskInit implements ApplicationRunner {
     public void deleteTempFile() {
         TaskBase taskBase = new TaskBase();
         taskBase.setTaskCode(Constant.TASK_DELETE_TEMP_FILE);
-        taskBase.setClazz(NettyFileSyncService.class);
+        taskBase.setClazz(NettySyncFileService.class);
         taskBase.setMethodName("clearTempFileOrPath");
         taskBase.setParamsClazz(new ArrayList<>(List.of(String.class)));
         taskBase.setTaskName("清理服务器临时文件");

@@ -3,7 +3,7 @@ package com.blog.file.task;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.file.task.entity.TaskLog;
-import com.blog.file.netty.domain.dto.file.NettyFileSyncDto;
+import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.task.service.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,7 @@ public class TaskLogService {
     @Resource
     private CreateTaskService createTaskService;
 
-    public void recordTaskLog(NettyFileSyncDto nettyFileSyncDto, MsgHead msgHead) {
+    public void recordTaskLog(NettySyncFileDto nettyFileSyncDto, MsgHead msgHead) {
         TaskLog taskLog = new TaskLog();
         if (msgHead != null && msgHead.getTaskMsgHead() != null) {
             taskLog.setTaskCode(msgHead.getTaskMsgHead().getTaskCode());

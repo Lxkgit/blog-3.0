@@ -1,9 +1,8 @@
 package com.blog.pi.socket;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import com.blog.pi.domain.common.MsgHead;
-import com.blog.pi.netty.service.NettyFileSyncService;
+import com.blog.pi.netty.service.NettySyncFileService;
 import com.blog.pi.socket.domain.SocketPacketEvent;
 import com.blog.pi.socket.domain.constant.SocketPacketType;
 import com.blog.pi.socket.domain.constant.SocketTopic;
@@ -22,7 +21,7 @@ public class SocketMessageListener {
     private static final Logger logger = LoggerFactory.getLogger(SocketMessageListener.class);
 
     @Resource
-    private NettyFileSyncService nettyFileSyncService;
+    private NettySyncFileService nettyFileSyncService;
 
     @Async
     @EventListener

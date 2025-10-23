@@ -11,4 +11,18 @@ import lombok.Data;
 @Data
 public class TaskMsgHead {
 
+    /**
+     * 任务唯一编码
+     */
+    private String taskCode;
+
+    /**
+     * 子任务唯一编码
+     */
+    private String childTaskCode;
+
+    /**
+     * 任务执行流水号
+     */
+    private String taskUUID;
 }

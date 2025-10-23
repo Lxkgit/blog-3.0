@@ -86,4 +86,10 @@ public class Constant {
     public static final String TASK_SYNC_DEVICE_FILE = "blog-system-task-sync-device-file";
     // 服务器临时文件删除任务
     public static final String TASK_DELETE_TEMP_FILE = "blog-system-task-delete-temp-file";
+
+    // 机械硬盘存储临时数据目录
+    public static final String DISK_PATH_TEMP = "/mnt/E80499A6049977F0/blog/temp";
+
+    // 机械硬盘存储博客云盘备份数据目录
+    public static final String DISK_PATH_BLOG = "/mnt/E80499A6049977F0/blog/minio";
 }

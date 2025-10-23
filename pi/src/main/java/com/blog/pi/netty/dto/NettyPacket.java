@@ -1,15 +1,15 @@
 package com.blog.pi.netty.dto;
 
 
-import com.blog.pi.config.PiSystemConfig;
 import com.blog.pi.domain.common.MsgHead;
+import com.blog.pi.domain.common.NettyMsgHead;
 import com.blog.pi.netty.enums.NettyPacketType;
-import com.blog.pi.utils.MyUUID;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 
 /**
@@ -25,60 +25,87 @@ public class NettyPacket<T> implements Serializable {
     private static final long serialVersionUID = 410568910242170750L;
 
     /**
-     *  netty 消息唯一序列号
-     */
-    private String requestId;
-
-    /**
      * 消息头
      */
     private MsgHead msgHead;
-
-    /**
-     * netty 请求类型
-     */
-    private String nettyPacketType;
-
-    /**
-     * netty 消息Topic
-     */
-    private String topic;
-
-    /**
-     * 消息所属用户
-     */
-    private String username;
-
-    /**
-     * netty注册id
-     */
-    @Value("${netty.registerCode}")
-    private String registerCode;
 
     /**
      * netty 消息内容
      */
     private T data;
 
-    public static <T> NettyPacket<T> buildRequest(T param) {
+    /**
+     * 构建netty请求消息
+     *
+     * @param topic
+     * @param param
+     * @param <T>
+     * @return
+     */
+    public static <T> NettyPacket<T> buildRequest(String topic, T param) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
-        nettyPacket.setRequestId(MyUUID.getRandomString());
-        nettyPacket.setUsername("gszero");
-        nettyPacket.setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
-        nettyPacket.setNettyPacketType(NettyPacketType.REQUEST.getValue());
+        MsgHead msgHead = buildNettyMsgHead(UUID.randomUUID().toString(), topic, NettyPacketType.REQUEST);
+        nettyPacket.setMsgHead(msgHead);
         nettyPacket.setData(param);
         return nettyPacket;
     }
 
-    public static <T> NettyPacket<T> buildResponse(String requestId, String topic, MsgHead msgHead, T data) {
+    /**
+     * 构建netty响应消息
+     *
+     * @param requestId
+     * @param topic
+     * @param data
+     * @param <T>
+     * @return
+     */
+    public static <T> NettyPacket<T> buildResponse(String requestId, String topic, T data) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
-        nettyPacket.setRequestId(requestId);
-        nettyPacket.setTopic(topic);
+        MsgHead msgHead = buildNettyMsgHead(requestId, topic, NettyPacketType.RESPONSE);
         nettyPacket.setMsgHead(msgHead);
-        nettyPacket.setUsername("gszero");
-        nettyPacket.setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
-        nettyPacket.setNettyPacketType(NettyPacketType.RESPONSE.getValue());
         nettyPacket.setData(data);
         return nettyPacket;
+    }
+
+    /**
+     * 构建netty响应消息
+     *
+     * @param data
+     * @param <T>
+     * @return
+     */
+    public static <T> NettyPacket<T> buildResponse(MsgHead msgHead, T data) {
+        NettyPacket<T> nettyPacket = new NettyPacket<>();
+        nettyPacket.setMsgHead(msgHead);
+        nettyPacket.setData(data);
+        return nettyPacket;
+    }
+
+
+    /**
+     * 构建netty请求头消息
+     *
+     * @param requestId
+     * @param topic
+     * @param response
+     * @return
+     */
+    private static MsgHead buildNettyMsgHead(String requestId, String topic, NettyPacketType response) {
+        MsgHead msgHead = new MsgHead();
+        NettyMsgHead nettyMsgHead = new NettyMsgHead();
+        nettyMsgHead.setRequestId(requestId);
+        nettyMsgHead.setTopic(topic);
+        nettyMsgHead.setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
+        nettyMsgHead.setNettyPacketType(response.getValue());
+        msgHead.setNettyMsgHead(nettyMsgHead);
+        return msgHead;
+    }
+
+    public void setMsgHead(MsgHead msgHead) {
+        if (this.msgHead == null) {
+            this.msgHead = msgHead;
+        } else {
+            BeanUtils.copyProperties(msgHead, this.msgHead);
+        }
     }
 }

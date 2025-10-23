@@ -9,15 +9,13 @@ import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.core.utils.FileMultipartFileConverter;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
-import com.blog.file.netty.domain.dto.file.NettyFileSyncDto;
-import com.blog.file.netty.service.NettyFileSyncService;
+import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.file.service.FileService;
 import com.blog.file.service.UploadFileService;
 import com.blog.file.utils.VideoUtil;
@@ -28,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.*;
@@ -58,7 +55,7 @@ public class FileServiceImpl implements FileService {
 
     @Lazy
     @Resource
-    private NettyFileSyncService nettyFileSyncService;
+    private NettySyncFileService nettyFileSyncService;
 
     /**
      * 创建云盘目录
@@ -277,14 +274,14 @@ public class FileServiceImpl implements FileService {
             // servicePath 为文件在ftp system用户目录下的相对路径
             String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
             // devicePath 为树莓派设备上的绝对路径
-            String devicePath = "/mnt/test";
+            String devicePath = Constant.DISK_PATH_BLOG + category.getDirPath();
             // 同步文件名称
             String fileName = fileCategoryData.getFileName();
 
             // 发送netty消息
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
             nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettyFileSyncService.syncFileSend(null, nettySyncFileDto, userId);
+            nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId);
         } else if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
             // 文件同步到远程
             String exportPath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
@@ -294,12 +291,20 @@ public class FileServiceImpl implements FileService {
 
             // 此处将文件在ftp的全路径转换为在ftp/system用户目录下的路径
             String serviceFilePath = exportPath.substring(Constant.FTP_PATH_SYSTEM.length());
-            String deviceFilePath = "/opt/docker/files/temp";
+            String deviceFilePath = Constant.DISK_PATH_BLOG + category.getDirPath();
+
 
             // 发送netty消息
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
+
+            if (category.getDirPath().startsWith("^/\\d+/user.*")) {
+                nettySyncFileDto.setMinioDeleteFlag(1);
+            } else {
+                nettySyncFileDto.setMinioDeleteFlag(0);
+            }
+            nettySyncFileDto.setMinioPath(category.getDirPath());
             nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettyFileSyncService.syncFileSend(null, nettySyncFileDto, userId);
+            nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId);
         }
     }
 
@@ -309,45 +314,76 @@ public class FileServiceImpl implements FileService {
      * @param nettyUploadBlogFileDto
      */
     @Override
-    public void fileImportMinio(NettyFileSyncDto nettyUploadBlogFileDto, MsgHead msgHead) {
-        logger.info("===== 文件导入minio ===== NettyFileSyncDto: {} ", nettyUploadBlogFileDto);
+    public void fileImportMinio(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead) {
+        logger.info("===== 文件导入minio ===== NettySyncFileDto: {} ", nettyUploadBlogFileDto);
         Integer userId = msgHead.getUserId();
         String minioPath = nettyUploadBlogFileDto.getMinioPath();
+        if (StringUtils.isEmpty(minioPath)) {
+            return;
+        }
         Integer categoryId = createDirWithUserId(minioPath);
-        List<FileCategoryData> fileCategoryDataList = new ArrayList<>();
         for (String fileName : nettyUploadBlogFileDto.getFileNameList()) {
 
-            // 文件本地存放目录
-            String localFilePath = Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName;
+            LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(FileCategoryData::getFileCategoryId, categoryId);
+            wrapper.eq(FileCategoryData::getFileName, fileName);
+            FileCategoryData fileCategoryData = fileCategoryDataMapper.selectOne(wrapper);
 
-            // 文件转为 MultipartFile
-            File file = new File(localFilePath);
+            if (fileCategoryData == null) {
+                // 文件本地存放目录
+                String localFilePath = Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName;
 
-            String fileUrl = minioService.getFileUrl(minioPath, fileName);
-            FileCategoryData fileCategoryData = new FileCategoryData();
-            fileCategoryData.setUserId(userId);
-            fileCategoryData.setFileName(fileName);
-            fileCategoryData.setFileCategoryId(categoryId);
-            fileCategoryData.setFileUrl(fileUrl);
-            fileCategoryData.setFileSize(file.length());
-            fileCategoryData.setFileStatus(0);
-            fileCategoryData.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase());
-            fileCategoryData.setFileJson(VideoUtil.resolveVideo(file));
-            fileCategoryData.setCreateBy("system");
-            fileCategoryData.setCreateTime(new Date());
+                // 文件转为 MultipartFile
+                File file = new File(localFilePath);
 
-            boolean importFlag = minioService.importFile(localFilePath, minioPath);
-            logger.info("文件导入minio结果: {}", importFlag);
-            fileCategoryDataList.add(fileCategoryData);
-        }
+                String fileUrl = minioService.getFileUrl(minioPath, fileName);
+                FileCategoryData newFile = new FileCategoryData();
+                newFile.setUserId(userId);
+                newFile.setFileName(fileName);
+                newFile.setFileCategoryId(categoryId);
+                newFile.setFileUrl(fileUrl);
+                newFile.setFileSize(file.length());
+                newFile.setFileStatus(0);
+                newFile.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase());
+                newFile.setFileJson(VideoUtil.resolveVideo(file));
+                newFile.setCreateBy("system");
+                newFile.setCreateTime(new Date());
 
-        // 文件导入成功之后删除文件
-        nettyFileSyncService.deleteTempFile(nettyUploadBlogFileDto.getServiceFilePath(), "1m");
+                boolean importFlag = minioService.importFile(localFilePath, minioPath);
+                logger.info("文件导入minio结果: {}", importFlag);
+                fileCategoryDataMapper.insert(newFile);
 
-        if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
-            fileCategoryDataMapper.insert(fileCategoryDataList);
+            } else {
+                fileCategoryData.setFileStatus(0);
+                fileCategoryDataMapper.updateById(fileCategoryData);
+            }
         }
     }
 
+    /**
+     * 文件下载到树莓派设备
+     *
+     * @param nettyUploadBlogFileDto
+     * @param msgHead
+     */
+    @Override
+    public void fileDownloadDevice(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead) {
+        String minioPath = nettyUploadBlogFileDto.getMinioPath();
+        if (StringUtils.isEmpty(minioPath)) {
+            return;
+        }
+        Integer categoryId = createDirWithUserId(minioPath);
+        for (String fileName : nettyUploadBlogFileDto.getFileNameList()) {
 
+            LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(FileCategoryData::getFileCategoryId, categoryId);
+            wrapper.eq(FileCategoryData::getFileName, fileName);
+            FileCategoryData fileCategoryData = fileCategoryDataMapper.selectOne(wrapper);
+
+            if (fileCategoryData != null) {
+                fileCategoryData.setFileStatus(4);
+                fileCategoryDataMapper.updateById(fileCategoryData);
+            }
+        }
+    }
 }

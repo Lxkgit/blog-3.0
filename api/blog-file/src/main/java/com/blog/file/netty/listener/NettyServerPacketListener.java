@@ -7,7 +7,7 @@ import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.file.netty.domain.dto.NettyPacket;
-import com.blog.file.netty.domain.dto.file.NettyFileSyncDto;
+import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.file.netty.domain.dto.register.NettyRegisterDto;
 import com.blog.file.netty.domain.enums.NettyPacketType;
 import com.blog.file.netty.domain.enums.NettyTopic;
@@ -50,7 +50,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     private NettyDeviceService nettyDeviceData;
 
     @Resource
-    private NettyFileSyncService nettyFileSyncService;
+    private NettySyncFileService nettyFileSyncService;
 
     @Resource
     private UserDeviceMapper userDeviceDAO;
@@ -66,12 +66,13 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     @Override
     public void onApplicationEvent(NettyPacketEvent event) {
         ChannelId channelId = (ChannelId) event.getSource();
-        String nettyPacketType = event.getNettyPacket().getNettyPacketType();
-        String requestId = event.getNettyPacket().getRequestId();
-        String topic = event.getNettyPacket().getTopic();
         MsgHead msgHead = event.getNettyPacket().getMsgHead();
 
-        String registerCode = event.getNettyPacket().getRegisterCode();
+        String nettyPacketType = msgHead.getNettyMsgHead().getNettyPacketType();
+        String requestId = msgHead.getNettyMsgHead().getRequestId();
+        String topic = msgHead.getNettyMsgHead().getTopic();
+        String registerCode = msgHead.getNettyMsgHead().getRegisterCode();
+
         Integer userId = Integer.parseInt(registerCode.split(":")[0]);
         String deviceCode = registerCode.split(":")[1];
         String data = event.getNettyPacket().getData().toString();
@@ -100,15 +101,14 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
                 nettyDeviceData.deviceInfo(data, deviceCode, userId);
             }
             // 回复请求消息响应
-            NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, "response");
-            nettyResponse.setTopic(topic);
+            NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, topic, "response");
             nettyServer.sendByRegisterIdNotRetry(registerCode, JSONObject.toJSONString(nettyResponse));
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             if (NettyTopic.BLOG_FILE_SYNC.equals(topic)) {
                 // 文件同步上传响应数据处理
                 JSONObject jsonObject = JSONObject.parseObject(data);
-                NettyFileSyncDto nettyFileSyncDto = JSONObject.parseObject(jsonObject.getString("message"), NettyFileSyncDto.class);
-                nettyFileSyncService.syncFileReceive(nettyFileSyncDto, deviceCode, userId, msgHead);
+                NettySyncFileDto nettyFileSyncDto = JSONObject.parseObject(jsonObject.getString("message"), NettySyncFileDto.class);
+                nettyFileSyncService.receiveSyncFileMsg(msgHead, nettyFileSyncDto);
             }
 
             // 接收响应

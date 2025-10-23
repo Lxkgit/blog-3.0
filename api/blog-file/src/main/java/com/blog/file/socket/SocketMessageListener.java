@@ -2,7 +2,7 @@ package com.blog.file.socket;
 
 import com.alibaba.fastjson2.JSON;
 import com.blog.core.domain.common.MsgHead;
-import com.blog.file.netty.service.NettyFileSyncService;
+import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.file.socket.domain.SocketPacketEvent;
 import com.blog.file.socket.domain.constant.SocketPacketType;
 import com.blog.file.socket.domain.constant.SocketTopic;
@@ -16,8 +16,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
 @Component
 public class SocketMessageListener {
 
@@ -25,7 +23,7 @@ public class SocketMessageListener {
 
 
     @Resource
-    private NettyFileSyncService nettyFileSyncService;
+    private NettySyncFileService nettyFileSyncService;
 
     @Async
     @EventListener

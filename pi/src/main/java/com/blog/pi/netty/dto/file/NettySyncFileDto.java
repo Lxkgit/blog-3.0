@@ -13,58 +13,7 @@ import java.util.List;
 @Data
 public class NettySyncFileDto {
 
-    /**
-     * 用户id
-     */
-    private Integer userId;
-
-    /**
-     * 文件编码
-     */
-    private String fileCode;
-
-    /**
-     * 必填
-     * 文件同步类型
-     * 1：文件由服务器同步到设备
-     * 2：文件由设备上传到服务器
-     */
-    private Integer syncType;
-
-    /**
-     * 必填
-     * 服务器文件目录
-     * 下载：从此目录中下载文件
-     * 上传：文件上传至此目录
-     */
-    private String serviceFilePath;
-
-    /**
-     * 必填
-     * 设备文件存放目录
-     * 下载：文件最终存放至此目录
-     * 上传：从设备上此目录中选择文件上传
-     */
-    private String deviceFilePath;
-
-    /**
-     * 文件在minio中存放路径
-     * 同步类型为 2 时必填
-     */
-    private String minioPath;
-
-    /**
-     * 同步文件名称
-     */
-    private List<String> fileNameList;
-
-    /**
-     * 同步文件数量
-     * 同步类型为 2 时，将设备文件存放目录中获取指定数量文件上传
-     */
-    private Integer count;
-
-    // -----------数据响应字段----------------
+    // -----------消息发送状态字段----------------
 
     /**
      * 响应类型 因为文件同步处理时间较长，而netty又需要做消息重发功能，所以文件同步客户端netty会响应两次
@@ -73,6 +22,73 @@ public class NettySyncFileDto {
      */
     private Integer resultType;
 
+    /**
+     * syncType 文件同步类型
+     * 1 下载
+     * 2 上传
+     */
+    private Integer syncType;
 
+    /**
+     * 同步结果
+     */
+    private Boolean syncResult;
+
+    // -----------数据发送字段----------------
+
+    /**
+     * 上传/下载-ftp中文件目录
+     */
+    private String serviceFilePath;
+
+    /**
+     * 上传/下载-文件放入设备下目录名称
+     */
+    private String deviceFilePath;
+
+    /**
+     * 上传-不指定名称时上传文件数量
+     */
+    private Integer count;
+
+    /**
+     * 上传-写入minio中路径
+     */
+    private String minioPath;
+
+    /**
+     * 上传-是否删除minio中原文件
+     * 0: 删除
+     * 1: 保留
+     */
+    private Integer minioDeleteFlag;
+
+    /**
+     * 上传/下载-指定文件名称
+     */
+    private List<String> fileNameList;
+
+    // -----------数据响应字段----------------
+
+    /**
+     * 上传/下载-设备处理失败错误原因
+     */
+    private String errorMsg;
+
+    public static NettySyncFileDto buildSyncToDevice(String serviceFilePath, String deviceFilePath) {
+        NettySyncFileDto nettySyncFileDto = new NettySyncFileDto();
+        nettySyncFileDto.setSyncType(1);
+        nettySyncFileDto.setServiceFilePath(serviceFilePath);
+        nettySyncFileDto.setDeviceFilePath(deviceFilePath);
+        return nettySyncFileDto;
+    }
+
+    public static NettySyncFileDto buildSyncToService(String minioPath, String servicePath, String deviceFilePath) {
+        NettySyncFileDto nettySyncFileDto = new NettySyncFileDto();
+        nettySyncFileDto.setSyncType(2);
+        nettySyncFileDto.setMinioPath(minioPath);
+        nettySyncFileDto.setServiceFilePath(servicePath);
+        nettySyncFileDto.setDeviceFilePath(deviceFilePath);
+        return nettySyncFileDto;
+    }
 }
-

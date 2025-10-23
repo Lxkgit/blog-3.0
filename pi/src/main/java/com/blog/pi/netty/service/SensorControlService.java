@@ -51,7 +51,7 @@ public class SensorControlService {
 
         // 响应服务端处理结果
         NettyResponse nettyResponse = new NettyResponse(true);
-        NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(requestId, "", msgHead, nettyResponse);
+        NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(msgHead, nettyResponse);
         nettyPacket.setMsgHead(msgHead);
         nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
 

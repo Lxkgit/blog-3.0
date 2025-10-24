@@ -52,7 +52,7 @@ public class SocketMessageListener {
                 SocketMoveFileDto dto = JSON.parseObject(data, SocketMoveFileDto.class);
                 logger.info("文件或目录: {} 已移动到: {} 目录下", dto.getSourceDirectory(), dto.getTargetDirectory());
                 if (dto.getType().equals(2)) {
-                    nettyFileSyncService.updateBlogFileSecondStep(dto, msgHead);
+                    nettyFileSyncService.receiveSocketMoveFileMsg(dto, msgHead);
                 }
             }
         }

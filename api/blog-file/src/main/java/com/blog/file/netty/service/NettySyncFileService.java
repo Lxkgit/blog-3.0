@@ -116,7 +116,7 @@ public class NettySyncFileService {
         if (nettySyncFileDto.getResultType() == 1) {
             logger.info("收到netty响应消息");
         } else if (nettySyncFileDto.getResultType() == 2) {
-            if (nettySyncFileDto.getSyncResult()) {
+            if (nettySyncFileDto.getSyncResult() == 1) {
                 if (nettySyncFileDto.getSyncType() == 1) {
                     // 文件下载消息响应
 
@@ -203,6 +203,7 @@ public class NettySyncFileService {
             // devicePath 为树莓派设备上的绝对路径
             String devicePath = bo.getDevicePath();
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
+            nettySyncFileDto.setFileSource(2);
             nettySyncFileDto.setCount(bo.getCount());
             sendSyncFileMsg(msgHead, nettySyncFileDto, userId);
         }

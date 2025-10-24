@@ -37,8 +37,17 @@ public class NettySyncFileDto {
 
     /**
      * 同步结果
+     * 0 失败
+     * 1 成功
      */
-    private Boolean syncResult;
+    private Integer syncResult;
+
+    /**
+     * 同步任务是否结束
+     * 0 否
+     * 1 是
+     */
+    private Integer syncEnd;
 
     // -----------数据发送字段----------------
 
@@ -73,6 +82,13 @@ public class NettySyncFileDto {
      * 上传/下载-指定文件名称
      */
     private List<String> fileNameList;
+
+    /**
+     * 文件来源
+     * 1 系统内文件
+     * 2 系统外文件
+     */
+    private Integer fileSource;
 
     // -----------数据响应字段----------------
 

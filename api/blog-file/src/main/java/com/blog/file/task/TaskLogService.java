@@ -29,7 +29,7 @@ public class TaskLogService {
             taskLog.setTaskUUID(msgHead.getTaskMsgHead().getTaskUUID());
         }
         if (nettyFileSyncDto != null) {
-            taskLog.setTaskResultStatus(nettyFileSyncDto.getSyncResult() ? 1 : 0);
+            taskLog.setTaskResultStatus(nettyFileSyncDto.getSyncResult());
             taskLog.setTaskResult(JSONObject.toJSONString(nettyFileSyncDto));
         }
         if (StringUtils.isNotEmpty(taskLog.getTaskUUID())) {

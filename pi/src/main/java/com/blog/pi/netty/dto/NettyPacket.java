@@ -51,6 +51,22 @@ public class NettyPacket<T> implements Serializable {
     }
 
     /**
+     * 构建netty请求消息
+     *
+     * @param topic
+     * @param param
+     * @param <T>
+     * @return
+     */
+    public static <T> NettyPacket<T> buildRequest(NettyPacketType nettyPacketType, String topic, T param) {
+        NettyPacket<T> nettyPacket = new NettyPacket<>();
+        MsgHead msgHead = buildNettyMsgHead(UUID.randomUUID().toString(), topic, nettyPacketType);
+        nettyPacket.setMsgHead(msgHead);
+        nettyPacket.setData(param);
+        return nettyPacket;
+    }
+
+    /**
      * 构建netty响应消息
      *
      * @param requestId
@@ -77,6 +93,10 @@ public class NettyPacket<T> implements Serializable {
     public static <T> NettyPacket<T> buildResponse(MsgHead msgHead, T data) {
         NettyPacket<T> nettyPacket = new NettyPacket<>();
         nettyPacket.setMsgHead(msgHead);
+        if (msgHead != null && msgHead.getNettyMsgHead() != null) {
+            msgHead.getNettyMsgHead().setNettyPacketType(NettyPacketType.RESPONSE.getValue());
+            msgHead.getNettyMsgHead().setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
+        }
         nettyPacket.setData(data);
         return nettyPacket;
     }
@@ -93,9 +113,9 @@ public class NettyPacket<T> implements Serializable {
     private static MsgHead buildNettyMsgHead(String requestId, String topic, NettyPacketType response) {
         MsgHead msgHead = new MsgHead();
         NettyMsgHead nettyMsgHead = new NettyMsgHead();
+        nettyMsgHead.setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
         nettyMsgHead.setRequestId(requestId);
         nettyMsgHead.setTopic(topic);
-        nettyMsgHead.setRegisterCode("1:2ecfb95116de4967afe7710e11ac00b4");
         nettyMsgHead.setNettyPacketType(response.getValue());
         msgHead.setNettyMsgHead(nettyMsgHead);
         return msgHead;

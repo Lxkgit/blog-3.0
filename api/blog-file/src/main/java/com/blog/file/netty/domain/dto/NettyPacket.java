@@ -11,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,10 +96,24 @@ public class NettyPacket<T> implements Serializable {
     public void setMsgHead(MsgHead msgHead) {
         if (this.msgHead == null) {
             this.msgHead = msgHead;
-        } else {
-            BeanUtils.copyProperties(msgHead, this.msgHead);
+            return;
+        }
+
+        // 只在 this.msgHead 的属性为 null 时，才从 msgHead 复制值
+        try {
+            for (Field field : this.msgHead.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                Object targetValue = field.get(this.msgHead);
+                Object sourceValue = field.get(msgHead);
+                if (targetValue == null && sourceValue != null) {
+                    field.set(this.msgHead, sourceValue);
+                }
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("设置 msgHead 属性失败", e);
         }
     }
+
 
     public static void request(String requestId, NettyPacket<Object> nettyResponse) {
         MESSAGE_QUEUE.put(requestId, nettyResponse);

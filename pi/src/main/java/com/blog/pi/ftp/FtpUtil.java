@@ -130,7 +130,6 @@ public class FtpUtil {
         } finally {
             if (ftpClient != null && ftpClient.isConnected()) {
                 try {
-                    ftpClient.completePendingCommand();
                     ftpClient.logout();
                     ftpClient.disconnect();
                 } catch (IOException e) {

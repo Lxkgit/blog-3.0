@@ -65,7 +65,7 @@ public class NettyClientHandler extends ChannelDuplexHandler {
         deviceInfoService.setRegisterMsg(nettyRegisterDto);
 
         // 发送注册消息
-        NettyPacket<NettyRegisterDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.REGISTER.getValue(), nettyRegisterDto);
+        NettyPacket<NettyRegisterDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.REGISTER, NettyPacketType.REGISTER.getValue(), nettyRegisterDto);
         String nettyRegister = JSONObject.toJSONString(nettyRequest);
         ctx.writeAndFlush(nettyRegister);
     }
@@ -94,7 +94,7 @@ public class NettyClientHandler extends ChannelDuplexHandler {
 //                nettyHeartBeat.setClientIds(chipStatusService.getMqttClientId(true));
 
                 // 向服务端发送心跳包
-                NettyPacket<NettyHeartBeatDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.HEARTBEAT.getValue(), nettyHeartBeat);
+                NettyPacket<NettyHeartBeatDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.HEARTBEAT, NettyPacketType.HEARTBEAT.getValue(), nettyHeartBeat);
                 nettyRequest.getMsgHead().getNettyMsgHead().setNettyPacketType(NettyPacketType.HEARTBEAT.getValue());
 
                 // 发送心跳消息，并在发送失败时关闭该连接

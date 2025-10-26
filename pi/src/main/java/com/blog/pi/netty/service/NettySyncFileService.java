@@ -280,7 +280,7 @@ public class NettySyncFileService {
             fileSyncDto.setSyncResult(uploadFlag ? 1 : 0);
             fileSyncDto.setSyncEnd(0);
 
-            fileSyncDto.setServiceFilePath(basePath);
+            fileSyncDto.setServiceFilePath(nettySyncFileDto.getServiceFilePath());
             fileSyncDto.setFileNameList(new ArrayList<>(List.of(fileName)));
             fileSyncDto.setMinioPath(nettySyncFileDto.getMinioPath());
 

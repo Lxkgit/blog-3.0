@@ -102,6 +102,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
             // 处理泛型：new TypeReference<NettyPacket<Object>>() {}.getType()
             // TypeReference：解决Java泛型类型擦除问题，保留NettyPacket<Object>的类型信息，确保反序列化时能正确识别泛型类型
             // NettyPacket：自定义的泛型类，可能用于封装网络传输的数据包，Object表示其携带的数据类型可以是任意对象
+
             NettyPacket<Object> nettyPacket = JSONObject.parseObject(msg.toString(), new TypeReference<NettyPacket<Object>>() {
             }.getType());
             // 发布自定义Netty数据包处理事件

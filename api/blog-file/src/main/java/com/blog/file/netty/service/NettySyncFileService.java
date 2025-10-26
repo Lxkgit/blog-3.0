@@ -127,8 +127,8 @@ public class NettySyncFileService {
                     // 文件导入minio
                     fileService.fileImportMinio(nettySyncFileDto, msgHead);
                 }
-                // 文件下载或上传成功之后删除临时目录
-                deleteTempFile(nettySyncFileDto.getServiceFilePath(), "1m");
+//                // 文件下载或上传成功之后删除临时目录
+//                deleteTempFile(nettySyncFileDto.getServiceFilePath(), "1m");
             } else {
                 logger.info("文件同步失败");
             }

@@ -110,6 +110,7 @@ public class FtpUtil {
 
         Path filePath = Paths.get(sourceFilePath, sourceFileName);
         File file = filePath.toFile();
+        boolean success = false;
         try (InputStream inputStream = new FileInputStream(file)) {
 
             // 确保目录存在
@@ -120,14 +121,12 @@ public class FtpUtil {
 
             // 上传文件（FTPClient 会自动从流读取数据上传）
             logger.info("===== 开始上传文件 ===== fileName: {}", filePath.getFileName());
-            boolean success = ftpClient.storeFile(fn, inputStream);
+            success = ftpClient.storeFile(fn, inputStream);
             logger.info("ftp 文件上传结果: {}", success);
-            return success;
-
         } catch (IOException e) {
             logger.error("ftp 文件上传失败", e);
-            return false;
         } finally {
+            logger.info("ftp 文件上传结束");
             if (ftpClient != null && ftpClient.isConnected()) {
                 try {
                     ftpClient.logout();
@@ -137,6 +136,7 @@ public class FtpUtil {
                 }
             }
         }
+        return success;
     }
 
     /**

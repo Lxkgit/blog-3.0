@@ -242,7 +242,8 @@ public class NettySyncFileService {
         String serviceFilePath = nettySyncFileDto.getServiceFilePath();
         List<String> fileNameList = responseMoveFileDto.getFileNameList();
         String basePath = responseMoveFileDto.getTargetDirectory();
-        for (String fileName : fileNameList) {
+        for (int i = 0; i < fileNameList.size(); i++) {
+            String fileName = fileNameList.get(i);
 
             if (nettySyncFileDto.getFileSource() == 1) {
 
@@ -268,7 +269,17 @@ public class NettySyncFileService {
                 }
             }
 
-            boolean uploadFlag = ftpUtil.uploadFtpFile(basePath, fileName, serviceFilePath, fileName);
+            boolean uploadFlag = false;
+            int retryTime = 3;
+            for (int j = 0; j < retryTime && !(uploadFlag = ftpUtil.uploadFtpFile(basePath, fileName, serviceFilePath, fileName)); j++) {
+                logger.warn("上传失败，第 {} 次重试中...", j + 1);
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ignored) {
+                }
+            }
+            if (uploadFlag) logger.info("文件上传成功");
+            else logger.error("文件上传失败，已重试 3 次");
 
             // 上传完成一个文件
             String requestId = msgHead.getNettyMsgHead().getRequestId();
@@ -278,7 +289,11 @@ public class NettySyncFileService {
             fileSyncDto.setResultType(2);
             fileSyncDto.setSyncType(2);
             fileSyncDto.setSyncResult(uploadFlag ? 1 : 0);
-            fileSyncDto.setSyncEnd(0);
+            if (i == fileNameList.size() - 1) {
+                fileSyncDto.setSyncEnd(1);
+            } else {
+                fileSyncDto.setSyncEnd(0);
+            }
 
             fileSyncDto.setServiceFilePath(nettySyncFileDto.getServiceFilePath());
             fileSyncDto.setFileNameList(new ArrayList<>(List.of(fileName)));

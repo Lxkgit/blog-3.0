@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 
 /**
  * @description:
@@ -46,31 +48,47 @@ public class FtpUtil {
 
     private boolean init() {
         ftpClient = new FTPClient();
-        if (ftpClient.isConnected()) {
-            return true;
-        }
-        logger.info("开始连接ftp");
-        int reply;
+        if (ftpClient.isConnected()) return true;
+
         try {
+            logger.info("开始连接 ftp");
+
+            // 必须在连接前设置
             ftpClient.setConnectTimeout(10000);
+
+            // 连接与登录
             ftpClient.connect(ip, port);
-            ftpClient.login(username, password);
-            reply = ftpClient.getReplyCode();
+            if (!ftpClient.login(username, password)) {
+                logger.error("ftp 登录失败");
+                ftpClient.disconnect();
+                return false;
+            }
+
+            int reply = ftpClient.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftpClient.disconnect();
-            } else {
-                logger.info("===== ftp 连接成功 =====");
-                ftpClient.setControlEncoding("UTF-8");
-                ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-                ftpClient.enterLocalPassiveMode();
-                ftpClient.setFileTransferMode(FTP.STREAM_TRANSFER_MODE);
+                logger.error("ftp 响应错误: {}", reply);
+                return false;
             }
+
+            // 连接成功后再配置
+            ftpClient.setControlEncoding("UTF-8");
+            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+            ftpClient.enterLocalPassiveMode();
+            ftpClient.setFileTransferMode(FTP.STREAM_TRANSFER_MODE);
+//            ftpClient.setSoTimeout(3 * 60 * 1000);                   // 控制通道超时：3分钟
+            ftpClient.setDataTimeout(Duration.ofMinutes(5));          // 数据通道超时：5分钟
+
+
+            logger.info("===== ftp 连接成功 =====");
+            return true;
+
         } catch (Exception e) {
             logger.error("ftp 连接异常: {}", e.getMessage(), e);
             return false;
         }
-        return true;
     }
+
 
     /**
      * 创建ftp目录并切换ftp工作目录
@@ -101,8 +119,10 @@ public class FtpUtil {
      * @param targetFileName 服务器文件名称
      * @return 文件上传是否成功
      */
-    public boolean uploadFtpFile(String sourceFilePath, String sourceFileName, String targetFilePath, String targetFileName) {
-        logger.info("===== ftp 上传文件 ===== sourcePath: {}, sourceFileName: {}, targetName: {}, targetFileName: {}", sourceFilePath, sourceFileName, targetFilePath, targetFileName);
+    public boolean uploadFtpFile(String sourceFilePath, String sourceFileName,
+                                 String targetFilePath, String targetFileName) {
+        logger.info("===== ftp 上传文件 ===== sourcePath: {}, sourceFileName: {}, targetName: {}, targetFileName: {}",
+                sourceFilePath, sourceFileName, targetFilePath, targetFileName);
         boolean initSuccess = init();
         if (!initSuccess) {
             return false;
@@ -110,23 +130,27 @@ public class FtpUtil {
 
         Path filePath = Paths.get(sourceFilePath, sourceFileName);
         File file = filePath.toFile();
+
         boolean success = false;
-        try (InputStream inputStream = new FileInputStream(file)) {
+        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
 
             // 确保目录存在
             createDirectoryByPathName(new String(targetFilePath.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
 
-            // 文件名转码
+            // 上传文件
             String fn = new String(targetFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-
-            // 上传文件（FTPClient 会自动从流读取数据上传）
             logger.info("===== 开始上传文件 ===== fileName: {}", filePath.getFileName());
             success = ftpClient.storeFile(fn, inputStream);
+            // 🔧 确保等待服务器确认（非常关键）
+            ftpClient.completePendingCommand();
+
             logger.info("ftp 文件上传结果: {}", success);
+
+        } catch (SocketTimeoutException e) {
+            logger.error("FTP 上传超时: {}", e.getMessage(), e);
         } catch (IOException e) {
             logger.error("ftp 文件上传失败", e);
         } finally {
-            logger.info("ftp 文件上传结束");
             if (ftpClient != null && ftpClient.isConnected()) {
                 try {
                     ftpClient.logout();
@@ -188,6 +212,7 @@ public class FtpUtil {
 
     /**
      * 创建本地目录（自动创建父目录）
+     *
      * @param dirPath 目录路径
      * @return 是否创建成功（已存在视为成功）
      */

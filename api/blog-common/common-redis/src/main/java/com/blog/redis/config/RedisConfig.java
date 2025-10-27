@@ -17,6 +17,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.*;
 import org.springframework.security.jackson2.CoreJackson2Module;
 
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+
 /**
  * redis配置
  *
@@ -30,14 +33,15 @@ public class RedisConfig {
     @Bean
     @SuppressWarnings("all")
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-        // 我们为了自己开发方便，一般直接使用 <String, Object>
-        RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
-        // Json序列化配置
-        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+
+        // JSON 序列化配置
+        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper om = new ObjectMapper();
+
+        // 可见性与类型信息
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
 
         //下面这2行必须设置 否则无法转换对象
         om.activateDefaultTyping(om.getPolymorphicTypeValidator(),
@@ -45,8 +49,12 @@ public class RedisConfig {
         // 添加Security提供的Jackson Mixin
         om.registerModule(new CoreJackson2Module());
 
+        // 设置时区为北京时间
+        om.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
         jackson2JsonRedisSerializer.setObjectMapper(om);
-        // String 的序列化
+        // String 序列化
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
         // key采用String的序列化方式
         template.setKeySerializer(stringRedisSerializer);

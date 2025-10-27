@@ -9,6 +9,8 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 /**
  * @Description
  * @Author lxk
@@ -23,6 +25,7 @@ public class TaskLogService {
 
     public void recordTaskLog(NettySyncFileDto nettyFileSyncDto, MsgHead msgHead) {
         TaskLog taskLog = new TaskLog();
+        taskLog.setStartTime(new Date());
         if (msgHead != null && msgHead.getTaskMsgHead() != null) {
             taskLog.setTaskCode(msgHead.getTaskMsgHead().getTaskCode());
             taskLog.setChildTaskCode(msgHead.getTaskMsgHead().getChildTaskCode());

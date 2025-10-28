@@ -185,16 +185,6 @@ public class NettySyncFileService {
         NettySyncFileDto nettySyncFileDto = JSONObject.parseObject(responseMoveFileDto.getData(), NettySyncFileDto.class);
         if (nettySyncFileDto.getSyncType().equals(2)) {
             uploadFile(responseMoveFileDto, msgHead, nettySyncFileDto);
-
-            if (nettySyncFileDto.getFileSource() == 2) {
-                SocketMoveFileDto requestMoveFileDto = new SocketMoveFileDto();
-                requestMoveFileDto.setType(1);
-                requestMoveFileDto.setSourceDirectory(responseMoveFileDto.getTargetDirectory());
-                requestMoveFileDto.setTargetDirectory(Constant.DISK_PATH_TEMP + "/video");
-                SocketPacket<SocketMoveFileDto> socketPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, null, requestMoveFileDto);
-                socketPacket.setMsgHead(msgHead);
-                socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, socketPacket);
-            }
         }
 
         if (responseMoveFileDto.getDirDeleteFlag() == 1) {
@@ -278,8 +268,23 @@ public class NettySyncFileService {
                 } catch (InterruptedException ignored) {
                 }
             }
-            if (uploadFlag) logger.info("文件上传成功");
-            else logger.error("文件上传失败，已重试 3 次");
+            if (uploadFlag) {
+                logger.info("文件上传成功");
+                boolean delFlag = deleteLocalFile(basePath, fileName);
+                logger.info("文件删除结果: delFlag: {}",delFlag);
+            } else {
+                logger.error("文件上传失败，已重试 3 次");
+                if (nettySyncFileDto.getFileSource() == 2) {
+                    SocketMoveFileDto requestMoveFileDto = new SocketMoveFileDto();
+                    requestMoveFileDto.setType(1);
+                    requestMoveFileDto.setSourceDirectory(responseMoveFileDto.getTargetDirectory());
+                    requestMoveFileDto.setTargetDirectory(Constant.DISK_PATH_TEMP + "/video");
+                    requestMoveFileDto.setFileNameList(Collections.singletonList(fileName));
+                    SocketPacket<SocketMoveFileDto> socketPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, null, requestMoveFileDto);
+                    socketPacket.setMsgHead(msgHead);
+                    socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, socketPacket);
+                }
+            }
 
             // 上传完成一个文件
             String requestId = msgHead.getNettyMsgHead().getRequestId();
@@ -303,5 +308,17 @@ public class NettySyncFileService {
             NettyPacket<NettyResponse> nettyPacket = NettyPacket.buildResponse(msgHead, nettyResponse);
             nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyPacket), false);
         }
+    }
+
+    /**
+     * 删除本地文件（简单版）
+     *
+     * @param dirPath  文件所在目录
+     * @param fileName 文件名
+     * @return 删除是否成功
+     */
+    public boolean deleteLocalFile(String dirPath, String fileName) {
+        File file = new File(dirPath, fileName);
+        return file.exists() && file.isFile() && file.delete();
     }
 }

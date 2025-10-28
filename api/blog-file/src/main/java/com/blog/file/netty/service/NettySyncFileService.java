@@ -9,6 +9,8 @@ import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
+import com.blog.core.domain.file.task.bo.SyncServiceFileBo;
+import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
@@ -38,6 +40,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -124,6 +131,19 @@ public class NettySyncFileService {
                 } else if (nettySyncFileDto.getSyncType() == 2) {
                     // 文件上传消息响应
 
+                    // 系统外部来源的文件需要进行重命名
+                    if (nettySyncFileDto.getFileSource() == 2) {
+                        String filePath = Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath();
+                        List<String> fileNameList = nettySyncFileDto.getFileNameList();
+                        List<String> newFileNameList = new ArrayList<>();
+                        for (String fileName : fileNameList) {
+                            String newFileName = DateUtil.formatDateTimeNoSpaces() + "_" + fileName;
+                            renameLocalFile(filePath, fileName, filePath, newFileName);
+                            newFileNameList.add(newFileName);
+                        }
+                        nettySyncFileDto.setFileNameList(newFileNameList);
+                    }
+
                     // 文件导入minio
                     fileService.fileImportMinio(nettySyncFileDto, msgHead);
                 }
@@ -142,6 +162,44 @@ public class NettySyncFileService {
             taskLogService.recordTaskLog(nettySyncFileDto, msgHead);
         }
     }
+
+    /**
+     * 重命名本地文件
+     *
+     * @param sourceDir  原文件所在目录，例如 "C:/upload/files" 或 "/data/files"
+     * @param sourceName 原文件名，例如 "test.txt"
+     * @param targetDir  新文件所在目录（可与原目录相同）
+     * @param targetName 新文件名，例如 "test_rename.txt"
+     * @return 重命名是否成功
+     */
+    public boolean renameLocalFile(String sourceDir, String sourceName, String targetDir, String targetName) {
+        Path sourcePath = Paths.get(sourceDir, sourceName);
+        Path targetPath = Paths.get(targetDir, targetName);
+
+        try {
+            // 检查原文件是否存在
+            if (!Files.exists(sourcePath)) {
+                logger.warn("源文件不存在: {}", sourcePath);
+                return false;
+            }
+
+            // 创建目标目录（如果不存在）
+            if (!Files.exists(targetPath.getParent())) {
+                Files.createDirectories(targetPath.getParent());
+            }
+
+            // 执行重命名（支持跨目录移动）
+            Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            logger.info("文件重命名成功: {} → {}", sourcePath, targetPath);
+            return true;
+
+        } catch (IOException e) {
+            logger.error("文件重命名失败: {} → {}", sourcePath, targetPath, e);
+            return false;
+        }
+    }
+
 
     /**
      * 博客数据同步任务-第一步
@@ -178,10 +236,24 @@ public class NettySyncFileService {
     }
 
     /**
+     * 定时任务同步博客云盘文件
+     *
+     * @param bo
+     * @param msgHead
+     * @return
+     */
+    public String syncServiceFile(SyncServiceFileBo bo, MsgHead msgHead) {
+        logger.info("===== 定时任务-云盘文件同步 ===== SyncServiceFileBo: {} MsgHead: {}", bo, msgHead);
+
+        return null;
+    }
+
+    /**
      * 定时任务请求树莓派文件上传
      *
      * @param bo
      * @param msgHead
+     * @return
      */
     public String syncDeviceFile(SyncDeviceFileBo bo, MsgHead msgHead) {
         logger.info("===== 定时任务-树莓派文件上传 ===== SyncDeviceFileBo: {} MsgHead: {}", bo, msgHead);

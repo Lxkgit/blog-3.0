@@ -47,17 +47,24 @@ public class FtpUtil {
     private String password;
 
     private boolean init() {
-        ftpClient = new FTPClient();
-        if (ftpClient.isConnected()) return true;
-
         try {
+            if (ftpClient != null && ftpClient.isConnected()) {
+                return true;
+            }
+
+            if (ftpClient != null) {
+                try {
+                    ftpClient.logout();
+                    ftpClient.disconnect();
+                } catch (IOException ignored) {}
+            }
+
+            ftpClient = new FTPClient();
             logger.info("开始连接 ftp");
 
-            // 必须在连接前设置
             ftpClient.setConnectTimeout(10000);
-
-            // 连接与登录
             ftpClient.connect(ip, port);
+
             if (!ftpClient.login(username, password)) {
                 logger.error("ftp 登录失败");
                 ftpClient.disconnect();
@@ -71,23 +78,29 @@ public class FtpUtil {
                 return false;
             }
 
-            // 连接成功后再配置
+            // 基本配置
             ftpClient.setControlEncoding("UTF-8");
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
             ftpClient.enterLocalPassiveMode();
             ftpClient.setFileTransferMode(FTP.STREAM_TRANSFER_MODE);
-//            ftpClient.setSoTimeout(3 * 60 * 1000);                   // 控制通道超时：3分钟
-            ftpClient.setDataTimeout(Duration.ofMinutes(5));          // 数据通道超时：5分钟
-
+            ftpClient.setSoTimeout(3 * 60 * 1000);        // 控制通道超时
+            ftpClient.setDataTimeout(Duration.ofMinutes(5)); // 数据通道超时
+            ftpClient.setRemoteVerificationEnabled(false);   // 避免主机验证问题
+            ftpClient.sendNoOp();                            // 验证连接
 
             logger.info("===== ftp 连接成功 =====");
             return true;
-
         } catch (Exception e) {
             logger.error("ftp 连接异常: {}", e.getMessage(), e);
+            try {
+                if (ftpClient != null && ftpClient.isConnected()) {
+                    ftpClient.disconnect();
+                }
+            } catch (IOException ignored) {}
             return false;
         }
     }
+
 
 
     /**
@@ -123,10 +136,8 @@ public class FtpUtil {
                                  String targetFilePath, String targetFileName) {
         logger.info("===== ftp 上传文件 ===== sourcePath: {}, sourceFileName: {}, targetName: {}, targetFileName: {}",
                 sourceFilePath, sourceFileName, targetFilePath, targetFileName);
-        boolean initSuccess = init();
-        if (!initSuccess) {
-            return false;
-        }
+
+        if (!init()) return false;
 
         Path filePath = Paths.get(sourceFilePath, sourceFileName);
         File file = filePath.toFile();
@@ -141,8 +152,6 @@ public class FtpUtil {
             String fn = new String(targetFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
             logger.info("===== 开始上传文件 ===== fileName: {}", filePath.getFileName());
             success = ftpClient.storeFile(fn, inputStream);
-            // 🔧 确保等待服务器确认（非常关键）
-            ftpClient.completePendingCommand();
 
             logger.info("ftp 文件上传结果: {}", success);
 
@@ -151,14 +160,7 @@ public class FtpUtil {
         } catch (IOException e) {
             logger.error("ftp 文件上传失败", e);
         } finally {
-            if (ftpClient != null && ftpClient.isConnected()) {
-                try {
-                    ftpClient.logout();
-                    ftpClient.disconnect();
-                } catch (IOException e) {
-                    logger.warn("关闭 ftp 连接异常: {}", e.getMessage(), e);
-                }
-            }
+            disconnectFtp();
         }
         return success;
     }
@@ -174,10 +176,7 @@ public class FtpUtil {
      */
     public boolean downloadFtpFile(String serviceFilePath, String serviceFileName, String localFilePath, String localFileName) {
         logger.info("===== ftp 下载文件 ===== pathName:{} fileName:{}", serviceFilePath, serviceFileName);
-        boolean initSuccess = init();
-        if (!initSuccess) {
-            return false;
-        }
+        if (!init()) return false;
 
         try {
             createDir(localFilePath);
@@ -197,18 +196,25 @@ public class FtpUtil {
         } catch (IOException e) {
             logger.error("ftp 文件下载失败:{}", e.getMessage(), e);
         } finally {
-            if (ftpClient.isConnected()) {
-                try {
-                    ftpClient.completePendingCommand();
-                    ftpClient.logout();
-                    ftpClient.disconnect();
-                } catch (IOException e) {
-                    logger.error("ftp 文件下载关闭连接失败:{}", e.getMessage(), e);
-                }
-            }
+            disconnectFtp();
         }
         return false;
     }
+
+    /**
+     * 断开ftp连接
+     */
+    private void disconnectFtp() {
+        if (ftpClient != null && ftpClient.isConnected()) {
+            try {
+                ftpClient.logout();
+                ftpClient.disconnect();
+            } catch (IOException e) {
+                logger.warn("关闭 ftp 连接异常: {}", e.getMessage(), e);
+            }
+        }
+    }
+
 
     /**
      * 创建本地目录（自动创建父目录）

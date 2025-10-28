@@ -3,7 +3,7 @@ package com.blog.core.domain.file.task.bo;
 import lombok.Data;
 
 /**
- * @Description
+ * @Description 定时任务请求树莓派文件上传
  * @Author lxk
  * @CreateTime 2025-09-16
  */

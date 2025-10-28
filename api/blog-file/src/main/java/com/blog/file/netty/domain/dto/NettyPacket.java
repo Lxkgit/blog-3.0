@@ -94,6 +94,7 @@ public class NettyPacket<T> implements Serializable {
     }
 
     public void setMsgHead(MsgHead msgHead) {
+        if (msgHead == null) return;
         if (this.msgHead == null) {
             this.msgHead = msgHead;
             return;

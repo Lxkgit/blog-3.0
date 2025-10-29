@@ -132,14 +132,17 @@ public class NettySyncFileService {
                     // 文件上传消息响应
 
                     // 系统外部来源的文件需要进行重命名
-                    if (nettySyncFileDto.getFileSource() == 2) {
+                    if (nettySyncFileDto.getFileSource() != null && nettySyncFileDto.getFileSource() == 2) {
                         String filePath = Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath();
                         List<String> fileNameList = nettySyncFileDto.getFileNameList();
                         List<String> newFileNameList = new ArrayList<>();
                         for (String fileName : fileNameList) {
                             String newFileName = DateUtil.formatDateTimeNoSpaces() + "_" + fileName;
-                            renameLocalFile(filePath, fileName, filePath, newFileName);
-                            newFileNameList.add(newFileName);
+                            if (renameLocalFile(filePath, fileName, filePath, newFileName)) {
+                                newFileNameList.add(newFileName);
+                            } else {
+                                newFileNameList.add(fileName);
+                            }
                         }
                         nettySyncFileDto.setFileNameList(newFileNameList);
                     }
@@ -150,7 +153,7 @@ public class NettySyncFileService {
 
                 if (nettySyncFileDto.getSyncEnd() == 1) {
                     // 文件下载或上传成功之后删除临时目录
-                    deleteTempFile(nettySyncFileDto.getServiceFilePath(), "5m");
+                    deleteTempFile(Constant.FTP_PATH_SYSTEM_TEMP + nettySyncFileDto.getServiceFilePath(), "5m");
                 }
             } else {
                 logger.info("文件同步失败");

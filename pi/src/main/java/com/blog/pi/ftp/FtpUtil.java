@@ -28,15 +28,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * @description:
+ * @description: 多线程安全 FTP 工具类
  * @Author: lxk
  * @date 2024/1/2 16:40
  */
 
-/**
- * 多线程安全 FTP 工具类
- * 兼容原有方法签名：uploadFtpFile / downloadFtpFile
- */
 @Service
 public class FtpUtil {
 
@@ -86,8 +82,8 @@ public class FtpUtil {
         ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         ftpClient.enterLocalPassiveMode();
         ftpClient.setFileTransferMode(FTP.STREAM_TRANSFER_MODE);
-        ftpClient.setSoTimeout(3 * 60 * 1000);
-        ftpClient.setDataTimeout(Duration.ofMinutes(5));
+        ftpClient.setSoTimeout(30 * 60 * 1000);
+        ftpClient.setDataTimeout(Duration.ofMinutes(10));
         ftpClient.setRemoteVerificationEnabled(false);
         ftpClient.sendNoOp(); // 验证连接
         return ftpClient;

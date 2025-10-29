@@ -148,7 +148,11 @@ public class FtpUtil {
                 String fn = new String(targetFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
                 logger.info("开始上传文件: {}", filePath.getFileName());
                 boolean success = ftpClient.storeFile(fn, inputStream);
-                ftpClient.completePendingCommand();
+                try {
+                    ftpClient.completePendingCommand();
+                } catch (SocketTimeoutException e) {
+                    logger.warn("completePendingCommand 超时，但文件可能已上传完成: {}", e.getMessage());
+                }
                 logger.info("ftp 文件上传结果: {}", success);
                 return success;
             }

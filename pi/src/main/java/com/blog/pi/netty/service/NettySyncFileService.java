@@ -259,15 +259,8 @@ public class NettySyncFileService {
                 }
             }
 
-            boolean uploadFlag = false;
-            int retryTime = 3;
-            for (int j = 0; j < retryTime && !(uploadFlag = ftpUtil.uploadFtpFile(basePath, fileName, serviceFilePath, fileName)); j++) {
-                logger.warn("上传失败，第 {} 次重试中...", j + 1);
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException ignored) {
-                }
-            }
+            boolean uploadFlag = ftpUtil.uploadFtpFile(basePath, fileName, serviceFilePath, fileName);
+
             if (uploadFlag) {
                 logger.info("文件上传成功");
                 boolean delFlag = deleteLocalFile(basePath, fileName);

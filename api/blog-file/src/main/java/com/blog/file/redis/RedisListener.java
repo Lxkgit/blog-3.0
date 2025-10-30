@@ -60,12 +60,16 @@ public class RedisListener implements ApplicationRunner {
      */
     private void insertTaskLog() {
         try {
-            Object o = redisService.getListLeftPop(TaskConstant.TASK_LOG);
-            if (!ObjectUtils.isEmpty(o)) {
-                TaskLog taskLog = (TaskLog) o;
-                taskLog.setId(null);
-                taskLogMapper.insert(taskLog);
-                taskLogMapper.updateTaskLogEndTimeByTaskUUID(taskLog.getTaskUUID());
+            List<Object> objectList = redisService.getList(TaskConstant.TASK_LOG, 0, -1);
+            if (CollectionUtils.isEmpty(objectList)) {
+                for (Object object : objectList) {
+                    if (!ObjectUtils.isEmpty(object)) {
+                        TaskLog taskLog = (TaskLog) object;
+                        taskLog.setId(null);
+                        taskLogMapper.insert(taskLog);
+                        taskLogMapper.updateTaskLogEndTimeByTaskUUID(taskLog.getTaskUUID());
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error("日志写入失败: {}", e.getMessage(), e);

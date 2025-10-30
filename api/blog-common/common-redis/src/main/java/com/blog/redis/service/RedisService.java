@@ -434,7 +434,7 @@ public class RedisService {
      *
      * @param key   键
      * @param start 开始
-     * @param end   结束 0 到 -1代表所有值
+     * @param end   结束 (0 到 -1代表所有值)
      */
     public List<Object> getList(String key, long start, long end) {
         try {

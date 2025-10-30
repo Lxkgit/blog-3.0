@@ -143,12 +143,8 @@ public class FtpUtil {
             try (InputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
                 String fn = new String(targetFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
                 logger.info("开始上传文件: {}", filePath.getFileName());
+                // storeFile() 1. 把 inputStream 读完并关闭 2. 内部自动发送完命令 3. 自动调用了 completePendingCommand()
                 boolean success = ftpClient.storeFile(fn, inputStream);
-                try {
-                    ftpClient.completePendingCommand();
-                } catch (SocketTimeoutException e) {
-                    logger.warn("completePendingCommand 超时，但文件可能已上传完成: {}", e.getMessage());
-                }
                 logger.info("ftp 文件上传结果: {}", success);
                 return success;
             }

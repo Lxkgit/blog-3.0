@@ -54,11 +54,7 @@ public class SocketMessageListener {
                 nettyFileSyncService.syncBlogDataSecondStep(data, msgHead);
             } else if (SocketTopic.SOCKET_DELETE_FILE_OR_DIR.equals(topic)) {
                 SocketDeleteFileOrDirDto dto = JSON.parseObject(data, SocketDeleteFileOrDirDto.class);
-                if (StringUtils.isNotEmpty(dto.getFileName())) {
-                    logger.info("文件删除结果 result:{} path: {} fileName: {}", dto.getResult(), dto.getDirPath(), dto.getFileName());
-                } else {
-                    logger.info("文件删除结果 result:{} path: {}", dto.getResult(), dto.getDirPath());
-                }
+                nettyFileSyncService.receiveSocketDeleteFileMsg(dto, msgHead);
             }
         }
 

@@ -1,6 +1,7 @@
 package com.blog.file.socket.domain.service;
 
 import com.blog.core.constant.Constant;
+import com.blog.core.domain.common.MsgHead;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.file.socket.domain.SocketPacket;
 import com.blog.file.socket.domain.constant.SocketClientType;
@@ -29,10 +30,10 @@ public class SocketMessageSendService {
      *
      * @param dirPath 被删除目录
      */
-    public void deleteDir(String dirPath) {
+    public void deleteDir(String dirPath, MsgHead msgHead) {
         SocketDeleteFileOrDirDto dto = new SocketDeleteFileOrDirDto();
         dto.setDirPath(dirPath);
-        SocketPacket<SocketDeleteFileOrDirDto> packet = SocketPacket.buildRequest(SocketTopic.SOCKET_DELETE_FILE_OR_DIR, dto);
+        SocketPacket<SocketDeleteFileOrDirDto> packet = SocketPacket.buildRequest(SocketTopic.SOCKET_DELETE_FILE_OR_DIR, msgHead, dto);
         socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, packet);
     }
 

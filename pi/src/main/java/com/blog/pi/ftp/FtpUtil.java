@@ -82,8 +82,12 @@ public class FtpUtil {
         ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         ftpClient.enterLocalPassiveMode();
         ftpClient.setFileTransferMode(FTP.STREAM_TRANSFER_MODE);
-        ftpClient.setSoTimeout(30 * 60 * 1000);
+        // 服务器无响应超时时间
+        ftpClient.setSoTimeout(5 * 60 * 1000);
+        // 无数据传输超时时间设置
         ftpClient.setDataTimeout(Duration.ofMinutes(10));
+        // 每分钟保持心跳
+        ftpClient.setControlKeepAliveTimeout(Duration.ofSeconds(60));
         ftpClient.setRemoteVerificationEnabled(false);
         ftpClient.sendNoOp(); // 验证连接
         return ftpClient;

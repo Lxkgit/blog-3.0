@@ -489,18 +489,13 @@
               >
                 <div class="video-info" v-if="index === video.currentIndex">
                   <div class="video-title">
-                    <div>
-                      <MyIcon
-                        title="视频正在播放"
-                        type="icon-playing"
-                        style="margin-right: 10px"
-                      />{{ item.fileName }}
+                    <div class="file-name" :title="item.fileName">
+                      <MyIcon title="视频正在播放" type="icon-playing" style="margin-right: 10px" />
+                      {{ item.fileName }}
                     </div>
-                    <div  @click="">
+                    <div class="video-action">
                       <el-dropdown>
-                        <el-button type="primary">
-                          移动
-                        </el-button>
+                        <el-button type="primary">移动</el-button>
                         <template #dropdown>
                           <el-dropdown-menu>
                             <el-dropdown-item
@@ -518,6 +513,7 @@
                       </el-dropdown>
                     </div>
                   </div>
+
                   <div class="video-duration">
                     <MyIcon title="视频时长" type="icon-time" />
                     {{ timeToMinOrHour(item.videoTime) }}
@@ -1432,11 +1428,23 @@ function fileFn(): any {
   align-items: center;
   font-size: 14px;
   font-weight: 500;
+  line-height: 20px;
+}
+
+.video-title .file-name {
+  display: flex;
+  align-items: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 20px;
+  max-width: calc(100% - 120px); /* 预留右侧按钮宽度 */
+  cursor: default; /* 鼠标悬停显示 tooltip */
 }
+
+.video-title .video-action {
+  flex-shrink: 0; /* 保证按钮不被压缩 */
+}
+
 
 .dir-icon {
   margin-left: 10px;

@@ -23,6 +23,7 @@ import com.blog.file.socket.domain.SocketPacket;
 import com.blog.file.socket.domain.constant.SocketClientType;
 import com.blog.file.socket.domain.constant.SocketConstant;
 import com.blog.file.socket.domain.constant.SocketTopic;
+import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
 import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.domain.service.SocketMessageSendService;
 import com.blog.file.socket.service.SocketService;
@@ -153,7 +154,7 @@ public class NettySyncFileService {
 
                 if (nettySyncFileDto.getSyncEnd() == 1) {
                     // 文件下载或上传成功之后删除临时目录
-                    deleteTempFile(Constant.FTP_PATH_SYSTEM_TEMP + nettySyncFileDto.getServiceFilePath(), "5m");
+                    deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), "5m");
                 }
             } else {
                 logger.info("文件同步失败");
@@ -162,7 +163,7 @@ public class NettySyncFileService {
 
         // 文件同步 任务请求头不为空时记录任务日志
         if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
-            taskLogService.recordTaskLog(nettySyncFileDto, msgHead);
+            taskLogService.recordSyncFileTaskLog(nettySyncFileDto, msgHead);
         }
     }
 
@@ -296,7 +297,7 @@ public class NettySyncFileService {
      */
     public String clearTempFileOrPath(String path, MsgHead msgHead) {
         logger.info("===== 定时任务-清理服务器文件 ===== path: {} MsgHead: {}", path, msgHead);
-        socketMessageSendService.deleteDir(path);
+        socketMessageSendService.deleteDir(path, msgHead);
         return "删除文件: " + path;
     }
 
@@ -316,6 +317,25 @@ public class NettySyncFileService {
                 taskEntity.setTaskCount(1);
                 createTaskService.createTask(taskEntity);
             }
+        }
+    }
+
+    /**
+     * socket删除文件响应消息
+     *
+     * @param dto
+     * @param msgHead
+     */
+    public void receiveSocketDeleteFileMsg(SocketDeleteFileOrDirDto dto, MsgHead msgHead) {
+        // 文件同步 任务请求头不为空时记录任务日志
+        if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
+            taskLogService.recordDelFileTaskLog(dto, msgHead);
+        }
+
+        if (StringUtils.isNotEmpty(dto.getFileName())) {
+            logger.info("文件删除结果 result:{} path: {} fileName: {}", dto.getResult(), dto.getDirPath(), dto.getFileName());
+        } else {
+            logger.info("文件删除结果 result:{} path: {}", dto.getResult(), dto.getDirPath());
         }
     }
 }

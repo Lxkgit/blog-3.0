@@ -178,6 +178,8 @@ public class NettySyncFileService {
                     logger.info("===== 文件重复 ===== fileName: {}", fileName);
                     fileMD5.setFileCount(fileMD5.getFileCount() + 1);
                     fileMD5Mapper.updateById(fileMD5);
+                    nettySyncFileDto.setErrorMsg("文件重复 fileName: " + fileName);
+                    responseNettyMsg(nettySyncFileDto, msgHead, false, fileNameList, i);
                     continue;
                 } else {
                     fileMD5 = new FileMD5();

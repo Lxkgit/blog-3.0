@@ -142,6 +142,13 @@
             <version>2.13.0</version>
         </dependency>
 
+        <!-- 实体类数据包 -->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-core</artifactId>
+            <version>3.0</version>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>

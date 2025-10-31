@@ -107,19 +107,24 @@ public class NettySyncFileService {
     }
 
     /**
-     * 上传文件
+     * 接收socket移动文件响应
      *
      * @param responseMoveFileDto
      */
     public void receiveSocketMoveFileMsg(SocketMoveFileDto responseMoveFileDto, MsgHead msgHead) {
         logger.info("===== socket 移动文件-python脚本响应 ===== SocketMoveFileDto: {} MsgHead: {}", responseMoveFileDto, msgHead);
         NettySyncFileDto nettySyncFileDto = JSONObject.parseObject(responseMoveFileDto.getData(), NettySyncFileDto.class);
-        if (nettySyncFileDto.getSyncType().equals(2)) {
+        if (nettySyncFileDto.getSyncType().equals(1)) {
+            responseNettyMsg(nettySyncFileDto, msgHead, true, responseMoveFileDto.getFileNameList());
+        } else if (nettySyncFileDto.getSyncType().equals(2)) {
             uploadFile(responseMoveFileDto, msgHead, nettySyncFileDto);
         }
 
         if (responseMoveFileDto.getDirDeleteFlag() == 1) {
             // 删除指定目录文件
+            if (nettySyncFileDto.getSyncEnd() == 1) {
+
+            }
         }
     }
 
@@ -143,6 +148,10 @@ public class NettySyncFileService {
             } catch (Exception e) {
                 logger.info("文件下载异常: {}", e.getMessage(), e);
                 nettySyncFileDto.setErrorMsg(e.getMessage());
+            }
+
+            if (syncResult) {
+                successFileNameList.add(serviceFileName);
             }
 
             responseNettyMsg(nettySyncFileDto, msgHead, syncResult, fileNameList, i);
@@ -245,25 +254,51 @@ public class NettySyncFileService {
      * @param msgHead          netty 消息头
      * @param syncResult       文件同步结果
      * @param fileNameList     文件同步列表
+     */
+    private void responseNettyMsg(NettySyncFileDto nettySyncFileDto, MsgHead msgHead, boolean syncResult, List<String> fileNameList) {
+        responseNettyMsg(nettySyncFileDto, msgHead, syncResult, fileNameList, null);
+    }
+
+    /**
+     * 文件上传、下载成功后响应netty消息
+     *
+     * @param nettySyncFileDto netty同步文件类
+     * @param msgHead          netty 消息头
+     * @param syncResult       文件同步结果
+     * @param fileNameList     文件同步列表
      * @param i                响应文件顺序
      */
-    private void responseNettyMsg(NettySyncFileDto nettySyncFileDto, MsgHead msgHead, boolean syncResult, List<String> fileNameList, int i) {
-        String serviceFileName = fileNameList.get(i);
-        String requestId = msgHead.getNettyMsgHead().getRequestId();
-
+    private void responseNettyMsg(NettySyncFileDto nettySyncFileDto, MsgHead msgHead, boolean syncResult, List<String> fileNameList, Integer i) {
         // 响应服务端处理结果
         NettySyncFileDto fileSyncDto = new NettySyncFileDto();
+
+        if (i != null) {
+            // 下载指定文件时响应永远为未结束，上传按照列表判断是否接收
+            if (nettySyncFileDto.getSyncType() == 1) {
+                fileSyncDto.setSyncEnd(0);
+            } else if (nettySyncFileDto.getSyncType() == 2) {
+                if (i == fileNameList.size() - 1) {
+                    fileSyncDto.setSyncEnd(1);
+                } else {
+                    fileSyncDto.setSyncEnd(0);
+                }
+            }
+
+            String serviceFileName = fileNameList.get(i);
+            fileSyncDto.setFileNameList(new ArrayList<>(List.of(serviceFileName)));
+        } else {
+            // 下载文件接收到socket移动文件响应后结束下载
+            fileSyncDto.setFileNameList(fileNameList);
+            fileSyncDto.setSyncEnd(1);
+        }
+
+        String requestId = msgHead.getNettyMsgHead().getRequestId();
+
         fileSyncDto.setResultType(2);
         fileSyncDto.setSyncType(nettySyncFileDto.getSyncType());
         fileSyncDto.setSyncResult(syncResult ? 1 : 0);
-        if (i == fileNameList.size() - 1) {
-            fileSyncDto.setSyncEnd(1);
-        } else {
-            fileSyncDto.setSyncEnd(0);
-        }
 
         fileSyncDto.setServiceFilePath(nettySyncFileDto.getServiceFilePath());
-        fileSyncDto.setFileNameList(new ArrayList<>(List.of(serviceFileName)));
         fileSyncDto.setMinioPath(nettySyncFileDto.getMinioPath());
         fileSyncDto.setFileSource(nettySyncFileDto.getFileSource());
 

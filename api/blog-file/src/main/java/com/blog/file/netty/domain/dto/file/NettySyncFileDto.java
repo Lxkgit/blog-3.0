@@ -49,6 +49,13 @@ public class NettySyncFileDto {
      */
     private Integer syncEnd;
 
+    /**
+     * 文件同步次数
+     * null、1 单次同步
+     * 2 多次同步
+     */
+    private Integer syncCount;
+
     // -----------数据发送字段----------------
 
     /**

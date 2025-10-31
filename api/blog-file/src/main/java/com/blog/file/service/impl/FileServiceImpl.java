@@ -274,7 +274,7 @@ public class FileServiceImpl implements FileService {
             // servicePath 为文件在ftp system用户目录下的相对路径
             String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
             // devicePath 为树莓派设备上的绝对路径
-            String devicePath = Constant.DISK_PATH_BLOG + category.getDirPath();
+            String devicePath = Constant.DISK_PATH_BLOG_MINIO + category.getDirPath();
             // 同步文件名称
             String fileName = fileCategoryData.getFileName();
 
@@ -291,7 +291,7 @@ public class FileServiceImpl implements FileService {
 
             // 此处将文件在ftp的全路径转换为在ftp/system用户目录下的路径
             String serviceFilePath = exportPath.substring(Constant.FTP_PATH_SYSTEM.length());
-            String deviceFilePath = Constant.DISK_PATH_BLOG + category.getDirPath();
+            String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + category.getDirPath();
 
 
             // 发送netty消息

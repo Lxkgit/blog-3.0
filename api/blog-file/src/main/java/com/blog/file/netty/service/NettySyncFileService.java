@@ -15,6 +15,7 @@ import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.mapper.UserDeviceMapper;
+import com.blog.file.minio.MinioService;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.file.netty.domain.enums.NettyTopic;
@@ -28,6 +29,7 @@ import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.domain.service.SocketMessageSendService;
 import com.blog.file.socket.service.SocketService;
 import com.blog.file.task.TaskLogService;
+import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskBase;
@@ -49,6 +51,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 /**
  * @description: Netty文件同步业务
@@ -90,6 +94,12 @@ public class NettySyncFileService {
 
     @Resource
     private FileCategoryDataMapper fileCategoryDataMapper;
+
+    @Resource
+    private Executor baseThread;
+
+    @Resource
+    private MinioService minioService;
 
     /**
      * 发送文件同步消息至树莓派
@@ -151,13 +161,16 @@ public class NettySyncFileService {
                     // 文件导入minio
                     fileService.fileImportMinio(nettySyncFileDto, msgHead);
                 }
+            }
 
-                if (nettySyncFileDto.getSyncEnd() == 1) {
-                    // 文件下载或上传成功之后删除临时目录
-                    deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), "5m");
-                }
-            } else {
-                logger.info("文件同步失败");
+            // 流程结束，文件下载或上传成功之后删除临时目录
+            if (nettySyncFileDto.getSyncEnd() == 1) {
+                deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), "5m");
+            }
+
+            // 文件同步任务收到消息后重置发送标识
+            if (nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
+                redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1");
             }
         }
 
@@ -212,13 +225,12 @@ public class NettySyncFileService {
     public String syncBlogDataFirstStep(MsgHead msgHead) {
         logger.info("===== 定时任务-博客数据同步-socket导出数据 ===== MsgHead: {}", msgHead);
         SocketExportBlogFileDto exportBlogFileDto = new SocketExportBlogFileDto();
-        String blogFilePath = Constant.FTP_PATH_SYSTEM + "/temp/" + MyStringUtils.getRandomString(6);
+        String blogFilePath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
         exportBlogFileDto.setBlogFilePath(blogFilePath);
 
         SocketPacket<SocketExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE,
                 msgHead, exportBlogFileDto);
         socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
-        deleteTempFile(blogFilePath, "25h");
         return blogFilePath;
     }
 
@@ -233,7 +245,7 @@ public class NettySyncFileService {
         // 此处将文件在ftp的全路径转换为在ftp/system用户目录下的路径
         String serviceFilePath = socketExportBlogFileDto.getBlogFilePath().substring(Constant.FTP_PATH_SYSTEM.length());
         String fileName = socketExportBlogFileDto.getBlogFileName();
-        String deviceFilePath = "/opt/docker/files/temp";
+        String deviceFilePath = Constant.DISK_PATH_BLOG_BAK;
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
         nettySyncFileDto.setFileNameList(List.of(fileName));
         sendSyncFileMsg(msgHead, nettySyncFileDto, 1);
@@ -248,8 +260,72 @@ public class NettySyncFileService {
      */
     public String syncServiceFile(SyncServiceFileBo bo, MsgHead msgHead) {
         logger.info("===== 定时任务-云盘文件同步 ===== SyncServiceFileBo: {} MsgHead: {}", bo, msgHead);
+        redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1");
+        baseThread.execute(() -> syncServiceFileSend(bo, msgHead));
+        return "minio文件同步任务已启动";
+    }
 
-        return null;
+    public void syncServiceFileSend(SyncServiceFileBo bo, MsgHead msgHead) {
+        List<FileCategory> fileCategoryList = fileCategoryMapper.selectList(null);
+        for (FileCategory fileCategory : fileCategoryList) {
+            LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
+            List<FileCategoryData> fileCategoryDataList = fileCategoryDataMapper.selectList(wrapper);
+            if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
+                List<FileCategoryData> sendList = new ArrayList<>();
+                String serviceFilePath = MyStringUtils.getRandomString(6);
+                exportMinioFileList(sendList, fileCategory.getDirPath(), Constant.FTP_PATH_SYSTEM_TEMP + "/" + serviceFilePath);
+
+                String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + fileCategory.getDirPath();
+                NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
+                List<String> fileNameList = new ArrayList<>();
+                for (FileCategoryData file : sendList) {
+                    String fileUrl = file.getFileUrl();
+                    fileNameList.add(fileUrl.substring(fileUrl.lastIndexOf("/") + 1));
+                }
+                nettySyncFileDto.setSyncCount(2);
+                nettySyncFileDto.setFileNameList(fileNameList);
+
+                // 任务最大等待时间
+                int waitCount = 180;
+                int localCount = 0;
+                while (true) {
+                    if (localCount > waitCount) {
+                        return;
+                    }
+                    String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID()).toString();
+                    if (StringUtils.isNotEmpty(status) && status.equals("1")) {
+                        sendSyncFileMsg(msgHead, nettySyncFileDto, 1);
+                        redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0");
+                        break;
+                    } else {
+                        try {
+                            localCount++;
+                            Thread.sleep(60 * 1000);
+                        } catch (Exception e) {
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 导出minio中文件至服务器指定位置
+     *
+     * @param fileCategoryDataList 需要导出的minio文件名称列表
+     * @param minioPath            minio中文件路径
+     * @param localPath            服务器文件路径
+     */
+    private void exportMinioFileList(List<FileCategoryData> fileCategoryDataList, String minioPath, String localPath) {
+        if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
+            for (FileCategoryData fileCategoryData : fileCategoryDataList) {
+                String fileUrl = fileCategoryData.getFileUrl();
+                String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+                minioService.exportFile(minioPath + "/" + fileName, localPath);
+            }
+        }
     }
 
     /**

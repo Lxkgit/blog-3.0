@@ -1,5 +1,6 @@
 package com.blog.pi.ftp;
 
+import com.blog.core.exception.ServiceException;
 import com.blog.pi.config.PiSystemConfig;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
@@ -166,7 +167,7 @@ public class FtpUtil {
      * 下载文件（线程安全 + 自动重试）
      */
     public boolean downloadFtpFile(String serviceFilePath, String serviceFileName,
-                                   String localFilePath, String localFileName) {
+                                   String localFilePath, String localFileName) throws Exception {
         for (int attempt = 1; attempt <= MAX_RETRY; attempt++) {
             if (downloadOnce(serviceFilePath, serviceFileName, localFilePath, localFileName)) {
                 logger.info("文件下载成功: {}/{} -> {}/{}", serviceFilePath, serviceFileName, localFilePath, localFileName);
@@ -181,28 +182,39 @@ public class FtpUtil {
     }
 
     private boolean downloadOnce(String serviceFilePath, String serviceFileName,
-                                 String localFilePath, String localFileName) {
+                                 String localFilePath, String localFileName) throws Exception {
         FTPClient ftpClient = null;
         try {
             ftpClient = createFtpClient();
             createDir(localFilePath);
-            ftpClient.changeWorkingDirectory(
-                    new String(serviceFilePath.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1)
-            );
+            // 切换远程目录
+            String remoteDir = new String(serviceFilePath.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+            if (!ftpClient.changeWorkingDirectory(remoteDir)) {
+                throw new ServiceException("FTP 目录切换失败: " + serviceFilePath);
+            }
 
             File localFile = new File(localFilePath, localFileName);
-            try (OutputStream os = new FileOutputStream(localFile)) {
-                boolean success = ftpClient.retrieveFile(
-                        new String(serviceFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1),
-                        os
-                );
-                ftpClient.completePendingCommand();
-                logger.info("ftp 文件下载结果: {}", success);
+            String remoteFile = new String(serviceFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+
+            logger.info("开始下载 FTP 文件: {}/{} -> {}", serviceFilePath, serviceFileName, localFile.getAbsolutePath());
+
+            try (OutputStream os = new BufferedOutputStream(new FileOutputStream(localFile))) {
+                boolean success = ftpClient.retrieveFile(remoteFile, os);
+                if (success) {
+                    logger.info("FTP 文件下载成功: {}", localFile.getAbsolutePath());
+                } else {
+                    logger.warn("FTP 文件下载失败: {}/{}", serviceFilePath, serviceFileName);
+                }
                 return success;
             }
-        } catch (IOException e) {
-            logger.error("ftp 文件下载失败: {}", e.getMessage(), e);
-            return false;
+        } catch (Exception e) {
+            logger.error("FTP 文件下载异常 ({} / {}): {}", serviceFilePath, serviceFileName, e.getMessage(), e);
+            if (e instanceof ServiceException) {
+                throw e;
+            } else {
+                throw new ServiceException("FTP 文件下载异常 serviceFilePath: " + serviceFilePath +
+                        " serviceFileName: " + serviceFileName + " error: " + e);
+            }
         } finally {
             disconnectFtp(ftpClient);
         }

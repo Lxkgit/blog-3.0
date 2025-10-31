@@ -2,6 +2,7 @@ package com.blog.file.task;
 
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
+import com.blog.core.domain.file.task.bo.SyncServiceFileBo;
 import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.file.mapper.TaskParamMapper;
@@ -44,6 +45,7 @@ public class TaskInit implements ApplicationRunner {
         redisService.delKey(TaskConstant.TASK_QUEUE);
         blogDateSyncTask();
         deviceFileUploadTask();
+        minioFileSyncTask();
         deleteTempFile();
     }
 
@@ -104,6 +106,23 @@ public class TaskInit implements ApplicationRunner {
         redisService.setList(TaskConstant.TASK_BASE, taskBase);
         TaskParamVo taskParamVo = new TaskParamVo();
         taskParamVo.setTaskCode(Constant.TASK_SYNC_DEVICE_FILE);
+        createInitTask(taskBase, taskParamVo);
+    }
+
+    public void minioFileSyncTask() {
+        TaskBase taskBase = new TaskBase();
+        taskBase.setTaskCode(Constant.TASK_SYNC_MINIO_FILE);
+        taskBase.setClazz(NettySyncFileService.class);
+        taskBase.setMethodName("syncServiceFile");
+        taskBase.setTaskName("minio文件数据同步");
+        taskBase.setParamsClazz(new ArrayList<>(List.of(SyncServiceFileBo.class)));
+        taskBase.setParamTemplate(null);
+        taskBase.setChildTaskFlag(0);
+
+        // 创建主任务
+        redisService.setList(TaskConstant.TASK_BASE, taskBase);
+        TaskParamVo taskParamVo = new TaskParamVo();
+        taskParamVo.setTaskCode(Constant.TASK_SYNC_MINIO_FILE);
         createInitTask(taskBase, taskParamVo);
     }
 

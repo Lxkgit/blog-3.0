@@ -165,7 +165,7 @@ public class NettySyncFileService {
 
             // 流程结束，文件下载或上传成功之后删除临时目录
             if (nettySyncFileDto.getSyncEnd() == 1) {
-                deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), "5m");
+                deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), "1h");
             }
 
             // 文件同步任务收到消息后重置发送标识

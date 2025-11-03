@@ -1362,11 +1362,22 @@ function fileFn(): any {
 }
 
 .list-controls {
-  padding: 12px;
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
   border-bottom: 1px solid #ebeef5;
   background: #f5f7fa;
+}
+
+.list-controls .el-button {
+  flex: 1 1 auto;
+  min-width: 70px;
+  max-width: 120px;
+  font-size: clamp(12px, 2vw, 14px);
+  padding: 6px 0;
 }
 
 .scroll-container {

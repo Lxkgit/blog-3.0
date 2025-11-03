@@ -22,6 +22,7 @@ import com.blog.pi.utils.MyStringUtils;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -164,14 +165,17 @@ public class NettySyncFileService {
      *
      * @param responseMoveFileDto
      * @param msgHead
-     * @param nettySyncFileDto
+     * @param nettySyncParam
      */
-    private void uploadFile(SocketMoveFileDto responseMoveFileDto, MsgHead msgHead, NettySyncFileDto nettySyncFileDto) {
-        String serviceFilePath = nettySyncFileDto.getServiceFilePath();
+    private void uploadFile(SocketMoveFileDto responseMoveFileDto, MsgHead msgHead, NettySyncFileDto nettySyncParam) {
+        String serviceFilePath = nettySyncParam.getServiceFilePath();
         List<String> fileNameList = responseMoveFileDto.getFileNameList();
         String basePath = responseMoveFileDto.getTargetDirectory();
         for (int i = 0; i < fileNameList.size(); i++) {
+            NettySyncFileDto nettySyncFileDto = new NettySyncFileDto();
+            BeanUtils.copyProperties(nettySyncParam, nettySyncFileDto);
             String fileName = fileNameList.get(i);
+
 
             if (nettySyncFileDto.getFileSource() == 1) {
 

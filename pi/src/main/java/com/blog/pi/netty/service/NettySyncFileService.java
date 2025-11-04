@@ -303,6 +303,7 @@ public class NettySyncFileService {
         fileSyncDto.setSyncResult(syncResult ? 1 : 0);
 
         fileSyncDto.setServiceFilePath(nettySyncFileDto.getServiceFilePath());
+        fileSyncDto.setDeviceFilePath(nettySyncFileDto.getDeviceFilePath());
         fileSyncDto.setMinioPath(nettySyncFileDto.getMinioPath());
         fileSyncDto.setFileSource(nettySyncFileDto.getFileSource());
 

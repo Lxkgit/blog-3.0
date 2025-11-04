@@ -56,6 +56,13 @@ public class NettySyncFileDto {
      */
     private Integer syncCount;
 
+    /**
+     * 操作前是否需要校验文件已存在
+     * 0 否
+     * 1 是
+     */
+    private Integer checkFile;
+
     // -----------数据发送字段----------------
 
     /**

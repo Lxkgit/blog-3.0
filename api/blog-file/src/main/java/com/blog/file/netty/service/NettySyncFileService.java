@@ -51,6 +51,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -260,53 +261,68 @@ public class NettySyncFileService {
      */
     public String syncServiceFile(SyncServiceFileBo bo, MsgHead msgHead) {
         logger.info("===== 定时任务-云盘文件同步 ===== SyncServiceFileBo: {} MsgHead: {}", bo, msgHead);
-        redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1");
+        redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1", 60 * 60);
         baseThread.execute(() -> syncServiceFileSend(bo, msgHead));
         return "minio文件同步任务已启动";
     }
 
     public void syncServiceFileSend(SyncServiceFileBo bo, MsgHead msgHead) {
-        List<FileCategory> fileCategoryList = fileCategoryMapper.selectList(null);
+        LambdaQueryWrapper<FileCategory> categoryWrapper = new LambdaQueryWrapper<>();
+        categoryWrapper.likeRight(FileCategory::getDirPath, "/1/user/data/img");
+        List<FileCategory> fileCategoryList = fileCategoryMapper.selectList(categoryWrapper);
         for (FileCategory fileCategory : fileCategoryList) {
             LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
             List<FileCategoryData> fileCategoryDataList = fileCategoryDataMapper.selectList(wrapper);
             if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
-                List<FileCategoryData> sendList = new ArrayList<>();
-                String serviceFilePath = MyStringUtils.getRandomString(6);
-                exportMinioFileList(sendList, fileCategory.getDirPath(), Constant.FTP_PATH_SYSTEM_TEMP + "/" + serviceFilePath);
+                // 当前目录下存在文件，每次取一定数量文件进行判断是否需要同步
+                int batchSize = 10;
+                for (int i = 0; i < fileCategoryDataList.size(); i += batchSize) {
+                    int end = Math.min(i + batchSize, fileCategoryDataList.size());
+                    List<FileCategoryData> sendList = fileCategoryDataList.subList(i, end);
 
-                String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + fileCategory.getDirPath();
-                NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
-                List<String> fileNameList = new ArrayList<>();
-                for (FileCategoryData file : sendList) {
-                    String fileUrl = file.getFileUrl();
-                    fileNameList.add(fileUrl.substring(fileUrl.lastIndexOf("/") + 1));
-                }
-                nettySyncFileDto.setSyncCount(2);
-                nettySyncFileDto.setFileNameList(fileNameList);
+                    String serviceFilePath = "/temp/" + MyStringUtils.getRandomString(6);
+                    exportMinioFileList(sendList, fileCategory.getDirPath(), Constant.FTP_PATH_SYSTEM + serviceFilePath);
 
-                // 任务最大等待时间
-                int waitCount = 180;
-                int localCount = 0;
-                while (true) {
-                    if (localCount > waitCount) {
-                        return;
+                    String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + fileCategory.getDirPath();
+                    NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
+                    List<String> fileNameList = new ArrayList<>();
+                    for (FileCategoryData file : sendList) {
+                        String fileUrl = file.getFileUrl();
+                        fileNameList.add(fileUrl.substring(fileUrl.lastIndexOf("/") + 1));
                     }
-                    String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID()).toString();
-                    if (StringUtils.isNotEmpty(status) && status.equals("1")) {
-                        sendSyncFileMsg(msgHead, nettySyncFileDto, 1);
-                        redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0");
-                        break;
-                    } else {
-                        try {
-                            localCount++;
-                            Thread.sleep(60 * 1000);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
+                    nettySyncFileDto.setCheckFile(1);
+                    nettySyncFileDto.setSyncCount(2);
+                    nettySyncFileDto.setFileNameList(fileNameList);
+
+                    // 任务最大等待时间
+                    int waitCount = 180;
+                    int localCount = 0;
+                    while (true) {
+                        if (localCount > waitCount) {
+                            return;
+                        }
+                        String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID()).toString();
+                        if (StringUtils.isNotEmpty(status) && status.equals("1")) {
+                            String taskUUID = UUID.randomUUID().toString().replace("-", "");
+                            msgHead.getTaskMsgHead().setTaskUUID(taskUUID);
+                            sendSyncFileMsg(msgHead, nettySyncFileDto, 1);
+                            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0",  60 * 60);
+                            break;
+                        } else {
+                            try {
+                                localCount++;
+                                Thread.sleep(60 * 1000);
+                            } catch (Exception e) {
+                                logger.error(e.getMessage(), e);
+                            }
                         }
                     }
                 }
+            }
+            // 文件同步完成后，清除指定目录下文件
+            if (CollectionUtils.isNotEmpty(bo.getClearPath()) && bo.getClearPath().contains(fileCategory.getDirPath())) {
+                minioService.deleteFileByPath(fileCategory.getDirPath());
             }
         }
     }

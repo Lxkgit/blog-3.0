@@ -6,6 +6,7 @@ import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileUploadLogMapper;
 import io.minio.*;
 import io.minio.http.Method;
+import io.minio.messages.Item;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -111,6 +112,39 @@ public class MinioService {
     public String getFileUrl(String minioPath, String fileName) {
         return ip + ":9000/" + bucket + minioPath + "/" + fileName;
     }
+
+    /**
+     * 删除指定目录下的全部文件
+     *
+     * @param path 目录路径
+     */
+    public void deleteFileByPath(String path) throws ServiceException {
+        logger.info("===== minio 删除目录下全部文件 ===== path:{}", path);
+        try {
+            Iterable<Result<Item>> results = minioClient.listObjects(
+                    ListObjectsArgs.builder()
+                            .bucket(bucket)
+                            .prefix(path.endsWith("/") ? path : path + "/")
+                            .recursive(true)
+                            .build()
+            );
+
+            for (Result<Item> result : results) {
+                String objectName = result.get().objectName();
+                minioClient.removeObject(
+                        RemoveObjectArgs.builder()
+                                .bucket(bucket)
+                                .object(objectName)
+                                .build()
+                );
+            }
+            logger.info("minio 删除目录 [{}] 下所有文件成功", path);
+        } catch (Exception e) {
+            logger.error("minio 删除目录异常: {}", e.getMessage(), e);
+            throw new ServiceException("删除目录失败: " + e.getMessage());
+        }
+    }
+
 
     /**
      * 删除指定文件

@@ -38,4 +38,9 @@ public class SyncServiceFileBo {
      */
     private Integer maxFileCount;
 
+    /**
+     * 文件同步完成需要清空的minio目录
+     */
+    private List<String> clearPath;
+
 }

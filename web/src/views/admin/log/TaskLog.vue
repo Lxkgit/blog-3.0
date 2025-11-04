@@ -4,14 +4,8 @@
       <span>定时任务日志</span>
     </div>
     <el-card style="margin: 18px 2%; width: 95%">
-      <el-table
-        @expand-change="selectTaskLogByTaskUUIDFun"
-        row-key="taskUUID"
-        :expand-row-keys="expandedRowKeys"
-        :data="taskLogList.data"
-        stripe
-        style="width: 100%; height: calc(100vh - 296px)"
-      >
+      <el-table @expand-change="selectTaskLogByTaskUUIDFun" row-key="taskUUID" :expand-row-keys="expandedRowKeys"
+        :data="taskLogList.data" stripe style="width: 100%; height: calc(100vh - 296px)">
         <el-table-column type="expand">
           <template #default="props">
             <div m="4">
@@ -25,7 +19,7 @@
                 <el-table-column label="任务执行返回数据">
                   <template #default="scope">
                     {{
-                      scope.row.taskResultStatus === 0 ? scope.row.errorMsg : scope.row.taskResult
+                      scope.row.taskResult
                     }}
                   </template>
                 </el-table-column>
@@ -53,17 +47,9 @@
         </el-table-column>
       </el-table>
       <div style="margin: 20px 0 50px 0">
-        <el-pagination
-          background
-          v-model:current-page="page"
-          v-model:page-size="size"
-          :page-sizes="[10, 20, 50, 100]"
-          style="float: right"
-          layout="total, sizes, prev, pager, next, jumper"
-          @current-change="pageChange"
-          @size-change="sizeChange"
-          :total="total"
-        >
+        <el-pagination background v-model:current-page="page" v-model:page-size="size" :page-sizes="[10, 20, 50, 100]"
+          style="float: right" layout="total, sizes, prev, pager, next, jumper" @current-change="pageChange"
+          @size-change="sizeChange" :total="total">
         </el-pagination>
       </div>
     </el-card>

@@ -32,7 +32,7 @@ public class NettyClientInitializer extends ChannelInitializer<Channel> {
     protected void initChannel(Channel channel) {
         channel.pipeline()
                 // 解码器，对接收到的数据进行长度字段解码，也会对数据进行粘包和拆包处理
-                .addLast(new LengthFieldBasedFrameDecoder(1024, 0, 2, 0, 2))
+                .addLast(new LengthFieldBasedFrameDecoder(65535, 0, 2, 0, 2))
                 // 编码器，主要是在响应字节数据前面添加字节长度字段
                 .addLast(new LengthFieldPrepender(2))
                 .addLast(new StringDecoder(CharsetUtil.UTF_8))

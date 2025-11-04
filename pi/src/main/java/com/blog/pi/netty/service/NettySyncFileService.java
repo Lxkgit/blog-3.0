@@ -121,7 +121,7 @@ public class NettySyncFileService {
             uploadFile(responseMoveFileDto, msgHead, nettySyncFileDto);
         }
 
-        if (responseMoveFileDto.getDirDeleteFlag() == 1) {
+        if (responseMoveFileDto.getDirDeleteFlag() != null && responseMoveFileDto.getDirDeleteFlag() == 1) {
             // 删除指定目录文件
             if (nettySyncFileDto.getSyncEnd() == 1) {
 

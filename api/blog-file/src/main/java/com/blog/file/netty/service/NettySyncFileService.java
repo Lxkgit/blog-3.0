@@ -267,6 +267,9 @@ public class NettySyncFileService {
     }
 
     public void syncServiceFileSend(SyncServiceFileBo bo, MsgHead msgHead) {
+        String sendTaskUUID = msgHead.getTaskMsgHead().getTaskUUID();
+        String receiveTaskUUID = msgHead.getTaskMsgHead().getTaskUUID();
+
         LambdaQueryWrapper<FileCategory> categoryWrapper = new LambdaQueryWrapper<>();
         categoryWrapper.likeRight(FileCategory::getDirPath, "/1/user/data/img");
         List<FileCategory> fileCategoryList = fileCategoryMapper.selectList(categoryWrapper);
@@ -302,12 +305,15 @@ public class NettySyncFileService {
                         if (localCount > waitCount) {
                             return;
                         }
-                        String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID()).toString();
+                        String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + receiveTaskUUID).toString();
                         if (StringUtils.isNotEmpty(status) && status.equals("1")) {
-                            String taskUUID = UUID.randomUUID().toString().replace("-", "");
-                            msgHead.getTaskMsgHead().setTaskUUID(taskUUID);
-                            sendSyncFileMsg(msgHead, nettySyncFileDto, 1);
+                            MsgHead head = new MsgHead();
+                            BeanUtils.copyProperties(msgHead, head);
+                            sendSyncFileMsg(head, nettySyncFileDto, 1);
                             redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0",  60 * 60);
+                            receiveTaskUUID = sendTaskUUID;
+                            sendTaskUUID = UUID.randomUUID().toString().replace("-", "");
+                            msgHead.getTaskMsgHead().setTaskUUID(sendTaskUUID);
                             break;
                         } else {
                             try {

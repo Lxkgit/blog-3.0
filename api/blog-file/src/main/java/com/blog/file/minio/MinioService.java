@@ -119,26 +119,53 @@ public class MinioService {
      * @param path 目录路径
      */
     public void deleteFileByPath(String path) throws ServiceException {
-        logger.info("===== minio 删除目录下全部文件 ===== path:{}", path);
+        logger.info("===== minio 删除目录下全部文件 ===== 原始 path: {}", path);
         try {
+            // --- 自动清理路径 ---
+            String prefix = path;
+            if (prefix == null || prefix.isEmpty()) {
+                throw new ServiceException("删除目录失败: 路径不能为空");
+            }
+
+            // 去掉开头的 "/"，否则匹配不到对象
+            while (prefix.startsWith("/")) {
+                prefix = prefix.substring(1);
+            }
+
+            // 确保结尾有 "/"，保证前缀匹配子目录
+            if (!prefix.endsWith("/")) {
+                prefix = prefix + "/";
+            }
+
+            logger.info("清理后的 prefix: {}", prefix);
+
+            // --- 列出并删除对象 ---
             Iterable<Result<Item>> results = minioClient.listObjects(
                     ListObjectsArgs.builder()
                             .bucket(bucket)
-                            .prefix(path.endsWith("/") ? path : path + "/")
+                            .prefix(prefix)
                             .recursive(true)
                             .build()
             );
 
+            boolean found = false;
             for (Result<Item> result : results) {
-                String objectName = result.get().objectName();
+                Item item = result.get();
+                found = true;
+                logger.info("删除对象: {}", item.objectName());
                 minioClient.removeObject(
                         RemoveObjectArgs.builder()
                                 .bucket(bucket)
-                                .object(objectName)
+                                .object(item.objectName())
                                 .build()
                 );
             }
-            logger.info("minio 删除目录 [{}] 下所有文件成功", path);
+
+            if (!found) {
+                logger.warn("目录 [{}] 下未找到任何对象", prefix);
+            } else {
+                logger.info("minio 删除目录 [{}] 下所有文件成功", prefix);
+            }
         } catch (Exception e) {
             logger.error("minio 删除目录异常: {}", e.getMessage(), e);
             throw new ServiceException("删除目录失败: " + e.getMessage());

@@ -167,11 +167,11 @@ public class NettySyncFileService {
             // 流程结束，文件下载或上传成功之后删除临时目录
             if (nettySyncFileDto.getSyncEnd() == 1) {
                 deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), "1h");
-            }
 
-            // 文件同步任务收到消息后重置发送标识
-            if (nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
-                redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1");
+                // 文件同步任务收到消息后重置发送标识
+                if (nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
+                    redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1");
+                }
             }
         }
 
@@ -271,7 +271,7 @@ public class NettySyncFileService {
         String receiveTaskUUID = msgHead.getTaskMsgHead().getTaskUUID();
 
         LambdaQueryWrapper<FileCategory> categoryWrapper = new LambdaQueryWrapper<>();
-        categoryWrapper.likeRight(FileCategory::getDirPath, "/1/user/data/img");
+        categoryWrapper.likeRight(FileCategory::getDirPath, bo.getDirPath());
         List<FileCategory> fileCategoryList = fileCategoryMapper.selectList(categoryWrapper);
         for (FileCategory fileCategory : fileCategoryList) {
             LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();

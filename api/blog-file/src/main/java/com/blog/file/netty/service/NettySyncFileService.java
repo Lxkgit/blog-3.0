@@ -276,6 +276,7 @@ public class NettySyncFileService {
         for (FileCategory fileCategory : fileCategoryList) {
             LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
+            wrapper.eq(FileCategoryData::getFileStatus, 0);
             List<FileCategoryData> fileCategoryDataList = fileCategoryDataMapper.selectList(wrapper);
             if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
                 // 当前目录下存在文件，每次取一定数量文件进行判断是否需要同步
@@ -328,6 +329,13 @@ public class NettySyncFileService {
             }
             // 文件同步完成后，清除指定目录下文件
             if (CollectionUtils.isNotEmpty(bo.getClearPath()) && bo.getClearPath().contains(fileCategory.getDirPath())) {
+                // 修改目录下文件状态为远程服务器
+                LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
+                dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
+                FileCategoryData data = new FileCategoryData();
+                data.setFileStatus(4);
+                fileCategoryDataMapper.update(data, dataWrapper);
+                // 移除minio中文件
                 minioService.deleteFileByPath(fileCategory.getDirPath());
             }
         }

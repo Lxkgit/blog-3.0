@@ -301,6 +301,7 @@ public class NettySyncFileService {
         fileSyncDto.setResultType(2);
         fileSyncDto.setSyncType(nettySyncFileDto.getSyncType());
         fileSyncDto.setSyncResult(syncResult ? 1 : 0);
+        fileSyncDto.setSyncCount(nettySyncFileDto.getSyncCount());
 
         fileSyncDto.setServiceFilePath(nettySyncFileDto.getServiceFilePath());
         fileSyncDto.setDeviceFilePath(nettySyncFileDto.getDeviceFilePath());
@@ -325,56 +326,4 @@ public class NettySyncFileService {
         File file = new File(dirPath, fileName);
         return file.exists() && file.isFile() && file.delete();
     }
-
-
-    //    /**
-//     * 下载服务器指定文件
-//     * 业务流程：
-//     * 1. 接收到netty请求，对该请求相应
-//     * 2. ftp下载或上传指定文件
-//     * 3. 发送ftp文件上传完成的请求信息
-//     * 4. 服务器校验文件信息
-//     * 5. 服务器响应文件上传结果
-//     */
-//    public void syncBlogFile(NettySyncFileDto nettySyncBlogFile, MsgHead msgHead) {
-//        logger.info("===== 文件同步 ===== NettySyncFileDto: {} MsgHead：{}", nettySyncBlogFile, msgHead);
-//
-//        String requestId = msgHead.getNettyMsgHead().getRequestId();
-//
-//        sendReceiveMsg(msgHead, requestId);
-//
-//        // 获取文件存储基础路径
-//        String basePath = "/opt/docker/files/temp/blogBak/";
-//
-//        if (nettySyncBlogFile.getSyncType().equals(1)) {
-//            // 下载服务器文件
-//            List<String> fileNameList = downloadFile(basePath, nettySyncBlogFile, msgHead);
-//
-//            SocketMoveFileDto moveFileDto = new SocketMoveFileDto();
-//            moveFileDto.setType(1);
-//            moveFileDto.setData(nettySyncBlogFile.toString());
-//            moveFileDto.setSourceDirectory(basePath);
-//            moveFileDto.setFileNameList(fileNameList);
-//            moveFileDto.setTargetDirectory(Constant.DISK_PATH_TEMP + "/blogBak");
-//            SocketPacket<SocketMoveFileDto> socketPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_MOVE_FILE, msgHead, moveFileDto);
-//            socketPacket.setMsgHead(msgHead);
-//            socketService.sendMessage("python", SocketConstant.LOCALHOST_REGISTER_CODE, socketPacket);
-//        } else if (nettySyncBlogFile.getSyncType().equals(2)) {
-//            uploadBlogFileFirstStep(msgHead, nettySyncBlogFile, basePath);
-//        }
-//    }
-//    /**
-//     * 文件上传流程
-//     * 1. 服务器定时任务触发文件上传流程
-//     * 2. 树莓派设备接受数据并响应
-//     * 3. 通过websocket调用python脚本，将指定目录下文件移动到docker共享目录
-//     * 4. 等待websocket响应，调用updateBlogFileSecondStep
-//     *
-//     * @param msgHead
-//     * @param nettySyncBlogFile
-//     * @param basePath
-//     */
-//    private void sendSocketMoveFileMsg(MsgHead msgHead, NettySyncFileDto nettySyncBlogFile, String basePath) {
-//
-//    }
 }

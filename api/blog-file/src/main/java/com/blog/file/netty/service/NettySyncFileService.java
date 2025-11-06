@@ -166,7 +166,7 @@ public class NettySyncFileService {
 
             // 流程结束，文件下载或上传成功之后删除临时目录
             if (nettySyncFileDto.getSyncEnd() == 1) {
-                deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), "1h");
+                deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), "10s");
 
                 // 文件同步任务收到消息后重置发送标识
                 if (nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
@@ -261,15 +261,12 @@ public class NettySyncFileService {
      */
     public String syncServiceFile(SyncServiceFileBo bo, MsgHead msgHead) {
         logger.info("===== 定时任务-云盘文件同步 ===== SyncServiceFileBo: {} MsgHead: {}", bo, msgHead);
-        redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1", 60 * 60);
+        redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1", 5 * 60 * 60);
         baseThread.execute(() -> syncServiceFileSend(bo, msgHead));
         return "minio文件同步任务已启动";
     }
 
     public void syncServiceFileSend(SyncServiceFileBo bo, MsgHead msgHead) {
-        String sendTaskUUID = msgHead.getTaskMsgHead().getTaskUUID();
-        String receiveTaskUUID = msgHead.getTaskMsgHead().getTaskUUID();
-
         LambdaQueryWrapper<FileCategory> categoryWrapper = new LambdaQueryWrapper<>();
         categoryWrapper.likeRight(FileCategory::getDirPath, bo.getDirPath());
         List<FileCategory> fileCategoryList = fileCategoryMapper.selectList(categoryWrapper);
@@ -299,27 +296,27 @@ public class NettySyncFileService {
                     nettySyncFileDto.setSyncCount(2);
                     nettySyncFileDto.setFileNameList(fileNameList);
 
-                    // 任务最大等待时间
-                    int waitCount = 180;
+                    // 任务扫描次数
+                    int waitCount = 300 * 12;
+                    // 任务扫描时间（秒）
+                    int scanTime = 5;
                     int localCount = 0;
                     while (true) {
                         if (localCount > waitCount) {
+                            logger.info("===== 定时任务-云盘文件同步-超出最大等待时间: {} 秒 ===== taskUUID: {}", waitCount * scanTime, msgHead.getTaskMsgHead().getTaskUUID());
                             return;
                         }
-                        String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + receiveTaskUUID).toString();
+                        String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID()).toString();
                         if (StringUtils.isNotEmpty(status) && status.equals("1")) {
                             MsgHead head = new MsgHead();
                             BeanUtils.copyProperties(msgHead, head);
                             sendSyncFileMsg(head, nettySyncFileDto, 1);
-                            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0",  60 * 60);
-                            receiveTaskUUID = sendTaskUUID;
-                            sendTaskUUID = UUID.randomUUID().toString().replace("-", "");
-                            msgHead.getTaskMsgHead().setTaskUUID(sendTaskUUID);
+                            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0", 5 * 60 * 60);
                             break;
                         } else {
                             try {
                                 localCount++;
-                                Thread.sleep(60 * 1000);
+                                Thread.sleep(scanTime * 1000);
                             } catch (Exception e) {
                                 logger.error(e.getMessage(), e);
                             }
@@ -339,6 +336,7 @@ public class NettySyncFileService {
                 minioService.deleteFileByPath(fileCategory.getDirPath());
             }
         }
+        logger.info("===== 定时任务-云盘文件同步结束 ===== taskUUID: {}", msgHead.getTaskMsgHead().getTaskUUID());
     }
 
     /**

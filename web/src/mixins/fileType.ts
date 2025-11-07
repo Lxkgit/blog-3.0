@@ -34,6 +34,18 @@ export default function () {
     if (fileStatus === 0) {
       status.key = 0;
       status.value = "本地服务器";
+    } else if (fileStatus === 1) {
+      status.key = 1;
+      status.value = "正在同步本地服务器";
+    } else if (fileStatus === 2) {
+      status.key = 2;
+      status.value = "等待同步";
+    } else if (fileStatus === 3) {
+      status.key = 3;
+      status.value = "正在同步远程服务器";
+    } else if (fileStatus === 4) {
+      status.key = 4;
+      status.value = "远程服务器";
     }
 
     return status

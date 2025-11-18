@@ -473,26 +473,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>OneNET</GroupName>
-          <Files>
-            <File>
-              <FileName>onenet.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\NET\onenet\src\onenet.c</FilePath>
-            </File>
-            <File>
-              <FileName>hmac_sha1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\NET\onenet\src\hmac_sha1.c</FilePath>
-            </File>
-            <File>
-              <FileName>base64.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\NET\onenet\src\base64.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>net_protocol</GroupName>
           <Files>
             <File>

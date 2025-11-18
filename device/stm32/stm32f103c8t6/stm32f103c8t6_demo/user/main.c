@@ -2,7 +2,7 @@
 #include "stm32f10x.h"
 
 //网络协议层
-#include "onenet.h"
+//#include "onenet.h"
 
 //网络设备
 #include "esp8266.h"
@@ -22,58 +22,48 @@
 
 void Hardware_Init(void)
 {
+	//中断控制器分组设置
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	
 	
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	//中断控制器分组设置
-
-	Delay_Init();									//systick初始化
+	//systick初始化
+	Delay_Init();									
 	
-	Usart1_Init(115200);							//串口1，打印信息用
+	//串口1，打印信息用
+	Usart1_Init(115200);							
 	
-	Usart2_Init(115200);							//串口2，驱动ESP8266用
+	//串口2，驱动ESP8266用
+	Usart2_Init(115200);							
 	
-  Key_Init();
+	Key_Init();
 	
-	Led_Init();									//蜂鸣器初始化
+	//蜂鸣器初始化
+	Led_Init();									
 	
-//	while(DHT11_Init())
-//	{
-//		UsartPrintf(USART_DEBUG, "DHT11 Error \r\n");
-//		DelayMs(1000);
-//	}
 	
 	UsartPrintf(USART_DEBUG, " Hardware init OK\r\n");
 	
 }
 
-/*
-************************************************************
-*	函数名称：	main
-*
-*	函数功能：	
-*
-*	入口参数：	无
-*
-*	返回参数：	0
-*
-*	说明：		
-************************************************************
-*/
+
 u8 temp;
 u8 humi;
 int main(void)
 {
 	
-	unsigned short timeCount = 0;	//发送间隔变量
+	//发送间隔变量
+	unsigned short timeCount = 0;	
 	
 	unsigned char *dataPtr = NULL;
 	char jsonStr[100];
-	    char atCommand[200];
+	char atCommand[200];
 	
 	char str5[128] = "AT+MQTTPUB=0,\"pubtest\",\"{temp:1;humi:1}\",0,0\r\n";
 	
-	Hardware_Init();				//初始化外围硬件
+	//初始化外围硬件
+	Hardware_Init();				
 	
-	ESP8266_Init();					//初始化ESP8266
+	//初始化ESP8266
+	ESP8266_Init();					
 
 	
 	UsartPrintf(USART_DEBUG, "Connect MQTTs Server...\r\n");
@@ -83,41 +73,18 @@ int main(void)
 	while(ESP8266_SendCmd("AT+MQTTCONN=0,\"192.168.137.153\",1883,1\r\n", "CONNECTED"))
 		DelayXms(5000);
 	UsartPrintf(USART_DEBUG, "Connect MQTT Server Success\r\n");
-
 	
 	while(1)
 	{
 		DHT11_Read_Data(&temp,&humi);//
 		UsartPrintf(USART_DEBUG, "P4****temp %d ,humi %d\r\n",temp,humi);
-
-
-//		snprintf(str5, sizeof(str5), "AT+MQTTPUB=0,\"pubtest\",\"{\"temp\":%d,\"humi\":%d}\",0,0\r\n", temp, humi);
 	
 		// 1. 构建JSON字符串，内部双引号用\转义
-    
-    sprintf(jsonStr, "{\\\"temp\\\":%d\\\, \\\"humi\\\":%d}", temp, humi);
+		sprintf(jsonStr, "{\\\"temp\\\":%d\\\, \\\"humi\\\":%d}", temp, humi);
+		sprintf(atCommand, "AT+MQTTPUB=0,\"pubtest\",\"%s\",0,0\r\n", jsonStr);
 		
-		
-    sprintf(atCommand, "AT+MQTTPUB=0,\"pubtest\",\"%s\",0,0\r\n", jsonStr);
-		
-
 		ESP8266_SendCmd(atCommand, "OK");
 	
-		
-//		if(++timeCount >= 500)									//发送间隔5s
-//		{
-//			SHT20_GetValue();
-//			
-//			UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
-//			OneNet_SendData();									//发送数据
-//			
-//			timeCount = 0;
-//			ESP8266_Clear();
-//		}
-//		
-//		dataPtr = ESP8266_GetIPD(0);
-//		if(dataPtr != NULL)
-//			OneNet_RevPro(dataPtr);
 		DelayMs(10000);
 	
 	}

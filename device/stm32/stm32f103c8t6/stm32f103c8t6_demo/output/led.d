@@ -1,7 +1,7 @@
 .\output\led.o: hardware\src\led.c
 .\output\led.o: .\core\stm32f10x.h
 .\output\led.o: .\core\core_cm3.h
-.\output\led.o: D:\soft\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\output\led.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\output\led.o: .\core\system_stm32f10x.h
 .\output\led.o: .\core\stm32f10x_conf.h
 .\output\led.o: .\fwlib\inc\stm32f10x_adc.h

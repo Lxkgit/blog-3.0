@@ -473,16 +473,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>net_protocol</GroupName>
-          <Files>
-            <File>
-              <FileName>MqttKit.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\NET\MQTT\MqttKit.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>net_device</GroupName>
           <Files>
             <File>

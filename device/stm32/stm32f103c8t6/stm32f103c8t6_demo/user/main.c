@@ -64,11 +64,10 @@ int main(void)
 	while(1)
 	{
 		DHT11_Read_Data(&temp,&humi);
-		UsartPrintf(USART_DEBUG, "P4****temp %d ,humi %d\r\n",temp,humi);
+		UsartPrintf(USART_DEBUG, "P4--temp %d ,humi %d\r\n",temp,humi);
 	
 		// 1. 构建JSON字符串，内部双引号用\转义
-//		sprintf(jsonStr, "{\\\"temp\\\":%d\\\, \\\"humi\\\":%d}", temp, humi);
-		sprintf(jsonStr, "{'temp':%d, 'humi':%d}", temp, humi);
+		sprintf(jsonStr, "{\\\"temp\\\":%d\\\, \\\"humi\\\":%d}", temp, humi);
 
 		// 把所有单引号替换为双引号
 		

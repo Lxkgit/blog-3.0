@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface SensorControlService {
 
-    Integer createSensorControl(SensorControlVo sensorControlVo) throws ServiceException, IllegalAccessException, InstantiationException, NoSuchFieldException;
+    Integer createSensorControl(SensorControlVo sensorControlVo);
 
     Integer deleteSensorControl(List<Integer> ids);
 

@@ -21,7 +21,7 @@ import com.blog.file.mapper.*;
 import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.sensor.control.SensorCommandCheckDto;
 import com.blog.file.netty.domain.dto.sensor.control.SensorCommandDto;
-import com.blog.file.netty.domain.dto.sensor.control.SteeringEngine180Dto;
+import com.blog.file.netty.domain.dto.sensor.control.param.SteeringEngine180Dto;
 import com.blog.file.netty.domain.enums.NettyTopic;
 import com.blog.file.netty.domain.enums.sensor.SensorTypeEnum;
 import com.blog.file.netty.service.NettyServer;
@@ -29,6 +29,8 @@ import com.blog.file.service.SensorControlService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -47,6 +49,8 @@ import java.util.stream.Collectors;
 @Service
 public class SensorControlServiceImpl implements SensorControlService {
 
+    private static final Logger logger = LoggerFactory.getLogger(SensorControlServiceImpl.class);
+
     @Resource
     private DeviceMapper deviceDAO;
 
@@ -62,9 +66,6 @@ public class SensorControlServiceImpl implements SensorControlService {
     @Resource
     private NettyServer nettyServer;
 
-//    @Resource
-//    private UserService userService;
-
     @Resource
     private UserDeviceMapper userDeviceDAO;
 
@@ -74,7 +75,7 @@ public class SensorControlServiceImpl implements SensorControlService {
     /**
      * 下发传感器控制指令
      *
-     * @param id     控制命令消息id
+     * @param id 控制命令消息id
      * @throws ServiceException
      */
     @Override
@@ -97,7 +98,6 @@ public class SensorControlServiceImpl implements SensorControlService {
 
         SensorCommandDto<SteeringEngine180Dto> commandVo = new SensorCommandDto<>();
         commandVo.setChipCode(sensor.getChipCode());
-        commandVo.setSensorCode(sensor.getSensorCode());
         commandVo.setCommandList(list);
 
         NettyPacket<SensorCommandDto<SteeringEngine180Dto>> sensorCommandRequest = NettyPacket.buildRequest(NettyTopic.BLOG_SENSOR_CONTROL, commandVo);
@@ -110,74 +110,81 @@ public class SensorControlServiceImpl implements SensorControlService {
      *
      * @param sensorControlVo
      * @return
-     * @throws ServiceException
      */
     @Override
-    public Integer createSensorControl(SensorControlVo sensorControlVo) throws ServiceException, IllegalAccessException, InstantiationException, NoSuchFieldException {
-        Integer userId = SecurityUtil.getLoginUser().getId();
+    public Integer createSensorControl(SensorControlVo sensorControlVo) {
+        try {
+            Integer userId = SecurityUtil.getLoginUser().getId();
 
-        JSONArray jsonArray = JSONArray.parseArray(sensorControlVo.getControlMessage());
-        List<SensorCommandCheckDto> sensorCommandCheckDtoList = new ArrayList<>();
-        StringBuilder sensorIdGroup = new StringBuilder();
-        for (int i = 0; i < jsonArray.size(); i++) {
-            // 获取传感器组中数据
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            JSONArray jsonArray = JSONArray.parseArray(sensorControlVo.getControlMessage());
+            List<SensorCommandCheckDto> sensorCommandCheckDtoList = new ArrayList<>();
+            StringBuilder sensorIdGroup = new StringBuilder();
+            for (int i = 0; i < jsonArray.size(); i++) {
+                // 获取传感器组中数据
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-            // 通过传感器型号构建对应参数接收类型
-            String sensorType = jsonObject.getString("sensorType");
-            SensorCommandCheckDto commandCheckDto = Objects.requireNonNull(SensorTypeEnum.getRuleImpl(sensorType)).newInstance();
+                // 通过传感器型号构建对应参数接收类型
+                String sensorType = jsonObject.getString("sensorType");
+                SensorCommandCheckDto commandCheckDto =
+                        Objects.requireNonNull(SensorTypeEnum.getRuleImpl(sensorType))
+                                .getDeclaredConstructor()
+                                .newInstance();
 
-            // 填充命令下发对象
-            commandCheckDto.setSensorCode(jsonObject.getString("sensorCode"));
-            commandCheckDto.setDelay(jsonObject.getInteger("delay"));
-            commandCheckDto.setIdx(jsonObject.getInteger("idx"));
+                // 填充命令下发对象
+                commandCheckDto.setSensorCode(jsonObject.getString("sensorCode"));
+                commandCheckDto.setDelay(jsonObject.getInteger("delay"));
+                commandCheckDto.setIdx(jsonObject.getInteger("idx"));
 
-            // 修改命令数据回显需要
-            commandCheckDto.setSensorType(sensorType);
-            commandCheckDto.setId(jsonObject.getInteger("id"));
+                // 修改命令数据回显需要
+                commandCheckDto.setSensorType(sensorType);
+                commandCheckDto.setId(jsonObject.getInteger("id"));
 
-            if (i != 0) {
-                sensorIdGroup.append(",");
-            }
-            sensorIdGroup.append(jsonObject.getInteger("id"));
-
-            // 解析传入参数表单 一个传感器可以有多个参数 循环解析 数据放入同一对象
-            JSONArray dataJsonArray = JSONArray.parseArray(jsonObject.getString("from"));
-            for (int j = 0; j < dataJsonArray.size(); j++) {
-                JSONObject dataJsonObject = dataJsonArray.getJSONObject(j);
-                // 获取对象的属性
-                Field field = commandCheckDto.getClass().getDeclaredField(dataJsonObject.getString("columnKey"));
-                // 设置属性访问权限，以便私有属性也能访问
-                field.setAccessible(true);
-                if (dataJsonObject.getString("columnType").equals("Integer")) {
-                    // 设置属性值
-                    field.set(commandCheckDto, dataJsonObject.getInteger("value"));
-                } else if (dataJsonObject.getString("columnType").equals("String")) {
-                    // 设置属性值
-                    field.set(commandCheckDto, dataJsonObject.getString("value"));
-                } else {
-                    throw new ServiceException("传感器属性值类型错误");
+                if (i != 0) {
+                    sensorIdGroup.append(",");
                 }
+                sensorIdGroup.append(jsonObject.getInteger("id"));
+
+                // 解析传入参数表单 一个传感器可以有多个参数 循环解析 数据放入同一对象
+                JSONArray dataJsonArray = JSONArray.parseArray(jsonObject.getString("from"));
+                for (int j = 0; j < dataJsonArray.size(); j++) {
+                    JSONObject dataJsonObject = dataJsonArray.getJSONObject(j);
+                    // 获取对象的属性
+                    Field field = commandCheckDto.getClass().getDeclaredField(dataJsonObject.getString("columnKey"));
+                    // 设置属性访问权限，以便私有属性也能访问
+                    field.setAccessible(true);
+                    if (dataJsonObject.getString("columnType").equals("Integer")) {
+                        // 设置属性值
+                        field.set(commandCheckDto, dataJsonObject.getInteger("value"));
+                    } else if (dataJsonObject.getString("columnType").equals("String")) {
+                        // 设置属性值
+                        field.set(commandCheckDto, dataJsonObject.getString("value"));
+                    } else {
+                        throw new ServiceException("传感器属性值类型错误");
+                    }
+                }
+                // 校验命令
+                validateIvsRuleInfo(commandCheckDto);
+                sensorCommandCheckDtoList.add(commandCheckDto);
             }
-            // 校验命令
-            validateIvsRuleInfo(commandCheckDto);
-            sensorCommandCheckDtoList.add(commandCheckDto);
+
+            sensorControlVo.setUserId(userId);
+            sensorControlVo.setSensorIdGroup(sensorIdGroup.toString());
+            sensorControlVo.setCreateTime(new Date());
+            sensorControlVo.setUpdateTime(new Date());
+
+            // 保存命令
+            sensorControlVo.setControlMessage(JSONObject.toJSONString(sensorCommandCheckDtoList));
+
+            if (sensorControlVo.getId() != null) {
+                sensorControlMapper.updateById(sensorControlVo);
+            } else {
+                sensorControlMapper.insert(sensorControlVo);
+            }
+            return sensorControlVo.getId();
+        } catch (Exception e) {
+            logger.error("传感器控制指令创建异常: {}", e.getMessage(), e);
+            return null;
         }
-
-        sensorControlVo.setUserId(userId);
-        sensorControlVo.setSensorIdGroup(sensorIdGroup.toString());
-        sensorControlVo.setCreateTime(new Date());
-        sensorControlVo.setUpdateTime(new Date());
-
-        // 保存命令
-        sensorControlVo.setControlMessage(JSONObject.toJSONString(sensorCommandCheckDtoList));
-
-        if (sensorControlVo.getId() != null) {
-            sensorControlMapper.updateById(sensorControlVo);
-        } else {
-            sensorControlMapper.insert(sensorControlVo);
-        }
-        return sensorControlVo.getId();
     }
 
     /**
@@ -284,22 +291,22 @@ public class SensorControlServiceImpl implements SensorControlService {
 
     /**
      * 根据id查询传感器指令
-     *
+     * <p>
      * 数据返回格式 固定格式用于界面解析
      * {
-     *      name: '',
-     *      sensor: [
-     *          {
-     *              id: 0,
-     *              idx: 0,
-     *              // 与下拉框联动 保存勾选的传感器信息
-     *              sensorData: {} as any,
-     *              sensorType: '',
-     *              sensorCode: '',
-     *              delay: 0,
-     *              from: [] as any
-     *          }
-     *      ]
+     * name: '',
+     * sensor: [
+     * {
+     * id: 0,
+     * idx: 0,
+     * // 与下拉框联动 保存勾选的传感器信息
+     * sensorData: {} as any,
+     * sensorType: '',
+     * sensorCode: '',
+     * delay: 0,
+     * from: [] as any
+     * }
+     * ]
      * }
      *
      * @param id
@@ -331,7 +338,7 @@ public class SensorControlServiceImpl implements SensorControlService {
 
         // 解析控制命令
         JSONArray jsonArray = JSONArray.parseArray(sensorControl.getControlMessage());
-        for (int i=0; i<jsonArray.size(); i++) {
+        for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject js = jsonArray.getJSONObject(i);
             JSONObject sensorData = new JSONObject();
             sensorData.put("idx", js.getInteger("idx"));

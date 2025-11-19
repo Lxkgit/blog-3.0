@@ -122,7 +122,7 @@ public class SensorController {
      */
     @PostMapping("/control/save")
     @PreAuthorize("hasAnyAuthority('sys:sensor:control:save')")
-    public Result addSensorControl( @Validated(value = {InsertGroup.class}) @RequestBody SensorControlVo sensorControlVo) throws ServiceException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+    public Result addSensorControl( @Validated(value = {InsertGroup.class}) @RequestBody SensorControlVo sensorControlVo)  {
         return ResultFactory.buildSuccessResult(sensorControlService.createSensorControl(sensorControlVo));
     }
 

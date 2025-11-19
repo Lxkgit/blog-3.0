@@ -20,11 +20,6 @@ public class SensorCommandDto<T> {
     private String chipCode;
 
     /**
-     * 传感器编码
-     */
-    private String sensorCode;
-
-    /**
      * 下发控制消息命令列表
      */
     private List<T> commandList;

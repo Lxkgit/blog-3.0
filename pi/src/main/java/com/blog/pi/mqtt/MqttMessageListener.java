@@ -75,12 +75,6 @@ public class MqttMessageListener implements MqttCallback {
                 NettyPacket<String> nettyRequest = NettyPacket.buildRequest(NettyTopicEnum.SENSOR_DATA.getTopic(), data);
                 nettyClient.sendMsg(nettyRequest.getMsgHead().getNettyMsgHead().getRequestId(), JSONObject.toJSONString(nettyRequest), true);
             }
-
-//            MQTTSensorData mqttSensorData = JSONObject.toJavaObject(JSONObject.parseObject(data), MQTTSensorData.class);
-//            NettyPacket<MQTTSensorData> nettyRequest = NettyPacket.buildRequest(mqttSensorData);
-//            nettyRequest.setNettyPacketType(NettyPacketType.REQUEST.getValue());
-//            nettyRequest.setTopic(NettyTopicEnum.BLOG_SENSOR_DATA.getTopic());
-//            nettyClient.sendMsg(JSONObject.toJSONString(nettyRequest));
         } catch (Exception e) {
             logger.error("mqtt 消息处理异常：{}", e.getMessage(), e);
         }

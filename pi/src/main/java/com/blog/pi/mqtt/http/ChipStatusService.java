@@ -34,9 +34,6 @@ public class ChipStatusService {
     @Value("${mqtt.ip}")
     private String ip;
 
-    @Value("${mqtt.port}")
-    private Integer port;
-
     /**
      * 登陆mqtt 获取token
      * <p>
@@ -116,8 +113,6 @@ public class ChipStatusService {
 
                 // 再次获取信息
                 return getMqttClientId(false);
-            } else {
-
             }
             return null;
         } catch (Exception e) {

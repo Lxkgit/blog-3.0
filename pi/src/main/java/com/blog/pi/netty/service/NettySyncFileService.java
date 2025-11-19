@@ -316,7 +316,7 @@ public class NettySyncFileService {
     }
 
     /**
-     * 删除本地文件（简单版）
+     * 删除本地文件
      *
      * @param dirPath  文件所在目录
      * @param fileName 文件名

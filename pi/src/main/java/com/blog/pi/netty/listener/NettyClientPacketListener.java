@@ -76,16 +76,6 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
                 // 处理文件上传消息
 //                syncBlogFileService.uploadBlogFileFirstStep(data, requestId);
             }
-
-//            if (topic.equals(NettyTopicEnum.BLOG_FILE_SYNC.getTopic())) {
-//                // 处理文件下载同步
-//                syncBlogFileService.syncBlogFile(data, requestId);
-//            } else if (topic.equals(NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic())) {
-//                syncBlogFileService.uploadBlogFileFirstStep(data, requestId);
-//            } else if (topic.equals(NettyTopicEnum.BLOG_SENSOR_CONTROL.getTopic())) {
-//                // 处理服务器控制命令
-//                sensorControlService.sendCommand(data, requestId);
-//            }
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             // 处理netty消息发送后服务端响应数据
             redisService.setSet(NettyRedisConstant.NETTY_RECEIVE_QUEUE, requestId);

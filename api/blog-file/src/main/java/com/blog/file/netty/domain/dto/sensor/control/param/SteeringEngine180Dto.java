@@ -1,7 +1,8 @@
-package com.blog.file.netty.domain.dto.sensor.control;
+package com.blog.file.netty.domain.dto.sensor.control.param;
 
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.blog.core.valication.group.InsertGroup;
+import com.blog.file.netty.domain.dto.sensor.control.SensorCommandCheckDto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
@@ -12,7 +13,6 @@ import lombok.EqualsAndHashCode;
  * @Author: lxk
  * @date 2024/2/2 11:06
  */
-
 
 @Data
 @EqualsAndHashCode(callSuper = true)

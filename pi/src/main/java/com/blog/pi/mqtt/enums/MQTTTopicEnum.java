@@ -42,15 +42,15 @@ public enum MQTTTopicEnum {
     	"dataList": [
     		{
     			"sensorCode": "aqwe12",
-    			"sensorData": "[{\"value\":\"20.60\",\"key\":\"温度\"},{\"value\":\"40.00\",\"key\":\"湿度\"}]"
+    			"sensorData": "{\"temp\":\"20.60\",\"humi\":\"40.00\"}"
     		},
     		{
     			"sensorCode": "asq124",
-    			"sensorData": "[{\"value\":\"20.60\",\"key\":\"二氧化碳浓度\"}]"
+    			"sensorData": "{\"co2\":\"20.60\"}"
     		},
     		{
     			"sensorCode": "dsg157",
-    			"sensorData": "[{\"value\":\"20\",\"key\":\"声音大小(dB)\"}]"
+    			"sensorData": "{\"sound\":\"20.5\"}"
     		}
     	]
     }

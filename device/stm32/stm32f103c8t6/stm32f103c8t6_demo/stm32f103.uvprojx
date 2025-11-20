@@ -460,6 +460,11 @@
               <FileType>1</FileType>
               <FilePath>.\hardware\src\dht11.c</FilePath>
             </File>
+            <File>
+              <FileName>tim2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\hardware\src\tim2.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

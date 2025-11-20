@@ -23,22 +23,22 @@ u8 humi;
 void Hardware_Init(void)
 {
 	//中断控制器分组设置
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);								
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 
 	//串口1，打印信息用
-	Usart1_Init(115200);							
+	Usart1_Init(115200);
 
 	//串口2，驱动ESP8266用
 	Usart2_Init(115200);
-	
+
 	//定时中断初始化
-	Timer_Init();		
+	Timer_Init();
 
 	UsartPrintf(USART_DEBUG, "Hardware init OK\r\n");
 
 }
 
-void Send_Msg(void) 
+void Send_Msg(void)
 {
 	char jsonStr[100];
 	char atCommand[200];
@@ -57,7 +57,6 @@ void Send_Msg(void)
 
 int main(void)
 {
-	
 
 	//初始化外围硬件
 	Hardware_Init();
@@ -104,7 +103,6 @@ void TIM2_IRQHandler(void)
 			
 //			Send_Msg();
         }
-												
 	}
 }
 

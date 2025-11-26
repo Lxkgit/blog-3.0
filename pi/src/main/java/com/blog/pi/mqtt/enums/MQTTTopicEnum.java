@@ -7,28 +7,21 @@ public enum MQTTTopicEnum {
     /*
     {
     	"chipName": "电脑开关机",
-    	"chipCode": "stm32",
+    	"chipCode": "stm32_001",
     	"chipType": "stm32",
-    	"memo": "备注信息",
     	"sensorList": [
     		{
-    			"sensorName": "温湿度",
-    			"sensorCode": "aqwe12",
-    			"sensorType": "DHT11",
-    			"memo": "温湿度传感器备注",
+    			"sensorCode": "DHT11_001",
+    			"sensorType": "DHT11"
     		},
     		{
-    			"sensorName": "180度舵机",
-    			"sensorCode": "duo-180",
-    			"sensorType": "DUO-180",
-    			"memo": "舵机备注",
+    			"sensorCode": "DUO180_001",
+    			"sensorType": "DUO180"
     		},
     		{
-    			"sensorName": "360度舵机",
-    			"sensorCode": "duo-360",
-    			"sensorType": "DUO-360",
-    			"memo": "舵机备注",
-    		},
+    			"sensorCode": "DUO360_001",
+    			"sensorType": "DUO360"
+    		}
     	]
     }
      */
@@ -36,20 +29,20 @@ public enum MQTTTopicEnum {
     SENSOR_DATA("SENSOR_DATA", 0),
     /*
     {
-    	"chipCode": "stm32",
+    	"chipCode": "stm32_001",
     	"msgCode": "asd75z",
     	"msgCount": "1",
     	"dataList": [
     		{
-    			"sensorCode": "aqwe12",
+    			"sensorCode": "DHT11_001",
     			"sensorData": "{\"temp\":\"20.60\",\"humi\":\"40.00\"}"
     		},
     		{
-    			"sensorCode": "asq124",
+    			"sensorCode": "SCD41_001",
     			"sensorData": "{\"co2\":\"20.60\"}"
     		},
     		{
-    			"sensorCode": "dsg157",
+    			"sensorCode": "MAX9814_001",
     			"sensorData": "{\"sound\":\"20.5\"}"
     		}
     	]
@@ -60,26 +53,26 @@ public enum MQTTTopicEnum {
     SENSOR_CONTROL("SENSOR_CONTROL", 0),
     /*
     {
-    	"chipCode": "stm32",
+    	"chipCode": "stm32_001",
     	"commandList": [
     		{
     		    "delay": 1000,
-    			"sensorCode": "asq124",
-    			"idx": 0,
+    			"sensorCode": "DUO180_001",
+    			"idx": 1,
     			"data": 180
     		},
     			{
     		    "delay": 1000,
-    			"sensorCode": "asq124",
-    			"idx": 0,
-    			"data": 1
+    			"sensorCode": "DUO360_001",
+    			"idx": 2,
+    			"data": 220
     		},
     			{
     		    "delay": 1000,
-    			"sensorCode": "asq124",
-    			"idx": 0,
-    			"data": 0
-    		},
+    			"sensorCode": "DUO180_001",
+    			"idx": 3,
+    			"data": 90
+    		}
     	]
     }
      */

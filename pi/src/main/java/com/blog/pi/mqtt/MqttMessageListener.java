@@ -3,9 +3,9 @@ package com.blog.pi.mqtt;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.pi.mqtt.enums.MQTTTopicEnum;
 import com.blog.pi.mqtt.http.ChipStatusService;
+import com.blog.pi.mqtt.service.ChipMsgService;
 import com.blog.pi.netty.client.NettyClient;
 import com.blog.pi.netty.dto.NettyPacket;
-import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.netty.enums.NettyTopicEnum;
 import org.eclipse.paho.client.mqttv3.*;
 import org.slf4j.Logger;
@@ -20,6 +20,8 @@ public class MqttMessageListener implements MqttCallback {
     private final MqttService mqttService = SpringUtils.getBean(MqttService.class);
 
     private final ChipStatusService chipStatusService = SpringUtils.getBean(ChipStatusService.class);
+
+    private final ChipMsgService chipMsgService = SpringUtils.getBean(ChipMsgService.class);
 
     /**
      * mqtt断线重连
@@ -65,14 +67,16 @@ public class MqttMessageListener implements MqttCallback {
             logger.info("MQTT Topic:{} data:{}", topic, data);
             chipStatusService.getMqttClientId(true);
             if (topic.equals(MQTTTopicEnum.CHIP_SENSOR_REGISTER.getTopic())) {
-
+                // 消息转换为json格式
+                JSONObject chipRegisterJson = chipMsgService.chipRegisterToJson(data);
                 // 发送 Netty 单片机设备注册消息
-                NettyPacket<String> nettyRequest = NettyPacket.buildRequest(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic(), data);
+                NettyPacket<JSONObject> nettyRequest = NettyPacket.buildRequest(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic(), chipRegisterJson);
                 nettyClient.sendMsg(nettyRequest.getMsgHead().getNettyMsgHead().getRequestId(), JSONObject.toJSONString(nettyRequest), true);
             } else if (topic.equals(MQTTTopicEnum.SENSOR_DATA.getTopic())) {
-
+                // 消息转换为json格式
+                JSONObject chipJson = chipMsgService.chipDataToJson(data);
                 // 发送 Netty 传感器数据
-                NettyPacket<String> nettyRequest = NettyPacket.buildRequest(NettyTopicEnum.SENSOR_DATA.getTopic(), data);
+                NettyPacket<JSONObject> nettyRequest = NettyPacket.buildRequest(NettyTopicEnum.SENSOR_DATA.getTopic(), chipJson);
                 nettyClient.sendMsg(nettyRequest.getMsgHead().getNettyMsgHead().getRequestId(), JSONObject.toJSONString(nettyRequest), true);
             }
         } catch (Exception e) {

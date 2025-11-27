@@ -33,7 +33,7 @@ public class MqttMessageListener implements MqttCallback {
         int num = 1;
         while (true) {
             try {
-                logger.info("mqtt 重新连接 num:{}", num);
+                logger.info("MQTT 重新连接 连接次数:{}", num);
                 mqttService.getMqttClient().reconnect();
                 if (mqttService.getMqttClient().isConnected()) {
                     // 判断已经重新连接成功  需要重新订阅主题 可以在这个if里面订阅主题  或者 connectComplete（方法里面）
@@ -43,7 +43,7 @@ public class MqttMessageListener implements MqttCallback {
                 }
                 num++;
             } catch (MqttException e) {
-                logger.error("mqtt断连异常", e);
+                logger.error("MQTT 断连异常", e);
             }
             try {
                 // 5秒执行异常重新连接
@@ -80,9 +80,8 @@ public class MqttMessageListener implements MqttCallback {
                 nettyClient.sendMsg(nettyRequest.getMsgHead().getNettyMsgHead().getRequestId(), JSONObject.toJSONString(nettyRequest), true);
             }
         } catch (Exception e) {
-            logger.error("mqtt 消息处理异常：{}", e.getMessage(), e);
+            logger.error("MQTT 消息处理异常：{}", e.getMessage(), e);
         }
-
     }
 
     /**
@@ -93,7 +92,7 @@ public class MqttMessageListener implements MqttCallback {
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
         try {
-            logger.info("mqtt 发送消息：{}", token.getMessage());
+            logger.info("MQTT 发送消息：{}", token.getMessage());
         } catch (MqttException e) {
             throw new RuntimeException(e);
         }

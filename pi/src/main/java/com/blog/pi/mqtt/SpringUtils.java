@@ -22,6 +22,8 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
      */
     private static ConfigurableListableBeanFactory beanFactory;
 
+    private static ApplicationContext applicationContext;
+
     /**
      * 获取类型为requiredType的对象
      *
@@ -32,19 +34,6 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     public static <T> T getBean(Class<T> clz) throws BeansException {
         return (T) beanFactory.getBean(clz);
     }
-
-
-
-
-
-
-
-
-
-
-    private static ApplicationContext applicationContext;
-
-
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {

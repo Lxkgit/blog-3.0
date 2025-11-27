@@ -49,13 +49,13 @@ public class MqttService implements CommandLineRunner {
             client.setCallback(new MqttMessageListener());
             client.setTimeToWait(5000);
             client.connect(options);
-            logger.info("mqtt连接成功，ip:{} port:{}", ip, port);
+            logger.info("MQTT 连接成功，ip:{} port:{}", ip, port);
 
             // 订阅 topic
             subscribe();
 
         } catch (Exception e) {
-            logger.error("mqtt 连接报错:{}", e.getMessage(), e);
+            logger.error("MQTT 连接报错:{}", e.getMessage(), e);
         }
     }
 
@@ -99,7 +99,7 @@ public class MqttService implements CommandLineRunner {
         try {
             client.subscribe(topic, qos);
         } catch (MqttException e) {
-            logger.error("mqtt 订阅主题异常topic:{} error:{}", topic, e.getMessage(), e);
+            logger.error("MQTT 订阅主题异常 topic:{} error:{}", topic, e.getMessage(), e);
         }
     }
 
@@ -110,11 +110,11 @@ public class MqttService implements CommandLineRunner {
     /**
      * 发布，默认qos为0，非持久化
      *
-     * @param topic
+     * @param topicEnum
      * @param pushMessage
      */
-    public void publish(String topic, String pushMessage) {
-        publish(1, false, topic, pushMessage);
+    public boolean publish(MQTTTopicEnum topicEnum, String pushMessage) {
+        return publish(topicEnum.getQos(), false, topicEnum.getTopic(), pushMessage);
     }
 
     /**
@@ -125,7 +125,7 @@ public class MqttService implements CommandLineRunner {
      * @param topic
      * @param pushMessage
      */
-    public synchronized void publish(int qos, boolean retained, String topic, String pushMessage) {
+    public synchronized boolean publish(int qos, boolean retained, String topic, String pushMessage) {
         if (client.isConnected()) {
             MqttMessage message = new MqttMessage();
             message.setQos(qos);
@@ -133,18 +133,20 @@ public class MqttService implements CommandLineRunner {
             message.setPayload(pushMessage.getBytes());
             MqttTopic mTopic = client.getTopic(topic);
             if (null == mTopic) {
-                logger.error("topic not exist");
-                return;
+                logger.error("MQTT topic 不存在");
+                return false;
             }
             MqttDeliveryToken token;
             try {
                 token = mTopic.publish(message);
                 token.waitForCompletion();
+                return true;
             } catch (Exception e) {
                 logger.info(e.getMessage(), e);
             }
         } else {
-            logger.error("Mqtt not connected");
+            logger.error("MQTT 未连接");
         }
+        return false;
     }
 }

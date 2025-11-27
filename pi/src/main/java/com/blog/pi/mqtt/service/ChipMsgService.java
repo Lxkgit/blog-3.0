@@ -138,14 +138,12 @@ public class ChipMsgService {
         StringBuilder buffer = new StringBuilder();
         buffer.append(command.get("chipCode"));
         JSONArray commandArr = (JSONArray) command.get("commandList");
-        for (int i = 0; i < commandArr.size(); i++) {
-            JSONObject commandObj = (JSONObject) commandArr.get(i);
+        for (Object o : commandArr) {
+            JSONObject commandObj = (JSONObject) o;
             buffer.append("|");
             buffer.append(commandObj.get("sensorCode")).append("-");
-            buffer.append(commandObj);
+            buffer.append(commandObj.get("delay")).append("_").append(commandObj.get("data"));
         }
-
-
         return buffer.toString();
     }
 }

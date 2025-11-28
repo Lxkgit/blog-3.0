@@ -11,12 +11,8 @@ import lombok.Data;
 @Data
 public class NettySensorRegisterDto {
 
-    private String sensorName;
-
     private String sensorCode;
 
     private String sensorType;
-
-    private String memo;
 
 }

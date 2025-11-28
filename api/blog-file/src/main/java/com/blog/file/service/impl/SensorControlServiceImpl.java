@@ -93,15 +93,20 @@ public class SensorControlServiceImpl implements SensorControlService {
         }
 
         Sensor sensor = sensorMapper.selectById(sensorControl.getSensorId());
+        JSONObject sensorCommand = new JSONObject();
+        sensorCommand.put("chipCode", sensor.getChipCode());
+        JSONArray jsonArray = JSONArray.parseArray(sensorControl.getControlMessage());
+        JSONArray commandList =new JSONArray();
+        for (int i = 0; i< jsonArray.size(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            jsonObject.put("delay", jsonObject.getInteger("delay"));
+            jsonObject.put("sensorCode", jsonObject.getString("sensorCode"));
+            jsonObject.put("data", jsonObject.getString("data"));
+            commandList.add(jsonObject);
+        }
+        sensorCommand.put("commandList", commandList);
 
-        List<SteeringEngine180Dto> list = JSONArray.parseArray(sensorControl.getControlMessage(), SteeringEngine180Dto.class);
-
-        SensorCommandDto<SteeringEngine180Dto> commandVo = new SensorCommandDto<>();
-        commandVo.setChipCode(sensor.getChipCode());
-        commandVo.setCommandList(list);
-
-        NettyPacket<SensorCommandDto<SteeringEngine180Dto>> sensorCommandRequest = NettyPacket.buildRequest(NettyTopic.BLOG_SENSOR_CONTROL, commandVo);
-
+        NettyPacket<JSONObject> sensorCommandRequest = NettyPacket.buildRequest(NettyTopic.BLOG_SENSOR_CONTROL, sensorCommand);
         return nettyServer.sendByRegisterIdLimitCount(sensor.getDeviceCode(), JSONObject.toJSONString(sensorCommandRequest), 0);
     }
 

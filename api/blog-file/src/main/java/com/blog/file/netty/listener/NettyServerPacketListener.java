@@ -94,7 +94,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
             // 处理单片机、传感器注册数据
             if (topic.equals(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic())) {
-                nettyDeviceData.chipAndSensorRegister(data, deviceCode, 1);
+                nettyDeviceData.chipAndSensorRegister(data, deviceCode, userId);
             } else if (topic.equals(NettyTopicEnum.SENSOR_DATA.getTopic())) {
                 nettyDeviceData.receiveSensorData(data, deviceCode);
             } else if (topic.equals(NettyTopicEnum.DEVICE_INFO.getTopic())) {

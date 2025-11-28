@@ -29,11 +29,6 @@ public class NettyChipRegisterDto {
     private String chipType;
 
     /**
-     * 备注信息
-     */
-    private String memo;
-
-    /**
      * 单片机下传感器注册信息
      */
     List<NettySensorRegisterDto> sensorList;

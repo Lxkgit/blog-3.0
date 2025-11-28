@@ -114,19 +114,16 @@ public class ChipMsgService {
      *     		  {
      *     		    "delay": 1000,
      *     			"sensorCode": "DUO180_001",
-     *     			"idx": 1,
      *     			"data": 180
      *            },
      *            {
      *     		    "delay": 1000,
      *     			"sensorCode": "DUO360_001",
-     *     			"idx": 2,
      *     			"data": 220
      *            },
      *            {
      *     		    "delay": 1000,
      *     			"sensorCode": "DUO180_001",
-     *     			"idx": 3,
      *     			"data": 90
      *            }
      *     	]

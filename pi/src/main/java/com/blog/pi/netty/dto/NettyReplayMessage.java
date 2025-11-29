@@ -11,26 +11,46 @@ public class NettyReplayMessage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 消息发送时间
+     * 消息重发类型
+     * 1 限制重发次数
+     * 2 限制重发时间
      */
-    private Date sendTime;
+    private Integer retryType;
 
     /**
      * 消息重发次数
+     * 指定消息重发次数 0 为无限制
      */
-    private Integer tryTime;
+    private Integer limitCount;
+
+    /**
+     * 消息有效时间 单位：minute
+     * 超过有效时间的消息被丢弃
+     */
+    private Integer effectiveTime;
 
     /**
      * netty 发送消息
      */
     private String message;
 
-    public NettyReplayMessage() {
-    }
+    /**
+     * 消息首次发送时间
+     */
+    private Date firstSendTime;
+
+    /**
+     * 消息最近发送时间
+     */
+    private Date lastSendTime;
+
+    /**
+     * 消息已重发次数
+     */
+    private Integer tryCount;
 
     public NettyReplayMessage(String message) {
-        this.sendTime = new Date();
-        this.tryTime = 0;
         this.message = message;
+        this.firstSendTime = new Date();
     }
 }

@@ -87,7 +87,7 @@ public class NettyClient implements CommandLineRunner {
             future.addListener((ChannelFutureListener) futureListener -> {
                 if (futureListener.isSuccess()) {
                     logger.info("===== netty 连接成功 =====");
-                    baseThread.execute(replayThread);
+//                    baseThread.execute(replayThread);
                 } else {
                     logger.warn("===== netty 连接失败，30秒后尝试重新连接 =====");
                     futureListener.channel().eventLoop().schedule((Runnable) this::run, 30, TimeUnit.SECONDS);

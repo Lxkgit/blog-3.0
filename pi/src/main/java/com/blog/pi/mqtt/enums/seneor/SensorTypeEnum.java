@@ -10,7 +10,7 @@ import java.text.MessageFormat;
 
 public enum SensorTypeEnum {
 
-    DTH11("DHT11", "{\"temp\":\"{0}\",\"humi\":\"{1}\"}", null),
+    DTH11("DHT11", "'{'\"temp\":\"{0}\",\"humi\":\"{1}\"'}'", null),
     DUO180("DUO180", null, ""),
     ;
 

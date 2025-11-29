@@ -1,29 +1,12 @@
 #include "stm32f10x.h"                  // Device header
 
-/**
-  * 函    数：定时中断初始化
-  * 参    数：无
-  * 返 回 值：无
-  * 注意事项：此函数配置为外部时钟，定时器相当于计数器
-  */
+
 void Timer_Init(void)
 {
 	/*开启时钟*/
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);			//开启TIM2的时钟
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);			//开启GPIOA的时钟
-	
-	/*GPIO初始化*/
-	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);						//将PA0引脚初始化为上拉输入
-	
-	/*外部时钟配置*/
-	TIM_ETRClockMode2Config(TIM2, TIM_ExtTRGPSC_OFF, TIM_ExtTRGPolarity_NonInverted, 0x0F);
-																//选择外部时钟模式2，时钟从TIM_ETR引脚输入
-																//注意TIM2的ETR引脚固定为PA0，无法随意更改
-																//最后一个滤波器参数加到最大0x0F，可滤除时钟信号抖动
+
+	TIM_InternalClockConfig(TIM2);
 	
 	/*时基单元初始化*/
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;				//定义结构体变量
@@ -33,12 +16,6 @@ void Timer_Init(void)
 	TIM_TimeBaseInitStructure.TIM_Prescaler = 7200 - 1;				//预分频器，即PSC的值
 	TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 0;			//重复计数器，高级定时器才会用到
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);				//将结构体变量交给TIM_TimeBaseInit，配置TIM2的时基单元	
-	
-	/*中断输出配置*/
-	TIM_ClearFlag(TIM2, TIM_FLAG_Update);						//清除定时器更新标志位
-																//TIM_TimeBaseInit函数末尾，手动产生了更新事件
-																//若不清除此标志位，则开启中断后，会立刻进入一次中断
-																//如果不介意此问题，则不清除此标志位也可
 																
 	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);					//开启TIM2的更新中断
 	

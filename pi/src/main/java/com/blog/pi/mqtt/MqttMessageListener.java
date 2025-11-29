@@ -64,7 +64,7 @@ public class MqttMessageListener implements MqttCallback {
     public void messageArrived(String topic, MqttMessage message) {
         try {
             String data = new String(message.getPayload());
-            logger.info("MQTT Topic:{} data:{}", topic, data);
+            logger.info("===== MQTT 收到消息 ===== Topic:{} data:{}", topic, data);
             chipStatusService.getMqttClientId(true);
             if (topic.equals(MQTTTopicEnum.CHIP_SENSOR_REGISTER.getTopic())) {
                 // 消息转换为json格式

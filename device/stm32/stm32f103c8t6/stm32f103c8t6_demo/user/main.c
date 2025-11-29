@@ -5,6 +5,7 @@
 #include "esp8266.h"
 
 //硬件驱动
+#include "tim2.h"
 #include "delay.h"
 #include "usart.h"
 #include "led.h"
@@ -15,6 +16,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#define MSG_TEMP		"stm32_001-%d|DHT11_01-%d_%d"
+
+uint16_t Num = 0;			//定义在定时器中断里自增的变量
+uint16_t secCount = 0;
 
 void Hardware_Init(void)
 {
@@ -40,8 +45,27 @@ void Hardware_Init(void)
 }
 
 
+
 u8 temp;
 u8 humi;
+
+void Send_Msg(void)
+{
+	char jsonStr[100];
+	char atCommand[200];
+	DHT11_Read_Data(&temp,&humi);
+	UsartPrintf(USART_DEBUG, "P4--temp %d ,humi %d\r\n",temp,humi);
+	
+	// 1. 构建JSON字符串，内部双引号用\转义
+	sprintf(jsonStr, "{\\\"temp\\\":%d\\, \\\"humi\\\":%d}", temp, humi);
+	
+	sprintf(atCommand, "AT+MQTTPUB=0,\"SENSOR_DATA\",\"%s\",0,0\r\n", jsonStr);
+	
+	ESP8266_SendCmd(atCommand, "OK");
+	
+	DelayMs(10000);
+}
+
 int main(void)
 {
 	int i;
@@ -62,13 +86,18 @@ int main(void)
 		DelayXms(5000);
 	UsartPrintf(USART_DEBUG, "Connect MQTT Server Success\r\n");
 	
+		while(1)
+	{
+		Send_Msg();
+	}
+	
 	while(1)
 	{
 		DHT11_Read_Data(&temp,&humi);
 		UsartPrintf(USART_DEBUG, "P4--temp %d ,humi %d\r\n",temp,humi);
 	
 		// 1. 构建JSON字符串，内部双引号用\转义
-		sprintf(jsonStr, "{\\\"temp\\\":%d\\\, \\\"humi\\\":%d}", temp, humi);
+		sprintf(jsonStr, "{\\\"temp\\\":%d\\, \\\"humi\\\":%d}", temp, humi);
 
 		// 把所有单引号替换为双引号
 		
@@ -83,5 +112,33 @@ int main(void)
 		ESP8266_SendCmd(atCommand, "OK");
 		
 		DelayMs(10000);
+	}
+}
+
+/**
+  * 函    数：TIM2中断函数
+  * 参    数：无
+  * 返 回 值：无
+  * 注意事项：此函数为中断函数，无需调用，中断触发后自动执行
+  *           函数名为预留的指定名称，可以从启动文件复制
+  *           请确保函数名正确，不能有任何差异，否则中断函数将不能进入
+  */
+void TIM2_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET)		//判断是否是TIM2的更新事件触发的中断
+	{
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);			//清除TIM2更新事件的中断标志位
+															//中断标志位必须清除
+															//否则中断将连续不断地触发，导致主程序卡死
+		secCount++;
+		// 每秒中断一次，中断300次发送一次数据
+		if(secCount >= 300) // 300秒 = 5分钟
+        {
+			Num ++;												//Num变量自增，用于测试定时中断
+            secCount = 0;
+            // 在这里执行你的 5 分钟任务
+			
+//			Send_Msg();
+        }
 	}
 }

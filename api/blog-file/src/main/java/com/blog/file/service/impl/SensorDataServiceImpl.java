@@ -61,7 +61,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         wrapper.eq(SensorData::getDeviceCode, sensor.getDeviceCode());
         wrapper.eq(SensorData::getChipCode, sensor.getChipCode());
         wrapper.eq(SensorData::getSensorCode, sensor.getSensorCode());
-
+        wrapper.orderByDesc(SensorData::getCreateTime);
 
         PageHelper.startPage(sensorDataVoParam.getPageNum(), sensorDataVoParam.getPageSize());
         Page<SensorData> sensorDataPage = (Page<SensorData>) sensorDataMapper.selectList(wrapper);

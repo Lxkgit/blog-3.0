@@ -14,7 +14,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#define MSG_TEMP		"stm32_001-%d|DHT11_01-%d_%d"
+#define SENSOR_DATA		"stm32_001-%d|DHT11_01-%d_%d"
+#define CHIP_SENSOR_REGISTER "stm32_001-气体检测模块|DHT11_01"
+
 
 uint16_t Num = 0;			//定义在定时器中断里自增的变量
 uint16_t secCount = 0;
@@ -41,6 +43,15 @@ void Hardware_Init(void)
 
 }
 
+void Chip_Register(void) {
+	
+	char atCommand[200];
+	
+	sprintf(atCommand, "AT+MQTTPUB=0,\"CHIP_SENSOR_REGISTER\",\"%s\",0,0\r\n", CHIP_SENSOR_REGISTER);
+	
+	ESP8266_SendCmd(atCommand, "OK");
+}
+
 void Send_Msg(void)
 {
 	char jsonStr[100];
@@ -49,7 +60,7 @@ void Send_Msg(void)
 	UsartPrintf(USART_DEBUG, "P4--temp %d ,humi %d\r\n",temp,humi);
 	
 	// 1. 构建JSON字符串，内部双引号用\转义
-	sprintf(jsonStr, MSG_TEMP, msgCount, temp, humi);
+	sprintf(jsonStr, SENSOR_DATA, msgCount, temp, humi);
 	
 	sprintf(atCommand, "AT+MQTTPUB=0,\"SENSOR_DATA\",\"%s\",0,0\r\n", jsonStr);
 	
@@ -74,6 +85,7 @@ int main(void)
 		DelayMs(5000);
 	UsartPrintf(USART_DEBUG, "Connect MQTT Server Success\r\n");
 	
+	Chip_Register();
 	while(1)
 	{
 

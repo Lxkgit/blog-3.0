@@ -73,7 +73,6 @@ public class NettyDeviceService {
             if (selectChip.getCodeStatus() == 0) {
                 chip.setCreateTime(new Date());
                 chipDAO.insert(chip);
-
                 deviceChip.setCodeStatus(1);
             } else {
                 QueryWrapper<Chip> wrapper = new QueryWrapper<>();

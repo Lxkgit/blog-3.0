@@ -1,6 +1,8 @@
 package com.blog.pi.netty.client;
 
 
+import com.alibaba.fastjson2.JSONObject;
+import com.blog.core.utils.MyStringUtils;
 import com.blog.pi.config.PiSystemConfig;
 import com.blog.pi.mapper.RegisterSettingMapper;
 import com.blog.pi.netty.dto.NettyReplayMessage;
@@ -122,8 +124,8 @@ public class NettyClient implements CommandLineRunner {
             logger.warn("===== netty 连接已断开 ===== requestId: {} msg: {} retry: {}", requestId, msg, retry);
         }
         if (retry) {
-            NettyReplayMessage nettyReplayMessage = new NettyReplayMessage(msg);
-            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, nettyReplayMessage);
+            NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitCount(10, msg);
+            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage));
         }
     }
 

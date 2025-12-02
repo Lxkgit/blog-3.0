@@ -6,9 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-public class NettyReplayMessage implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class NettyReplayMessage {
 
     /**
      * 消息重发类型
@@ -49,8 +47,25 @@ public class NettyReplayMessage implements Serializable {
      */
     private Integer tryCount;
 
-    public NettyReplayMessage(String message) {
-        this.message = message;
-        this.firstSendTime = new Date();
+    public static NettyReplayMessage buildNettyReplayMessageLimitCount(Integer limitCount, String message) {
+        NettyReplayMessage nettyReplayMessage = new NettyReplayMessage();
+        nettyReplayMessage.setRetryType(1);
+        nettyReplayMessage.setLimitCount(limitCount);
+        nettyReplayMessage.setMessage(message);
+        nettyReplayMessage.setFirstSendTime(new Date());
+        nettyReplayMessage.setLastSendTime(new Date());
+        nettyReplayMessage.setTryCount(0);
+        return nettyReplayMessage;
+    }
+
+    public static NettyReplayMessage buildNettyReplayMessageLimitTime(Integer limitTime, String message) {
+        NettyReplayMessage nettyReplayMessage = new NettyReplayMessage();
+        nettyReplayMessage.setRetryType(2);
+        nettyReplayMessage.setEffectiveTime(limitTime);
+        nettyReplayMessage.setMessage(message);
+        nettyReplayMessage.setFirstSendTime(new Date());
+        nettyReplayMessage.setLastSendTime(new Date());
+        nettyReplayMessage.setTryCount(0);
+        return nettyReplayMessage;
     }
 }

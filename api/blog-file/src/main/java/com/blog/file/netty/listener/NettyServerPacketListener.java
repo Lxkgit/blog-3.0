@@ -17,6 +17,7 @@ import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.netty.event.NettyPacketEvent;
 import com.blog.file.netty.service.*;
 import com.blog.redis.constant.FileRedisConstant;
+import com.blog.redis.constant.NettyRedisConstant;
 import com.blog.redis.service.RedisService;
 import io.netty.channel.ChannelId;
 import jakarta.annotation.Resource;
@@ -29,6 +30,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @description: Netty服务端自定义数据包处理监听器
@@ -92,6 +94,10 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             // 心跳消息 收到消息设置设备在线3分钟
             redisService.setString(FileRedisConstant.FILE_DEVICE_STATUS + deviceCode, data, 180);
         } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
+            // 回复请求消息响应(业务内部可以会再次响应消息，此响应防止客户端重发消息)
+            NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, topic, "response");
+            nettyServer.sendByRegisterIdNotRetry(registerCode, JSONObject.toJSONString(nettyResponse));
+
             // 处理单片机、传感器注册数据
             if (topic.equals(NettyTopicEnum.CHIP_SENSOR_REGISTER.getTopic())) {
                 nettyDeviceData.chipAndSensorRegister(data, deviceCode, userId);
@@ -100,10 +106,10 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             } else if (topic.equals(NettyTopicEnum.DEVICE_INFO.getTopic())) {
                 nettyDeviceData.deviceInfo(data, deviceCode, userId);
             }
-            // 回复请求消息响应
-            NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, topic, "response");
-            nettyServer.sendByRegisterIdNotRetry(registerCode, JSONObject.toJSONString(nettyResponse));
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
+            // 记录响应类消息记录消息序列号，取消对此消息重发
+            redisService.setSet(NettyRedisConstant.NETTY_RECEIVE_QUEUE, requestId);
+
             if (NettyTopic.BLOG_FILE_SYNC.equals(topic)) {
                 // 文件同步上传响应数据处理
                 JSONObject jsonObject = JSONObject.parseObject(data);

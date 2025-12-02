@@ -49,4 +49,26 @@ public class NettyReplayMessage {
      */
     private Integer tryCount;
 
+    public static NettyReplayMessage buildNettyReplayMessageLimitCount(Integer limitCount, String message) {
+        NettyReplayMessage nettyReplayMessage = new NettyReplayMessage();
+        nettyReplayMessage.setRetryType(1);
+        nettyReplayMessage.setLimitCount(limitCount);
+        nettyReplayMessage.setMessage(message);
+        nettyReplayMessage.setFirstSendTime(new Date());
+        nettyReplayMessage.setLastSendTime(new Date());
+        nettyReplayMessage.setTryCount(0);
+        return nettyReplayMessage;
+    }
+
+    public static NettyReplayMessage buildNettyReplayMessageLimitTime(Integer limitTime, String message) {
+        NettyReplayMessage nettyReplayMessage = new NettyReplayMessage();
+        nettyReplayMessage.setRetryType(2);
+        nettyReplayMessage.setEffectiveTime(limitTime);
+        nettyReplayMessage.setMessage(message);
+        nettyReplayMessage.setFirstSendTime(new Date());
+        nettyReplayMessage.setLastSendTime(new Date());
+        nettyReplayMessage.setTryCount(0);
+        return nettyReplayMessage;
+    }
+
 }

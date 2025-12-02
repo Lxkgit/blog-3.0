@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.pi.domain.common.MsgHead;
 import com.blog.pi.netty.client.NettyClient;
+import com.blog.pi.netty.dto.NettyPacket;
 import com.blog.pi.netty.dto.file.NettySyncFileDto;
 import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.netty.enums.NettyTopic;
@@ -65,6 +66,10 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
         if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
             // 服务器不会下发心跳信息，客户端心跳信息也不会响应
         } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
+            // 回复请求消息响应(业务内部可以会再次响应消息，此响应防止服务器重发消息)
+            NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, topic, "response");
+            nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyResponse), false);
+
             if (NettyTopic.BLOG_FILE_SYNC.equals(topic)) {
                 // 处理文件同步消息
                 NettySyncFileDto nettySyncBlogFile = JSON.parseObject(data, NettySyncFileDto.class);
@@ -77,7 +82,7 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
 //                syncBlogFileService.uploadBlogFileFirstStep(data, requestId);
             }
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
-            // 处理netty消息发送后服务端响应数据
+            // 记录响应类消息记录消息序列号，取消对此消息重发
             redisService.setSet(NettyRedisConstant.NETTY_RECEIVE_QUEUE, requestId);
         } else {
             logger.warn("unknown NettyPacketType channelId:{} event:{}", channelId, JSONObject.toJSONString(event));

@@ -42,7 +42,7 @@ public class NettyMessageReplayThread implements Runnable {
                 if (CollectionUtils.isNotEmpty(allValues)) {
                     for (Object value : allValues) {
                         if (redisService.hasHashKey(NettyRedisConstant.NETTY_SEND_QUEUE, value.toString())) {
-                            redisService.deleteAllHash(NettyRedisConstant.NETTY_SEND_QUEUE, value.toString());
+                            redisService.deleteHashByKey(NettyRedisConstant.NETTY_SEND_QUEUE, value.toString());
                         }
                     }
                 }
@@ -80,7 +80,7 @@ public class NettyMessageReplayThread implements Runnable {
                         // 首次发送消息与当前时间大于指定消息有效时间 丢弃消息
                         if (effectiveDuration.toMinutes() > replayMessage.getEffectiveTime()) {
                             logger.info("netty 消息超过有效时间，丢弃此消息 msg:{}", replayMessage.getMessage());
-                            redisService.deleteAllHash(NettyRedisConstant.NETTY_SEND_QUEUE, entry.getKey());
+                            redisService.deleteHashByKey(NettyRedisConstant.NETTY_SEND_QUEUE, entry.getKey());
                         } else {
                             Duration lastDuration = Duration.between(lastSendTime, nowDate);
                             resendMessage(lastDuration, key, replayMessage);

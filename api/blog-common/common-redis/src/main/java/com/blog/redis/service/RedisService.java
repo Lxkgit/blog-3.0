@@ -1,7 +1,6 @@
 package com.blog.redis.service;
 
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -291,7 +290,7 @@ public class RedisService {
      * @param key  键 不能为null
      * @param item 项 可以使多个 不能为null
      */
-    public void deleteAllHash(String key, Object... item) {
+    public void deleteHashByKey(String key, Object... item) {
         redisTemplate.opsForHash().delete(key, item);
     }
 

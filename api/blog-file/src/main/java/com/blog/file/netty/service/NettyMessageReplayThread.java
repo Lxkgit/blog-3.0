@@ -84,7 +84,6 @@ public class NettyMessageReplayThread implements Runnable {
                     }
                 }
 
-
                 Thread.sleep(30 * 1000);
             } catch (InterruptedException e) {
                 logger.error("netty 消息重发线程异常:{}", e.getMessage(), e);

@@ -77,9 +77,6 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
             } else if (NettyTopic.BLOG_SENSOR_CONTROL.equals(topic)) {
                 // 处理服务器控制命令
                 sensorControlService.sendCommand(data, requestId, msgHead);
-            } else if (topic.equals(NettyTopicEnum.BLOG_FILE_UPLOAD.getTopic())) {
-                // 处理文件上传消息
-//                syncBlogFileService.uploadBlogFileFirstStep(data, requestId);
             }
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             // 记录响应类消息记录消息序列号，取消对此消息重发

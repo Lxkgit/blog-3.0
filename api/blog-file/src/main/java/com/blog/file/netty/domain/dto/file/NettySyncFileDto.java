@@ -86,7 +86,7 @@ public class NettySyncFileDto {
     private String minioPath;
 
     /**
-     * 上传-是否删除minio中原文件
+     * 下载-是否删除minio中原文件
      * 0: 否
      * 1: 是
      */
@@ -96,6 +96,11 @@ public class NettySyncFileDto {
      * 上传/下载-指定文件名称
      */
     private List<String> fileNameList;
+
+    /**
+     * 上传/下载-修改指定文件状态
+     */
+    private List<Integer> idList;
 
     /**
      * 文件来源

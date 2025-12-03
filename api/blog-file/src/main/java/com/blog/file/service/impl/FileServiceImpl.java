@@ -281,6 +281,7 @@ public class FileServiceImpl implements FileService {
             // 发送netty消息
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
             nettySyncFileDto.setFileNameList(List.of(fileName));
+            nettySyncFileDto.setIdList(List.of(fileCategoryData.getId()));
             nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId);
         } else if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
             // 文件同步到远程
@@ -293,7 +294,6 @@ public class FileServiceImpl implements FileService {
             String serviceFilePath = exportPath.substring(Constant.FTP_PATH_SYSTEM.length());
             String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + category.getDirPath();
 
-
             // 发送netty消息
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
 
@@ -304,6 +304,7 @@ public class FileServiceImpl implements FileService {
             }
             nettySyncFileDto.setMinioPath(category.getDirPath());
             nettySyncFileDto.setFileNameList(List.of(fileName));
+            nettySyncFileDto.setIdList(List.of(fileCategoryData.getId()));
             nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId);
         }
     }
@@ -383,6 +384,26 @@ public class FileServiceImpl implements FileService {
             if (fileCategoryData != null) {
                 fileCategoryData.setFileStatus(4);
                 fileCategoryDataMapper.updateById(fileCategoryData);
+            }
+        }
+
+        if (nettyUploadBlogFileDto.getMinioDeleteFlag() == 1) {
+            if (CollectionUtils.isNotEmpty(nettyUploadBlogFileDto.getIdList())) {
+                for (Integer id : nettyUploadBlogFileDto.getIdList()) {
+                    FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(id);
+                    FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
+
+                    // 修改目录下文件状态为远程服务器
+                    LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
+                    dataWrapper.eq(FileCategoryData::getFileCategoryId, id);
+                    FileCategoryData data = new FileCategoryData();
+                    data.setFileStatus(4);
+                    fileCategoryDataMapper.update(data, dataWrapper);
+
+                    // 移除minio中文件
+                    String fileName = minioService.getFileName(fileCategoryData.getFileUrl());
+                    minioService.deleteFile(fileCategory.getDirPath(), fileName);
+                }
             }
         }
     }

@@ -142,21 +142,32 @@ public class NettySyncFileService {
                     fileService.fileDownloadDevice(nettySyncFileDto, msgHead);
                 } else if (nettySyncFileDto.getSyncType() == 2) {
                     // 文件上传消息响应
-
-                    // 系统外部来源的文件需要进行重命名
-                    if (nettySyncFileDto.getFileSource() != null && nettySyncFileDto.getFileSource() == 2) {
-                        String filePath = Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath();
-                        List<String> fileNameList = nettySyncFileDto.getFileNameList();
-                        List<String> newFileNameList = new ArrayList<>();
-                        for (String fileName : fileNameList) {
-                            String newFileName = DateUtil.formatDateTimeNoSpaces() + "_" + fileName;
-                            if (renameLocalFile(filePath, fileName, filePath, newFileName)) {
-                                newFileNameList.add(newFileName);
-                            } else {
-                                newFileNameList.add(fileName);
+                    if (nettySyncFileDto.getFileSource() != null) {
+                        if (nettySyncFileDto.getFileSource() == 2) {
+                            // 系统外部来源的文件需要进行重命名
+                            String filePath = Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath();
+                            List<String> fileNameList = nettySyncFileDto.getFileNameList();
+                            List<String> newFileNameList = new ArrayList<>();
+                            for (String fileName : fileNameList) {
+                                String newFileName = DateUtil.formatDateTimeNoSpaces() + "_" + fileName;
+                                if (renameLocalFile(filePath, fileName, filePath, newFileName)) {
+                                    newFileNameList.add(newFileName);
+                                } else {
+                                    newFileNameList.add(fileName);
+                                }
+                            }
+                            nettySyncFileDto.setFileNameList(newFileNameList);
+                        } else if (nettySyncFileDto.getFileSource() == 1) {
+                            // 系统内部部来源的文件修改文件状态
+                            for (Integer id : nettySyncFileDto.getIdList()) {
+                                // 修改目录下文件状态为本地服务器
+                                LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
+                                dataWrapper.eq(FileCategoryData::getFileCategoryId, id);
+                                FileCategoryData data = new FileCategoryData();
+                                data.setFileStatus(0);
+                                fileCategoryDataMapper.update(data, dataWrapper);
                             }
                         }
-                        nettySyncFileDto.setFileNameList(newFileNameList);
                     }
 
                     // 文件导入minio

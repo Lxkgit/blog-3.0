@@ -30,6 +30,10 @@ public class SocketMessageListener {
     public void handleSocketReceiveMsgEvent(SocketPacketEvent event) {
         String type = event.getType();
         String id = event.getId();
+
+
+
+
         Session session = event.getSession();
 
         String requestId = event.getSocketPacket().getRequestId();

@@ -1456,7 +1456,6 @@ function fileFn(): any {
   flex-shrink: 0; /* 保证按钮不被压缩 */
 }
 
-
 .dir-icon {
   margin-left: 10px;
   position: relative;

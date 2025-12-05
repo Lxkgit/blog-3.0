@@ -7,7 +7,6 @@ import socket_client.domain.socket_msg as packet
 from socket_client.device.device_info import send_device_info
 from logger.log_util import logger
 from socket_client.topic.move_file import topic_move_file
-from socket_client.topic.export_blog_file import topic_export_blog_file
 from socket_client.topic.delete_file_or_dir import topic_delete_file_or_dir
 from config.constant import CONFIG
 
@@ -80,7 +79,7 @@ async def handle_connection(ws):
         await asyncio.gather(*tasks, return_exceptions=True)
 
 
-# socket_client 连接心跳
+# socket 连接心跳
 async def send_heartbeat(websocket):
     logger.info("启动心跳任务")
     try:
@@ -108,13 +107,12 @@ async def handle_messages(ws):
     async for message in ws:
         logger.info(f"收到消息: {message}")
         try:
-            receiveMsg = packet.get_socket_packet(message)
-            if receiveMsg.socketPacketType == "request":
-                if receiveMsg.topic == "move_file":
+            receiveMsg = json.loads(message)
+            if receiveMsg.get("socketPacketType") == "request":
+                if receiveMsg.get("topic") == "move_file":
                     await topic_move_file(ws, receiveMsg)
-                elif receiveMsg.topic == "export_blog_file":
-                    await topic_export_blog_file(ws, receiveMsg)
-                elif receiveMsg.topic == "delete_file_or_dir":
+                elif receiveMsg.get("topic") == "delete_file_or_dir":
                     await topic_delete_file_or_dir(ws, receiveMsg)
+
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")

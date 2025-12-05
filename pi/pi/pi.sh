@@ -248,6 +248,22 @@ startJar() {
   docker run -d --name pi --privileged=true --cap-add=SYS_ADMIN --restart=always --network blog_network --ip 172.18.0.5 -p 10201:10201 -p 9092:9092 -p 5005:5005 -v /opt/docker/files:/opt/docker/files pi:1
 }
 
+# 启动python脚本
+startPy() {
+  # Java服务启动较慢，等待Java服务完全启动后进行连接
+  echo "4分钟后启动python脚本 ... "
+  sleep 4m
+  mkdir -p /opt/docker/files/python/code
+  mv /opt/package/python/* /opt/docker/files/python/code
+  unzip /opt/docker/files/python/code/python.zip -d /opt/docker/files/python/code
+  chmod +x /opt/docker/files/python/code/web_socket.py
+  sed -i 's/\r$//' /opt/docker/files/python/webSocket.py
+  chmod +x /opt/docker/files/python/code/shell/*.sh
+  sed -i 's/\r$//' /opt/docker/files/python/shell/*.sh
+
+  startPyDaemon
+}
+
 # python 脚本守护线程
 startPyDaemon() {
   # 开机唤醒守护线程配置
@@ -264,23 +280,6 @@ startPyDaemon() {
   sudo systemctl enable websocket-watchdog.service
   # 立即启动
   sudo systemctl start websocket-watchdog.service
-}
-
-# 启动python脚本
-startPy() {
-  # Java服务启动较慢，等待Java服务完全启动后进行连接
-  echo "4分钟后启动python脚本 ... "
-  sleep 4m
-  mkdir -p /opt/docker/files/python
-  mv /opt/package/python/* /opt/docker/files/python
-  chmod +x /opt/docker/files/python/webSocket.py
-  sed -i 's/\r$//' /opt/docker/files/python/webSocket.py
-  chmod +x /opt/docker/files/python/shell/*.sh
-  sed -i 's/\r$//' /opt/docker/files/python/shell/*.sh
-  cd /opt/docker/files/python
-#  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.5' >python.log 2>&1 &
-
-  startPyDaemon
 }
 
 main() {

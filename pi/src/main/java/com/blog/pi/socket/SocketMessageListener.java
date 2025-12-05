@@ -36,8 +36,8 @@ public class SocketMessageListener {
         MsgHead msgHead = event.getSocketPacket().getMsgHead();
 
         String data = event.getSocketPacket().getData().toString();
-        if (!SocketPacketType.HEARTBEAT.equals(topic) && !"system".equals(topic)) {
-            // 心跳与系统上报消息不打印
+        if (!SocketPacketType.HEARTBEAT.equals(topic)) {
+            // 心跳与系统检测上报消息不打印
             logger.info("===== socket 收到消息 ===== type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
                     type, id, requestId, socketPacketType, topic, data);
         }
@@ -46,7 +46,7 @@ public class SocketMessageListener {
         } else if (SocketPacketType.HEARTBEAT.equals(socketPacketType)) {
 
         } else if (SocketPacketType.REQUEST.equals(socketPacketType)) {
-
+            logger.info(data);
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
             if (SocketTopic.SOCKET_MOVE_FILE.equals(topic)) {
                 SocketMoveFileDto dto = JSON.parseObject(data, SocketMoveFileDto.class);

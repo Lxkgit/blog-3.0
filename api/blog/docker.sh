@@ -82,7 +82,7 @@ installDocker() {
 # 镜像文件重新下载
 reLoad() {
   count=1
-  while [ $count -le $reload ]; do
+  while [ $count -le "$reload" ]; do
     eval "$command"
     if [ $? -eq 0 ]; then
       echo "镜像文件下载成功..."
@@ -91,7 +91,7 @@ reLoad() {
       echo "第 ${count} 次尝试重新下载..."
       ((count++))
     fi
-    if [ $count -gt $reload ]; then
+    if [ $count -gt "$reload" ]; then
       echo "docker镜像下载失败，脚本停止执行..."
       exit 1
     fi
@@ -141,7 +141,7 @@ dockerLoad() {
 # conda 下载
 conda() {
 	echo "开始下载 Anaconda ... "
-	cd /opt/
+	cd /opt/ || exit
 	mv /opt/package/python/Anaconda3-2024.10-1-Linux-x86_64.sh /opt/
 #	wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
 	echo "开始安装 Anaconda ... "
@@ -190,16 +190,16 @@ unzipBlog() {
 	# 上传部署压缩包解压目录
 	mkdir -p /opt/package
 	mv ./blog.zip /opt/package
-	cd /opt/package
+	cd /opt/package || exit
 	unzip blog.zip
 }
 
 # 添加4g的虚拟内存
 addVirtualMemory() {
 	echo "开始创建虚拟内存..."
-	cd /usr
+	cd /usr || exit
 	mkdir swap
-	cd swap/
+	cd swap/ || exit
 	dd if=/dev/zero of=/usr/swap/swapfile bs=1M count=4096
 	du -sh /usr/swap/swapfile
 	mkswap /usr/swap/swapfile
@@ -373,7 +373,7 @@ importMinio() {
 
 	# minio 数据导入
 	mv /opt/package/files/mc /opt/docker/minio/
-	cd /opt/docker/minio
+	cd /opt/docker/minio || exit
 	chmod +x mc
 	./mc alias set local http://172.18.0.11:9000 minio ${minioPassword}
 	./mc mb local/blog
@@ -397,11 +397,11 @@ minio() {
 }
 
 # 启动 xxlJob 
-xxlJob() {
-	mkdir -p /opt/docker/xxlJob/logs
-	echo "正在启动xxlJob..."
-	docker run --name xxljob --network blog_network --ip 172.18.0.12 -p 8080:8080 --restart=always --privileged=true -e PARAMS="--spring.datasource.username=root --spring.datasource.password=${mysqlPassword} --spring.datasource.url=jdbc:mysql://172.18.0.3:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai --xxl.job.accessToken=aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789+=" -v /opt/docker/xxlJob/logs:/data/applogs -d xuxueli/xxl-job-admin:2.5.0
-}
+#xxlJob() {
+#  echo "正在启动xxlJob..."
+#	mkdir -p /opt/docker/xxlJob/logs
+#	docker run --name xxljob --network blog_network --ip 172.18.0.12 -p 8080:8080 --restart=always --privileged=true -e PARAMS="--spring.datasource.username=root --spring.datasource.password=${mysqlPassword} --spring.datasource.url=jdbc:mysql://172.18.0.3:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai --xxl.job.accessToken=aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789+=" -v /opt/docker/xxlJob/logs:/data/applogs -d xuxueli/xxl-job-admin:2.5.0
+#}
 
 startJar() {
   mkdir -p /opt/docker/files/jar
@@ -414,9 +414,25 @@ startJar() {
   # 等待nacos启动
   echo "3分钟后启动博客服务..."
   sleep 3m
-  cd /opt/docker/files/jar
+  cd /opt/docker/files/jar || exit
   docker build -t blog:3.0 .
   docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 60002:60002 -p 59994:59994 -p 60032:60032 -v /opt/docker/files/logs:/opt/logs -v /opt/docker/files/:/opt/docker/files/ blog:3.0
+}
+
+# 启动python脚本
+startPy() {
+  # Java服务启动较慢，等待Java服务完全启动后进行连接
+  echo "8分钟后启动socket脚本..."
+  sleep 8m
+  mkdir -p /opt/docker/files/python/code
+  mv /opt/package/python/* /opt/docker/files/python/code
+  unzip /opt/docker/files/python/code/python.zip -d /opt/docker/files/python/code
+  chmod +x /opt/docker/files/python/code/web_socket.py
+  sed -i 's/\r$//' /opt/docker/files/python/code/web_socket.py
+  chmod +x /opt/docker/files/python/code/shell/*.sh
+  sed -i 's/\r$//' /opt/docker/files/python/code/shell/*.sh
+
+  startPyDaemon
 }
 
 # python 脚本守护线程
@@ -437,26 +453,9 @@ startPyDaemon() {
   sudo systemctl start websocket-watchdog.service
 }
 
-# 启动python脚本
-startPy() {
-  # Java服务启动较慢，等待Java服务完全启动后进行连接
-  echo "8分钟后启动socket脚本..."
-  sleep 8m
-  mkdir -p /opt/docker/files/python
-  mv /opt/package/python/* /opt/docker/files/python
-  chmod +x /opt/docker/files/python/webSocket.py
-  sed -i 's/\r$//' /opt/docker/files/python/webSocket.py
-  chmod +x /opt/docker/files/python/shell/*.sh
-  sed -i 's/\r$//' /opt/docker/files/python/shell/*.sh
-#  cd /opt/docker/files/python
-#  nohup bash -c 'source "$(conda info --base)/etc/profile.d/conda.sh" && conda run -n py3 python webSocket.py --ip 172.18.0.13' >python.log 2>&1 &
-
-  startPyDaemon
-}
-
 # 主函数
 main() {
-	timer_start=`date "+%Y-%m-%d %H:%M:%S"`
+	timer_start=$(date "+%Y-%m-%d %H:%M:%S")
 
 	unzipBlog
 	dockerStart
@@ -477,8 +476,8 @@ main() {
 	startJar
   startPy
 
-	timer_end=`date "+%Y-%m-%d %H:%M:%S"`
-	duration=`echo $(($(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}"))) | awk '{t=split("60 s 60 m 24 h 999 d",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}'`
+	timer_end=$(date "+%Y-%m-%d %H:%M:%S")
+	duration=$(echo $(($(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}"))) | awk '{t=split("60 s 60 m 24 h 999 d",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}')
 	echo "脚本执行完成 耗时： $duration "
 	exit 0
 }
@@ -490,7 +489,7 @@ while getopts "n:" arg
 		  n)
 			  # 指定镜像文件重新下载次数
 				reload=$OPTARG
-				echo $reload
+				echo "$reload"
 				;;
 			?)
 				echo "没有找到这条命令 ... "

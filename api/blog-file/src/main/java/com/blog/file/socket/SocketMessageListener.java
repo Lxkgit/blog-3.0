@@ -31,9 +31,6 @@ public class SocketMessageListener {
         String type = event.getType();
         String id = event.getId();
 
-
-
-
         Session session = event.getSession();
 
         String requestId = event.getSocketPacket().getRequestId();
@@ -42,8 +39,8 @@ public class SocketMessageListener {
         MsgHead msgHead = event.getSocketPacket().getMsgHead();
 
         String data = event.getSocketPacket().getData().toString();
-        if (!SocketPacketType.HEARTBEAT.equals(topic) && !"system".equals(topic)) {
-            // 心跳与系统上报消息不打印
+        if (!SocketPacketType.HEARTBEAT.equals(topic)) {
+            // 心跳与消息不打印
             logger.info("===== socket 收到消息 ===== type: {} id: {} requestId: {} socketPacketType: {} topic: {} data: {}",
                     type, id, requestId, socketPacketType, topic, data);
         }

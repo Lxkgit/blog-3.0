@@ -10,7 +10,7 @@ source "$CONDA_BASE/etc/profile.d/conda.sh"
 # 守护进程日志文件
 WATCHDOG_LOG="/opt/docker/files/python/watchdog.log"
 # Python脚本路径
-PYTHON_SCRIPT="/opt/docker/files/python/package/web_socket.py"
+PYTHON_SCRIPT="/opt/docker/files/python/code/web_socket.py"
 # Conda环境名称
 CONDA_ENV="py3"
 # 启动参数

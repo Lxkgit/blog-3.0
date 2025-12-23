@@ -1,18 +1,8 @@
 import json
-from dataclasses import dataclass
-
-
-@dataclass
-class SocketPacket:
-    requestId: str
-    socketPacketType: str
-    topic: str
-    msgHead: str
 
 
 def get_socket_packet(json_str):
-    data = json.loads(json_str)
-    return SocketPacket(**data)
+    return json.loads(json_str)
 
 
 def build_socket_response(receiveMsg, private_data: dict):
@@ -26,4 +16,3 @@ def build_socket_response(receiveMsg, private_data: dict):
     # 合并公共和私有
     msg = {**common, **private_data}
     return json.dumps(msg)
-

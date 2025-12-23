@@ -109,12 +109,13 @@ async def handle_messages(ws):
         logger.info(f"收到消息: {message}")
         try:
             receiveMsg = packet.get_socket_packet(message)
-            if receiveMsg.socketPacketType == "request":
-                if receiveMsg.topic == "move_file":
+            if receiveMsg.get("socketPacketType") == "request":
+                topic = receiveMsg.get("topic")
+                if topic == "move_file":
                     await topic_move_file(ws, receiveMsg)
-                elif receiveMsg.topic == "export_blog_file":
+                elif topic == "export_blog_file":
                     await topic_export_blog_file(ws, receiveMsg)
-                elif receiveMsg.topic == "delete_file_or_dir":
+                elif topic == "delete_file_or_dir":
                     await topic_delete_file_or_dir(ws, receiveMsg)
         except json.JSONDecodeError:
             logger.warning(f"无法解析的消息: {message}")

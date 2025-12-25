@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blog.file.mapper.DictDataMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.dict.DictData">
+        <id property="id" column="id"/>
+        <result property="dictTypeCode" column="dict_type_code"/>
+        <result property="dictDataLabel" column="dict_data_label"/>
+        <result property="dictDataValue" column="dict_data_value"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, dict_type_code, dict_data_label, dict_data_value, create_time, update_time
+    </sql>
+
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM dict_data
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据字典编码查询 -->
+    <select id="selectByDictTypeCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM dict_data
+        WHERE dict_type_code = #{dictTypeCode}
+        ORDER BY id ASC
+    </select>
+
+    <!-- 列表查询 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM dict_data
+        <where>
+            <if test="dictTypeCode != null and dictTypeCode != ''">
+                AND dict_type_code = #{dictTypeCode}
+            </if>
+            <if test="dictDataLabel != null and dictDataLabel != ''">
+                AND dict_data_label LIKE CONCAT('%', #{dictDataLabel}, '%')
+            </if>
+            <if test="dictDataValue != null and dictDataValue != ''">
+                AND dict_data_value = #{dictDataValue}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dict_data (dict_type_code, dict_data_label, dict_data_value)
+        VALUES (#{dictTypeCode}, #{dictDataLabel}, #{dictDataValue})
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update">
+        UPDATE dict_data
+        <set>
+            <if test="dictTypeCode != null">
+                dict_type_code = #{dictTypeCode},
+            </if>
+            <if test="dictDataLabel != null">
+                dict_data_label = #{dictDataLabel},
+            </if>
+            <if test="dictDataValue != null">
+                dict_data_value = #{dictDataValue},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById">
+        DELETE
+        FROM dict_data
+        WHERE id = #{id}
+    </delete>
+
+</mapper>

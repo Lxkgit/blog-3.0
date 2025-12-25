@@ -311,7 +311,7 @@ public class MinioService {
                     .contentType(contentType)
                     .build());
 
-            logger.info("MinIO 文件导入成功: {}", response);
+            logger.info("MinIO 文件导入成功: {}", response.toString());
             return true;
 
         } catch (Exception e) {

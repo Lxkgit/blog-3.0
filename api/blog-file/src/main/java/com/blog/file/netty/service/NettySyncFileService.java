@@ -183,7 +183,7 @@ public class NettySyncFileService {
 
                 // 文件同步任务收到消息后重置发送标识
                 if (nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
-                    redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1");
+                    redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1", 5 * 60 * 60);
                 }
             }
         }
@@ -324,7 +324,7 @@ public class NettySyncFileService {
                             MsgHead head = new MsgHead();
                             BeanUtils.copyProperties(msgHead, head);
                             sendSyncFileMsg(head, nettySyncFileDto, 1);
-                            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0", 5 * 60 * 60);
+                            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0", waitCount * scanTime);
                             break;
                         } else {
                             try {

@@ -1,5 +1,6 @@
 package com.blog.file.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.core.domain.file.dict.DictData;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -13,18 +14,8 @@ import java.util.List;
  */
 
 @Mapper
-public interface DictDataMapper {
+public interface DictDataMapper extends BaseMapper<DictData> {
 
-    DictData selectById(@Param("id") Integer id);
-
-    List<DictData> selectByDictTypeCode(@Param("dictTypeCode") String dictTypeCode);
-
-    List<DictData> selectList(DictData dictData);
-
-    int insert(DictData dictData);
-
-    int update(DictData dictData);
-
-    int deleteById(@Param("id") Integer id);
+    void deleteDictDataByDictTypeCode(String dictTypeCode);
 }
 

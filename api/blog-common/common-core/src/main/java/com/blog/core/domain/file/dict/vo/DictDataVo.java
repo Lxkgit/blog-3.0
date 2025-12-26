@@ -13,4 +13,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class DictDataVo extends DictData {
+
+    private Integer pageNum;
+
+    private Integer pageSize;
 }

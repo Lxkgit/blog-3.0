@@ -107,7 +107,9 @@ public class SensorControlServiceImpl implements SensorControlService {
         sensorCommand.put("commandList", commandList);
 
         NettyPacket<JSONObject> sensorCommandRequest = NettyPacket.buildRequest(NettyTopic.BLOG_SENSOR_CONTROL, sensorCommand);
-        return nettyServer.sendByRegisterIdLimitCount(sensorCommandRequest.getMsgHead().getNettyMsgHead().getRequestId(), JSONObject.toJSONString(sensorCommandRequest), 0);
+        //        return nettyServer.sendByRegisterIdLimitCount(sensorCommandRequest.getMsgHead().getNettyMsgHead().getRequestId(),
+//                JSONObject.toJSONString(sensorCommandRequest), 0);
+        return null;
     }
 
     /**

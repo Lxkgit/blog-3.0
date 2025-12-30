@@ -106,6 +106,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             }
         } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             // 记录响应类消息记录消息序列号，取消对此消息重发
+            logger.info("消息 requestId：{} 收到响应", requestId);
             redisService.setSet(NettyRedisConstant.NETTY_RECEIVE_QUEUE, requestId);
 
             if (NettyTopic.BLOG_FILE_SYNC.equals(topic)) {

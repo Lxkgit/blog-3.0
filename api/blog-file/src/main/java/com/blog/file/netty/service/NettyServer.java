@@ -128,38 +128,40 @@ public class NettyServer implements CommandLineRunner {
     /**
      * netty 发送消息限制消息重发次数
      *
+     * @param registerId
      * @param requestId
      * @param msg
      * @param count
      * @return
      */
-    public boolean sendByRegisterIdLimitCount(String requestId, String msg, Integer count) {
-        ChannelId channelId = NettyServerHandler.clientMap.get(requestId);
+    public boolean sendByRegisterIdLimitCount(String registerId, String requestId, String msg, Integer count) {
+        ChannelId channelId = NettyServerHandler.clientMap.get(registerId);
         NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitCount(count, msg);
-        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage), 4*60*60);
+        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
         if (channelId == null) {
-            logger.warn("netty LimitCount 通道注册码:{} 不存在 msg:{}", requestId, msg);
+            logger.warn("netty LimitCount 通道注册码:{} 不存在 msg:{}", registerId, msg);
             return false;
         }
-        return channelWriteByChannelId(channelId, requestId, msg, false);
+        return channelWriteByChannelId(channelId, registerId, msg, false);
     }
 
     /**
      * netty 发送消息限制消息有效时间
      *
-     * @param requestId
-     * @param msg
-     * @param minute
-     * @return
+     * @param registerId 设备注册码
+     * @param requestId  消息id
+     * @param msg        netty发送消息
+     * @param minute     消息有效时间
+     * @return 消息发送结果
      */
-    public boolean sendByRegisterIdLimitTime(String requestId, String msg, Integer minute) {
-        ChannelId channelId = NettyServerHandler.clientMap.get(requestId);
+    public boolean sendByRegisterIdLimitTime(String registerId, String requestId, String msg, Integer minute) {
+        ChannelId channelId = NettyServerHandler.clientMap.get(registerId);
         NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitTime(minute, msg);
-        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage), 4*60*60);
+        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
         if (channelId == null) {
-            logger.warn("netty limitTime 通道注册码:{} 不存在 msg:{}", requestId, msg);
+            logger.warn("netty limitTime 通道注册码:{} 不存在 msg:{}", registerId, msg);
         }
-        return channelWriteByChannelId(channelId, requestId, msg, false);
+        return channelWriteByChannelId(channelId, registerId, msg, false);
     }
 
     /**

@@ -38,6 +38,7 @@ public class NettyMessageReplayThread implements Runnable {
                 redisService.delKey(NettyRedisConstant.NETTY_RECEIVE_QUEUE);
                 if (CollectionUtils.isNotEmpty(allValues)) {
                     for (Object value : allValues) {
+                        logger.info("收到消息响应: {}", value.toString());
                         if (redisService.hasHashKey(NettyRedisConstant.NETTY_SEND_QUEUE, value.toString())) {
                             redisService.deleteHashByKey(NettyRedisConstant.NETTY_SEND_QUEUE, value.toString());
                         }

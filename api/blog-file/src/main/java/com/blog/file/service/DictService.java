@@ -4,11 +4,6 @@ import com.blog.core.domain.file.dict.DictData;
 import com.blog.core.domain.file.dict.DictType;
 import com.blog.core.domain.file.dict.vo.DictDataVo;
 import com.blog.core.domain.file.dict.vo.DictTypeVo;
-import com.blog.core.result.Result;
-import com.blog.core.result.ResultFactory;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.*;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,16 +49,8 @@ public class NettyMessageReplayThread implements Runnable {
                     String key = entry.getKey().toString();
 
                     NettyReplayMessage replayMessage = JSONObject.parseObject((String) entry.getValue(), NettyReplayMessage.class);
-                    // 消息首次发送时间
-                    LocalDateTime firstSendTime = replayMessage.getFirstSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                     // 消息最近发送时间
-                    LocalDateTime lastSendTime;
-                    if (replayMessage.getLastSendTime() == null) {
-                        lastSendTime = firstSendTime;
-                    } else {
-                        lastSendTime = replayMessage.getLastSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                    }
-
+                    LocalDateTime lastSendTime = replayMessage.getLastSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                     // 当前时间
                     LocalDateTime nowDate = LocalDateTime.now();
 
@@ -67,11 +60,16 @@ public class NettyMessageReplayThread implements Runnable {
                         if (replayMessage.getLimitCount() != 0) {
                             if (replayMessage.getTryCount() <= replayMessage.getLimitCount()) {
                                 resendMessage(duration, key, replayMessage);
+                            } else {
+                                logger.info("netty 消息超过发送次数，丢弃此消息 msg:{}", replayMessage.getMessage());
+                                redisService.deleteHashByKey(NettyRedisConstant.NETTY_SEND_QUEUE, entry.getKey());
                             }
                         } else {
                             resendMessage(duration, key, replayMessage);
                         }
                     } else if (replayMessage.getRetryType() == 2) {
+                        // 消息首次发送时间
+                        LocalDateTime firstSendTime = replayMessage.getFirstSendTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                         Duration effectiveDuration = Duration.between(firstSendTime, nowDate);
                         // 首次发送消息与当前时间大于指定消息有效时间 丢弃消息
                         if (effectiveDuration.toMinutes() > replayMessage.getEffectiveTime()) {
@@ -79,6 +77,7 @@ public class NettyMessageReplayThread implements Runnable {
                             redisService.deleteHashByKey(NettyRedisConstant.NETTY_SEND_QUEUE, entry.getKey());
                         } else {
                             Duration lastDuration = Duration.between(lastSendTime, nowDate);
+                            replayMessage.setLastSendTime(new Date());
                             resendMessage(lastDuration, key, replayMessage);
                         }
                     }
@@ -102,9 +101,9 @@ public class NettyMessageReplayThread implements Runnable {
         // 上次发送消息与当前时间大于消息发送间隔
         if (duration.toMinutes() > 5) {
             logger.info("netty 重发消息: {}", replayMessage.toString());
-            nettyServer.sendByRegisterIdNotRetry(key, JSONObject.toJSONString(replayMessage));
+            nettyServer.sendByRegisterIdNotRetry(key, replayMessage.getMessage());
             replayMessage.setTryCount(replayMessage.getTryCount() + 1);
-            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, key, JSONObject.toJSONString(replayMessage));
+            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, key, JSONObject.toJSONString(replayMessage), 24*60*60);
         }
     }
 }

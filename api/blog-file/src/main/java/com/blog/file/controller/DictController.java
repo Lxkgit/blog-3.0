@@ -4,12 +4,10 @@ import com.blog.core.domain.file.dict.DictData;
 import com.blog.core.domain.file.dict.DictType;
 import com.blog.core.domain.file.dict.vo.DictDataVo;
 import com.blog.core.domain.file.dict.vo.DictTypeVo;
-import com.blog.core.exception.ServiceException;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.file.service.DictService;
 import jakarta.annotation.Resource;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**

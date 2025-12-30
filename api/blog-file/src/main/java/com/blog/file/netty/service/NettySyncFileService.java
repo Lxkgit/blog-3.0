@@ -120,7 +120,7 @@ public class NettySyncFileService {
 
             NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
             nettyPacket.setMsgHead(msgHead);
-            nettyServer.sendByRegisterIdLimitTime(registerId, JSON.toJSONString(nettyPacket), 8 * 60);
+            nettyServer.sendByRegisterIdLimitTime(registerId, JSON.toJSONString(nettyPacket), 2 * 60);
         }
     }
 

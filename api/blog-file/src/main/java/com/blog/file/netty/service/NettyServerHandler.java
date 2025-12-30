@@ -87,6 +87,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         // 包含此客户端才去删除
         if (channelMap.containsKey(channelId)) {
             // 删除连接
+            logger.error("channelInactive 异常断开 netty 通道连接");
             closeChannelByChannelId(channelId);
             logger.warn("客户端【{}】断开Netty连接!![clientIp:{} clientPort:{}]", channelId, clientIp, clientPort);
         }
@@ -134,6 +135,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        logger.error("exceptionCaught 异常断开 netty 通道连接");
         for (ChannelId channelId : channelMap.keySet()) {
             if (channelMap.get(channelId).equals(ctx)) {
                 closeChannelByChannelId(channelId);
@@ -175,6 +177,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
             for (String deviceCode : NettyServerHandler.clientMap.keySet()) {
                 if (NettyServerHandler.clientMap.get(deviceCode).equals(channelId)) {
+                    logger.error("closeChannelByChannelId 断开 netty 通道连接 deviceCode:{}", deviceCode);
                     NettyServerHandler.clientMap.remove(deviceCode);
                 }
             }
@@ -194,7 +197,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
             // 断开netty连接
             ChannelHandlerContext ctx = NettyServerHandler.channelMap.get(channelId);
             ctx.close();
-
+            logger.error("closeChannelByDeviceCode 断开 netty 通道连接 deviceCode:{}", deviceCode);
             NettyServerHandler.channelMap.remove(channelId);
             NettyServerHandler.clientMap.remove(deviceCode);
         }

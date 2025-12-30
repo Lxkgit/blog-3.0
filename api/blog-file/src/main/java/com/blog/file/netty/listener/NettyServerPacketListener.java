@@ -79,11 +79,9 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         String deviceCode = registerCode.split(":")[1];
         String data = event.getNettyPacket().getData().toString();
 
-        if (!nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
-            // 只输出非心跳消息
-            logger.info("===== netty 收到消息 ===== msgHead: {} channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
+        logger.info("===== netty 收到消息 ===== msgHead: {} channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
                     msgHead, channelId, requestId, nettyPacketType, topic, deviceCode, data);
-        }
+
         if (!nettyServerHandler.checkContainByDeviceCode(deviceCode)) {
             nettyServerHandler.closeChannelByDeviceCode(deviceCode);
         }
@@ -141,7 +139,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         UserDevice selectDevice = userDeviceDAO.selectOne(userDeviceQueryWrapper);
         // 设备编码错误拒绝注册
         if (selectDevice == null) {
-            logger.error("用户与编码匹配失败，拒绝连接");
+            logger.error("deviceRegister 异常断开 netty 通道连接: 用户与编码匹配失败，拒绝连接");
             nettyServerHandler.closeChannelByChannelId(channelId);
         } else {
             // netty 设备通道绑定 后续发送消息获取通道

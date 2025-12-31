@@ -68,17 +68,26 @@ class VoiceChatPage(QWidget):
     def start_system_recording(self):
         """录制系统声音并识别"""
         try:
+            import sounddevice as sd
             from services.system_audio_service import SystemAudioRecorder
 
-            # 选择 Windows 环回设备 Stereo Mix
-            recorder = SystemAudioRecorder(device="立体声混音 (Realtek High Definition Audio), Windows WASAPI")
+            # 查询设备信息
+            device_name = "立体声混音 (Realtek High Definition Audio), Windows WASAPI"
+            dev_info = sd.query_devices(device_name, 'input')
+            default_fs = int(dev_info['default_samplerate'])  # 使用设备默认采样率
+
+            # 初始化录音器
+            recorder = SystemAudioRecorder(fs=default_fs, device=device_name)
             audio_file = recorder.record()
             self.chat_box.append(f"系统录音完成，文件：{audio_file}")
 
+            # 识别文字
             text = self.speech_service.recognize(audio_file)
             self.chat_box.append(f"识别文字：{text}")
 
+            # ChatGPT 回复
             reply = self.llm_service.ask(text)
             self.chat_box.append(f"ChatGPT 回复：{reply}")
         except Exception as e:
             self.chat_box.append(f"系统录音或识别失败：{e}")
+

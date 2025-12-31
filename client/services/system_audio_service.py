@@ -37,4 +37,4 @@ class SystemAudioRecorder:
         # 保存到临时文件
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
         sf.write(temp_file.name, recording, self.fs)
-        pr
+        return temp_file.name

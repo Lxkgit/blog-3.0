@@ -30,7 +30,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.Set;
 
 /**
  * @description: Netty服务端自定义数据包处理监听器
@@ -145,7 +144,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         } else {
             // netty 设备通道绑定 后续发送消息获取通道
             NettyRegisterDto nettyRegisterDto = JSONObject.parseObject(data, NettyRegisterDto.class);
-            if (!NettyServerHandler.clientMap.containsKey(deviceCode)) {
+            if (!NettyServerHandler.CLIENT_MAP.containsKey(deviceCode)) {
                 addNettyChannel(channelId, deviceCode);
                 logger.info("netty 通道注册 register: deviceCode:{} channelId:{}", deviceCode, channelId);
             }
@@ -186,7 +185,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
      * @param deviceCode
      */
     private void addNettyChannel(ChannelId channelId, String deviceCode) {
-        NettyServerHandler.clientMap.put(deviceCode, channelId);
+        NettyServerHandler.CLIENT_MAP.put(deviceCode, channelId);
     }
 
 }

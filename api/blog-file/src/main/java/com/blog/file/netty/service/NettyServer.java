@@ -2,7 +2,6 @@ package com.blog.file.netty.service;
 
 
 import com.alibaba.fastjson2.JSONObject;
-import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.netty.domain.dto.NettyReplayMessage;
 import com.blog.redis.constant.NettyRedisConstant;
@@ -21,7 +20,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.concurrent.Executor;
 
 
@@ -115,7 +113,7 @@ public class NettyServer implements CommandLineRunner {
      * @return 消息是否发送成功
      */
     public boolean channelWriteByChannelId(ChannelId channelId, String registerId, String msg, boolean retry) {
-        ChannelHandlerContext ctx = NettyServerHandler.channelMap.get(channelId);
+        ChannelHandlerContext ctx = NettyServerHandler.CHANNEL_MAP.get(channelId);
         if (ctx == null) {
             logger.warn("通道: {} 不存在，消息发送异常", channelId);
             return false;
@@ -135,7 +133,7 @@ public class NettyServer implements CommandLineRunner {
      * @return
      */
     public boolean sendByRegisterIdLimitCount(String registerId, String requestId, String msg, Integer count) {
-        ChannelId channelId = NettyServerHandler.clientMap.get(registerId);
+        ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
         NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitCount(count, msg);
         redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
         if (channelId == null) {
@@ -155,7 +153,7 @@ public class NettyServer implements CommandLineRunner {
      * @return 消息发送结果
      */
     public boolean sendByRegisterIdLimitTime(String registerId, String requestId, String msg, Integer minute) {
-        ChannelId channelId = NettyServerHandler.clientMap.get(registerId);
+        ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
         NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitTime(minute, msg);
         redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
         if (channelId == null) {
@@ -172,7 +170,7 @@ public class NettyServer implements CommandLineRunner {
      * @return
      */
     public boolean sendByRegisterIdNotRetry(String registerId, String msg) {
-        ChannelId channelId = NettyServerHandler.clientMap.get(registerId);
+        ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
         if (channelId == null) {
             logger.warn("netty notRetry 通道注册码:{} 不存在 msg:{}", registerId, msg);
             return false;

@@ -80,7 +80,8 @@ public class TaskListener implements ApplicationRunner {
                                 // 1. 提前获取所有必要值（避免线程异步问题）
                                 Class<?> targetClass = taskEntity.getClazz();
                                 String methodName = taskEntity.getMethodName();
-                                List<Class<?>> paramTypes = CollectionUtils.isEmpty(taskEntity.getParamsClazz()) ? new ArrayList<>() : new ArrayList<>(taskEntity.getParamsClazz()); // 改为数组
+                                // 改为数组
+                                List<Class<?>> paramTypes = CollectionUtils.isEmpty(taskEntity.getParamsClazz()) ? new ArrayList<>() : new ArrayList<>(taskEntity.getParamsClazz());
                                 List<Object> methodParams = CollectionUtils.isEmpty(taskEntity.getTaskParams()) ? new ArrayList<>() : new ArrayList<>(taskEntity.getTaskParams());
 
                                 // 定时任务添加任务执行头数据

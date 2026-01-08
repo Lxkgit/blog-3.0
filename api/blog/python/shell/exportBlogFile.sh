@@ -5,7 +5,7 @@
 mkdir -p /opt/docker/files/temp/blog/
 
 # 导出mysql
-sudo docker exec mysql bash /opt/docker/files/python/shell/exportSql.sh
+sudo docker exec mysql bash /opt/docker/files/python/code/shell/exportSql.sh
 
 # 导出博客文件数据
 cd /opt/docker/minio

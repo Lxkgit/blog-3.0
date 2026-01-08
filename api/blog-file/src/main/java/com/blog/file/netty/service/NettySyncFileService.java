@@ -321,7 +321,7 @@ public class NettySyncFileService {
                             return;
                         }
                         String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID()).toString();
-                        if (StringUtils.isNotEmpty(status) && status.equals("1")) {
+                        if (StringUtils.isNotEmpty(status) && "1".equals(status)) {
                             MsgHead head = new MsgHead();
                             BeanUtils.copyProperties(msgHead, head);
                             sendSyncFileMsg(head, nettySyncFileDto, 1);
@@ -421,6 +421,9 @@ public class NettySyncFileService {
 
     /**
      * 删除临时同步目录文件
+     *
+     * @param filePath 文件目录
+     * @param time 删除操作延迟时间
      */
     public void deleteTempFile(String filePath, String time) {
         List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);

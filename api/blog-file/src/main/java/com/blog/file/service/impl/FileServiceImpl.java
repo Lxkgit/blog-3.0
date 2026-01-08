@@ -369,6 +369,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public void fileDownloadDevice(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead) {
+        logger.info("树莓派下载完成 {} 文件", nettyUploadBlogFileDto.getFileNameList());
         String minioPath = nettyUploadBlogFileDto.getMinioPath();
         if (StringUtils.isEmpty(minioPath)) {
             return;

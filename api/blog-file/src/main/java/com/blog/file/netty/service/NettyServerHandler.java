@@ -101,6 +101,9 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
+            // 只要收到任何数据，就认为连接是活跃的
+            idleCountMap.remove(ctx.channel().id());
+
             // 报文解析处理
             // 处理泛型：new TypeReference<NettyPacket<Object>>() {}.getType()
             // TypeReference：解决Java泛型类型擦除问题，保留NettyPacket<Object>的类型信息，确保反序列化时能正确识别泛型类型
@@ -138,6 +141,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
             ctx.fireUserEventTriggered(evt);
         }
     }
+
 
     /**
      * 当连接发生异常时触发

@@ -86,7 +86,7 @@ public class NettyServer implements CommandLineRunner {
             ChannelFuture future = serverBootstrap.bind(port).sync();
             if (future.isSuccess()) {
                 logger.info("===== Netty 服务端启动成功 ===== port: {}", port);
-                baseThread.execute(replayThread);
+//                baseThread.execute(replayThread);
             }
             channel = future.channel();
         } catch (Exception e) {
@@ -135,7 +135,7 @@ public class NettyServer implements CommandLineRunner {
     public boolean sendByRegisterIdLimitCount(String registerId, String requestId, String msg, Integer count) {
         ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
         NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitCount(count, msg);
-        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
+        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, registerId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
         if (channelId == null) {
             logger.warn("netty LimitCount 通道注册码:{} 不存在 msg:{}", registerId, msg);
             return false;
@@ -155,7 +155,7 @@ public class NettyServer implements CommandLineRunner {
     public boolean sendByRegisterIdLimitTime(String registerId, String requestId, String msg, Integer minute) {
         ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
         NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitTime(minute, msg);
-        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
+        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, registerId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
         if (channelId == null) {
             logger.warn("netty limitTime 通道注册码:{} 不存在 msg:{}", registerId, msg);
         }

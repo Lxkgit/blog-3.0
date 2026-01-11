@@ -75,8 +75,8 @@ public class SocketService {
         Session session = connections.get(type).get(id);
         if (session != null && session.isOpen()) {
             String jsonMessage = JSON.toJSONString(message);
+            logger.debug("socket 发送消息: 向{}/{}发送消息: requestId: {} message: {}", type, id, message.getRequestId(), jsonMessage);
             sendMessageToSession(session, jsonMessage);
-            logger.debug("向{}/{}发送消息: requestId: {} message: {}", type, id, message.getRequestId(), jsonMessage);
         } else {
             logger.warn("目标会话不存在或已关闭: {}/{}", type, id);
         }

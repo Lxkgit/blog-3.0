@@ -155,6 +155,7 @@ public class NettySyncFileService {
                 successFileNameList.add(serviceFileName);
             }
 
+            logger.info("文件下载完成: {}", fileNameList);
             responseNettyMsg(nettySyncFileDto, msgHead, syncResult, fileNameList, i);
         }
         return successFileNameList;

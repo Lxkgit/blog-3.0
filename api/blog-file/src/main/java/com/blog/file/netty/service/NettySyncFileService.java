@@ -337,10 +337,12 @@ public class NettySyncFileService {
                             }
                         }
                     }
+                    logger.info("===== 定时任务-文件同步完成 ===== 消息监听任务结束");
                 }
             }
             // 文件同步完成后，清除指定目录下文件
             if (CollectionUtils.isNotEmpty(bo.getClearPath()) && bo.getClearPath().contains(fileCategory.getDirPath())) {
+                logger.info("===== 定时任务-文件同步完成 ===== 清理 服务器与minio 目录: {} 下文件: ", bo.getClearPath());
                 // 修改目录下文件状态为远程服务器
                 LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
                 dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());

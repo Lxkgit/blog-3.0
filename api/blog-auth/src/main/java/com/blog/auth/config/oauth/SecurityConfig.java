@@ -69,6 +69,9 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 // 1: 加载了WebSecurityConfiguration配置类, 配置安全认证策略
 // 2: 加载了AuthenticationConfiguration, 配置了认证信息
 
+/**
+ * @author 27992
+ */
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
@@ -111,29 +114,38 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {
 
-        //授权服务配置 应用默认安全性 简化配置,在源码给你都配置好了
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        //禁用session,前后端分离不需要, cookie中就不会显示JSESSIONID
-        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        //配置上下文 从redis中读取
-        http.securityContext(x -> x.securityContextRepository(redisSecurityContextRepository));
-        //配置OpenID Connect（OIDC）登录,是一种在OAuth 2.0基础上实现身份验证和授权的协议。
-        //与传统的OAuth 2.0授权不同的是，OIDC需要在OAuth 2.0授权服务器和OAuth客户端之间建立信任关系，
-        // 并使用JWT（JSON Web Tokens）来安全地传输信息
-        //生成oidc授权码和令牌 在客户端使用scope:openid 的时候就会生效 返回对应的授权码
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
-        //异常处理
-        http.exceptionHandling(x -> x.defaultAuthenticationEntryPointFor(
-                //自定义未登录地址,地址为前端vue的地址，当没有登陆的时候，自动跳转到前端登陆界面
-                new MyLoginUrlAuthenticationEntryPoint(loginPage),
-                //只有带有 "text/html" 媒体类型的请求需要进行身份验证
-                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-        ));
-        //资源服务器通过jwt令牌 去访问
-        http.oauth2ResourceServer(x -> x.jwt(Customizer.withDefaults()));
-        //禁用csrf
-        http.csrf(AbstractHttpConfigurer::disable);
-        //建造对象
+        // 1 创建授权服务器配置器
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+                new OAuth2AuthorizationServerConfigurer();
+
+        // 2 启用 OIDC
+        authorizationServerConfigurer.oidc(Customizer.withDefaults());
+
+        // 3 只对授权服务器端点生效
+        http
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+
+                // 4 应用授权服务器安全配置（替代 applyDefaultSecurity）
+                .with(authorizationServerConfigurer, Customizer.withDefaults())
+
+                // 5 无状态（前后端分离）
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // 6 SecurityContext 从 Redis 读取
+                .securityContext(c -> c.securityContextRepository(redisSecurityContextRepository))
+
+                // 7 异常处理（未登录跳转前端）
+                .exceptionHandling(e -> e.defaultAuthenticationEntryPointFor(
+                        new MyLoginUrlAuthenticationEntryPoint(loginPage),
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                ))
+
+                // 8 授权服务器本身也是资源服务器（JWT）
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+
+                // 9 CSRF 禁用（授权服务器端点必须）
+                .csrf(AbstractHttpConfigurer::disable);
+
         return http.build();
     }
 
@@ -158,9 +170,7 @@ public class SecurityConfig {
     public SecurityFilterChain appFilterChain(HttpSecurity http) throws Exception {
         //先进行自定义的过滤器,在进行账号密码验证
         http.addFilterBefore(myAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http
-//                .securityMatcher("/auth/**")
-                .authorizeHttpRequests((authorize) -> authorize
+        http.authorizeHttpRequests((authorize) -> authorize
                         //放行资源
                         .requestMatchers("/auth/doLogin", "/auth/login", "/auth/getToken").permitAll()
                         .requestMatchers(PermitUrl.permitAllUrl("auth")).permitAll()

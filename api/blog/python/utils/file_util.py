@@ -35,6 +35,8 @@ def move_file_or_directory(source_path, destination_path):
         return False
 
     try:
+        logger.info(f"开始移动 '{source_path}' 到目录 '{destination_path}'")
+
         # 确保目标路径是目录格式（去除可能的尾部分隔符）
         destination_path = destination_path.rstrip(os.sep)
 

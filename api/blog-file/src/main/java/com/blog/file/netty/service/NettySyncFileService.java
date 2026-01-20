@@ -179,8 +179,8 @@ public class NettySyncFileService {
             // 流程结束，文件下载或上传成功之后删除临时目录
             if (nettySyncFileDto.getSyncEnd() == 1) {
                 // 上传文件时，最后一个上传的文件上传完成不一定全部文件都正确导入minio，等待1h文件导入完成
-//                String time = nettySyncFileDto.getSyncType() == 1 ? "10s" : "1h";
-                String time = "20h";
+                String time = nettySyncFileDto.getSyncType() == 1 ? "10s" : "1h";
+//                String time = "20h";
                 deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), time);
 
                 // 文件同步任务收到消息后重置发送标识

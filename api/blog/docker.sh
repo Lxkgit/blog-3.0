@@ -437,13 +437,20 @@ startPy() {
 
 # python 脚本守护线程
 startPyDaemon() {
+
   # 开机唤醒守护线程配置
   mv /opt/package/conf/websocket-watchdog.service /etc/systemd/system/
   sed -i 's/\r$//' /etc/systemd/system/websocket-watchdog.service
+
   # 守护线程
   mv /opt/package/conf/websocket_watchdog.sh /opt/docker/files/python
   sed -i 's/\r$//' /opt/docker/files/python/websocket_watchdog.sh
   chmod +x /opt/docker/files/python/websocket_watchdog.sh
+
+  # 重启脚本
+  mv /opt/package/conf/restart_python.sh /opt/docker/files/python
+  sed -i 's/\r$//' /opt/docker/files/python/restart_python.sh
+  chmod +x /opt/docker/files/python/restart_python.sh
 
   # 重新加载systemd配置
   sudo systemctl daemon-reload

@@ -48,6 +48,7 @@ def move_file_or_directory(source_path, destination_path):
         shutil.move(source_path, final_path)
 
         logger.info(f"成功移动 '{source_path}' 到目录 '{destination_path}'")
+
         return True
 
     except PermissionError:
@@ -59,6 +60,47 @@ def move_file_or_directory(source_path, destination_path):
     except Exception as exception:
         return False, f"移动失败：{str(exception)}"
 
+
+# 文件或目录复制方法
+def copy_file_or_directory(source_path, destination_path):
+    """
+    复制文件或目录到指定目录（总是将 destination_path 视为目录）
+
+    参数:
+        source_path (str): 源文件/目录路径
+        destination_path (str): 目标目录路径（总是作为目录处理）
+
+    返回:
+        tuple: (success: bool, message: str)
+    """
+    # 检查源路径是否存在
+    if not os.path.exists(source_path):
+        logger.info(f"错误：源路径 '{source_path}' 不存在")
+        return False
+
+    try:
+        # 确保目标路径是目录格式（去除可能的尾部分隔符）
+        destination_path = destination_path.rstrip(os.sep)
+
+        # 创建目标目录（包括所有父目录）
+        os.makedirs(destination_path, exist_ok=True)
+
+        # 构建完整目标路径（目标目录 + 源文件名）
+        final_path = os.path.join(destination_path, os.path.basename(source_path))
+
+        shutil.copy2(source_path, final_path)
+
+        logger.info(f"成功复制 '{source_path}' 到目录 '{destination_path}'")
+        return True
+
+    except PermissionError:
+        return False, f"权限错误：无法复制 '{source_path}'，请检查文件权限"
+
+    except FileNotFoundError as exception:
+        return False, f"路径错误：{str(exception)}"
+
+    except Exception as exception:
+        return False, f"复制失败：{str(exception)}"
 
 # 删除目录或文件
 def delete_file_or_directory(path):

@@ -7,13 +7,17 @@ import utils.file_util as file
 async def topic_move_file(ws, receiveMsg):
     logger.info(f"调用文件同步脚本: {receiveMsg.get('data')}")
     fileNameList = receiveMsg.get('data').get('fileNameList')
+    fileSource = receiveMsg.get('data').get('fileSource')
     sourceDirectory = receiveMsg.get('data').get("sourceDirectory")
     targetDirectory = receiveMsg.get('data').get("targetDirectory")
     count = receiveMsg.get('data').get("count")
     if not fileNameList:
         fileNameList = file.get_path_first_x_filename(sourceDirectory, count)
     for filename in fileNameList:
-        file.move_file_or_directory(sourceDirectory + "/" + filename, targetDirectory)
+        if fileSource == 1:
+            file.copy_file_or_directory(sourceDirectory + "/" + filename, targetDirectory)
+        if fileSource == 2:
+            file.move_file_or_directory(sourceDirectory + "/" + filename, targetDirectory)
     # 执行完成响应socket
     msg = {
         "data": {

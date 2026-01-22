@@ -38,6 +38,13 @@ public class SocketMoveFileDto {
     private String servicePath;
 
     /**
+     * 文件来源
+     * 1 系统内文件
+     * 2 系统外文件
+     */
+    private Integer fileSource;
+
+    /**
      * 文件移动数量
      */
     private Integer count;

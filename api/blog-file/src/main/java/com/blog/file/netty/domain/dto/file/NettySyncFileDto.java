@@ -127,6 +127,7 @@ public class NettySyncFileDto {
     public static NettySyncFileDto buildSyncToService(String minioPath, String servicePath, String deviceFilePath) {
         NettySyncFileDto nettySyncFileDto = new NettySyncFileDto();
         nettySyncFileDto.setSyncType(2);
+        nettySyncFileDto.setFileSource(1);
         nettySyncFileDto.setMinioPath(minioPath);
         nettySyncFileDto.setServiceFilePath(servicePath);
         nettySyncFileDto.setDeviceFilePath(deviceFilePath);

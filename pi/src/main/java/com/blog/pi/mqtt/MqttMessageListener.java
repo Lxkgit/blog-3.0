@@ -11,6 +11,8 @@ import org.eclipse.paho.client.mqttv3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class MqttMessageListener implements MqttCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttMessageListener.class);
@@ -23,6 +25,8 @@ public class MqttMessageListener implements MqttCallback {
 
     private final ChipMsgService chipMsgService = SpringUtils.getBean(ChipMsgService.class);
 
+    private final AtomicBoolean reconnecting = new AtomicBoolean(false);
+
     /**
      * mqtt断线重连
      *
@@ -30,28 +34,32 @@ public class MqttMessageListener implements MqttCallback {
      */
     @Override
     public void connectionLost(Throwable throwable) {
-        int num = 1;
-        while (true) {
-            try {
-                logger.info("MQTT 重新连接 连接次数:{}", num);
-                mqttService.getMqttClient().reconnect();
-                if (mqttService.getMqttClient().isConnected()) {
-                    // 判断已经重新连接成功  需要重新订阅主题 可以在这个if里面订阅主题  或者 connectComplete（方法里面）
-                    logger.warn("MQTT 重新连接成功");
-                    mqttService.subscribe();
-                    return;
-                }
-                num++;
-            } catch (MqttException e) {
-                logger.error("MQTT 断连异常", e);
-            }
-            try {
-                // 5秒执行异常重新连接
-                Thread.sleep(5000);
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
+        logger.warn("MQTT 连接丢失", throwable);
+
+        if (!reconnecting.compareAndSet(false, true)) {
+            return; // 已有重连线程在跑
         }
+
+        new Thread(() -> {
+            try {
+                int num = 1;
+                while (!mqttService.getMqttClient().isConnected()) {
+                    try {
+                        logger.info("MQTT 重新连接 连接次数:{}", num++);
+                        mqttService.getMqttClient().reconnect();
+                    } catch (Exception e) {
+                        logger.warn("MQTT 重连失败，5秒后重试");
+                        Thread.sleep(5000);
+                    }
+                }
+                logger.info("MQTT 重新连接成功");
+                mqttService.subscribe();
+            } catch (Exception e) {
+                logger.error("MQTT 重连线程异常", e);
+            } finally {
+                reconnecting.set(false);
+            }
+        }, "mqtt-reconnect-thread").start();
     }
 
     /**

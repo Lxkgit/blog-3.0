@@ -62,7 +62,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     @Resource
     private RedisService redisService;
 
-    @SneakyThrows
+//    @SneakyThrows
     @Async
     @Override
     public void onApplicationEvent(NettyPacketEvent event) {

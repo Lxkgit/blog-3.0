@@ -87,6 +87,7 @@ public class NettySyncFileService {
             moveFileDto.setSourceDirectory(nettySyncFileDto.getDeviceFilePath());
             moveFileDto.setTargetDirectory(basePath);
             moveFileDto.setServicePath(nettySyncFileDto.getServiceFilePath());
+            moveFileDto.setFileSource(nettySyncFileDto.getFileSource());
 
             // 系统外文件不删除，执行备份操作
             if (nettySyncFileDto.getFileSource() == 2) {

@@ -281,7 +281,7 @@ public class FileServiceImpl implements FileService {
             // 发送netty消息
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
             nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettySyncFileDto.setIdList(List.of(fileCategoryData.getId()));
+            nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" +  fileCategoryData.getFileName()));
             nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId);
         } else if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
             // 文件同步到远程
@@ -304,7 +304,7 @@ public class FileServiceImpl implements FileService {
             }
             nettySyncFileDto.setMinioPath(category.getDirPath());
             nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettySyncFileDto.setIdList(List.of(fileCategoryData.getId()));
+            nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" +  fileCategoryData.getFileName()));
             nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId);
         }
     }
@@ -389,14 +389,15 @@ public class FileServiceImpl implements FileService {
         }
 
         if (nettyUploadBlogFileDto.getMinioDeleteFlag() == 1) {
-            if (CollectionUtils.isNotEmpty(nettyUploadBlogFileDto.getIdList())) {
-                for (Integer id : nettyUploadBlogFileDto.getIdList()) {
+            if (CollectionUtils.isNotEmpty(nettyUploadBlogFileDto.getFileCodeList())) {
+                for (String fileCode : nettyUploadBlogFileDto.getFileCodeList()) {
+                    Integer id = Integer.valueOf(fileCode.split(":")[0]);
                     FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(id);
                     FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
 
                     // 修改目录下文件状态为远程服务器
                     LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
-                    dataWrapper.eq(FileCategoryData::getFileCategoryId, id);
+                    dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCode);
                     FileCategoryData data = new FileCategoryData();
                     data.setFileStatus(4);
                     fileCategoryDataMapper.update(data, dataWrapper);

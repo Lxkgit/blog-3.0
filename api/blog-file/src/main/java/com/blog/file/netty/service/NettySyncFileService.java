@@ -51,9 +51,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 /**
  * @description: Netty文件同步业务
@@ -160,10 +158,10 @@ public class NettySyncFileService {
                             nettySyncFileDto.setFileNameList(newFileNameList);
                         } else if (nettySyncFileDto.getFileSource() == 1) {
                             // 系统内部部来源的文件修改文件状态
-                            for (Integer id : nettySyncFileDto.getIdList()) {
+                            for (String fileCode : nettySyncFileDto.getFileCodeList()) {
                                 // 修改目录下文件状态为本地服务器
                                 LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
-                                dataWrapper.eq(FileCategoryData::getFileCategoryId, id);
+                                dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCode.split(":")[0]);
                                 FileCategoryData data = new FileCategoryData();
                                 data.setFileStatus(0);
                                 fileCategoryDataMapper.update(data, dataWrapper);

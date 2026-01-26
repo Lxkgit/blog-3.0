@@ -279,19 +279,16 @@ public class NettySyncFileService {
         NettySyncFileDto fileSyncDto = new NettySyncFileDto();
 
         if (i != null) {
+            fileSyncDto.setFileNameList(List.of(fileNameList.get(i)));
             // 下载指定文件时响应永远为未结束，上传按照列表判断是否接收
             if (nettySyncFileDto.getSyncType() == 1) {
                 fileSyncDto.setSyncEnd(0);
             } else if (nettySyncFileDto.getSyncType() == 2) {
-                if (i == fileNameList.size() - 1) {
-                    fileSyncDto.setSyncEnd(1);
-                } else {
-                    fileSyncDto.setSyncEnd(0);
-                }
+                // 上传文件时需要携带文件编码
+                fileSyncDto.setFileCodeList(List.of(nettySyncFileDto.getFileCodeList().get(i)));
+                // 上传文件为最后一个文件时返回上传任务结束
+                fileSyncDto.setSyncEnd(i == fileNameList.size() - 1 ? 1 : 0);
             }
-
-            String serviceFileName = fileNameList.get(i);
-            fileSyncDto.setFileNameList(new ArrayList<>(List.of(serviceFileName)));
         } else {
             // 下载文件接收到socket移动文件响应后结束下载
             fileSyncDto.setFileNameList(fileNameList);

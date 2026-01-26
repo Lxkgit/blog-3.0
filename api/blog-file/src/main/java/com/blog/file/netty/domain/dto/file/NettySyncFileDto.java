@@ -1,14 +1,8 @@
 package com.blog.file.netty.domain.dto.file;
 
-import com.blog.core.constant.Constant;
-import com.blog.core.utils.MyStringUtils;
-import com.blog.file.netty.domain.common.NettyConstant;
-import com.blog.file.netty.domain.dto.NettyPacket;
-import com.blog.file.netty.domain.enums.NettyPacketType;
 import lombok.Data;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @Description netty同步文件类
@@ -98,9 +92,11 @@ public class NettySyncFileDto {
     private List<String> fileNameList;
 
     /**
+     * 文件编码
      * 上传/下载-修改指定文件状态
+     * 格式: id:fileName
      */
-    private List<Integer> idList;
+    private List<String> fileCodeList;
 
     /**
      * 文件来源

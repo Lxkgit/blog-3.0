@@ -351,10 +351,14 @@ public class FileServiceImpl implements FileService {
                 newFile.setCreateTime(new Date());
 
                 boolean importFlag = minioService.importFile(localFilePath, minioPath);
-                logger.info("文件导入minio结果: {}", importFlag);
+                logger.info("系统外部文件导入minio结果: {}", importFlag);
                 fileCategoryDataMapper.insert(newFile);
 
             } else {
+                // 文件本地存放目录
+                String localFilePath = Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName;
+                boolean importFlag = minioService.importFile(localFilePath, minioPath);
+                logger.info("系统内部文件导入minio结果: {}", importFlag);
                 fileCategoryData.setFileStatus(0);
                 fileCategoryDataMapper.updateById(fileCategoryData);
             }

@@ -215,18 +215,15 @@ public class FileServiceImpl implements FileService {
             BeanUtils.copyProperties(fileCategoryData, vo);
             vo.setFileUrl(authFile(fileCategoryData.getFileUrl()));
             // 视频文件生成封面缩略图
-            if (FileTypeEnum.getTypeEnumByFileType(fileCategoryData.getFileType()).getFileType() == 3) {
-                // 2. 抓取 6 张有效帧
-                List<BufferedImage> frames = grabFrames(fileCategoryData.getFileUrl(), 8);
-
-                // 3. 取前 4 张生成 2x2 封面
-                List<BufferedImage> coverFrames = frames.subList(0, 4);
-                BufferedImage cover = build2x2Cover(coverFrames, 360);
-
-                // 4. 转 Base64
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(cover, "jpg", baos);
-                vo.setVideoImg(Base64.getEncoder().encodeToString(baos.toByteArray()));
+            if (FileTypeEnum.getTypeEnumByFileType(fileCategoryData.getFileType()).getFileType() == 3 &&
+                    Constant.FILE_STATUS_LOCAL.equals(fileCategoryData.getFileStatus())) {
+                // 抓取 8 张有效帧
+                BufferedImage frame = grabFrames(vo.getFileUrl());
+//                BufferedImage cover = build2x2Cover(frames, 360);
+                // 转 Base64
+                ByteArrayOutputStream base64 = new ByteArrayOutputStream();
+                ImageIO.write(frame, "jpg", base64);
+                vo.setVideoImg(Base64.getEncoder().encodeToString(base64.toByteArray()));
             }
             fileVoList.add(vo);
         }
@@ -234,35 +231,21 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * 抓取指定数量的有效帧（跳黑屏）
+     * 抓取视频第一帧作为封面（跳过黑屏帧）
      */
-    private static List<BufferedImage> grabFrames(String url, int frameCount) {
-        List<BufferedImage> result = new ArrayList<>();
+    private static BufferedImage grabFrames(String url) {
+        BufferedImage result = null;
         try {
-            Map<Double, BufferedImage> map = new TreeMap<>(Collections.reverseOrder());
             try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(url)) {
                 grabber.start();
-                long duration = grabber.getLengthInTime();
-
                 // 使用 try-with-resources 自动关闭 Java2DFrameConverter
                 try (Java2DFrameConverter converter = new Java2DFrameConverter()) {
-                    for (int i = 0; i < frameCount; i++) {
-                        long ts = duration * (i + 1);
-                        grabber.setTimestamp(ts);
-                        Frame frame = grabber.grabImage();
-                        if (frame == null) {
-                            continue;
-                        }
-
-                        BufferedImage img = converter.getBufferedImage(frame);
-                        map.put(isBlackFrame(img), img);
+                    // 抓取第一帧
+                    Frame frame = grabber.grabImage();
+                    if (frame != null) {
+                        result = converter.getBufferedImage(frame);
                     }
                 }
-
-                for (Map.Entry<Double, BufferedImage> entry : map.entrySet()) {
-                    result.add(entry.getValue());
-                }
-
                 grabber.stop();
             }
         } catch (Exception e) {
@@ -271,33 +254,93 @@ public class FileServiceImpl implements FileService {
         return result;
     }
 
-    /**
-     * 判断黑屏帧
-     */
-    private static Double isBlackFrame(BufferedImage img) {
-        int w = img.getWidth();
-        int h = img.getHeight();
-        int stepX = Math.max(w / 50, 1);
-        int stepY = Math.max(h / 50, 1);
-        long sum = 0, count = 0;
 
-        for (int x = 0; x < w; x += stepX) {
-            for (int y = 0; y < h; y += stepY) {
-                int rgb = img.getRGB(x, y);
-                int r = (rgb >> 16) & 0xff;
-                int g = (rgb >> 8) & 0xff;
-                int b = rgb & 0xff;
-                // 计算这个像素的亮度（灰度值）
-                int lum = (int) (0.299 * r + 0.587 * g + 0.114 * b);
-                // 把所有采样像素的亮度累加起来
-                sum += lum;
-                // 统计采样的像素数量（因为不是每个像素都算，stepX/stepY 是跳步采样）
-                count++;
+//    /**
+//     * 抓取视频封面帧（跳黑屏，按亮度排序）
+//     * 逻辑：
+//     * - 时间点：视频总长度的 10%、25%、50%、80%
+//     * - 每个时间点抓取前后 1 帧（共 3 帧）
+//     * - 每个时间点选最亮的一帧作为封面
+//     * - 最终返回 4 张封面
+//     *
+//     * @param url 视频URL（可为MinIO临时授权URL）
+//     * @return 封面帧列表
+//     */
+//    private static List<BufferedImage> grabFrames(String url) {
+//        List<BufferedImage> result = new ArrayList<>();
+//        // 时间点百分比
+////        int[] percents = {10, 25, 50, 80};
+//        int[] percents = {10, 25, 50, 80};
+//        try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(url)) {
+//            grabber.start();
+//            int totalFrames = grabber.getLengthInFrames();
+//            // 使用 TreeMap 按亮度排序
+//            Map<Double, BufferedImage> treeMap = new TreeMap<>(Collections.reverseOrder());
+//            try (Java2DFrameConverter converter = new Java2DFrameConverter()) {
+//                for (int percent : percents) {
+//                    int targetFrame = totalFrames * percent / 100;
+//                    // 前一帧
+//                    int startFrame = Math.max(targetFrame - 1, 0);
+//                    grabber.setFrameNumber(startFrame);
+//                    BufferedImage brightest = null;
+//                    double maxBrightness = -1;
+//                    // 每个时间点抓 3 帧
+//                    for (int i = 0; i < 3; i++) {
+//                        Frame frame = grabber.grabImage();
+//                        if (frame == null) {
+//                            break;
+//                        }
+//                        BufferedImage img = converter.getBufferedImage(frame);
+//                        if (img == null) {
+//                            continue;
+//                        }
+//                        double brightness = calculateBrightness(img);
+//                        if (brightness > maxBrightness) {
+//                            maxBrightness = brightness;
+//                            brightest = img;
+//                        }
+//                    }
+//                    if (brightest != null) {
+//                        treeMap.put(maxBrightness, brightest);
+//                    }
+//                }
+//            }
+//            // 按亮度排序取封面
+//            for (Map.Entry<Double, BufferedImage> entry : treeMap.entrySet()) {
+//                result.add(entry.getValue());
+//            }
+//            grabber.stop();
+//        } catch (Exception e) {
+//            logger.error("抓取视频封面帧异常: {}", e.getMessage(), e);
+//        }
+//        return result;
+//    }
+
+    /**
+     * 计算图片亮度（灰度平均）
+     *
+     * @param image BufferedImage
+     * @return 亮度值
+     */
+    private static double calculateBrightness(BufferedImage image) {
+        long sum = 0;
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int total = width * height;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = image.getRGB(x, y);
+                int r = (rgb >> 16) & 0xFF;
+                int g = (rgb >> 8) & 0xFF;
+                int b = rgb & 0xFF;
+                sum += (r + g + b) / 3; // 简单灰度平均
             }
         }
-        // 采样像素的平均亮度
-        return (double) sum / count;
+
+        return sum / (double) total;
     }
+
 
     /**
      * 生成 2x2 封面

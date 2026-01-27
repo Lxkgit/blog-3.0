@@ -243,7 +243,6 @@ public class MinioService {
     public String authFile(String path, Integer time) throws ServiceException {
         try {
             // 生成标准预签名URL（路径不含/minio）
-
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)

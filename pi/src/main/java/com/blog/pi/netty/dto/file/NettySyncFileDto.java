@@ -80,7 +80,7 @@ public class NettySyncFileDto {
     private String minioPath;
 
     /**
-     * 上传-是否删除minio中原文件
+     * 下载-是否删除minio中原文件
      * 0: 否
      * 1: 是
      */

@@ -8,6 +8,7 @@ import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -20,7 +21,7 @@ public interface FileService {
 
     List<FileCategory> selectFileDir(FileCategoryVo fileCategoryVo);
 
-    List<FileCategoryData> selectFile(FileCategoryVo fileCategoryVo) throws ServiceException;
+    List<FileCategoryDataVo> selectFile(FileCategoryVo fileCategoryVo) throws Exception;
 
     void createDir(FileCategoryVo fileDataVo) throws ServiceException;
 

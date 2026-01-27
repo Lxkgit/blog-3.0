@@ -96,6 +96,12 @@ public class SecurityConfig {
     @Value("${redirect.login}")
     private String loginPage;
 
+    @Value("${auth.publicKey}")
+    private String authPublicKey;
+
+    @Value("${auth.privateKey}")
+    private String authPrivateKey;
+
     //密码加密
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -222,8 +228,11 @@ public class SecurityConfig {
         KeyPair keyPair = generateRsaKey();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        redisService.setString(AuthRedisConstant.PUBLIC_KEY, Base64.getEncoder().encodeToString(publicKey.getEncoded()));
-        redisService.setString(AuthRedisConstant.PRIVATE_KEY, Base64.getEncoder().encodeToString(privateKey.getEncoded()));
+//        redisService.setString(AuthRedisConstant.PUBLIC_KEY, Base64.getEncoder().encodeToString(publicKey.getEncoded()));
+//        redisService.setString(AuthRedisConstant.PRIVATE_KEY, Base64.getEncoder().encodeToString(privateKey.getEncoded()));
+        // 固定公钥私钥
+        redisService.setString(AuthRedisConstant.PUBLIC_KEY, authPublicKey);
+        redisService.setString(AuthRedisConstant.PRIVATE_KEY, authPrivateKey);
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
                 .keyID(UUID.randomUUID().toString())

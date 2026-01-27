@@ -8,6 +8,7 @@ import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
+import com.blog.core.enums.file.FileTypeEnum;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
@@ -22,13 +23,24 @@ import com.blog.file.utils.VideoUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * @description: 文件服务
@@ -56,6 +68,9 @@ public class FileServiceImpl implements FileService {
     @Lazy
     @Resource
     private NettySyncFileService nettyFileSyncService;
+
+    @Resource
+    private Executor baseThread;
 
     /**
      * 创建云盘目录
@@ -188,16 +203,139 @@ public class FileServiceImpl implements FileService {
      * @throws ServiceException
      */
     @Override
-    public List<FileCategoryData> selectFile(FileCategoryVo fileDataVo) throws ServiceException {
+    public List<FileCategoryDataVo> selectFile(FileCategoryVo fileDataVo) throws Exception {
         FileCategory fileCategory = getFileDir(fileDataVo);
         LambdaQueryWrapper<FileCategoryData> dateWrapper = new LambdaQueryWrapper<>();
         dateWrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
         dateWrapper.orderByDesc(FileCategoryData::getId);
         List<FileCategoryData> fileList = fileCategoryDataMapper.selectList(dateWrapper);
+        List<FileCategoryDataVo> fileVoList = new ArrayList<>();
         for (FileCategoryData fileCategoryData : fileList) {
-            fileCategoryData.setFileUrl(authFile(fileCategoryData.getFileUrl()));
+            FileCategoryDataVo vo = new FileCategoryDataVo();
+            BeanUtils.copyProperties(fileCategoryData, vo);
+            vo.setFileUrl(authFile(fileCategoryData.getFileUrl()));
+            // 视频文件生成封面缩略图
+            if (FileTypeEnum.getTypeEnumByFileType(fileCategoryData.getFileType()).getFileType() == 3) {
+                // 2. 抓取 6 张有效帧
+                List<BufferedImage> frames = grabFrames(fileCategoryData.getFileUrl(), 8);
+
+                // 3. 取前 4 张生成 2x2 封面
+                List<BufferedImage> coverFrames = frames.subList(0, 4);
+                BufferedImage cover = build2x2Cover(coverFrames, 360);
+
+                // 4. 转 Base64
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(cover, "jpg", baos);
+                vo.setVideoImg(Base64.getEncoder().encodeToString(baos.toByteArray()));
+            }
+            fileVoList.add(vo);
         }
-        return fileList;
+        return fileVoList;
+    }
+
+    /**
+     * 抓取指定数量的有效帧（跳黑屏）
+     */
+    private static List<BufferedImage> grabFrames(String url, int frameCount) {
+        List<BufferedImage> result = new ArrayList<>();
+        try {
+            Map<Double, BufferedImage> map = new TreeMap<>(Collections.reverseOrder());
+            try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(url)) {
+                grabber.start();
+                long duration = grabber.getLengthInTime();
+
+                // 使用 try-with-resources 自动关闭 Java2DFrameConverter
+                try (Java2DFrameConverter converter = new Java2DFrameConverter()) {
+                    for (int i = 0; i < frameCount; i++) {
+                        long ts = duration * (i + 1);
+                        grabber.setTimestamp(ts);
+                        Frame frame = grabber.grabImage();
+                        if (frame == null) {
+                            continue;
+                        }
+
+                        BufferedImage img = converter.getBufferedImage(frame);
+                        map.put(isBlackFrame(img), img);
+                    }
+                }
+
+                for (Map.Entry<Double, BufferedImage> entry : map.entrySet()) {
+                    result.add(entry.getValue());
+                }
+
+                grabber.stop();
+            }
+        } catch (Exception e) {
+            logger.error("抓取视频封面帧异常: {}", e.getMessage(), e);
+        }
+        return result;
+    }
+
+    /**
+     * 判断黑屏帧
+     */
+    private static Double isBlackFrame(BufferedImage img) {
+        int w = img.getWidth();
+        int h = img.getHeight();
+        int stepX = Math.max(w / 50, 1);
+        int stepY = Math.max(h / 50, 1);
+        long sum = 0, count = 0;
+
+        for (int x = 0; x < w; x += stepX) {
+            for (int y = 0; y < h; y += stepY) {
+                int rgb = img.getRGB(x, y);
+                int r = (rgb >> 16) & 0xff;
+                int g = (rgb >> 8) & 0xff;
+                int b = rgb & 0xff;
+                // 计算这个像素的亮度（灰度值）
+                int lum = (int) (0.299 * r + 0.587 * g + 0.114 * b);
+                // 把所有采样像素的亮度累加起来
+                sum += lum;
+                // 统计采样的像素数量（因为不是每个像素都算，stepX/stepY 是跳步采样）
+                count++;
+            }
+        }
+        // 采样像素的平均亮度
+        return (double) sum / count;
+    }
+
+    /**
+     * 生成 2x2 封面
+     */
+    private static BufferedImage build2x2Cover(List<BufferedImage> images, int totalHeight) {
+        if (images.size() != 4) {
+            throw new IllegalArgumentException("需要 4 张帧生成封面");
+        }
+
+        int cellHeight = totalHeight / 2;
+        int[] cellWidths = new int[4];
+        for (int i = 0; i < 4; i++) {
+            BufferedImage img = images.get(i);
+            cellWidths[i] = img.getWidth() * cellHeight / img.getHeight();
+        }
+        int totalWidth = Math.max(Math.max(cellWidths[0], cellWidths[1]),
+                Math.max(cellWidths[2], cellWidths[3]));
+
+        BufferedImage canvas = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_3BYTE_BGR);
+        Graphics2D g = canvas.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+        drawCentered(g, images.get(0), 0, 0, totalWidth / 2, cellHeight);
+        drawCentered(g, images.get(1), totalWidth / 2, 0, totalWidth / 2, cellHeight);
+        drawCentered(g, images.get(2), 0, cellHeight, totalWidth / 2, cellHeight);
+        drawCentered(g, images.get(3), totalWidth / 2, cellHeight, totalWidth / 2, cellHeight);
+
+        g.dispose();
+        return canvas;
+    }
+
+    private static void drawCentered(Graphics2D g, BufferedImage img, int x, int y, int boxW, int boxH) {
+        double scale = Math.min((double) boxW / img.getWidth(), (double) boxH / img.getHeight());
+        int w = (int) (img.getWidth() * scale);
+        int h = (int) (img.getHeight() * scale);
+        int dx = x + (boxW - w) / 2;
+        int dy = y + (boxH - h) / 2;
+        g.drawImage(img, dx, dy, w, h, null);
     }
 
     /**
@@ -281,8 +419,11 @@ public class FileServiceImpl implements FileService {
             // 发送netty消息
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
             nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" +  fileCategoryData.getFileName()));
-            nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId);
+            nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" + fileCategoryData.getFileName()));
+            // 异步导出文件并发送请求
+            baseThread.execute(() -> nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId));
+            // 文件状态修改为正在同步远程服务器
+            updateFileCategoryDataStatus(fileCategoryData.getId(), Constant.FILE_STATUS_TO_REMOTE);
         } else if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
             // 文件同步到远程
             String exportPath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
@@ -304,9 +445,25 @@ public class FileServiceImpl implements FileService {
             }
             nettySyncFileDto.setMinioPath(category.getDirPath());
             nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" +  fileCategoryData.getFileName()));
-            nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId);
+            nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" + fileCategoryData.getFileName()));
+            // 异步发送上传文件命令
+            baseThread.execute(() -> nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId));
+            // 文件状态修改为正在同步本地服务器
+            updateFileCategoryDataStatus(fileCategoryData.getId(), Constant.FILE_STATUS_TO_LOCAL);
         }
+    }
+
+    /**
+     * 根据id修改文件状态
+     *
+     * @param id
+     * @param fileStatus
+     */
+    private void updateFileCategoryDataStatus(Integer id, Integer fileStatus) {
+        FileCategoryData update = new FileCategoryData();
+        update.setId(id);
+        update.setFileStatus(fileStatus);
+        fileCategoryDataMapper.updateById(update);
     }
 
     /**

@@ -37,5 +37,10 @@ public class FileCategoryDataVo extends FileCategoryData {
      * 批量删除文件
      */
     private List<Integer> idList;
+
+    /**
+     * 视频文件封面图片
+     */
+    private String videoImg;
 }
 

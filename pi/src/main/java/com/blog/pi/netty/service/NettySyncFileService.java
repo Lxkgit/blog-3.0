@@ -280,6 +280,7 @@ public class NettySyncFileService {
 
         if (i != null) {
             fileSyncDto.setFileNameList(List.of(fileNameList.get(i)));
+            fileSyncDto.setMinioDeleteFlag(nettySyncFileDto.getMinioDeleteFlag());
             // 下载指定文件时响应永远为未结束，上传按照列表判断是否接收
             if (nettySyncFileDto.getSyncType() == 1) {
                 fileSyncDto.setSyncEnd(0);

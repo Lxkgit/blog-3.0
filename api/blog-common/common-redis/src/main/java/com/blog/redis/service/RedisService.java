@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -117,6 +118,41 @@ public class RedisService {
     public Object getString(String key) {
         return key == null ? null : redisTemplate.opsForValue().get(key);
     }
+
+    /**
+     * 普通缓存获取
+     *
+     * @param key 键
+     * @return 值
+     */
+    public Object getString(String key, long time) {
+        return key == null ? null : redisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 获取字符串值并刷新过期时间
+     *
+     * @param key  键
+     * @param time 时间(秒)，time要大于0 如果time小于等于0 将不刷新TTL
+     * @return 如果存在返回值，否则返回null
+     */
+    public String getStringAndRefresh(String key, long time) {
+        try {
+            // 获取值
+            String value = (String) redisTemplate.opsForValue().get(key);
+
+            // 如果值存在且时间大于0，则刷新过期时间
+            if (value != null && time > 0) {
+                redisTemplate.expire(key, time, TimeUnit.SECONDS);
+            }
+
+            return value;
+        } catch (Exception e) {
+            logger.info("redis错误信息:{} error: ", e.getMessage(), e);
+            return null;
+        }
+    }
+
 
     /**
      * 普通缓存放入

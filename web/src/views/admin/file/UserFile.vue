@@ -1059,6 +1059,7 @@ function fileFn(): any {
         syncFileStatus: item.fileStatus === 0 ? 4 : 0,
       }).then((res: any) => {
         if (res.code === 200) {
+          selectFileDirOrFileFun()
           ElMessage.success('同步命令发送成功')
         }
       })

@@ -8,9 +8,7 @@ import com.blog.pi.netty.dto.heart.NettyHeartBeatDto;
 import com.blog.pi.netty.dto.register.NettyRegisterDto;
 import com.blog.pi.netty.enums.HeartBeatType;
 import com.blog.pi.netty.enums.NettyPacketType;
-import com.blog.pi.netty.enums.NettyTopicEnum;
 import com.blog.pi.netty.event.NettyPacketEvent;
-import com.blog.pi.netty.service.DeviceInfoService;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,8 +22,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,9 +40,6 @@ public class NettyClientHandler extends ChannelDuplexHandler {
     private NettyClient nettyClient;
 
     @Resource
-    private DeviceInfoService deviceInfoService;
-
-    @Resource
     private ChipStatusService chipStatusService;
 
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -62,7 +55,6 @@ public class NettyClientHandler extends ChannelDuplexHandler {
         NettyRegisterDto nettyRegisterDto = new NettyRegisterDto();
         nettyRegisterDto.setDeviceName("树莓派");
         nettyRegisterDto.setMemo("这个是设备备注信息");
-        deviceInfoService.setRegisterMsg(nettyRegisterDto);
 
         // 发送注册消息
         NettyPacket<NettyRegisterDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.REGISTER, NettyPacketType.REGISTER.getValue(), nettyRegisterDto);
@@ -90,8 +82,6 @@ public class NettyClientHandler extends ChannelDuplexHandler {
                 NettyHeartBeatDto nettyHeartBeat = new NettyHeartBeatDto();
                 nettyHeartBeat.setHeartBeat(new Date());
                 nettyHeartBeat.setType(HeartBeatType.SERVICE.getType());
-
-//                nettyHeartBeat.setClientIds(chipStatusService.getMqttClientId(true));
 
                 // 向服务端发送心跳包
                 NettyPacket<NettyHeartBeatDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.HEARTBEAT, NettyPacketType.HEARTBEAT.getValue(), nettyHeartBeat);

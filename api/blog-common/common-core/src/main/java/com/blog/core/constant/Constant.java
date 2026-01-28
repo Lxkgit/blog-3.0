@@ -97,4 +97,7 @@ public class Constant {
 
     // 机械硬盘存储博客云盘备份数据目录
     public static final String DISK_PATH_BLOG_MINIO = "/mnt/E80499A6049977F0/blog/minio";
+
+    // base64图片编码前缀
+    public static final String BASE64_IMG_JPG = "data:image/jpg;base64,";
 }

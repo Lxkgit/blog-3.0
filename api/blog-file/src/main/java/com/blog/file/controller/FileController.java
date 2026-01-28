@@ -55,7 +55,6 @@ public class FileController {
     }
 
     /**
-     *
      * @param idList
      * @return
      * @throws ServiceException
@@ -115,8 +114,6 @@ public class FileController {
         fileService.syncFile(fileDataVo);
         return ResultFactory.buildSuccessResult();
     }
-
-
 
 
 }

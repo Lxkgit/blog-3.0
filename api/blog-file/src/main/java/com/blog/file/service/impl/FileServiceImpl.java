@@ -4,6 +4,7 @@ package com.blog.file.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.file.files.dto.VideoImg;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
@@ -25,6 +26,7 @@ import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.poifs.filesystem.Entry;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -44,6 +46,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description: 文件服务
@@ -217,33 +222,52 @@ public class FileServiceImpl implements FileService {
         dateWrapper.orderByDesc(FileCategoryData::getId);
         List<FileCategoryData> fileList = fileCategoryDataMapper.selectList(dateWrapper);
         List<FileCategoryDataVo> fileVoList = new ArrayList<>();
+
         for (FileCategoryData fileCategoryData : fileList) {
             FileCategoryDataVo vo = new FileCategoryDataVo();
             BeanUtils.copyProperties(fileCategoryData, vo);
             vo.setFileUrl(authFile(fileCategoryData.getFileUrl()));
-
+            fileVoList.add(vo);
             // 视频文件生成封面缩略图
             if (FileTypeEnum.getTypeEnumByFileType(fileCategoryData.getFileType()).getFileType() == 3 &&
                     Constant.FILE_STATUS_LOCAL.equals(fileCategoryData.getFileStatus())) {
                 String redisKey = FileRedisConstant.FILE_VIDEO_BASE64_IMG + vo.getId();
+                // Redis 命中直接用
                 if (redisService.hasKey(redisKey)) {
-                    vo.setVideoImg(redisService.getStringAndRefresh(redisKey, 60 * 60 * 8));
-                } else {
-                    List<BufferedImage> frames = grabFrames(vo.getFileUrl());
-                    if (CollectionUtils.isNotEmpty(frames)) {
-                        // 转 Base64
-                        ByteArrayOutputStream base64 = new ByteArrayOutputStream();
-                        ImageIO.write(buildSingleCover(frames.get(frames.size() / 2)), "jpg", base64);
-                        String base64Img = Constant.BASE64_IMG_JPG + Base64.getEncoder().encodeToString(base64.toByteArray());
-                        vo.setVideoImg(base64Img);
-                        redisService.setString(redisKey, base64Img, 60 * 60 * 8);
-                    }
+                    vo.setVideoImg(redisService.getStringAndRefresh(redisKey, 60 * 60 * 24 * 7));
+                    continue;
                 }
+                // 提交封面生成任务
+                baseThread.execute(() -> generateVideoCoverBase64(vo.getId(), vo.getFileUrl()));
             }
-            fileVoList.add(vo);
         }
+
         return fileVoList;
     }
+
+    /**
+     * 多线程生成视频封面
+     */
+    private void generateVideoCoverBase64(Integer id, String fileUrl) {
+        try {
+            logger.info("开始获取视频封面 id: {}", id);
+            String redisKey = FileRedisConstant.FILE_VIDEO_BASE64_IMG + id;
+            List<BufferedImage> frames = grabFrames(fileUrl);
+            if (CollectionUtils.isNotEmpty(frames)) {
+                // 转 Base64
+                ByteArrayOutputStream base64 = new ByteArrayOutputStream();
+                ImageIO.write(buildSingleCover(frames.get(frames.size() / 2)), "jpg", base64);
+                String base64Img = Constant.BASE64_IMG_JPG + Base64.getEncoder().encodeToString(base64.toByteArray());
+                redisService.setString(redisKey, base64Img, 60 * 60 * 24 * 7);
+                logger.info("视频封面 id: {} 获取成功", id);
+            } else {
+                logger.info("视频封面 id: {} 获取失败", id);
+            }
+        } catch (Exception e) {
+            logger.error("生成视频封面失败，id: {}", id, e);
+        }
+    }
+
 
     /**
      * 生成单帧封面，按指定高度自适应宽度
@@ -266,44 +290,62 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * 抓取指定数量的有效帧（按亮度排序）
+     * 抓取视频封面帧（异步用，尽可能保证抓到帧）
      */
     private static List<BufferedImage> grabFrames(String url) {
-        int frameCount = 3;
+        // 只抓 1 帧就够封面
+        int frameCount = 1;
         List<BufferedImage> result = new ArrayList<>();
         try {
-            // 亮度倒序（越亮越靠前）
             Map<Double, BufferedImage> map = new TreeMap<>(Collections.reverseOrder());
             try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(url);
                  Java2DFrameConverter converter = new Java2DFrameConverter()) {
-                // HTTP / MinIO 必加
-                grabber.setOption("rw_timeout", "10000000");
-                grabber.setOption("stimeout", "10000000");
+                // 网络视频优化选项
+                // 5秒
+                grabber.setOption("rw_timeout", "5000000");
+                // 5秒
+                grabber.setOption("stimeout", "5000000");
                 grabber.setOption("reconnect", "1");
+                grabber.setAudioChannels(0);
+                grabber.setOption("threads", "1");
                 grabber.start();
-                // 视频总时长（微秒）
                 long duration = grabber.getLengthInTime();
-                // 抓取视频 20% 位置处连续 frameCount 张视频帧
-                long step = duration / 5;
-                // 只 seek 一次
-                grabber.setTimestamp(step);
+                // 多位置尝试抓帧，顺序: 20%, 33%, 50%, 视频开头
+                long[] seekPositions = {duration / 5, duration / 3, duration / 2, 0};
                 Frame frame;
-                while ((frame = grabber.grab()) != null && map.size() < frameCount) {
-                    if (frame.image == null) {
-                        continue;
+                // 每个位置最大循环 60 秒
+                long maxLoopTimeMs = 60_000;
+                for (long step : seekPositions) {
+                    grabber.setTimestamp(step);
+                    long startTime = System.currentTimeMillis();
+
+                    while ((frame = grabber.grab()) != null && map.size() < frameCount) {
+                        // 时间兜底
+                        if (System.currentTimeMillis() - startTime > maxLoopTimeMs) {
+                            logger.warn("抓取视频帧超时，强制中断 url: {}", url);
+                            break;
+                        }
+                        if (frame.image == null) {
+                            continue;
+                        }
+                        BufferedImage img = converter.getBufferedImage(frame);
+                        if (img == null) {
+                            continue;
+                        }
+                        double brightness = calcBrightness(img);
+                        // 防止亮度相同覆盖
+                        map.put(brightness + Math.random() * 1e-6, img);
                     }
-                    BufferedImage img = converter.getBufferedImage(frame);
-                    if (img == null) {
-                        continue;
+                    // 一旦抓到帧就结束
+                    if (!map.isEmpty()) {
+                        break;
                     }
-                    double brightness = calcBrightness(img);
-                    map.put(brightness, img);
                 }
                 grabber.stop();
             }
             result.addAll(map.values());
         } catch (Exception e) {
-            logger.error("抓取视频封面帧异常", e);
+            logger.error("抓取视频封面帧异常 url: {}", url, e);
         }
         return result;
     }

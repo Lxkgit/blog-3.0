@@ -881,6 +881,8 @@ function fileFn(): any {
    */
   const selectFileDirOrFileFun = () => {
     let path = filePath.value
+    fileList.data = []
+    dirList.data = []
     selectFileDirApi({
       dirPath: path,
     }).then((res: any) => {

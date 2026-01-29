@@ -21,7 +21,7 @@ public class SystemThread {
      * 基础线程池
      * 使用：
      *     @Resource
-     *     private Executor baseThread;
+     *     private Executor systemTaskThread;
      * @return
      */
     @Bean(name = "systemTaskThread")

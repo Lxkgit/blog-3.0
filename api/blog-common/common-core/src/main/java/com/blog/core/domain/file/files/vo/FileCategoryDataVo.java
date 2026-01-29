@@ -42,5 +42,7 @@ public class FileCategoryDataVo extends FileCategoryData {
      * 视频文件封面图片
      */
     private String videoImg;
+
+
 }
 

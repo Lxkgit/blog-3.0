@@ -228,18 +228,18 @@ public class FileServiceImpl implements FileService {
             BeanUtils.copyProperties(fileCategoryData, vo);
             vo.setFileUrl(authFile(fileCategoryData.getFileUrl()));
             fileVoList.add(vo);
-            // 视频文件生成封面缩略图
-            if (FileTypeEnum.getTypeEnumByFileType(fileCategoryData.getFileType()).getFileType() == 3 &&
-                    Constant.FILE_STATUS_LOCAL.equals(fileCategoryData.getFileStatus())) {
-                String redisKey = FileRedisConstant.FILE_VIDEO_BASE64_IMG + vo.getId();
-                // Redis 命中直接用
-                if (redisService.hasKey(redisKey)) {
-                    vo.setVideoImg(redisService.getStringAndRefresh(redisKey, 60 * 60 * 24 * 7));
-                    continue;
-                }
-                // 提交封面生成任务
-                baseThread.execute(() -> generateVideoCoverBase64(vo.getId(), vo.getFileUrl()));
-            }
+//            // 视频文件生成封面缩略图
+//            if (FileTypeEnum.getTypeEnumByFileType(fileCategoryData.getFileType()).getFileType() == 3 &&
+//                    Constant.FILE_STATUS_LOCAL.equals(fileCategoryData.getFileStatus())) {
+//                String redisKey = FileRedisConstant.FILE_VIDEO_BASE64_IMG + vo.getId();
+//                // Redis 命中直接用
+//                if (redisService.hasKey(redisKey)) {
+//                    vo.setVideoImg(redisService.getStringAndRefresh(redisKey, 60 * 60 * 24 * 7));
+//                    continue;
+//                }
+//                // 提交封面生成任务
+//                baseThread.execute(() -> generateVideoCoverBase64(vo.getId(), vo.getFileUrl()));
+//            }
         }
 
         return fileVoList;
@@ -252,7 +252,7 @@ public class FileServiceImpl implements FileService {
         try {
             logger.info("开始获取视频封面 id: {}", id);
             String redisKey = FileRedisConstant.FILE_VIDEO_BASE64_IMG + id;
-            List<BufferedImage> frames = grabFrames(fileUrl);
+            List<BufferedImage> frames = grabFrames(id, fileUrl);
             if (CollectionUtils.isNotEmpty(frames)) {
                 // 转 Base64
                 ByteArrayOutputStream base64 = new ByteArrayOutputStream();
@@ -292,7 +292,7 @@ public class FileServiceImpl implements FileService {
     /**
      * 抓取视频封面帧（异步用，尽可能保证抓到帧）
      */
-    private static List<BufferedImage> grabFrames(String url) {
+    private static List<BufferedImage> grabFrames(Integer id, String url) {
         // 只抓 1 帧就够封面
         int frameCount = 1;
         List<BufferedImage> result = new ArrayList<>();
@@ -314,7 +314,7 @@ public class FileServiceImpl implements FileService {
                 long[] seekPositions = {duration / 5, duration / 3, duration / 2, 0};
                 Frame frame;
                 // 每个位置最大循环 60 秒
-                long maxLoopTimeMs = 60_000;
+                long maxLoopTimeMs = 120_000;
                 for (long step : seekPositions) {
                     grabber.setTimestamp(step);
                     long startTime = System.currentTimeMillis();
@@ -322,7 +322,7 @@ public class FileServiceImpl implements FileService {
                     while ((frame = grabber.grab()) != null && map.size() < frameCount) {
                         // 时间兜底
                         if (System.currentTimeMillis() - startTime > maxLoopTimeMs) {
-                            logger.warn("抓取视频帧超时，强制中断 url: {}", url);
+                            logger.warn("抓取视频帧超时，强制中断 id: {}", id);
                             break;
                         }
                         if (frame.image == null) {
@@ -345,7 +345,7 @@ public class FileServiceImpl implements FileService {
             }
             result.addAll(map.values());
         } catch (Exception e) {
-            logger.error("抓取视频封面帧异常 url: {}", url, e);
+            logger.error("抓取视频封面帧异常 id: {}", id, e);
         }
         return result;
     }

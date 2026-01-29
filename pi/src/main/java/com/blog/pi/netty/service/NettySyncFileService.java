@@ -285,8 +285,10 @@ public class NettySyncFileService {
             if (nettySyncFileDto.getSyncType() == 1) {
                 fileSyncDto.setSyncEnd(0);
             } else if (nettySyncFileDto.getSyncType() == 2) {
-                // 上传文件时需要携带文件编码
-                fileSyncDto.setFileCodeList(List.of(nettySyncFileDto.getFileCodeList().get(i)));
+                if (nettySyncFileDto.getFileSource() == 1) {
+                    // 系统内文件上传时需要携带文件编码
+                    fileSyncDto.setFileCodeList(List.of(nettySyncFileDto.getFileCodeList().get(i)));
+                }
                 // 上传文件为最后一个文件时返回上传任务结束
                 fileSyncDto.setSyncEnd(i == fileNameList.size() - 1 ? 1 : 0);
             }

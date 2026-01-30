@@ -29,9 +29,9 @@ public class TaskThread {
     public ThreadPoolTaskExecutor baseImportThread() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         // 核心线程数
-        executor.setCorePoolSize(5);
+        executor.setCorePoolSize(2);
         // 最大线程数
-        executor.setMaxPoolSize(10);
+        executor.setMaxPoolSize(4);
         // 队列容量
         executor.setQueueCapacity(500);
         // 线程空闲时间

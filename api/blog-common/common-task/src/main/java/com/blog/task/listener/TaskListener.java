@@ -152,7 +152,6 @@ public class TaskListener implements ApplicationRunner {
                                     createTaskService.createTask(taskEntity);
                                 }
                             }
-
                         }
                     }
                 }

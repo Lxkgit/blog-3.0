@@ -50,6 +50,26 @@ public class TaskInit implements ApplicationRunner {
     }
 
     /**
+     * 初始化全部可执行任务
+     *
+     * @param taskBase
+     * @param taskCode
+     */
+    private void createInitTask(TaskBase taskBase, String taskCode) {
+        TaskParamVo taskParamVo = new TaskParamVo();
+        taskParamVo.setTaskCode(taskCode);
+        taskParamVo.setTaskStatusList(new ArrayList<>(Arrays.asList(1, 2)));
+        List<TaskParam> paramList = taskParamMapper.selectTaskByTaskCode(taskParamVo);
+
+        for (TaskParam taskParam : paramList) {
+            // 创建并启动子任务
+            TaskEntity taskEntity = new TaskEntity();
+            BeanUtils.copyProperties(taskBase, taskEntity);
+            taskService.createChildTask(taskEntity, taskParam);
+        }
+    }
+
+    /**
      * 文件同步任务-定时备份博客数据
      * 服务器端：
      * 1. 通知socket执行shell脚本，备份服务器上数据
@@ -71,11 +91,9 @@ public class TaskInit implements ApplicationRunner {
         taskBase.setParamTemplate(null);
         taskBase.setChildTaskFlag(0);
 
-        // 创建主任务
+        // 初始化全部可执行任务
         redisService.setList(TaskConstant.TASK_BASE, taskBase);
-        TaskParamVo taskParamVo = new TaskParamVo();
-        taskParamVo.setTaskCode(Constant.TASK_SYNC_BLOG_FILE);
-        createInitTask(taskBase, taskParamVo);
+        createInitTask(taskBase, Constant.TASK_SYNC_BLOG_FILE);
 
     }
 
@@ -102,13 +120,14 @@ public class TaskInit implements ApplicationRunner {
         taskBase.setParamTemplate(null);
         taskBase.setChildTaskFlag(1);
 
-        // 创建主任务
+        // 初始化全部可执行任务
         redisService.setList(TaskConstant.TASK_BASE, taskBase);
-        TaskParamVo taskParamVo = new TaskParamVo();
-        taskParamVo.setTaskCode(Constant.TASK_SYNC_DEVICE_FILE);
-        createInitTask(taskBase, taskParamVo);
+        createInitTask(taskBase, Constant.TASK_SYNC_DEVICE_FILE);
     }
 
+    /**
+     *
+     */
     public void minioFileSyncTask() {
         TaskBase taskBase = new TaskBase();
         taskBase.setTaskCode(Constant.TASK_SYNC_MINIO_FILE);
@@ -119,29 +138,9 @@ public class TaskInit implements ApplicationRunner {
         taskBase.setParamTemplate(null);
         taskBase.setChildTaskFlag(0);
 
-        // 创建主任务
+        // 初始化全部可执行任务
         redisService.setList(TaskConstant.TASK_BASE, taskBase);
-        TaskParamVo taskParamVo = new TaskParamVo();
-        taskParamVo.setTaskCode(Constant.TASK_SYNC_MINIO_FILE);
-        createInitTask(taskBase, taskParamVo);
-    }
-
-    /**
-     * 创建子任务
-     *
-     * @param taskBase
-     * @param taskParamVo
-     */
-    private void createInitTask(TaskBase taskBase, TaskParamVo taskParamVo) {
-        taskParamVo.setTaskStatusList(new ArrayList<>(Arrays.asList(1, 2)));
-        List<TaskParam> paramList = taskParamMapper.selectTaskByTaskCode(taskParamVo);
-
-        for (TaskParam taskParam : paramList) {
-            // 创建并启动子任务
-            TaskEntity taskEntity = new TaskEntity();
-            BeanUtils.copyProperties(taskBase, taskEntity);
-            taskService.createChildTask(taskEntity, taskParam);
-        }
+        createInitTask(taskBase, Constant.TASK_SYNC_MINIO_FILE);
     }
 
     /**

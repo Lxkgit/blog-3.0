@@ -1,6 +1,5 @@
-package com.blog.task.service;
+package com.blog.task.service.impl;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
@@ -10,15 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**

@@ -34,7 +34,7 @@ import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskBase;
 import com.blog.task.domain.TaskEntity;
-import com.blog.task.service.CreateTaskService;
+import com.blog.task.service.impl.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -5,7 +5,7 @@ import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
-import com.blog.task.service.CreateTaskService;
+import com.blog.task.service.impl.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

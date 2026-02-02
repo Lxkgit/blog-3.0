@@ -4,8 +4,7 @@ import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.file.service.TaskService;
-import com.blog.task.domain.TaskEntity;
+import com.blog.task.service.TaskService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 

@@ -87,7 +87,7 @@ public class TaskListener implements ApplicationRunner {
                                 TaskMsgHead taskMsgHead = new TaskMsgHead();
                                 taskMsgHead.setTaskCode(taskEntity.getTaskCode());
                                 taskMsgHead.setChildTaskCode(taskEntity.getChildTaskCode());
-                                String taskUUID = UUID.randomUUID().toString().replace("-", "");
+                                String taskUUID = taskEntity.getTaskUUID();
                                 taskMsgHead.setTaskUUID(taskUUID);
                                 methodParams.add(MsgHead.buildTaskMsgHead(taskEntity.getUserId(), taskMsgHead));
 

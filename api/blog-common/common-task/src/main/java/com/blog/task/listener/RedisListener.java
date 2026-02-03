@@ -1,20 +1,18 @@
-package com.blog.file.redis;
+package com.blog.task.listener;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.file.task.entity.TaskLog;
-import com.blog.file.mapper.TaskLogMapper;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
+import com.blog.task.mapper.TaskLogMapper;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -27,6 +25,9 @@ import java.util.concurrent.Executor;
 public class RedisListener implements ApplicationRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisListener.class);
+
+    @Value("${task.thread}")
+    private Boolean thread;
 
     @Resource
     private RedisService redisService;
@@ -45,10 +46,10 @@ public class RedisListener implements ApplicationRunner {
 
     @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
     private void redisListenerThread() {
-        while (true) {
+        while (thread) {
             try {
                 insertTaskLog();
-                Thread.sleep(60 * 1000);
+                Thread.sleep(10 * 1000);
             } catch (Exception e) {
                 logger.error("redis 数据处理异常：{}", e.getMessage(), e);
             }

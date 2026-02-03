@@ -65,7 +65,7 @@ public class SchedulerDataSourceConfig {
         // 只加载 scheduler 模块自己的 mapper
         factoryBean.setMapperLocations(
                 new PathMatchingResourcePatternResolver()
-                        .getResources("classpath*:com/blog/task/mapper/**/*.xml")
+                        .getResources("classpath*:mapper/*.xml")
         );
 
         // 可选：指定实体别名包（强烈建议）

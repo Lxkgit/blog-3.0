@@ -265,6 +265,7 @@ public class MinioService {
      * @throws ServiceException
      */
     public void exportFile(String minioFileName, String path) throws ServiceException {
+        logger.info("===== minio 导出文件 ===== path: {} fileName: {} ", path, minioFileName);
         // 1. 从MinIO下载文件流
         try (InputStream fileStream = minioClient.getObject(GetObjectArgs.builder()
                 .bucket(bucket)
@@ -281,6 +282,7 @@ public class MinioService {
             // 3. 保存到本地文件
             Path targetPath = exportPath.resolve(fileName);
             Files.copy(fileStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            logger.info("===== minio 导出文件成功 ===== fileName: {} ", minioFileName);
         } catch (Exception e) {
             logger.error("minio导出文件异常:{}", e.getMessage(), e);
             throw new ServiceException(e.getMessage());

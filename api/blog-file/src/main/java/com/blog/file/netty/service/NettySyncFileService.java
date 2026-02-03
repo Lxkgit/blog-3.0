@@ -178,7 +178,12 @@ public class NettySyncFileService {
             if (nettySyncFileDto.getSyncEnd() == 1) {
                 // 上传文件时，最后一个上传的文件上传完成不一定全部文件都正确导入minio，等待1h文件导入完成
                 String time = nettySyncFileDto.getSyncType() == 1 ? "10s" : "1h";
-                deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), time);
+                if (msgHead != null && msgHead.getTaskMsgHead() != null && !msgHead.getTaskMsgHead().getTaskUUID().isEmpty()) {
+                    deleteTempFile(msgHead.getTaskMsgHead().getTaskUUID(),Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), time);
+                } else {
+                    deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), time);
+                }
+
 
                 // 文件同步任务收到消息后重置发送标识
                 if (nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
@@ -321,6 +326,7 @@ public class NettySyncFileService {
                         String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID()).toString();
                         if (StringUtils.isNotEmpty(status) && "1".equals(status)) {
                             MsgHead head = new MsgHead();
+                            msgHead.getTaskMsgHead().setSubTaskUUID(msgHead.getTaskMsgHead().getTaskUUID() + "-" + "clear");
                             BeanUtils.copyProperties(msgHead, head);
                             sendSyncFileMsg(head, nettySyncFileDto, 1);
                             redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0", waitCount * scanTime);
@@ -361,6 +367,7 @@ public class NettySyncFileService {
      * @param localPath            服务器文件路径
      */
     private void exportMinioFileList(List<FileCategoryData> fileCategoryDataList, String minioPath, String localPath) {
+        logger.info("===== minio 导出文件 ===== minioPath:{} localPath:{} fileList:{}", minioPath, localPath, fileCategoryDataList);
         if (CollectionUtils.isNotEmpty(fileCategoryDataList)) {
             for (FileCategoryData fileCategoryData : fileCategoryDataList) {
                 String fileUrl = fileCategoryData.getFileUrl();
@@ -432,6 +439,28 @@ public class NettySyncFileService {
             if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
                 // 定时删除同步文件
                 TaskEntity taskEntity = new TaskEntity();
+                BeanUtils.copyProperties(taskBase, taskEntity);
+                taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
+                taskEntity.setTaskTime(time);
+                taskEntity.setTaskCount(1);
+                createTaskService.createTask(taskEntity);
+            }
+        }
+    }
+
+    /**
+     * 删除临时同步目录文件
+     *
+     * @param filePath 文件目录
+     * @param time 删除操作延迟时间
+     */
+    public void deleteTempFile(String taskUUID, String filePath, String time) {
+        List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
+        for (Object o : taskList) {
+            TaskBase taskBase = (TaskBase) o;
+            if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
+                // 定时删除同步文件
+                TaskEntity taskEntity = new TaskEntity(taskUUID);
                 BeanUtils.copyProperties(taskBase, taskEntity);
                 taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
                 taskEntity.setTaskTime(time);

@@ -85,12 +85,17 @@ public class TaskEntity {
      */
     private Integer taskCount;
 
+    /**
+     * 自定义任务id
+     */
+    public String taskUUID;
+
     public TaskEntity() {
         // 随机生成任务id
-        this.taskCode = MyStringUtils.getRandomString(32);
+        this.taskUUID = MyStringUtils.getRandomString(32);
     }
 
     public TaskEntity(String taskUUID) {
-        this.taskCode = taskUUID;
+        this.taskUUID = taskUUID;
     }
 }

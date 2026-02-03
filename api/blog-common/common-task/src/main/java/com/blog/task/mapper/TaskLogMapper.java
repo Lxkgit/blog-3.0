@@ -14,7 +14,9 @@ import java.util.List;
  */
 
 @Mapper
-public interface TaskLogMapper extends BaseMapper<TaskLog> {
+public interface TaskLogMapper {
+
+    void insertTaskLog(TaskLog taskLog);
 
     List<TaskLogVo> selectTaskLogList();
 

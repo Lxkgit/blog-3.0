@@ -18,6 +18,26 @@
     </resultMap>
 
 
+    <insert id="insertTaskLog" parameterType="com.blog.core.domain.file.task.entity.TaskLog">
+        INSERT INTO task_log (
+            id, task_name, task_code, child_task_code, task_uuid, task_log_type, index_count, task_count,
+            task_result_status,task_result, error_msg, start_time,end_time
+        ) VALUES (
+                     #{id},
+                     #{taskName},
+                     #{taskCode},
+                     #{childTaskCode},
+                     #{taskUUID},
+                     #{taskLogType},
+                     #{indexCount},
+                     #{taskCount},
+                     #{taskResultStatus},
+                     #{taskResult},
+                     #{errorMsg},
+                     #{startTime},
+                     #{endTime}
+                 );
+    </insert>
 
 
 

@@ -55,7 +55,7 @@
     </insert>
 
     <!-- 更新 -->
-    <update id="updateTask" parameterType="com.blog.core.domain.file.task.entity.TaskParam">
+    <update id="updateTaskParamById" parameterType="com.blog.core.domain.file.task.entity.TaskParam">
         UPDATE task_param
         <set>
             <if test="userId != null">user_id = #{userId},</if>
@@ -118,6 +118,12 @@
             <if test="taskCode != null and taskCode != ''">AND task_code = #{taskCode}</if>
             <if test="taskStatus != null">AND task_status = #{taskStatus}</if>
         </where>
+    </select>
+
+    <select id="selectTaskParamById" parameterType="java.lang.Integer" resultMap="TaskInfoResultMap">
+        select <include refid="Base_Column_List"/>
+        from task_param
+        where id = #{id}
     </select>
 
 </mapper>

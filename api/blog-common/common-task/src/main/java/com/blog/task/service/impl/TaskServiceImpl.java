@@ -55,8 +55,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void updateTask(TaskParamVo taskParamVo) {
-        taskParamMapper.updateById(taskParamVo);
-        TaskParam taskParam = taskParamMapper.selectById(taskParamVo.getId());
+        taskParamMapper.updateTaskParamById(taskParamVo);
+        TaskParam taskParam = taskParamMapper.selectTaskParamById(taskParamVo.getId());
         Set<Object> objSet = redisService.getZSetList(TaskConstant.TASK_QUEUE, 0, -1);
 
         for (Object obj : objSet) {
@@ -125,10 +125,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskLog> selectTaskLogByTaskUUID(String taskUUID) {
-        LambdaQueryWrapper<TaskLog> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(TaskLog::getTaskUUID, taskUUID);
-        queryWrapper.orderByAsc(TaskLog::getId);
-        return taskLogMapper.selectList(queryWrapper);
+//        LambdaQueryWrapper<TaskLog> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.eq(TaskLog::getTaskUUID, taskUUID);
+//        queryWrapper.orderByAsc(TaskLog::getId);
+//        return taskLogMapper.selectList(queryWrapper);
+        return null;
     }
 
     /**

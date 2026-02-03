@@ -46,6 +46,7 @@ public class RedisListener implements ApplicationRunner {
 
     @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
     private void redisListenerThread() {
+        logger.info("任务日志记录线程启动");
         while (thread) {
             try {
                 insertTaskLog();
@@ -66,7 +67,7 @@ public class RedisListener implements ApplicationRunner {
                 if (!ObjectUtils.isEmpty(o)) {
                     TaskLog taskLog = (TaskLog) o;
                     taskLog.setId(null);
-                    taskLogMapper.insert(taskLog);
+                    taskLogMapper.insertTaskLog(taskLog);
                     taskLogMapper.updateTaskLogEndTimeByTaskUUID(taskLog.getTaskUUID());
                 }
             } catch (Exception e) {

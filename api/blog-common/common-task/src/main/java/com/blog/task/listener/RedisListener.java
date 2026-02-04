@@ -44,7 +44,7 @@ public class RedisListener implements ApplicationRunner {
     }
 
 
-    @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
+    @SuppressWarnings({"BusyWait"})
     private void redisListenerThread() {
         logger.info("任务日志记录线程启动");
         while (thread) {

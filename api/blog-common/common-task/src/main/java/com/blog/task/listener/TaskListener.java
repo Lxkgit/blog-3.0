@@ -7,6 +7,7 @@ import com.blog.redis.service.RedisService;
 import com.blog.task.config.SpringContextHolder;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
+import com.blog.task.mapper.TaskLogMapper;
 import com.blog.task.service.impl.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,9 @@ public class TaskListener implements ApplicationRunner {
 
     @Resource
     private CreateTaskService createTaskService;
+
+    @Resource
+    private TaskLogMapper taskLogMapper;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -122,13 +126,16 @@ public class TaskListener implements ApplicationRunner {
                                 logger.info("===== 执行任务 ===== targetClass: {} method: {}", targetClass, methodName);
                                 taskEntity.setIndexCount(taskEntity.getIndexCount() + 1);
                                 Object finalTargetInstance = targetInstance;
+
+                                List<TaskLog> logList = taskLogMapper.selectTaskLogByUUID(taskUUID);
+                                int taskLogType = CollectionUtils.isEmpty(logList) ? 1 : 2;
                                 baseTaskThread.execute(() -> {
                                     TaskLog taskLog = new TaskLog();
                                     taskLog.setTaskName(taskEntity.getTaskName());
                                     taskLog.setTaskCode(taskEntity.getTaskCode());
                                     taskLog.setChildTaskCode(taskEntity.getChildTaskCode());
                                     taskLog.setTaskUUID(taskUUID);
-                                    taskLog.setTaskLogType(1);
+                                    taskLog.setTaskLogType(taskLogType);
                                     taskLog.setIndexCount(taskEntity.getIndexCount());
                                     taskLog.setTaskCount(taskEntity.getTaskCount());
                                     taskLog.setStartTime(new Date());

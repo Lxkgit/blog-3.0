@@ -312,7 +312,7 @@ public class MinioService {
                     .contentType(contentType)
                     .build());
 
-            logger.info("MinIO 文件导入成功: {}", response.toString());
+            logger.info("MinIO 文件导入成功: {}", getFileName(localFilePath));
             return true;
 
         } catch (Exception e) {

@@ -4,6 +4,7 @@ import com.blog.core.utils.MyStringUtils;
 import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @Description
@@ -90,12 +91,4 @@ public class TaskEntity {
      */
     public String taskUUID;
 
-    public TaskEntity() {
-        // 随机生成任务id
-        this.taskUUID = MyStringUtils.getRandomString(32);
-    }
-
-    public TaskEntity(String taskUUID) {
-        this.taskUUID = taskUUID;
-    }
 }

@@ -1,5 +1,6 @@
 package com.blog.file.netty.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -51,6 +52,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 
 /**
@@ -178,15 +180,14 @@ public class NettySyncFileService {
             if (nettySyncFileDto.getSyncEnd() == 1) {
                 // 上传文件时，最后一个上传的文件上传完成不一定全部文件都正确导入minio，等待1h文件导入完成
                 String time = nettySyncFileDto.getSyncType() == 1 ? "10s" : "1h";
-                if (msgHead != null && msgHead.getTaskMsgHead() != null && !msgHead.getTaskMsgHead().getTaskUUID().isEmpty()) {
-                    deleteTempFile(msgHead.getTaskMsgHead().getTaskUUID(),Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), time);
+                if (msgHead != null && msgHead.getTaskMsgHead() != null && StrUtil.isNotBlank(msgHead.getTaskMsgHead().getSubTaskUUID())) {
+                    deleteTempFile(msgHead.getTaskMsgHead().getSubTaskUUID(),Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), time);
                 } else {
                     deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), time);
                 }
 
-
                 // 文件同步任务收到消息后重置发送标识
-                if (nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
+                if (msgHead != null && msgHead.getTaskMsgHead() != null && nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
                     redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1", 5 * 60 * 60);
                 }
             }
@@ -460,7 +461,8 @@ public class NettySyncFileService {
             TaskBase taskBase = (TaskBase) o;
             if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
                 // 定时删除同步文件
-                TaskEntity taskEntity = new TaskEntity(taskUUID);
+                TaskEntity taskEntity = new TaskEntity();
+                taskEntity.setTaskUUID(taskUUID);
                 BeanUtils.copyProperties(taskBase, taskEntity);
                 taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
                 taskEntity.setTaskTime(time);

@@ -21,4 +21,6 @@ public interface TaskLogMapper {
     List<TaskLogVo> selectTaskLogList();
 
     void updateTaskLogEndTimeByTaskUUID(String taskUUID);
+
+    List<TaskLog> selectTaskLogByUUID(String taskUUID);
 }

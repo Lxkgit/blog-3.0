@@ -9,6 +9,7 @@ import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
 import com.blog.task.service.impl.CreateTaskService;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -87,7 +88,12 @@ public class TaskListener implements ApplicationRunner {
                                 TaskMsgHead taskMsgHead = new TaskMsgHead();
                                 taskMsgHead.setTaskCode(taskEntity.getTaskCode());
                                 taskMsgHead.setChildTaskCode(taskEntity.getChildTaskCode());
-                                String taskUUID = taskEntity.getTaskUUID();
+                                String taskUUID;
+                                if (StringUtils.isNotEmpty(taskEntity.getTaskUUID())) {
+                                    taskUUID = taskEntity.getTaskUUID();
+                                } else {
+                                    taskUUID = UUID.randomUUID().toString().replace("-", "");
+                                }
                                 taskMsgHead.setTaskUUID(taskUUID);
                                 methodParams.add(MsgHead.buildTaskMsgHead(taskEntity.getUserId(), taskMsgHead));
 

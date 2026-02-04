@@ -125,11 +125,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskLog> selectTaskLogByTaskUUID(String taskUUID) {
-//        LambdaQueryWrapper<TaskLog> queryWrapper = new LambdaQueryWrapper<>();
-//        queryWrapper.eq(TaskLog::getTaskUUID, taskUUID);
-//        queryWrapper.orderByAsc(TaskLog::getId);
-//        return taskLogMapper.selectList(queryWrapper);
-        return null;
+        return taskLogMapper.selectTaskLogByUUID(taskUUID);
     }
 
     /**

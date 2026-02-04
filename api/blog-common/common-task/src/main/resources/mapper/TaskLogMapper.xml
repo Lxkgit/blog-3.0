@@ -56,4 +56,11 @@
         where task_uuid = #{taskUUID} and task_log_type = 1
     </update>
 
+    <select id="selectTaskLogByUUID" resultType="com.blog.core.domain.file.task.entity.TaskLog">
+        select *
+        from task_log
+        where task_uuid = #{taskUUID}
+        order by id
+    </select>
+
 </mapper>

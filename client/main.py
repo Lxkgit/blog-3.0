@@ -160,9 +160,24 @@ class FileCard(QFrame):
             self.doubleClicked.emit(self.file_path)
 
     def enterEvent(self, event):
-        global_pos = event.globalPosition().toPoint()
-        QToolTip.showText(global_pos, f"文件名称: {self.text_label.text()}\n修改时间: {self.modified_time}\n大小: {self.size}", self)
+        # 文件大小换算
+        size_str = self.size
+        try:
+            # 如果是数字字符串或者 "1234 KB" 格式
+            if isinstance(size_str, str) and " KB" in size_str:
+                kb = float(size_str.replace(" KB", ""))
+                if kb >= 1024 * 1024:
+                    size_str = f"{kb / 1024 / 1024:.2f} GB"
+                elif kb >= 1024:
+                    size_str = f"{kb / 1024:.2f} MB"
+                else:
+                    size_str = f"{kb:.1f} KB"
+        except Exception:
+            pass
 
+        # 显示提示
+        global_pos = event.globalPosition().toPoint()
+        QToolTip.showText(global_pos, f"修改时间: {self.modified_time}\n大小: {size_str}", self)
 
 
 # -------------------- 主浏览器 --------------------
@@ -170,6 +185,7 @@ class FileBrowser(QWidget):
     ICON_SIZE = QSize(120, 120)
     MIN_COLUMNS = 3
     MAX_COLUMNS = 10
+    TREE_BATCH = 50  # 列表懒加载每批数量
 
     def __init__(self):
         super().__init__()
@@ -178,13 +194,15 @@ class FileBrowser(QWidget):
         self.thread_pool = QThreadPool.globalInstance()
         self.thread_pool.setMaxThreadCount(8)
 
-        # 视图数据
+        # 数据
         self.sorted_files = []
         self.card_widgets = []
         self.loaded_files = 0
         self.total_files = 0
         self._lazy_index = 0
         self.selected_card = None
+        self._tree_index = 0
+        self.tree_items = []
 
         # 背景颜色
         dummy_tree = QTreeWidget()
@@ -230,6 +248,8 @@ class FileBrowser(QWidget):
         self.tree.setColumnCount(5)
         self.tree.setHeaderLabels(["名称","类型","大小","创建时间","修改时间"])
         self.tree.setColumnWidth(0,300)
+        self.tree.setColumnWidth(3, 120)
+
         self.tree.itemDoubleClicked.connect(self.open_tree_item)
         self.tree.itemClicked.connect(self.tree_item_click)
         self.tree.hide()
@@ -252,7 +272,7 @@ class FileBrowser(QWidget):
         self.progress.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         layout.addWidget(self.progress)
 
-        # 初始化默认视图
+        # 默认视图
         self.path_input.setText(self.current_dir)
         self.view_combo.setCurrentText("列表")
         self.view_mode = self.view_combo.currentText()
@@ -291,18 +311,23 @@ class FileBrowser(QWidget):
         self.progress.setText(f"加载中: {self.loaded_files}/{self.total_files}")
         self._lazy_index = 0
         self.selected_card = None
+        self._tree_index = 0
+        self.tree_items.clear()
 
         if self.view_mode == "列表":
-            self.load_tree()
+            self.tree.clear()
+            self.lazy_load_tree_batch(initial=True)
         else:
             self.clear_cards()
             QTimer.singleShot(50, lambda: self.lazy_load_batch(initial=True))
 
-    # ---------------- 列表视图 ----------------
-    def load_tree(self):
-        self.tree.clear()
-        for f in self.sorted_files:
-            p = os.path.join(self.current_dir,f)
+    # ---------------- 列表懒加载 ----------------
+    def lazy_load_tree_batch(self, initial=False):
+        batch_size = self.TREE_BATCH
+        count = 0
+        while self._tree_index < len(self.sorted_files) and count < batch_size:
+            f = self.sorted_files[self._tree_index]
+            p = os.path.join(self.current_dir, f)
             stat = self.file_stats[f]
             size = f"{stat.st_size/1024:.1f} KB" if not os.path.isdir(p) else ""
             ctime = datetime.fromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M")
@@ -311,17 +336,27 @@ class FileBrowser(QWidget):
             icon = self.style().standardIcon(QStyle.SP_DirIcon if os.path.isdir(p) else QStyle.SP_FileIcon)
             item.setIcon(0,icon)
             self.tree.addTopLevelItem(item)
-        self.progress.setText("加载完成")
+            self.tree_items.append(item)
 
+            self._tree_index += 1
+            count += 1
+
+        self.progress.setText(f"加载中: {self._tree_index}/{self.total_files}")
+
+        if self._tree_index < len(self.sorted_files):
+            QTimer.singleShot(50, self.lazy_load_tree_batch)
+        else:
+            self.progress.setText("加载完成")
+
+    # ---------------- 树单击 ----------------
     def tree_item_click(self,item,column):
-        # 单选点击同步卡片选中
         if self.view_mode=="卡片":
             for card in self.card_widgets:
                 if card.file_path==os.path.join(self.current_dir,item.text(0)):
                     self.select_card(card)
                     break
 
-    # ---------------- 卡片视图 ----------------
+    # ---------------- 卡片懒加载 ----------------
     def clear_cards(self):
         for i in reversed(range(self.grid_layout.count())):
             widget = self.grid_layout.itemAt(i).widget()
@@ -372,6 +407,7 @@ class FileBrowser(QWidget):
         else:
             self.progress.setText("加载完成")
 
+    # ---------------- 选择 ----------------
     def select_card(self, card):
         if self.selected_card:
             self.selected_card.set_selected(False)

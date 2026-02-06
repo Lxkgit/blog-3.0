@@ -11,12 +11,12 @@ from PySide6.QtCore import QSize, QThreadPool, QRunnable, QObject, QTimer
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtGui import QPixmap, QImage, QPalette
+from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QToolTip
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QHBoxLayout, QLineEdit, QPushButton,
+    QWidget, QHBoxLayout, QLineEdit, QPushButton,
     QComboBox, QTreeWidget, QTreeWidgetItem, QScrollArea,
     QGridLayout, QStyle
 )
-from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QToolTip
 
 # -------------------- 配置 --------------------
 CONFIG_PATH = "config.ini"
@@ -67,7 +67,7 @@ class ThumbnailWorker(QRunnable):
                 if self.file_path in VIDEO_THUMB_CACHE:
                     pixmap = VIDEO_THUMB_CACHE[self.file_path]
                 else:
-                    pixmap = FileBrowser.get_video_thumbnail_static(self.file_path, self.icon_size)
+                    pixmap = FileManager.get_video_thumbnail_static(self.file_path, self.icon_size)
                     if pixmap:
                         VIDEO_THUMB_CACHE[self.file_path] = pixmap
             else:
@@ -200,7 +200,8 @@ class FileCard(QFrame):
 
 
 # -------------------- 主浏览器 --------------------
-class FileBrowser(QWidget):
+class FileManager(QWidget):
+    TITLE = "📁 文件管理"
     ICON_SIZE = QSize(120, 120)
     MIN_COLUMNS = 3
     MAX_COLUMNS = 10
@@ -508,13 +509,13 @@ class FileBrowser(QWidget):
             self.progress.setText(f"首页目录已设置为: {path}")
 
 
-# -------------------- main --------------------
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    w = QWidget()
-    l = QVBoxLayout(w)
-    browser = FileBrowser()
-    l.addWidget(browser)
-    w.resize(1200, 720)
-    w.show()
-    sys.exit(app.exec())
+# # -------------------- main --------------------
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
+#     w = QWidget()
+#     l = QVBoxLayout(w)
+#     browser = FileManager()
+#     l.addWidget(browser)
+#     w.resize(1200, 720)
+#     w.show()
+#     sys.exit(app.exec())

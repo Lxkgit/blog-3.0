@@ -21,6 +21,7 @@ from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QToolTip
 # -------------------- 配置 --------------------
 CONFIG_PATH = "config.ini"
 
+
 def load_config():
     config = configparser.ConfigParser()
     if not os.path.exists(CONFIG_PATH):
@@ -31,20 +32,24 @@ def load_config():
         config.read(CONFIG_PATH, encoding="utf-8")
     return config
 
+
 def save_config(home_dir):
     config = configparser.ConfigParser()
     config["DEFAULT"] = {"HomeDir": home_dir}
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         config.write(f)
 
+
 # -------------------- 全局变量 --------------------
 IMAGE_EXTS = [".png", ".jpg", ".jpeg", ".bmp", ".gif"]
 VIDEO_EXTS = [".mp4", ".avi", ".mov", ".mkv"]
 VIDEO_THUMB_CACHE = {}
 
+
 # -------------------- 异步缩略图 --------------------
 class ThumbnailWorkerSignals(QObject):
     finished = Signal(QWidget, QPixmap)
+
 
 class ThumbnailWorker(QRunnable):
     def __init__(self, card_widget, file_path, icon_size, is_video=False):
@@ -75,6 +80,7 @@ class ThumbnailWorker(QRunnable):
             traceback.print_exc()
             self.signals.finished.emit(self.card_widget, QPixmap(self.icon_size))
 
+
 # -------------------- 卡片控件 --------------------
 
 class FileCard(QFrame):
@@ -93,15 +99,21 @@ class FileCard(QFrame):
         self.base_color = base_color
         self.highlight_color = highlight_color
 
-        # QFrame 基本样式
+        # ---------------- 新增：悬停延时显示 tooltip ----------------
+        self.hover_timer = QTimer(self)
+        self.hover_timer.setSingleShot(True)
+        self.hover_timer.timeout.connect(self.show_hover_tooltip)
+        self._mouse_inside = False
+
+        # QFrame 样式
         self.setFrameShape(QFrame.StyledPanel)
         self.setLineWidth(1)
-        self.setStyleSheet("QFrame { border-radius: 4px; }")  # 圆角
+        self.setStyleSheet("QFrame { border-radius: 4px; }")
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(2,2,2,2)
+        layout.setContentsMargins(2, 2, 2, 2)
         layout.setSpacing(2)
-        layout.addStretch()  # 顶部空白，让内容靠底部
+        layout.addStretch()
 
         # 图标
         self.icon_label = QLabel()
@@ -118,23 +130,50 @@ class FileCard(QFrame):
 
         self.update_style()
 
+    # ---------------- Tooltip 真实显示函数 ----------------
+    def show_hover_tooltip(self):
+        if not self._mouse_inside:
+            return
+
+        size_str = self.size
+        try:
+            if isinstance(size_str, str) and " KB" in size_str:
+                kb = float(size_str.replace(" KB", ""))
+                if kb >= 1024 * 1024:
+                    size_str = f"{kb / 1024 / 1024:.2f} GB"
+                elif kb >= 1024:
+                    size_str = f"{kb / 1024:.2f} MB"
+                else:
+                    size_str = f"{kb:.1f} KB"
+        except Exception:
+            pass
+
+        pos = self.mapToGlobal(self.rect().center())
+        QToolTip.showText(pos, f"修改时间: {self.modified_time}\n大小: {size_str}", self)
+
+    # ---------------- 鼠标进入 ----------------
+    def enterEvent(self, event):
+        self._mouse_inside = True
+        self.hover_timer.start(1000)  # 2 秒后触发 show_hover_tooltip
+
+    # ---------------- 鼠标离开 ----------------
+    def leaveEvent(self, event):
+        self._mouse_inside = False
+        self.hover_timer.stop()
+        QToolTip.hideText()
+
+    # ---------------- 你原来的方法 ----------------
     def set_file_name(self, name):
-        """设置文件名显示两行，多余省略"""
         fm = QFontMetrics(self.text_label.font())
         line_height = fm.lineSpacing()
         self.text_label.setFixedHeight(line_height)
-
-        # 使用 elidedText 处理多余文字
-        # 注意 QLabel 不自带多行省略，所以简单处理：把文字按宽度截断
         elided = fm.elidedText(name, Qt.ElideRight, self.CARD_WIDTH - 4)
-        # 显示两行时，直接显示同样文本即可，如果太长会显示...
         self.text_label.setText(elided)
 
     def update_style(self):
         if self.is_selected:
             bg_color = "#0a64d8"
             text_color = "#ffffff"
-
         else:
             bg_color = self.base_color.name()
             text_color = "#000000"
@@ -158,26 +197,6 @@ class FileCard(QFrame):
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.doubleClicked.emit(self.file_path)
-
-    def enterEvent(self, event):
-        # 文件大小换算
-        size_str = self.size
-        try:
-            # 如果是数字字符串或者 "1234 KB" 格式
-            if isinstance(size_str, str) and " KB" in size_str:
-                kb = float(size_str.replace(" KB", ""))
-                if kb >= 1024 * 1024:
-                    size_str = f"{kb / 1024 / 1024:.2f} GB"
-                elif kb >= 1024:
-                    size_str = f"{kb / 1024:.2f} MB"
-                else:
-                    size_str = f"{kb:.1f} KB"
-        except Exception:
-            pass
-
-        # 显示提示
-        global_pos = event.globalPosition().toPoint()
-        QToolTip.showText(global_pos, f"修改时间: {self.modified_time}\n大小: {size_str}", self)
 
 
 # -------------------- 主浏览器 --------------------
@@ -216,7 +235,7 @@ class FileBrowser(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0,0,0,0)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         # 顶部栏
         top = QHBoxLayout()
@@ -233,7 +252,7 @@ class FileBrowser(QWidget):
         top.addWidget(refresh_btn)
 
         self.view_combo = QComboBox()
-        self.view_combo.addItems(["列表","卡片"])
+        self.view_combo.addItems(["列表", "卡片"])
         self.view_combo.currentTextChanged.connect(self.change_view_mode)
         top.addWidget(self.view_combo)
 
@@ -246,8 +265,8 @@ class FileBrowser(QWidget):
         # 列表视图
         self.tree = QTreeWidget()
         self.tree.setColumnCount(5)
-        self.tree.setHeaderLabels(["名称","类型","大小","创建时间","修改时间"])
-        self.tree.setColumnWidth(0,300)
+        self.tree.setHeaderLabels(["名称", "类型", "大小", "创建时间", "修改时间"])
+        self.tree.setColumnWidth(0, 300)
         self.tree.setColumnWidth(3, 120)
 
         self.tree.itemDoubleClicked.connect(self.open_tree_item)
@@ -262,7 +281,7 @@ class FileBrowser(QWidget):
         self.grid_layout = QGridLayout(self.card_container)
         self.grid_layout.setSpacing(8)
         self.grid_layout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        self.grid_layout.setContentsMargins(10,10,10,10)
+        self.grid_layout.setContentsMargins(10, 10, 10, 10)
         self.scroll_area.setWidget(self.card_container)
         self.scroll_area.hide()
         layout.addWidget(self.scroll_area)
@@ -281,8 +300,8 @@ class FileBrowser(QWidget):
     # ---------------- 模式切换 ----------------
     def change_view_mode(self, mode):
         self.view_mode = mode
-        self.tree.setVisible(mode=="列表")
-        self.scroll_area.setVisible(mode=="卡片")
+        self.tree.setVisible(mode == "列表")
+        self.scroll_area.setVisible(mode == "卡片")
         self.load_directory()
 
     # ---------------- 加载目录 ----------------
@@ -329,12 +348,12 @@ class FileBrowser(QWidget):
             f = self.sorted_files[self._tree_index]
             p = os.path.join(self.current_dir, f)
             stat = self.file_stats[f]
-            size = f"{stat.st_size/1024:.1f} KB" if not os.path.isdir(p) else ""
+            size = f"{stat.st_size / 1024:.1f} KB" if not os.path.isdir(p) else ""
             ctime = datetime.fromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M")
             mtime = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
-            item = QTreeWidgetItem([f,"文件夹" if os.path.isdir(p) else "文件",size,ctime,mtime])
+            item = QTreeWidgetItem([f, "文件夹" if os.path.isdir(p) else "文件", size, ctime, mtime])
             icon = self.style().standardIcon(QStyle.SP_DirIcon if os.path.isdir(p) else QStyle.SP_FileIcon)
-            item.setIcon(0,icon)
+            item.setIcon(0, icon)
             self.tree.addTopLevelItem(item)
             self.tree_items.append(item)
 
@@ -349,10 +368,10 @@ class FileBrowser(QWidget):
             self.progress.setText("加载完成")
 
     # ---------------- 树单击 ----------------
-    def tree_item_click(self,item,column):
-        if self.view_mode=="卡片":
+    def tree_item_click(self, item, column):
+        if self.view_mode == "卡片":
             for card in self.card_widgets:
-                if card.file_path==os.path.join(self.current_dir,item.text(0)):
+                if card.file_path == os.path.join(self.current_dir, item.text(0)):
                     self.select_card(card)
                     break
 
@@ -366,44 +385,45 @@ class FileBrowser(QWidget):
 
     def lazy_load_batch(self, initial=False):
         cols = self.columns()
-        screen_rows = max(1,self.scroll_area.height()//(FileCard.CARD_HEIGHT+8))
-        batch_size = 30 if not initial else (screen_rows*cols*2)
+        screen_rows = max(1, self.scroll_area.height() // (FileCard.CARD_HEIGHT + 8))
+        batch_size = 30 if not initial else (screen_rows * cols * 2)
 
         count = 0
-        while self._lazy_index < len(self.sorted_files) and count<batch_size:
+        while self._lazy_index < len(self.sorted_files) and count < batch_size:
             name = self.sorted_files[self._lazy_index]
-            path = os.path.join(self.current_dir,name)
+            path = os.path.join(self.current_dir, name)
             stat = self.file_stats[name]
             mtime = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
-            size = f"{stat.st_size/1024:.1f} KB" if not os.path.isdir(path) else "文件夹"
-            card = FileCard(name,path,self.placeholder,self.base_color,self.highlight_color,mtime,size)
+            size = f"{stat.st_size / 1024:.1f} KB" if not os.path.isdir(path) else "文件夹"
+            card = FileCard(name, path, self.placeholder, self.base_color, self.highlight_color, mtime, size)
 
             suffix = Path(path).suffix.lower()
             if suffix in IMAGE_EXTS:
-                worker = ThumbnailWorker(card,path,self.ICON_SIZE,False)
+                worker = ThumbnailWorker(card, path, self.ICON_SIZE, False)
                 worker.signals.finished.connect(self.update_card_icon)
                 self.thread_pool.start(worker)
             elif suffix in VIDEO_EXTS:
-                worker = ThumbnailWorker(card,path,self.ICON_SIZE,True)
+                worker = ThumbnailWorker(card, path, self.ICON_SIZE, True)
                 worker.signals.finished.connect(self.update_card_icon)
                 self.thread_pool.start(worker)
             else:
-                pix = self.style().standardIcon(QStyle.SP_DirIcon if os.path.isdir(path) else QStyle.SP_FileIcon).pixmap(self.ICON_SIZE)
+                pix = self.style().standardIcon(
+                    QStyle.SP_DirIcon if os.path.isdir(path) else QStyle.SP_FileIcon).pixmap(self.ICON_SIZE)
                 card.icon_label.setPixmap(pix)
 
             card.doubleClicked.connect(self.open_path)
             card.clicked.connect(self.select_card)
 
-            row = len(self.card_widgets)//cols
-            col = len(self.card_widgets)%cols
-            self.grid_layout.addWidget(card,row,col)
+            row = len(self.card_widgets) // cols
+            col = len(self.card_widgets) % cols
+            self.grid_layout.addWidget(card, row, col)
             self.card_widgets.append(card)
 
-            self._lazy_index+=1
-            count+=1
+            self._lazy_index += 1
+            count += 1
 
-        if self._lazy_index<len(self.sorted_files):
-            QTimer.singleShot(50,lambda:self.lazy_load_batch())
+        if self._lazy_index < len(self.sorted_files):
+            QTimer.singleShot(50, lambda: self.lazy_load_batch())
         else:
             self.progress.setText("加载完成")
 
@@ -415,31 +435,31 @@ class FileBrowser(QWidget):
         self.selected_card = card
 
     def columns(self):
-        if self.width()<300: return 1
-        card_w = FileCard.CARD_WIDTH+12
-        cols = self.width()//card_w
-        return max(self.MIN_COLUMNS,min(self.MAX_COLUMNS,cols))
+        if self.width() < 300: return 1
+        card_w = FileCard.CARD_WIDTH + 12
+        cols = self.width() // card_w
+        return max(self.MIN_COLUMNS, min(self.MAX_COLUMNS, cols))
 
     # ---------------- 更新图标 ----------------
     def update_card_icon(self, card_widget: QWidget, pixmap: QPixmap):
         card_widget.icon_label.setPixmap(pixmap)
 
     # ---------------- 打开路径 ----------------
-    def open_tree_item(self,item):
-        self.open_path(os.path.join(self.current_dir,item.text(0)))
+    def open_tree_item(self, item):
+        self.open_path(os.path.join(self.current_dir, item.text(0)))
 
-    def open_path(self,path):
+    def open_path(self, path):
         try:
             if os.path.isdir(path):
                 self.path_input.setText(path)
                 self.load_directory()
             else:
                 if sys.platform.startswith("darwin"):
-                    subprocess.run(["open",path])
-                elif os.name=="nt":
+                    subprocess.run(["open", path])
+                elif os.name == "nt":
                     os.startfile(path)
                 else:
-                    subprocess.run(["xdg-open",path])
+                    subprocess.run(["xdg-open", path])
         except Exception:
             traceback.print_exc()
             self.progress.setText("打开失败")
@@ -447,37 +467,37 @@ class FileBrowser(QWidget):
     # ---------------- 上一级 ----------------
     def go_up(self):
         parent = os.path.dirname(self.current_dir)
-        if parent and parent!=self.current_dir:
+        if parent and parent != self.current_dir:
             self.path_input.setText(parent)
             self.load_directory()
 
     # ---------------- 视频缩略图 ----------------
     @staticmethod
-    def get_video_thumbnail_static(path,size):
+    def get_video_thumbnail_static(path, size):
         try:
             cap = cv2.VideoCapture(str(Path(path).resolve()))
             if not cap.isOpened(): return None
             total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            cap.set(cv2.CAP_PROP_POS_FRAMES,max(0,int(total*0.2)))
-            ok,frame = cap.read()
+            cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, int(total * 0.2)))
+            ok, frame = cap.read()
             cap.release()
             if ok:
-                frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-                h,w,ch = frame.shape
-                img = QImage(frame.data,w,h,ch*w,QImage.Format_RGB888)
-                return QPixmap.fromImage(img).scaled(size,Qt.KeepAspectRatio,Qt.SmoothTransformation)
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = frame.shape
+                img = QImage(frame.data, w, h, ch * w, QImage.Format_RGB888)
+                return QPixmap.fromImage(img).scaled(size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         except Exception:
             traceback.print_exc()
         return None
 
-    def resizeEvent(self,e):
+    def resizeEvent(self, e):
         super().resizeEvent(e)
-        if self.view_mode=="卡片" and self.card_widgets:
+        if self.view_mode == "卡片" and self.card_widgets:
             cols = self.columns()
-            for idx,card in enumerate(self.card_widgets):
-                row = idx//cols
-                col = idx%cols
-                self.grid_layout.addWidget(card,row,col)
+            for idx, card in enumerate(self.card_widgets):
+                row = idx // cols
+                col = idx % cols
+                self.grid_layout.addWidget(card, row, col)
             self.grid_layout.invalidate()
 
     # ---------------- 设置首页目录 ----------------
@@ -487,13 +507,14 @@ class FileBrowser(QWidget):
             save_config(path)
             self.progress.setText(f"首页目录已设置为: {path}")
 
+
 # -------------------- main --------------------
-if __name__=="__main__":
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     w = QWidget()
     l = QVBoxLayout(w)
     browser = FileBrowser()
     l.addWidget(browser)
-    w.resize(1200,720)
+    w.resize(1200, 720)
     w.show()
     sys.exit(app.exec())

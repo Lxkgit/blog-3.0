@@ -4,7 +4,8 @@ from PySide6.QtWidgets import (
     QMenu, QScrollArea, QLayout
 )
 
-from features.file_manager import FileManager  # 你的 file_manager.py
+from features.file_manager import FileManager
+from features.settings import Settings
 
 
 # -------------------- FlowLayout --------------------
@@ -80,8 +81,6 @@ class FlowLayout(QLayout):
             lineHeight = max(lineHeight, h)
 
         totalHeight = y + lineHeight + bottom
-
-        # 🔹 强制更新父 widget 高度，让 QScrollArea 正确显示
         if not testOnly and self.parentWidget():
             self.parentWidget().setMinimumHeight(totalHeight)
 
@@ -91,18 +90,17 @@ class FlowLayout(QLayout):
 # -------------------- 功能注册表 --------------------
 FEATURE_REGISTRY = {
     "file_manager": FileManager,
-    # 后续可注册更多功能
+    "settings": Settings
 }
 
 
-# -------------------- MainWindow --------------------
+# -------------------- 首页 & 主窗口 --------------------
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("客户端主界面")
         self.resize(1130, 640)
 
-        # -------------------- Tabs --------------------
         self.tabs = QTabWidget()
         self.setCentralWidget(self.tabs)
         self.tabs.setTabsClosable(True)
@@ -110,7 +108,8 @@ class MainWindow(QMainWindow):
 
         self.tabs.setStyleSheet("""
             QTabBar::tab {
-                height: 24px;             
+                height: 24px;
+                border: 1px solid #ccc;             
                 padding: 4px 12px;
             }
             QTabBar::tab:selected {
@@ -130,29 +129,18 @@ class MainWindow(QMainWindow):
         # -------------------- 首页 --------------------
         self.home_widget = QWidget()
         self.home_layout = QVBoxLayout(self.home_widget)
-        self.home_layout.setContentsMargins(20, 20, 20, 20)  # 首页整体边距
+        self.home_layout.setContentsMargins(20, 20, 20, 20)
         self.home_layout.setSpacing(10)
 
-        # 卡片区域容器
-        # 卡片容器 (外层)
         self.card_area_widget = QWidget()
         outer_layout = QVBoxLayout(self.card_area_widget)
         outer_layout.setContentsMargins(0, 0, 0, 0)
 
-        # FlowLayout 不能直接 setLayout，所以我们放进一个子 QWidget
         self.flow_widget = QWidget()
         self.card_area_layout = FlowLayout(self.flow_widget, margin=20, spacing=10)
-
-        # 注意：FlowLayout 不能 setLayout！
-        # 必须将它作为一个 "自绘布局管理器"
-        # 所以我们手动重写 QWidget.layout() 机制：
-
         self.flow_widget.setLayout(self.card_area_layout)
-
-        # 放入外层 layout，使 FlowLayout 能获得正确的父几何区域
         outer_layout.addWidget(self.flow_widget)
 
-        # 滚动区域
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setWidget(self.card_area_widget)
@@ -161,11 +149,10 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.home_widget, "首页")
         self.tabs.tabBar().setTabButton(0, QTabBar.RightSide, None)  # 首页不可关闭
 
-        # -------------------- 添加首页卡片 --------------------
+        # -------------------- 首页卡片 --------------------
         self.home_cards = []
         self.add_home_card("📁 文件管理", "file_manager")
-        for _ in range(14):  # 示例其他功能
-            self.add_home_card("📂 其他功能", "other_feature")
+        self.add_home_card("⚙️ 设置", "settings")
 
         # -------------------- 右键菜单 --------------------
         self.tabs.tabBar().setContextMenuPolicy(Qt.CustomContextMenu)
@@ -174,7 +161,7 @@ class MainWindow(QMainWindow):
     # 添加首页卡片
     def add_home_card(self, title: str, key: str):
         btn = QPushButton(title)
-        btn.setFixedSize(140, 100)  # 每个卡片宽高
+        btn.setFixedSize(140, 100)
         btn.setStyleSheet("""
             QPushButton {
                 border: 1px solid #ccc;
@@ -221,7 +208,7 @@ class MainWindow(QMainWindow):
     # 右键菜单
     def tab_right_click(self, pos):
         index = self.tabs.tabBar().tabAt(pos)
-        if index == -1 or index == 0:
+        if index <= 0:
             return
 
         menu = QMenu()

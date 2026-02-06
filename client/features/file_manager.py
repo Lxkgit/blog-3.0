@@ -219,9 +219,9 @@ class FileManager(QWidget):
         self.card_widgets = []
         self.loaded_files = 0
         self.total_files = 0
-        self._lazy_index = 0
+        self.card_index = 0
         self.selected_card = None
-        self._tree_index = 0
+        self.tree_index = 0
         self.tree_items = []
 
         # 背景颜色
@@ -328,10 +328,9 @@ class FileManager(QWidget):
 
         self.total_files = len(self.sorted_files)
         self.loaded_files = 0
-        self.progress.setText(f"加载中: {self.loaded_files}/{self.total_files}")
-        self._lazy_index = 0
+        self.card_index = 0
         self.selected_card = None
-        self._tree_index = 0
+        self.tree_index = 0
         self.tree_items.clear()
 
         if self.view_mode == "列表":
@@ -345,8 +344,8 @@ class FileManager(QWidget):
     def lazy_load_tree_batch(self, initial=False):
         batch_size = self.TREE_BATCH
         count = 0
-        while self._tree_index < len(self.sorted_files) and count < batch_size:
-            f = self.sorted_files[self._tree_index]
+        while self.tree_index < len(self.sorted_files) and count < batch_size:
+            f = self.sorted_files[self.tree_index]
             p = os.path.join(self.current_dir, f)
             stat = self.file_stats[f]
             size = f"{stat.st_size / 1024:.1f} KB" if not os.path.isdir(p) else ""
@@ -358,15 +357,15 @@ class FileManager(QWidget):
             self.tree.addTopLevelItem(item)
             self.tree_items.append(item)
 
-            self._tree_index += 1
+            self.tree_index += 1
             count += 1
 
-        self.progress.setText(f"加载中: {self._tree_index}/{self.total_files}")
+        self.progress.setText(f"加载中: {self.tree_index}/{self.total_files}")
 
-        if self._tree_index < len(self.sorted_files):
+        if self.tree_index < len(self.sorted_files):
             QTimer.singleShot(50, self.lazy_load_tree_batch)
         else:
-            self.progress.setText("加载完成")
+            self.progress.setText(f"加载完成: {self.total_files}")
 
     # ---------------- 树单击 ----------------
     def tree_item_click(self, item, column):
@@ -390,8 +389,8 @@ class FileManager(QWidget):
         batch_size = 30 if not initial else (screen_rows * cols * 2)
 
         count = 0
-        while self._lazy_index < len(self.sorted_files) and count < batch_size:
-            name = self.sorted_files[self._lazy_index]
+        while self.card_index < len(self.sorted_files) and count < batch_size:
+            name = self.sorted_files[self.card_index]
             path = os.path.join(self.current_dir, name)
             stat = self.file_stats[name]
             mtime = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
@@ -420,13 +419,15 @@ class FileManager(QWidget):
             self.grid_layout.addWidget(card, row, col)
             self.card_widgets.append(card)
 
-            self._lazy_index += 1
+            self.card_index += 1
             count += 1
 
-        if self._lazy_index < len(self.sorted_files):
+        self.progress.setText(f"加载中: {self.card_index}/{self.total_files}")
+
+        if self.card_index < len(self.sorted_files):
             QTimer.singleShot(50, lambda: self.lazy_load_batch())
         else:
-            self.progress.setText("加载完成")
+            self.progress.setText(f"加载完成: {self.total_files}")
 
     # ---------------- 选择 ----------------
     def select_card(self, card):
@@ -507,15 +508,3 @@ class FileManager(QWidget):
         if os.path.isdir(path):
             save_config(path)
             self.progress.setText(f"首页目录已设置为: {path}")
-
-
-# # -------------------- main --------------------
-# if __name__ == "__main__":
-#     app = QApplication(sys.argv)
-#     w = QWidget()
-#     l = QVBoxLayout(w)
-#     browser = FileManager()
-#     l.addWidget(browser)
-#     w.resize(1200, 720)
-#     w.show()
-#     sys.exit(app.exec())

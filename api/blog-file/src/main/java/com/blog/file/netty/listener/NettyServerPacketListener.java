@@ -19,6 +19,8 @@ import com.blog.file.netty.service.*;
 import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.constant.NettyRedisConstant;
 import com.blog.redis.service.RedisService;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
@@ -62,38 +64,41 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     @Resource
     private RedisService redisService;
 
-//    @SneakyThrows
     @Async
     @Override
     public void onApplicationEvent(NettyPacketEvent event) {
-        ChannelId channelId = (ChannelId) event.getSource();
+        ChannelHandlerContext ctx = (ChannelHandlerContext) event.getSource();
         MsgHead msgHead = event.getNettyPacket().getMsgHead();
-
         String nettyPacketType = msgHead.getNettyMsgHead().getNettyPacketType();
+
+        // 注册码只有设备注册时携带，其余消息获取通道绑定编码
+        String registerCode;
+        String data = event.getNettyPacket().getData().toString();
+        if (nettyPacketType.equals(NettyPacketType.REGISTER.getValue())) {
+            registerCode = msgHead.getNettyMsgHead().getRegisterCode();
+            // netty 通道注册,注册失败结束
+            if (!deviceRegister(registerCode, ctx, data)) {
+                return;
+            }
+        }
+        registerCode = ctx.channel().attr(NettyServer.DEVICE_CODE).get();
+
         String requestId = msgHead.getNettyMsgHead().getRequestId();
         String topic = msgHead.getNettyMsgHead().getTopic();
-        String registerCode = msgHead.getNettyMsgHead().getRegisterCode();
-
         Integer userId = Integer.parseInt(registerCode.split(":")[0]);
         String deviceCode = registerCode.split(":")[1];
-        String data = event.getNettyPacket().getData().toString();
         if (NettyPacketType.HEARTBEAT.getValue().equals(nettyPacketType)) {
             logger.info("===== netty 心跳 ===== registerCode: {} data: {}", registerCode, data);
         } else {
             logger.info("===== netty 收到消息 ===== msgHead: {} channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
-                    msgHead, channelId, requestId, nettyPacketType, topic, deviceCode, data);
+                    msgHead, ctx.channel().id(), requestId, nettyPacketType, topic, deviceCode, data);
         }
 
-        if (!nettyServerHandler.checkContainByDeviceCode(deviceCode)) {
-            nettyServerHandler.closeChannelByDeviceCode(deviceCode);
-        }
-        if (nettyPacketType.equals(NettyPacketType.REGISTER.getValue())) {
-            // netty 通道注册
-            deviceRegister(userId, deviceCode, channelId, data);
-        } else if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
+        if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
             // 心跳消息 收到消息设置设备在线3分钟
             redisService.setString(FileRedisConstant.FILE_DEVICE_STATUS + deviceCode, data, 180);
-        } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
+        }
+        if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
             // 回复请求消息响应(业务内部可以会再次响应消息，此响应防止客户端重发消息)
             NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, topic, "response");
             nettyServer.sendByRegisterIdNotRetry(registerCode, JSONObject.toJSONString(nettyResponse));
@@ -106,7 +111,8 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             } else if (topic.equals(NettyTopicEnum.DEVICE_INFO.getTopic())) {
                 nettyDeviceData.deviceInfo(data, deviceCode, userId);
             }
-        } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
+        }
+        if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             // 记录响应类消息记录消息序列号，取消对此消息重发
             logger.info("消息 requestId：{} 收到响应", requestId);
             redisService.setSet(NettyRedisConstant.NETTY_RECEIVE_QUEUE, requestId);
@@ -130,12 +136,14 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     /**
      * pi服务部署设备注册流程
      *
-     * @param userId     所属用户id
-     * @param deviceCode 设备编码
-     * @param channelId  netty通道
-     * @param data       设备注册数据
+     * @param registerCode 设备注册码
+     * @param ctx          netty通道
+     * @param data         设备注册数据
      */
-    private void deviceRegister(Integer userId, String deviceCode, ChannelId channelId, String data) {
+    private boolean deviceRegister(String registerCode, ChannelHandlerContext ctx, String data) {
+        Integer userId = Integer.parseInt(registerCode.split(":")[0]);
+        String deviceCode = registerCode.split(":")[1];
+        Channel channel = ctx.channel();
         // netty设备注册 单片机 传感器注册流程
         QueryWrapper<UserDevice> userDeviceQueryWrapper = new QueryWrapper<>();
         userDeviceQueryWrapper.eq("user_id", userId).eq("device_code", deviceCode);
@@ -143,53 +151,61 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         // 设备编码错误拒绝注册
         if (selectDevice == null) {
             logger.error("deviceRegister 异常断开 netty 通道连接: 用户与编码匹配失败，拒绝连接");
-            nettyServerHandler.closeChannelByChannelId(channelId);
+            ctx.close();
+            return false;
         } else {
             // netty 设备通道绑定 后续发送消息获取通道
             NettyRegisterDto nettyRegisterDto = JSONObject.parseObject(data, NettyRegisterDto.class);
-            if (!NettyServerHandler.CLIENT_MAP.containsKey(deviceCode)) {
-                addNettyChannel(channelId, deviceCode);
-                logger.info("netty 通道注册 register: deviceCode:{} channelId:{}", deviceCode, channelId);
+            if (!NettyServer.CHANNEL_MAP.containsKey(deviceCode)) {
+                // 通道绑定注册码
+                channel.attr(NettyServer.DEVICE_CODE).set(deviceCode);
+                NettyServer.CHANNEL_MAP.put(deviceCode, ctx);
+                logger.info("netty 通道注册 register: deviceCode:{} channel:{}", deviceCode, ctx);
             }
 
-            // 创建设备 写入数据
-            Device device = new Device();
-            device.setUserId(1);
-            device.setDeviceName(nettyRegisterDto.getDeviceName());
-            device.setDeviceCode(deviceCode);
-            device.setDataJson(JSONObject.toJSONString(data));
-            device.setUpdateTime(new Date());
-            device.setDeviceStatus(1);
-            device.setMemo(nettyRegisterDto.getMemo());
-
-            // 当前设备未注册 首次注册创建设备
-            if (selectDevice.getCodeStatus() == 0) {
-                device.setCreateTime(new Date());
-                deviceMapper.insert(device);
-
-                // 将设备状态修改为已注册
-                UserDevice userDevice = new UserDevice();
-                userDevice.setId(selectDevice.getId());
-                userDevice.setCodeStatus(1);
-                userDevice.setUpdateTime(new Date());
-                userDeviceDAO.updateById(userDevice);
-            } else {
-
-                // 当前设备已注册 更新设备数据
-                QueryWrapper<Device> wrapper = new QueryWrapper<>();
-                wrapper.eq("user_id", userId).eq("device_code", deviceCode);
-                deviceMapper.update(device, wrapper);
-            }
+            insertOrUpdateDeviceInfo(data, nettyRegisterDto, deviceCode, selectDevice, userId);
         }
+        return true;
     }
 
     /**
-     * @param channelId
+     * 根据设备注册上报信息新增或修改设备详情
+     *
+     * @param data
+     * @param nettyRegisterDto
      * @param deviceCode
+     * @param selectDevice
+     * @param userId
      */
-    private void addNettyChannel(ChannelId channelId, String deviceCode) {
-        NettyServerHandler.CLIENT_MAP.put(deviceCode, channelId);
-    }
+    private void insertOrUpdateDeviceInfo(String data, NettyRegisterDto nettyRegisterDto, String deviceCode, UserDevice selectDevice, Integer userId) {
+        // 创建设备 写入数据
+        Device device = new Device();
+        device.setUserId(1);
+        device.setDeviceName(nettyRegisterDto.getDeviceName());
+        device.setDeviceCode(deviceCode);
+        device.setDataJson(JSONObject.toJSONString(data));
+        device.setUpdateTime(new Date());
+        device.setDeviceStatus(1);
+        device.setMemo(nettyRegisterDto.getMemo());
 
+        // 当前设备未注册 首次注册创建设备
+        if (selectDevice.getCodeStatus() == 0) {
+            device.setCreateTime(new Date());
+            deviceMapper.insert(device);
+
+            // 将设备状态修改为已注册
+            UserDevice userDevice = new UserDevice();
+            userDevice.setId(selectDevice.getId());
+            userDevice.setCodeStatus(1);
+            userDevice.setUpdateTime(new Date());
+            userDeviceDAO.updateById(userDevice);
+        } else {
+
+            // 当前设备已注册 更新设备数据
+            QueryWrapper<Device> wrapper = new QueryWrapper<>();
+            wrapper.eq("user_id", userId).eq("device_code", deviceCode);
+            deviceMapper.update(device, wrapper);
+        }
+    }
 }
 

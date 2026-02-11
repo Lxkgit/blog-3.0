@@ -10,6 +10,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.AttributeKey;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 
@@ -36,6 +39,10 @@ public class NettyServer implements CommandLineRunner {
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
     private final NettyServerInitializer nettyServerInitializer;
+
+    public static final AttributeKey<String> DEVICE_CODE = AttributeKey.valueOf("deviceCode");
+
+    public static final Map<String, ChannelHandlerContext> CHANNEL_MAP = new ConcurrentHashMap<>();
 
     @Resource
     private DeviceMapper deviceMapper;
@@ -104,44 +111,55 @@ public class NettyServer implements CommandLineRunner {
         logger.warn("Netty服务关闭");
     }
 
-    /**
-     * netty消息发送
-     *
-     * @param channelId 通道Id
-     * @param msg       发送消息
-     * @param retry     是否重发 是：true
-     * @return 消息是否发送成功
-     */
-    public boolean channelWriteByChannelId(ChannelId channelId, String registerId, String msg, boolean retry) {
-        ChannelHandlerContext ctx = NettyServerHandler.CHANNEL_MAP.get(channelId);
+    public boolean channelWriteByDeviceCode(String deviceCode, String msg, boolean retry) {
+        ChannelHandlerContext ctx = NettyServer.CHANNEL_MAP.get(deviceCode);
         if (ctx == null) {
-            logger.warn("通道: {} 不存在，消息发送异常", channelId);
+            logger.warn("客户端: {} 不存在，消息发送异常", deviceCode);
             return false;
         }
-        logger.info("===== netty 发送消息 ===== channelId:{}, registerId:{}, msg:{}, retry:{}", channelId, registerId, msg, retry);
+        logger.info("===== netty 发送消息 ===== deviceCode:{}, msg:{}, retry:{}", deviceCode, msg, retry);
         ctx.writeAndFlush(msg);
         return true;
     }
 
-    /**
-     * netty 发送消息限制消息重发次数
-     *
-     * @param registerId
-     * @param requestId
-     * @param msg
-     * @param count
-     * @return
-     */
-    public boolean sendByRegisterIdLimitCount(String registerId, String requestId, String msg, Integer count) {
-        ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
-        NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitCount(count, msg);
-        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, registerId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
-        if (channelId == null) {
-            logger.warn("netty LimitCount 通道注册码:{} 不存在 msg:{}", registerId, msg);
-            return false;
-        }
-        return channelWriteByChannelId(channelId, registerId, msg, false);
-    }
+//    /**
+//     * netty消息发送
+//     *
+//     * @param channelId 通道Id
+//     * @param msg       发送消息
+//     * @param retry     是否重发 是：true
+//     * @return 消息是否发送成功
+//     */
+//    public boolean channelWriteByChannelId(ChannelId channelId, String registerId, String msg, boolean retry) {
+//        ChannelHandlerContext ctx = NettyServerHandler.CHANNEL_MAP.get(channelId);
+//        if (ctx == null) {
+//            logger.warn("通道: {} 不存在，消息发送异常", channelId);
+//            return false;
+//        }
+//        logger.info("===== netty 发送消息 ===== channelId:{}, registerId:{}, msg:{}, retry:{}", channelId, registerId, msg, retry);
+//        ctx.writeAndFlush(msg);
+//        return true;
+//    }
+
+//    /**
+//     * netty 发送消息限制消息重发次数
+//     *
+//     * @param registerId
+//     * @param requestId
+//     * @param msg
+//     * @param count
+//     * @return
+//     */
+//    public boolean sendByRegisterIdLimitCount(String registerId, String requestId, String msg, Integer count) {
+//        ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
+//        NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitCount(count, msg);
+//        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, registerId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
+//        if (channelId == null) {
+//            logger.warn("netty LimitCount 通道注册码:{} 不存在 msg:{}", registerId, msg);
+//            return false;
+//        }
+//        return channelWriteByChannelId(channelId, registerId, msg, false);
+//    }
 
     /**
      * netty 发送消息限制消息有效时间
@@ -153,13 +171,16 @@ public class NettyServer implements CommandLineRunner {
      * @return 消息发送结果
      */
     public boolean sendByRegisterIdLimitTime(String registerId, String requestId, String msg, Integer minute) {
-        ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
-        NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitTime(minute, msg);
-        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, registerId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
-        if (channelId == null) {
-            logger.warn("netty limitTime 通道注册码:{} 不存在 msg:{}", registerId, msg);
-        }
-        return channelWriteByChannelId(channelId, registerId, msg, false);
+//        ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
+//        NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitTime(minute, msg);
+//        redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, registerId, JSONObject.toJSONString(replayMessage), 4 * 60 * 60);
+//        if (channelId == null) {
+//            logger.warn("netty limitTime 通道注册码:{} 不存在 msg:{}", registerId, msg);
+//        }
+//        return channelWriteByChannelId(channelId, registerId, msg, false);
+
+
+        return channelWriteByDeviceCode(registerId.split(":")[1], msg, false);
     }
 
     /**
@@ -170,12 +191,14 @@ public class NettyServer implements CommandLineRunner {
      * @return
      */
     public boolean sendByRegisterIdNotRetry(String registerId, String msg) {
-        ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
-        if (channelId == null) {
-            logger.warn("netty notRetry 通道注册码:{} 不存在 msg:{}", registerId, msg);
-            return false;
-        }
-        return channelWriteByChannelId(channelId, registerId, msg, false);
+//        ChannelId channelId = NettyServerHandler.CLIENT_MAP.get(registerId);
+//        if (channelId == null) {
+//            logger.warn("netty notRetry 通道注册码:{} 不存在 msg:{}", registerId, msg);
+//            return false;
+//        }
+//        return channelWriteByChannelId(channelId, registerId, msg, false);
+
+        return channelWriteByDeviceCode(registerId.split(":")[1], msg, false);
     }
 
 

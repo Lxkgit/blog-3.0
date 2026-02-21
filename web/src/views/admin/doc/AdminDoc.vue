@@ -12,9 +12,10 @@
               <p style="">文档目录</p>
               <MyIcon style="margin-right: 20px; " @click="createCatalogDialogFun(true)" type="icon-plus" />
             </div>
-            <div style="overflow-y: auto; height: calc(100vh - 277px); padding-top: 10px; border-right: 1px solid rgb(233, 235, 238);">
-              <el-input v-model="filterText" placeholder="请输入标题" style="width: 95%; height: 30px;"
-                size="small" />
+            <el-input clearable v-model="filterText" placeholder="请输入标题" style="width: 95%; height: 30px; margin-top: 10px;"
+              size="small" />
+            <div
+              style="overflow-y: auto; height: calc(100vh - 317px); margin-top: 10px; border-right: 1px solid rgb(233, 235, 238);">
               <el-tree style="margin-top: 20px;" ref="treeRef" class="filter-tree" :data="catalogList" draggable
                 @node-drag-start="handleDragStart" @node-drag-end="handleDragEnd" :highlight-current="true"
                 :expand-on-click-node="false" @node-click="handleNodeClick" @node-contextmenu="nodeRightClick"
@@ -22,8 +23,8 @@
             </div>
           </el-col>
           <el-col :span="20">
-            <div style="margin-top: 10px">
-              <div v-if="docType === 1" style="overflow-y: scroll;">
+            <div style="margin-top: 10px; overflow-y: auto; height: calc(100vh - 277px);">
+              <div v-if="docType === 1">
                 <MarkDown :text="docContent.data.docContentMd"></MarkDown>
               </div>
               <div v-else-if="docType === 0">
@@ -154,8 +155,6 @@ const handleDragEnd = (
 ) => {
   // console.log('tree drag end:', dropNode && dropNode.label, dropType)
   console.log('tree drag end:', dropNode)
-
-
 }
 
 
@@ -468,4 +467,3 @@ function content() {
   margin-right: 10px;
 }
 </style>
-

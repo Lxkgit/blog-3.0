@@ -47,6 +47,7 @@
         <if test="userId != null and userId != 0">
             and user_id = #{userId}
         </if>
+        order by doc_type
     </select>
 
     <select id="selectDocUserList" resultType="java.lang.Integer">

@@ -27,4 +27,9 @@ public class SocketTopic {
      */
     public static final String SOCKET_DELETE_FILE_OR_DIR = "delete_file_or_dir";
 
+    /**
+     * 系统消息
+     */
+    public static final String SYSTEM_INFO = "system_info";
+
 }

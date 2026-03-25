@@ -8,7 +8,7 @@ from socket_client.socket_base import connect_with_retry
 if __name__ == "__main__":
     # 添加参数解析
     parser = argparse.ArgumentParser(description='WebSocket Client')
-    parser.add_argument('--ip', type=str, default='49.232.129.253', help='WebSocket server IP address (default: localhost)')
+    parser.add_argument('--ip', type=str, default='localhost', help='WebSocket server IP address (default: localhost)')
     parser.add_argument('--port', type=int, default=60001, help='WebSocket server port (default: 60001)')
     parser.add_argument('--path', type=str, default='/file/socket/python/localhost',
                         help='WebSocket endpoint path (default: /file/socket/python/localhost)')

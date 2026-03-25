@@ -7,6 +7,7 @@ import com.blog.file.socket.domain.SocketPacketEvent;
 import com.blog.file.socket.domain.constant.SocketPacketType;
 import com.blog.file.socket.domain.constant.SocketTopic;
 import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
+import com.blog.file.socket.service.SystemInfoService;
 import jakarta.annotation.Resource;
 import jakarta.websocket.Session;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,9 @@ public class SocketMessageListener {
 
     @Resource
     private NettySyncFileService nettyFileSyncService;
+
+    @Resource
+    private SystemInfoService systemInfoService;
 
     @Async
     @EventListener
@@ -49,7 +53,9 @@ public class SocketMessageListener {
         } else if (SocketPacketType.HEARTBEAT.equals(socketPacketType)) {
 
         } else if (SocketPacketType.REQUEST.equals(socketPacketType)) {
-
+            if(SocketTopic.SYSTEM_INFO.equals(topic)) {
+                systemInfoService.insertServiceInfoByPy(data);
+            }
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
             if (SocketTopic.SOCKET_EXPORT_BLOG_FILE.equals(topic)) {
                 nettyFileSyncService.syncBlogDataSecondStep(data, msgHead);

@@ -1,14 +1,12 @@
 package com.blog.file.socket.controller;
 
 import com.blog.file.config.SpringContextHolder;
-import com.blog.file.socket.service.SocketService;
-import jakarta.annotation.Resource;
+import com.blog.file.socket.config.SocketService;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 
 /**

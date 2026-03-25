@@ -63,4 +63,6 @@ public class DeviceVo extends Device {
      * 设备下单片机列表
      */
     private List<Chip> chipList;
+
+    private Integer dataCount;
 }

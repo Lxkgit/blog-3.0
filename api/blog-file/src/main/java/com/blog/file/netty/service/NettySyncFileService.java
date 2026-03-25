@@ -28,7 +28,7 @@ import com.blog.file.socket.domain.constant.SocketTopic;
 import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
 import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.domain.service.SocketMessageSendService;
-import com.blog.file.socket.service.SocketService;
+import com.blog.file.socket.config.SocketService;
 import com.blog.file.task.TaskLogService;
 import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
@@ -52,7 +52,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
 /**

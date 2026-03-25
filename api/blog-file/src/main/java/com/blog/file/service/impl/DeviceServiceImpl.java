@@ -1,6 +1,7 @@
 package com.blog.file.service.impl;
 
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.constant.Constant;
@@ -21,13 +22,11 @@ import com.blog.file.service.DeviceService;
 import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @description: 下级设备服务
@@ -195,7 +194,6 @@ public class DeviceServiceImpl implements DeviceService {
         list.forEach(item -> {
             DeviceInfoVo vo = new DeviceInfoVo();
             BeanUtils.copyProperties(item, vo);
-//            vo.setNettyHeartbeatDto(JSONObject.parseObject(item.getDeviceJson(), NettyHeartbeatDto.class));
             vo.setDeviceJson(null);
             voList.add(vo);
         });
@@ -207,4 +205,64 @@ public class DeviceServiceImpl implements DeviceService {
     public void getDeviceStatus() {
 
     }
+
+    /**
+     * 数据格式：
+     * {"system":"Windows","node_name":"DESKTOP-DQRP5MD","machine":"AMD64",
+     * "cpu":{"physical_cores":4,"usage_per_core":[0.0,0.0,0.0,0.0],"total_usage":10.7},
+     * "memory":{"total":16999424000,"available":3872051200,"used":13127372800,"percent":77.2},
+     * "disks":[{"device":"C:\\","mountpoint":"C:\\","fstype":"NTFS","opts":"rw,fixed","usage":{"total":159795937280,"used":120751640576,"free":39044296704,"percent":75.6}},
+     * {"device":"D:\\","mountpoint":"D:\\","fstype":"NTFS","opts":"rw,fixed","usage":{"total":94996787200,"used":69929074688,"free":25067712512,"percent":73.6}},
+     * {"device":"E:\\","mountpoint":"E:\\","fstype":"NTFS","opts":"rw,fixed","usage":{"total":644245090304,"used":252939661312,"free":391305428992,"percent":39.3}},
+     * {"device":"F:\\","mountpoint":"F:\\","fstype":"NTFS","opts":"rw,fixed","usage":{"total":355956944896,"used":157877895168,"free":198079049728,"percent":44.4}}],
+     * "timestamp":"2026-03-25 16:12:19"}
+     * @param deviceCode
+     * @param dataCount
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectDeviceInfoByDeviceCode(String deviceCode, Integer dataCount) {
+        Map<String, Object> map = new HashMap<>();
+        LambdaQueryWrapper<DeviceInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DeviceInfo::getDeviceCode, deviceCode);
+        wrapper.orderByDesc(DeviceInfo::getId);
+        wrapper.last("LIMIT " + dataCount);
+        List<DeviceInfo> list = deviceInfoMapper.selectList(wrapper);
+
+        if (CollectionUtils.isEmpty(list)) {
+            return map;
+        }
+
+        // 单条记录数据
+        JSONObject json = JSONObject.parseObject(list.get(0).getDeviceJson());
+        map.put("system", json.getString("system"));
+        map.put("systemName", json.getString("node_name"));
+        Integer cpuCores = json.getJSONObject("cpu").getInteger("physical_cores");
+        map.put("cpuCores", cpuCores);
+        map.put("memoryTotal", json.getJSONObject("memory").get("total"));
+
+
+        List<String> memoryUsed = new ArrayList<>();
+        List<List<Double>> cpuUsage = new ArrayList<>();
+        for (int i = 0; i < cpuCores; i++) {
+            cpuUsage.add(new ArrayList<>());
+        }
+
+        list.forEach(item -> {
+            JSONObject jsonObject = JSONObject.parseObject(item.getDeviceJson());
+            memoryUsed.add(jsonObject.getJSONObject("memory").getString("used"));
+            List<Double> usagePerCore = jsonObject.getJSONObject("cpu").getList("usage_per_core", Double.class);
+            for (int i=0 ; i<cpuCores; i++) {
+                cpuUsage.get(i).add(usagePerCore.get(i));
+            }
+        });
+
+        map.put("memoryUsed", memoryUsed);
+        map.put("cpuUsage", cpuUsage);
+
+        return map;
+    }
+
+
+
 }

@@ -6,6 +6,7 @@ import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ServiceException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description: 下级设备服务类
@@ -28,4 +29,6 @@ public interface DeviceService {
     List<DeviceInfoVo> selectDeviceInfoById(Integer id);
 
     void getDeviceStatus();
+
+    Map<String, Object> selectDeviceInfoByDeviceCode(String deviceCode, Integer dataCount);
 }

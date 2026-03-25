@@ -90,16 +90,23 @@ public class DeviceController {
         return ResultFactory.buildSuccessResult(deviceService.selectDeviceById(deviceVo.getId()));
     }
 
-    @GetMapping("/info")
-    @PreAuthorize("hasAnyAuthority('sys:device:select')")
-    public Result selectDeviceInfo(@Validated(value = {SelectIdGroup.class}) DeviceVo deviceVo) {
-        return ResultFactory.buildSuccessResult(deviceService.selectDeviceInfoById(deviceVo.getId()));
-    }
+//    @GetMapping("/info")
+//    @PreAuthorize("hasAnyAuthority('sys:device:select')")
+//    public Result selectDeviceInfo(@Validated(value = {SelectIdGroup.class}) DeviceVo deviceVo) {
+//        return ResultFactory.buildSuccessResult(deviceService.selectDeviceInfoById(deviceVo.getId()));
+//    }
 
     @GetMapping("/status")
     public Result selectDeviceStatus() {
         deviceService.getDeviceStatus();
         return ResultFactory.buildSuccessResult();
     }
+
+    @GetMapping("/info")
+    public Result selectDeviceInfoByDeviceCode(DeviceVo deviceVo) {
+        return ResultFactory.buildSuccessResult(deviceService.selectDeviceInfoByDeviceCode(deviceVo.getDeviceCode(), deviceVo.getDataCount()));
+    }
+
+
 
 }

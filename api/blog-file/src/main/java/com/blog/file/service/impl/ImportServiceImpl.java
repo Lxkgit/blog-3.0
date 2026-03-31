@@ -7,6 +7,7 @@ import com.blog.core.domain.file.files.vo.ImportDiaryVo;
 import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.FileUtil;
 import com.blog.core.utils.ZipFileUtil;
+import com.blog.file.feign.ContentClient;
 import com.blog.file.mapper.FileUploadLogMapper;
 import com.blog.file.service.ImportService;
 import jakarta.annotation.Resource;
@@ -46,8 +47,8 @@ public class ImportServiceImpl implements ImportService {
     @Resource
     private FileUploadLogMapper uploadLogMapper;
 
-//    @Resource
-//    private ContentClient contentClient;
+    @Resource
+    private ContentClient contentClient;
 
     @Override
     public boolean importDiary(ImportDiaryVo importDiaryVo) {
@@ -108,15 +109,14 @@ public class ImportServiceImpl implements ImportService {
                 map.put(DateUtil.formatDate(diary.getDiaryDate())+".txt", diary);
             }
         }
-//        Map<String, List<String>> result = contentClient.saveDiaryList(map);
-        Map<String, List<String>> result = null;
+        Map<String, List<String>> result = contentClient.saveDiaryList(map);
         boolean flag = true;
         for (String key : result.keySet()) {
             List<String> resultList = result.get(key);
             for (String diaryDate : resultList) {
                 int uploadState;
                 String uploadStr;
-                if (key.equals("save") || key.equals("update")) {
+                if ("save".equals(key) || "update".equals(key)) {
                     uploadState = 1;
                     uploadStr = "日记上传成功";
                 } else {

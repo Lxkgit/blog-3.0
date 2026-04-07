@@ -1089,6 +1089,7 @@ function fileFn(): any {
       }).then((res: any) => {
         if (res.code === 200) {
           ElMessage.success('文件移动成功')
+          selectFileDirOrFileFun()
         }
       })
     }

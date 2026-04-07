@@ -1,0 +1,156 @@
+sudo passwd root
+ps -aux | grep unattended
+
+sudo apt install -y lrzsz zip unzip
+
+sudo apt update
+
+sudo apt upgrade -y
+
+sudo apt install -y git cmake meson ninja-build build-essential python3-pip python3-yaml python3-ply libgnutls28-dev openssl libexpat1-dev libcamera-dev v4l-utils
+
+sudo apt install -y libboost-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev
+
+sudo apt install -y libavutil-dev libexif-dev libjpeg-dev libtiff5-dev libpng-dev libavcodec-dev libavdevice-dev libavformat-dev libswscale-dev libepoxy-dev libdrm-dev libwebp-dev libx11-dev 
+
+sudo apt install -y python3-jinja2 libevent-dev libyaml-dev libudev-dev libtiff-dev libegl1-mesa-dev libgles2-mesa-dev
+
+sudo apt install -y ffmpeg
+
+cd /root
+git clone https://github.com/raspberrypi/libcamera.git
+cd libcamera
+git checkout v0.7.0
+
+meson setup build
+ninja -C build
+
+ninja -C build install
+ldconfig
+
+
+cd ~
+
+git clone https://github.com/raspberrypi/libcamera-apps.git
+
+
+cd libcamera-apps
+
+meson setup build --buildtype=release
+
+meson configure build -Denable_libav=disabled
+
+ninja -C build
+
+sudo ninja -C build install
+
+sudo apt install docker.io -y
+sudo systemctl enable --now docker
+
+# 启动
+docker load -i mediamtx_1_arm64.tar
+
+docker run -d \
+  --name mediamtx \
+  --restart=always \
+  --network=host \
+  -e MTX_RTSP=yes \
+  -e MTX_RTSP_ADDRESS=0.0.0.0 \
+  -e MTX_RTSP_PORT=8554 \
+  -e MTX_LOGLEVEL=info \
+  bluenviron/mediamtx:1
+
+echo "/usr/local/lib" > /etc/ld.so.conf.d/rpicam.conf
+ldconfig
+
+nohup sh -c 'rpicam-vid -t 0 -n \
+  --codec h264 --width 1280 --height 720 \
+  --framerate 20 --bitrate 3000000 \
+  --intra 20 \
+  --profile high --level 4.2 \
+  --denoise off \
+  -o - | \
+ffmpeg -re -i - \
+  -rtsp_transport tcp \
+  -fflags nobuffer -flags low_delay -max_interleave_delta 0 \
+  -vf "drawtext=text='%{localtime}':fontcolor=white:fontsize=20:x=w-tw-10:y=10:box=1:boxcolor=black@0.5" \
+  -c:v libx264 -preset ultrafast -tune zerolatency \
+  -f rtsp rtsp://127.0.0.1:8554/cam1' > /dev/null 2>&1 &
+
+# 停止服务
+sudo killall rpicam-vid
+sudo killall ffmpeg
+sudo killall libcamera-vid
+
+# 树莓派 Docker 启动命令
+
+录像存储位置 /home/pi/recordings
+docker run -d   --name mediamtx   --privileged   -p 8554:8554   -p 8888:8888   -p 8189:8189/udp   -v /home/pi/mediamtx.yml:/mediamtx.yml   -v /opt/docker/media:/opt/docker/media   bluenviron/mediamtx:1.17.1
+
+
+文件路径： /home/pi/mediamtx.yml
+# 使用 Mediamtx 默认配置
+# 使用 Mediamtx 默认配置
+logLevel: info
+
+rtsp:
+  enabled: yes
+  port: 8554
+
+recordings:
+  enable: yes
+  path: /recordings
+  
+paths:
+  cam1:
+    # 来源：树莓派 CSI 摄像头推流
+    source: publisher
+
+    # 本地录像（完整保存，不删除）
+    record:
+      enable: yes
+      format: fmp4
+      segmentDuration: 300s               # 每 5 分钟一个文件
+      segmentFormatTimestamp: true
+      deleteAfter: 0                      # 保存全部录像，不删除
+
+    # 推流到云服务器
+#    runOnPublish: >
+#      ffmpeg -i rtsp://127.0.0.1:8554/cam1
+#      -c copy -f rtsp rtsp://YOUR_SERVER_IP:8554/cam1
+#    runOnPublish: "ffmpeg -i rtsp://127.0.0.1:8554/cam1 -c copy -f rtsp rtsp://1.2.3.4:8554/cam1"
+#    runOnPublishRestart: yes
+	
+# 云服务器 MediaMTX 配置
+
+文件路径 /home/server/mediamtx.yml
+# 使用 Mediamtx 默认配置
+logLevel: info
+
+rtsp:
+  enabled: yes
+  port: 8554
+
+recordings:
+  path: /recordings
+paths:
+  cam1:
+    # 云服务器无需 source，树莓派推流自动到达
+
+    # 录像配置：只保存最近 2 天
+    record:
+      enable: yes
+      format: fmp4
+      segmentDuration: 300s
+      segmentFormatTimestamp: true
+      deleteAfter: 172800    # 172800 秒 = 2 天
+	  
+云服务器 Docker 启动命令
+
+docker run -d --name mediamtx \
+  -p 8554:8554 \
+  -v /home/server/recordings:/recordings \
+  -v /home/server/mediamtx.yml:/mediamtx.yml \
+  bluenviron/mediamtx:1.8.1
+  
+录制的视频会存在： /home/server/recordings

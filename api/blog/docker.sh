@@ -20,18 +20,46 @@ ftpPassword="Ftp@Admin123*."
 
 oldIpAddr="49.232.129.253"
 
-# 安装docker
-dockerStart() {
 
-	# docker镜像存放目录
-	mkdir -p /etc/docker
-	mkdir -p /opt/docker/images
-	# docker 全部容器共享目录
-	mkdir -p /opt/docker/files
-	echo "开始安装docker..."
+# 服务器相关依赖下载
+util(){
+	echo "下载服务器环境所需依赖..."
+	# 压缩解压工具
+	apt install -y unzip zip lrzsz
+}
+
+# 解压上传的文件
+unzipBlog() {
+	echo "开始解压博客文件..."
+	# 上传部署压缩包解压目录
+	mkdir -p /opt/package
+  mv ./blog.zip /opt/package/
+  unzip /opt/package/blog.zip -d /opt/package/
+}
+
+# 添加4g的虚拟内存
+addVirtualMemory() {
+	echo "开始创建虚拟内存..."
+	cd /usr || exit
+	mkdir swap
+	cd swap/ || exit
+	dd if=/dev/zero of=/usr/swap/swapfile bs=1M count=4096
+	du -sh /usr/swap/swapfile
+	mkswap /usr/swap/swapfile
+	swapon /usr/swap/swapfile
+	free -m
+	echo "/usr/swap/swapfile swap swap defaults 0 0"  >> /etc/fstab
+}
+
+# 安装docker
+startDocker() {
+
+  echo "开始安装docker..."
+
+	# docker镜像存放目录 全部容器共享目录
+	mkdir -p /etc/docker /opt/docker/images /opt/docker/files
 
 	# 配置docker下载镜像源
-	mkdir -p /etc/docker
 	rm -rf /etc/docker/daemon.json
 	touch /etc/docker/daemon.json
 	echo "{"  >> /etc/docker/daemon.json
@@ -41,27 +69,15 @@ dockerStart() {
 	echo "  ]"  >> /etc/docker/daemon.json
 	echo "}"  >> /etc/docker/daemon.json
 
-	# 一键安装docker
-#	curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
   installDocker
-  #	判断docker是否正确安装
-	if [ $? -ne 0 ]; then
-      echo "docker 安装失败, 脚本执行退出"
-      exit 1
-  fi
-  if ! command -v docker &>/dev/null; then
-      echo "docker 未正常启动 "
-      exit 1
-  fi
 
-	# 启动docker
-	sudo systemctl start docker
-	# docker开始自启动
-	systemctl enable docker.service
 	# 创建自定义网络
 	docker network create --subnet=172.18.0.0/24 blog_network
+
+	dockerLoad
 }
 
+# 安装docker
 installDocker() {
   mv /opt/package/docker/docker-27.1.1.tgz /root
   tar -zxvf /root/docker-27.1.1.tgz -C /root
@@ -132,82 +148,43 @@ dockerLoad() {
 	echo "开始下载 minio/minio:RELEASE.2025-05-24T17-08-30Z 镜像文件..."
 	command="docker pull minio/minio:RELEASE.2025-05-24T17-08-30Z"
 	reLoad
-	
-#	echo "开始下载 xuxueli/xxl-job-admin:2.5.0 镜像文件..."
-#	command="docker pull xuxueli/xxl-job-admin:2.5.0"
-#	reLoad
+
 }
 
-# conda 下载
-conda() {
-	echo "开始下载 Anaconda ... "
-	cd /opt/ || exit
-	mv /opt/package/python/Anaconda3-2024.10-1-Linux-x86_64.sh /opt/
-#	wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
-	echo "开始安装 Anaconda ... "
-	sh Anaconda3-2024.10-1-Linux-x86_64.sh<<EOF
+# Java相关服务全部启动
+startJava() {
 
-q
-yes
+  # 启动MySQL服务
+  startMySQL
 
-yes
-EOF
-	echo "export PATH=/opt/anaconda3/bin:\$PATH"  >> /etc/profile
-	echo "export PATH=/opt/anaconda3/bin:\$PATH"  >> ~/.bashrc
+  # 启动 ftp
+  startFtp
 
-	# 更新环境变量
-	source /etc/profile
-	source ~/.bashrc
-	
-	# 安装conda后命令行前面base隐藏
-	conda config --set auto_activate_base False
-	echo "Anaconda 安装完成 ... "
-	
-	py
+  # 安装 nginx
+  startNginx
+
+  # 启动 redis
+  startRedis
+
+  # 安装nacos
+  startNacos
+
+  # 启动 rocketmq
+  startRocketMq
+
+  # 安装 elasticsearch
+  startElasticsearch
+
+   # 启动 minio
+   startMinio
+
+   # 启动Java服务
+   startJar
+
+   # 启动python脚本
+#   startPy
 }
 
-# 构建 py 运行环境
-py() {
-	echo "安装python3.9 ... "
-	conda create --name py3 python=3.9 -y
-	conda activate py3
-
-	pip install websockets
-	pip install psutil
-}
-
-# 服务器相关依赖下载
-util(){
-	echo "下载服务器环境所需依赖..."
-	# 压缩解压工具
-	yum install -y unzip zip
-	yum install -y lrzsz
-}
-
-# 解压上传的文件
-unzipBlog() {
-	echo "开始解压博客文件..."
-	# 上传部署压缩包解压目录
-	mkdir -p /opt/package
-	mv ./blog.zip /opt/package
-	cd /opt/package || exit
-	unzip blog.zip
-}
-
-# 添加4g的虚拟内存
-addVirtualMemory() {
-	echo "开始创建虚拟内存..."
-	cd /usr || exit
-	mkdir swap
-	cd swap/ || exit
-	dd if=/dev/zero of=/usr/swap/swapfile bs=1M count=4096
-	du -sh /usr/swap/swapfile
-	mkswap /usr/swap/swapfile
-	swapon /usr/swap/swapfile
-	free -m
-	echo "/usr/swap/swapfile swap swap defaults 0 0"  >> /etc/fstab
-}
-mi
 # 修改 MySQL 配置文件
 updateMysqlConf() {
 	echo "开始修改MySQL配置文件..."
@@ -240,7 +217,7 @@ insertSqlData() {
 }
 
 # 安装MySQL
-mysql() {
+startMySQL() {
 	# mysql文件目录
 	# 宿主机创建数据存放目录映射到容器
 	mkdir -p /opt/docker/mysql/data
@@ -263,16 +240,14 @@ createFtpDir() {
 }
 
 # 启动 ftp
-ftp() {
+startFtp() {
   echo "正在启动ftp..."
   createFtpDir
-#  docker run -d --name vsftpd --privileged=true --restart=always --network blog_network --ip 172.18.0.4 -p 61120:20 -p 61121:21 -p 61110-61119:61110-61119 -e FTP_USER=${ftpUsername} -e FTP_PASS=${ftpPassword} -e PASV_MIN_PORT=61110 -e PASV_MAX_PORT=61119 -v /opt/docker/files/ftp:/home/vsftpd fauria/vsftpd
   docker run -d --name vsftpd --privileged=true --restart=always --network blog_network --ip 172.18.0.4 -p 61120:20 -p 61121:21 -p 61122-61199:61122-61199 -e FTP_USER=${ftpUsername} -e FTP_PASS=${ftpPassword} -e PASV_MIN_PORT=61122 -e PASV_MAX_PORT=61199 -e PASV_ADDRESS=49.232.129.253 -v /opt/docker/files/ftp:/home/vsftpd fauria/vsftpd
-#  docker run -d --name vsftpd --privileged=true --restart=always -p 61120:20 -p 61121:21 -p 61122-61199:61122-61199 -e FTP_USER=${ftpUsername} -e FTP_PASS=${ftpPassword} -e PASV_ADDRESS=49.232.129.253 -e PASV_MIN_PORT=61122 -e PASV_MAX_PORT=61199 -v /opt/docker/files/ftp:/home/vsftpd fauria/vsftpd
 }
 
 # 安装 nginx
-nginx() {
+startNginx() {
 	# nginx 目录创建
 	mkdir -p /opt/docker/nginx/conf.d
 	mkdir -p /opt/docker/nginx/html
@@ -299,7 +274,7 @@ updateRedisConf() {
 }
 
 # 启动 redis
-redis() {
+startRedis() {
 	# redis 目录创建
 	mkdir -p /opt/docker/redis/conf/
 	mkdir -p /opt/docker/redis/data/
@@ -310,7 +285,7 @@ redis() {
 }
 
 # 安装nacos
-nacos() {
+startNacos() {
   echo "正在启动nacos..."
   docker run -d --name nacos --privileged=true --restart=always --network blog_network --ip 172.18.0.7 -p 8848:8848 -p 9848:9848 -p 9849:9849 -e JVM_XMS=256m -e JVM_XMX=256m -e MODE=standalone -e PREFER_HOST_MODE=hostname -e SPRING_DATASOURCE_PLATFORM=mysql -e MYSQL_SERVICE_HOST=172.18.0.3 -e MYSQL_SERVICE_PORT=3306 -e MYSQL_SERVICE_USER=root -e MYSQL_SERVICE_PASSWORD=${mysqlPassword} -e MYSQL_SERVICE_DB_NAME=nacos -e MYSQL_SERVICE_DB_PARAM='characterEncoding=utf8&connectTimeout=10000&socketTimeout=30000&autoReconnect=true&serverTimezone=UTC&allowPublicKeyRetrieval=true' nacos/nacos-server:v2.4.3
 }
@@ -331,7 +306,7 @@ updateRocketMq() {
 }
 
 # 启动 rocketmq
-rocketMq() {
+startRocketMq() {
   echo "正在启动rocketmq..."
   updateRocketMq
   # rmqnamesrv
@@ -350,7 +325,7 @@ updateElasticsearchConf() {
 }
 
 # 安装 elasticsearch
-elasticsearch() {
+startElasticsearch() {
 	mkdir -p /opt/docker/elasticsearch/data
 	mkdir -p /opt/docker/elasticsearch/plugins
 	mkdir -p /opt/docker/elasticsearch/config
@@ -375,7 +350,7 @@ importMinio() {
 	mv /opt/package/files/mc /opt/docker/minio/
 	cd /opt/docker/minio || exit
 	chmod +x mc
-	./mc alias set local http://172.18.0.11:9000 minio ${minioPassword}
+	./mc alias set local http://172.18.0.11:9000 minio "${minioPassword}"
 	./mc mb local/blog
 	./mc mirror --overwrite /opt/docker/minio/blog/ local/blog
 	./mc anonymous set download local/blog
@@ -390,19 +365,13 @@ importMinio() {
 }
 
 # 启动 minio
-minio() {
+startMinio() {
 	echo "正在启动minio..."
 	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart=always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio:RELEASE.2025-05-24T17-08-30Z server /data --console-address ":9001"
 	importMinio
 }
 
-# 启动 xxlJob 
-#xxlJob() {
-#  echo "正在启动xxlJob..."
-#	mkdir -p /opt/docker/xxlJob/logs
-#	docker run --name xxljob --network blog_network --ip 172.18.0.12 -p 8080:8080 --restart=always --privileged=true -e PARAMS="--spring.datasource.username=root --spring.datasource.password=${mysqlPassword} --spring.datasource.url=jdbc:mysql://172.18.0.3:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai --xxl.job.accessToken=aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789+=" -v /opt/docker/xxlJob/logs:/data/applogs -d xuxueli/xxl-job-admin:2.5.0
-#}
-
+# 启动Java服务
 startJar() {
   mkdir -p /opt/docker/files/jar
   mv /opt/package/jar/* /opt/docker/files/jar
@@ -419,8 +388,21 @@ startJar() {
   docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 60002:60002 -p 59994:59994 -p 60032:60032 -v /opt/docker/files/logs:/opt/logs -v /opt/docker/files/:/opt/docker/files/ blog:3.0
 }
 
+
+py() {
+	echo "安装python3.9 ... "
+
+  sudo apt update
+  sudo apt install -y python3 python3-pip python3.12-venv
+
+
+	pip install websockets
+	pip install psutil
+}
+
 # 启动python脚本
 startPy() {
+  py
   # Java服务启动较慢，等待Java服务完全启动后进行连接
   echo "8分钟后启动socket脚本..."
   sleep 8m
@@ -462,30 +444,27 @@ startPyDaemon() {
 
 # 主函数
 main() {
-	timer_start=$(date "+%Y-%m-%d %H:%M:%S")
+  timer_start=$(date "+%Y-%m-%d %H:%M:%S")
 
-	unzipBlog
-	dockerStart
-	dockerLoad
-	util
-	addVirtualMemory
-	conda
-	mysql
-	ftp
-	nginx
-	redis
-	nacos
-	rocketMq
-	elasticsearch
-	minio
-#	xxlJob
+  # 前置工具配置
+  util
 
-	startJar
-  startPy
+  # 解压压缩包
+  unzipBlog
 
-	timer_end=$(date "+%Y-%m-%d %H:%M:%S")
-	duration=$(echo $(($(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}"))) | awk '{t=split("60 s 60 m 24 h 999 d",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}')
-	echo "脚本执行完成 耗时： $duration "
+  # 添加虚拟内存
+  addVirtualMemory
+
+	# 安装docker
+  startDocker
+
+  # Java相关服务全部启动
+  startJava
+
+  timer_end=$(date "+%Y-%m-%d %H:%M:%S")
+  diff=$(( $(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}") ))
+  duration=$(printf "%02d:%02d:%02d" $((diff/3600)) $((diff%3600/60)) $((diff%60)))
+  echo "脚本执行完成 耗时： $duration "
 	exit 0
 }
 

@@ -179,7 +179,53 @@ startPyDaemon() {
 # 安装树莓派SCI摄像头服务
 startPISci() {
   sudo apt update
+  sudo apt upgrade -y
+  sudo apt install -y git cmake meson ninja-build build-essential python3-pip python3-yaml python3-ply libgnutls28-dev openssl libexpat1-dev libcamera-dev v4l-utils
+  sudo apt install -y libboost-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev
+  sudo apt install -y libavutil-dev libexif-dev libjpeg-dev libtiff5-dev libpng-dev libavcodec-dev libavdevice-dev libavformat-dev libswscale-dev libepoxy-dev libdrm-dev libwebp-dev libx11-dev
+  sudo apt install -y python3-jinja2 libevent-dev libyaml-dev libudev-dev libtiff-dev libegl1-mesa-dev libgles2-mesa-dev
+  sudo apt install -y ffmpeg
 
+  # 安装 0.7.0 版本 libcamera
+  unzip /opt/package/csi/libcamera.zip -d /root
+  cd /root/libcamera
+  git checkout v0.7.0
+  meson setup build
+  ninja -C build
+  ninja -C build install
+  ldconfig
+
+  unzip /opt/package/csi/libcamera-apps.zip -d /root
+  cd /root/libcamera-apps
+  meson setup build --buildtype=release
+  meson configure build -Denable_libav=disabled
+  ninja -C build
+  sudo ninja -C build install
+}
+
+# 安装 MediaMTX
+startMediaMTX() {
+
+  startPISci
+
+  mkdir -p /opt/docker/mediamtx/config
+  mv /opt/package/conf/mediamtx.yml /opt/docker/mediamtx/config
+  docker load -i /opt/package/images/mediamtx_1_arm64.tar
+  docker run --name mediamtx --network host -v /opt/docker/mediamtx/config/mediamtx.yml:/mediamtx.yml -v /opt/docker/mediamtx/recordings:/opt/docker/mediamtx/recordings -d bluenviron/mediamtx:1
+
+  startFrpc
+}
+
+# 安装 Frp 客户端
+startFrpc() {
+  mkdir -p /opt/frpc
+  cd /opt/frpc
+#  wget https://github.com/fatedier/frp/releases/download/v0.55.1/frp_0.55.1_linux_arm64.tar.gz
+  mv /opt/package/csi/frp_0.55.1_linux_arm64.tar.gz /opt/frpc
+  tar -zxvf frp_0.55.1_linux_arm64.tar.gz
+  cd frp_0.55.1_linux_arm64
+  mv /opt/package/conf/frpc.ini /opt/frpc/frp_0.55.1_linux_amd64
+  nohup ./frpc -c frpc.ini > frpc.log 2>&1 &
 }
 
 main() {
@@ -194,8 +240,8 @@ main() {
   # 启动Java服务
   startJava
 
-  # 安装树莓派SCI摄像头服务
-  startPISci
+  # 启动树莓派SCI摄像头服务
+  startMediaMTX
 
   timer_end=$(date "+%Y-%m-%d %H:%M:%S")
   diff=$(( $(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}") ))

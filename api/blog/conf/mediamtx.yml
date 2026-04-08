@@ -1,0 +1,32 @@
+logLevel: info
+
+# 启用RTSP协议支持
+rtsp: true
+# 支持的传输协议，默认包含UDP、多播和TCP
+rtspTransports: [udp, multicast, tcp]
+# RTSP服务监听地址，默认端口8554
+rtspAddress: :8554
+
+pathDefaults:
+  # 流来源，默认接受客户端推流
+  source: publisher
+  # 是否录制流到磁盘
+  record: false
+  # 录制文件保存路径，支持时间变量
+  recordPath: /opt/docker/mediamtx/recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+  recordFormat: fmp4
+  recordPartDuration: 1s
+  # This prevents RAM exhaustion.
+  recordMaxPartSize: 50M
+  # Minimum duration of each segment.
+  recordSegmentDuration: 1h
+  # Delete segments after this timespan.
+  # Set to 0s to disable automatic deletion.
+  recordDeleteAfter: 1d
+
+paths:
+  cam1:
+    record: true
+    source: rtsp://172.17.0.1:18554/cam1
+    sourceProtocol: udp
+    sourceOnDemand: no

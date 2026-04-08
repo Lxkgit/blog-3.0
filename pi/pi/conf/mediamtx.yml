@@ -1,35 +1,33 @@
 logLevel: info
 
-# 启用RTSP协议支持
-rtsp: yes
-# 支持的传输协议，默认包含UDP、多播和TCP
-rtspTransports: [udp, multicast, tcp]
-# RTSP服务监听地址，默认端口8554
+rtsp: true
 rtspAddress: :8554
 
+# 关闭不需要服务
+hls: false
+playback: false
+webrtc: false
+
+# 默认配置模板
 pathDefaults:
-  # 流来源，默认接受客户端推流
   source: publisher
-  # 是否录制流到磁盘
+  # 默认不开启录像
   record: false
-  # 录制文件保存路径，支持时间变量
-  recordPath: /opt/docker/media/recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+  # 统一录像保存路径（你要求的目录）
+  recordPath: /opt/docker/mediamtx/recordings/%path/%Y-%m-%d_%H-%M-%S-%f
   recordFormat: fmp4
   recordPartDuration: 1s
-  # This prevents RAM exhaustion.
   recordMaxPartSize: 50M
-  # Minimum duration of each segment.
-  recordSegmentDuration: 10m
-  # Delete segments after this timespan.
-  # Set to 0s to disable automatic deletion.
+  recordSegmentDuration: 300s
+  # 保留时间
   recordDeleteAfter: 1d
+  overridePublisher: true
 
 paths:
   cam1:
-    record: yes
-
-    # 推流到云服务器（如果需要）
-    # runOnPublish: |
-    #   ffmpeg -i rtsp://127.0.0.1:8554/cam1 \
-    #   -c copy -f rtsp rtsp://YOUR_SERVER_IP:8554/cam1
-    # runOnPublishRestart: true
+    record: true   # 只需要启用录像，其余继承默认值
+    # 推流到云服务器（如不需要可删除）
+    runOnPublish: |
+      ffmpeg -i rtsp://192.168.0.106:8554/cam1 \
+      -c copy -f rtsp rtsp://49.232.129.253:8554/cam1
+    runOnPublishRestart: true

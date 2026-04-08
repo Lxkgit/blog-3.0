@@ -101,7 +101,7 @@ reLoad() {
   while [ $count -le "$reload" ]; do
     eval "$command"
     if [ $? -eq 0 ]; then
-      echo "镜像文件下载成功..."
+      echo "$command 镜像文件下载成功..."
       break
     else
       echo "第 ${count} 次尝试重新下载..."
@@ -117,37 +117,25 @@ reLoad() {
 # docker 镜像文件下载
 dockerLoad() {
 
-	echo "开始下载 mysql:8.0.20 镜像文件..."
-	command="docker pull mysql:8.0.20"
-	reLoad
-	
-	echo "开始下载 fauria/vsftpd 镜像文件..."
-	command="docker pull fauria/vsftpd"
-	reLoad
+	# 定义镜像列表
+  images=(
+      "mysql:8.0.20"
+      "fauria/vsftpd"
+      "nginx:1.20.2"
+      "redis:6.2.5"
+      "nacos/nacos-server:v2.4.3"
+      "apache/rocketmq:5.1.4"
+      "elasticsearch:7.14.1"
+      "minio/minio:RELEASE.2025-05-24T17-08-30Z"
+      "bluenviron/mediamtx:1"
+  )
 
-	echo "开始下载 nginx:1.20.2 镜像文件..."
-	command="docker pull nginx:1.20.2"
-	reLoad
-	
-	echo "开始下载 redis:6.2.5 镜像文件..."
-	command="docker pull redis:6.2.5"
-	reLoad
-	
-	echo "开始下载 nacos/nacos-server:v2.4.3 镜像文件..."
-	command="docker pull nacos/nacos-server:v2.4.3"
-	reLoad
-
-	echo "开始下载 apache/rocketmq:5.1.4 镜像文件..."
-	command="docker pull apache/rocketmq:5.1.4"
-	reLoad
-
-	echo "开始下载 elasticsearch:7.14.1 镜像文件..."
-	command="docker pull elasticsearch:7.14.1"
-	reLoad
-	
-	echo "开始下载 minio/minio:RELEASE.2025-05-24T17-08-30Z 镜像文件..."
-	command="docker pull minio/minio:RELEASE.2025-05-24T17-08-30Z"
-	reLoad
+  # 遍历数组拉取镜像
+  for img in "${images[@]}"; do
+      echo "开始下载 $img 镜像文件..."
+      command="docker pull $img"
+      reLoad
+  done
 
 }
 
@@ -175,14 +163,17 @@ startJava() {
   # 安装 elasticsearch
   startElasticsearch
 
-   # 启动 minio
-   startMinio
+  # 安装 MediaMTX
+  startMediaMTX
 
-   # 启动Java服务
-   startJar
+  # 启动 minio
+  startMinio
 
-   # 启动python脚本
-#   startPy
+  # 启动Java服务
+  startJar
+
+  # 启动python脚本
+  startPy
 }
 
 # 修改 MySQL 配置文件
@@ -338,6 +329,24 @@ startElasticsearch() {
 	nohup sudo docker exec elasticsearch bash /opt/docker/files/elasticsearch.sh >/opt/docker/files/es.log 2>&1
 }
 
+# 安装 MediaMTX
+startMediaMTX() {
+  mkdir -p /opt/docker/mediamtx/config
+  mv /opt/package/conf/mediamtx.yml /opt/docker/mediamtx/config
+  docker run --name mediamtx --network host -v /opt/docker/mediamtx/config/mediamtx.yml:/mediamtx.yml -v /opt/docker/mediamtx/recordings:/opt/docker/mediamtx/recordings -d bluenviron/mediamtx:1
+}
+
+# 安装 Frp 服务端
+startFrps() {
+  mkdir -p /opt/frps
+  cd /opt/frps
+  wget https://github.com/fatedier/frp/releases/download/v0.55.1/frp_0.55.1_linux_amd64.tar.gz
+  tar -zxvf frp_0.55.1_linux_amd64.tar.gz
+  cd frp_0.55.1_linux_amd64
+  mv /opt/package/conf/frps.ini /opt/frps
+  nohup ./frps -c frps.ini > frps.log 2>&1 &
+}
+
 # minio 文件导入
 importMinio() {
 	sleep 1m
@@ -388,13 +397,15 @@ startJar() {
   docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 60002:60002 -p 59994:59994 -p 60032:60032 -v /opt/docker/files/logs:/opt/logs -v /opt/docker/files/:/opt/docker/files/ blog:3.0
 }
 
-
+# python 脚本执行环境配置
 py() {
 	echo "安装python3.9 ... "
 
   sudo apt update
   sudo apt install -y python3 python3-pip python3.12-venv
 
+  python3 -m venv /opt/python
+  source /opt/python/bin/activate
 
 	pip install websockets
 	pip install psutil

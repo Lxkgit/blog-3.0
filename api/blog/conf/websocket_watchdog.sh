@@ -5,11 +5,9 @@ WATCHDOG_LOG="/opt/docker/files/python/watchdog.log"
 # Python脚本路径
 PYTHON_SCRIPT="/opt/docker/files/python/code/web_socket.py"
 
-# Conda 基础路径和环境名称
-CONDA_BASE="/root/anaconda3"
-CONDA_ENV="py3"
-# Conda 环境 Python 路径
-PYTHON_BIN="$CONDA_BASE/envs/$CONDA_ENV/bin/python"
+# venv路径
+VENV_PATH="/opt/python"
+PYTHON_BIN="$VENV_PATH/bin/python"
 
 # 启动参数
 SCRIPT_ARGS="--ip 172.18.0.13"
@@ -23,7 +21,7 @@ start_script() {
 
 # 检查Python脚本是否在运行
 check_script() {
-    pgrep -f "python $PYTHON_SCRIPT $SCRIPT_ARGS" >/dev/null
+    pgrep -f "$PYTHON_SCRIPT" >/dev/null
     return $?
 }
 

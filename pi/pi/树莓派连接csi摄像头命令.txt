@@ -50,15 +50,7 @@ sudo systemctl enable --now docker
 # 启动
 docker load -i mediamtx_1_arm64.tar
 
-docker run -d \
-  --name mediamtx \
-  --restart=always \
-  --network=host \
-  -e MTX_RTSP=yes \
-  -e MTX_RTSP_ADDRESS=0.0.0.0 \
-  -e MTX_RTSP_PORT=8554 \
-  -e MTX_LOGLEVEL=info \
-  bluenviron/mediamtx:1
+docker run -d --name mediamtx -v /home/pi/mediamtx.yml:/mediamtx.yml bluenviron/mediamtx:1
 
 echo "/usr/local/lib" > /etc/ld.so.conf.d/rpicam.conf
 ldconfig
@@ -90,7 +82,8 @@ docker run -d   --name mediamtx   --privileged   -p 8554:8554   -p 8888:8888   -
 
 文件路径： /home/pi/mediamtx.yml
 # 使用 Mediamtx 默认配置
-# 使用 Mediamtx 默认配置
+
+
 logLevel: info
 
 rtsp:
@@ -99,7 +92,7 @@ rtsp:
 
 recordings:
   enable: yes
-  path: /recordings
+  path: /opt/recordings
   
 paths:
   cam1:
@@ -112,7 +105,7 @@ paths:
       format: fmp4
       segmentDuration: 300s               # 每 5 分钟一个文件
       segmentFormatTimestamp: true
-      deleteAfter: 0                      # 保存全部录像，不删除
+      deleteAfter: 1d                      # 保存全部录像，不删除
 
     # 推流到云服务器
 #    runOnPublish: >
@@ -120,7 +113,9 @@ paths:
 #      -c copy -f rtsp rtsp://YOUR_SERVER_IP:8554/cam1
 #    runOnPublish: "ffmpeg -i rtsp://127.0.0.1:8554/cam1 -c copy -f rtsp rtsp://1.2.3.4:8554/cam1"
 #    runOnPublishRestart: yes
-	
+
+
+
 # 云服务器 MediaMTX 配置
 
 文件路径 /home/server/mediamtx.yml

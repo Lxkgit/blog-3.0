@@ -4,6 +4,9 @@ PYTHON_SCRIPT="/opt/docker/files/python/code/web_socket.py"
 SCRIPT_ARGS="--ip 172.18.0.13"
 RESTART_LOG="/opt/docker/files/python/restart.log"
 
+# venv Python 绝对路径（必须指定）
+PYTHON_BIN="/opt/python/bin/python"
+
 # 删除 code 目录下除 python.zip 之外的全部文件
 find /opt/docker/files/python/code -mindepth 1 ! -name 'python.zip' -exec rm -rf {} +
 
@@ -21,7 +24,8 @@ rm -rf /opt/docker/files/python/code/python.zip
 echo "==============================" >> "$RESTART_LOG"
 echo "$(date): 请求重启 Python 服务" >> "$RESTART_LOG"
 
-PIDS=$(pgrep -f "python $PYTHON_SCRIPT $SCRIPT_ARGS")
+# 精准匹配虚拟环境 Python 的进程
+PIDS=$(pgrep -f "$PYTHON_BIN $PYTHON_SCRIPT $SCRIPT_ARGS")
 
 if [ -n "$PIDS" ]; then
     echo "$(date): 杀死进程: $PIDS" >> "$RESTART_LOG"

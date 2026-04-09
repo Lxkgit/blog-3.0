@@ -343,7 +343,7 @@ startFrps() {
   wget https://github.com/fatedier/frp/releases/download/v0.55.1/frp_0.55.1_linux_amd64.tar.gz
   tar -zxvf frp_0.55.1_linux_amd64.tar.gz
   cd frp_0.55.1_linux_amd64
-  mv /opt/package/conf/frps.ini /opt/frps
+  mv /opt/package/conf/frps.ini /opt/frps/frp_0.55.1_linux_amd64
   nohup ./frps -c frps.ini > frps.log 2>&1 &
 }
 

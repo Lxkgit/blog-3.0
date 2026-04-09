@@ -28,5 +28,5 @@ paths:
   cam1:
     record: true
     source: rtsp://172.17.0.1:18554/cam1
-    sourceProtocol: udp
+    sourceProtocol: tcp
     sourceOnDemand: no

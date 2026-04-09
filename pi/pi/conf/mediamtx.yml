@@ -26,8 +26,3 @@ pathDefaults:
 paths:
   cam1:
     record: true   # 只需要启用录像，其余继承默认值
-    # 推流到云服务器（如不需要可删除）
-    runOnPublish: |
-      ffmpeg -i rtsp://192.168.0.106:8554/cam1 \
-      -c copy -f rtsp rtsp://49.232.129.253:8554/cam1
-    runOnPublishRestart: true

@@ -183,8 +183,7 @@ startPISci() {
   sudo apt install -y git cmake meson ninja-build build-essential python3-pip python3-yaml python3-ply libgnutls28-dev openssl libexpat1-dev libcamera-dev v4l-utils
   sudo apt install -y libboost-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev
   sudo apt install -y libavutil-dev libexif-dev libjpeg-dev libtiff5-dev libpng-dev libavcodec-dev libavdevice-dev libavformat-dev libswscale-dev libepoxy-dev libdrm-dev libwebp-dev libx11-dev
-  sudo apt install -y python3-jinja2 libevent-dev libyaml-dev libudev-dev libtiff-dev libegl1-mesa-dev libgles2-mesa-dev
-  sudo apt install -y ffmpeg
+  sudo apt install -y python3-jinja2 libevent-dev libyaml-dev libudev-dev libtiff-dev libegl1-mesa-dev libgles2-mesa-dev ffmpeg
 
   # 安装 0.7.0 版本 libcamera
   unzip /opt/package/csi/libcamera.zip -d /root
@@ -200,7 +199,9 @@ startPISci() {
   meson setup build --buildtype=release
   meson configure build -Denable_libav=disabled
   ninja -C build
-  sudo ninja -C build install
+  ninja -C build install
+  echo "/usr/local/lib" > /etc/ld.so.conf.d/rpicam.conf
+  ldconfig
 }
 
 # 安装 MediaMTX
@@ -224,7 +225,7 @@ startFrpc() {
   mv /opt/package/csi/frp_0.55.1_linux_arm64.tar.gz /opt/frpc
   tar -zxvf frp_0.55.1_linux_arm64.tar.gz
   cd frp_0.55.1_linux_arm64
-  mv /opt/package/conf/frpc.ini /opt/frpc/frp_0.55.1_linux_amd64
+  mv /opt/package/conf/frpc.ini /opt/frpc/frp_0.55.1_linux_arm64
   nohup ./frpc -c frpc.ini > frpc.log 2>&1 &
 }
 

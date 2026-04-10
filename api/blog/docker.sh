@@ -333,7 +333,9 @@ startElasticsearch() {
 startMediaMTX() {
   mkdir -p /opt/docker/mediamtx/config
   mv /opt/package/conf/mediamtx.yml /opt/docker/mediamtx/config
-  docker run --name mediamtx --network host -v /opt/docker/mediamtx/config/mediamtx.yml:/mediamtx.yml -v /opt/docker/mediamtx/recordings:/opt/docker/mediamtx/recordings -d bluenviron/mediamtx:1
+  docker run --name mediamtx --network host -e TZ=Asia/Shanghai -v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro -v /opt/docker/mediamtx/config/mediamtx.yml:/mediamtx.yml -v /opt/docker/mediamtx/recordings:/opt/docker/mediamtx/recordings -d bluenviron/mediamtx:1
+
+  startFrps
 }
 
 # 安装 Frp 服务端

@@ -101,7 +101,7 @@ reLoad() {
   while [ $count -le "$reload" ]; do
     eval "$command"
     if [ $? -eq 0 ]; then
-      echo "$command 镜像文件下载成功..."
+      echo "镜像文件下载成功..."
       break
     else
       echo "第 ${count} 次尝试重新下载..."
@@ -116,26 +116,41 @@ reLoad() {
 
 # docker 镜像文件下载
 dockerLoad() {
+	echo "开始下载 openjdk:17 镜像文件..."
+	command="docker pull openjdk:17"
+	reLoad
 
-	# 定义镜像列表
-  images=(
-      "mysql:8.0.20"
-      "fauria/vsftpd"
-      "nginx:1.20.2"
-      "redis:6.2.5"
-      "nacos/nacos-server:v2.4.3"
-      "apache/rocketmq:5.1.4"
-      "elasticsearch:7.14.1"
-      "minio/minio:RELEASE.2025-05-24T17-08-30Z"
-      "bluenviron/mediamtx:1"
-  )
+	echo "开始下载 mysql:8.0.20 镜像文件..."
+	command="docker pull mysql:8.0.20"
+	reLoad
 
-  # 遍历数组拉取镜像
-  for img in "${images[@]}"; do
-      echo "开始下载 $img 镜像文件..."
-      command="docker pull $img"
-      reLoad
-  done
+	echo "开始下载 fauria/vsftpd 镜像文件..."
+	command="docker pull fauria/vsftpd"
+	reLoad
+
+	echo "开始下载 nginx:1.20.2 镜像文件..."
+	command="docker pull nginx:1.20.2"
+	reLoad
+
+	echo "开始下载 redis:6.2.5 镜像文件..."
+	command="docker pull redis:6.2.5"
+	reLoad
+
+	echo "开始下载 nacos/nacos-server:v2.4.3 镜像文件..."
+	command="docker pull nacos/nacos-server:v2.4.3"
+	reLoad
+
+	echo "开始下载 apache/rocketmq:5.1.4 镜像文件..."
+	command="docker pull apache/rocketmq:5.1.4"
+	reLoad
+
+	echo "开始下载 elasticsearch:7.14.1 镜像文件..."
+	command="docker pull elasticsearch:7.14.1"
+	reLoad
+
+	echo "开始下载 minio/minio:RELEASE.2025-05-24T17-08-30Z 镜像文件..."
+	command="docker pull minio/minio:RELEASE.2025-05-24T17-08-30Z"
+	reLoad
 
 }
 
@@ -163,9 +178,6 @@ startJava() {
   # 安装 elasticsearch
   startElasticsearch
 
-  # 安装 MediaMTX
-  startMediaMTX
-
   # 启动 minio
   startMinio
 
@@ -174,6 +186,9 @@ startJava() {
 
   # 启动python脚本
   startPy
+
+  # 安装 MediaMTX
+  startMediaMTX
 }
 
 # 修改 MySQL 配置文件
@@ -329,26 +344,6 @@ startElasticsearch() {
 	nohup sudo docker exec elasticsearch bash /opt/docker/files/elasticsearch.sh >/opt/docker/files/es.log 2>&1
 }
 
-# 安装 MediaMTX
-startMediaMTX() {
-  mkdir -p /opt/docker/mediamtx/config
-  mv /opt/package/conf/mediamtx.yml /opt/docker/mediamtx/config
-  docker run --name mediamtx --network host -e TZ=Asia/Shanghai -v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro -v /opt/docker/mediamtx/config/mediamtx.yml:/mediamtx.yml -v /opt/docker/mediamtx/recordings:/opt/docker/mediamtx/recordings -d bluenviron/mediamtx:1
-
-  startFrps
-}
-
-# 安装 Frp 服务端
-startFrps() {
-  mkdir -p /opt/frps
-  cd /opt/frps
-  wget https://github.com/fatedier/frp/releases/download/v0.55.1/frp_0.55.1_linux_amd64.tar.gz
-  tar -zxvf frp_0.55.1_linux_amd64.tar.gz
-  cd frp_0.55.1_linux_amd64
-  mv /opt/package/conf/frps.ini /opt/frps/frp_0.55.1_linux_amd64
-  nohup ./frps -c frps.ini > frps.log 2>&1 &
-}
-
 # minio 文件导入
 importMinio() {
 	sleep 1m
@@ -409,8 +404,8 @@ py() {
   python3 -m venv /opt/python
   source /opt/python/bin/activate
 
-	pip install websockets
-	pip install psutil
+	/opt/python/bin/pip install websockets
+	/opt/python/bin/pip install psutil
 }
 
 # 启动python脚本
@@ -453,6 +448,25 @@ startPyDaemon() {
   sudo systemctl enable websocket-watchdog.service
   # 立即启动
   sudo systemctl start websocket-watchdog.service
+}
+
+# 安装 MediaMTX
+startMediaMTX() {
+  mkdir -p /opt/docker/mediamtx/config
+  mv /opt/package/conf/mediamtx.yml /opt/docker/mediamtx/config
+  docker run --name mediamtx --network host -e TZ=Asia/Shanghai -v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro -v /opt/docker/mediamtx/config/mediamtx.yml:/mediamtx.yml -v /opt/docker/mediamtx/recordings:/opt/docker/mediamtx/recordings -d bluenviron/mediamtx:1
+
+  startFrps
+}
+
+# 安装 Frp 服务端
+#  wget https://github.com/fatedier/frp/releases/download/v0.68.0/frp_0.68.0_linux_amd64.tar.gz
+startFrps() {
+  mkdir -p /opt/frps
+  mv /opt/package/soft/frp_0.68.0_linux_amd64.tar.gz /opt/frps
+  tar -zxvf /opt/frps/frp_0.68.0_linux_amd64.tar.gz -C /opt/frps
+  mv /opt/package/conf/frps.ini /opt/frps/frp_0.68.0_linux_amd64
+  nohup /opt/frps/frp_0.68.0_linux_amd64/frps -c /opt/frps/frp_0.68.0_linux_amd64/frps.ini > /opt/frps/frp_0.68.0_linux_amd64/frps.log 2>&1 &
 }
 
 # 主函数

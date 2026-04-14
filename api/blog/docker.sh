@@ -202,7 +202,7 @@ updateMysqlConf() {
 # 更新MySQL数据IP地址，用于迁移服务器，替换旧ip
 updateSqlData() {
   newIpAddr=$(curl -4s --fail --connect-timeout 2 ifconfig.me 2>/dev/null || curl -4s --fail --connect-timeout 2 icanhazip.com 2>/dev/null | tr -d '\n')
-  echo "${newIpAddr:-No IP Found}"
+  echo ":-No IP Found}"
 }
 
 # MySQL 数据修改与导入
@@ -395,7 +395,7 @@ startJar() {
 }
 
 # python 脚本执行环境配置
-py() {
+buildPyEnv() {
 	echo "安装python3.9 ... "
 
   sudo apt update
@@ -410,7 +410,7 @@ py() {
 
 # 启动python脚本
 startPy() {
-  py
+  buildPyEnv
   # Java服务启动较慢，等待Java服务完全启动后进行连接
   echo "8分钟后启动socket脚本..."
   sleep 8m
@@ -460,7 +460,7 @@ startMediaMTX() {
 }
 
 # 安装 Frp 服务端
-#  wget https://github.com/fatedier/frp/releases/download/v0.68.0/frp_0.68.0_linux_amd64.tar.gz
+# wget https://github.com/fatedier/frp/releases/download/v0.68.0/frp_0.68.0_linux_amd64.tar.gz
 startFrps() {
   mkdir -p /opt/frps
   mv /opt/package/soft/frp_0.68.0_linux_amd64.tar.gz /opt/frps

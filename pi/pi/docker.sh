@@ -47,7 +47,7 @@ startJava() {
   startRedis
 
   # 启动树莓派服务
-  startSpringBootService
+  startJar
 
   # 启动python脚本
   startPy
@@ -125,7 +125,7 @@ startRedis() {
 }
 
 # 启动树莓派服务
-startSpringBootService() {
+startJar() {
   echo "3分钟后启动pi项目 ... "
   sleep 3m
   mkdir -p /opt/docker/files/jar /opt/docker/files/logs
@@ -142,8 +142,23 @@ startSpringBootService() {
   docker run -d --name pi --privileged=true --cap-add=SYS_ADMIN --restart=always --network blog_network --ip 172.18.0.5 -p 10201:10201 -p 9092:9092 -p 5005:5005 -v /opt/docker/files:/opt/docker/files pi:1
 }
 
+# python 脚本执行环境配置
+buildPyEnv() {
+	echo "安装python3.9 ... "
+
+  sudo apt update
+  sudo apt install -y python3 python3-pip python3.12-venv
+
+  python3 -m venv /opt/python
+  source /opt/python/bin/activate
+
+	/opt/python/bin/pip install websockets
+	/opt/python/bin/pip install psutil
+}
+
 # 启动python脚本
 startPy() {
+  buildPyEnv
   # Java服务启动较慢，等待Java服务完全启动后进行连接
   echo "4分钟后启动python脚本 ... "
   sleep 4m
@@ -151,22 +166,29 @@ startPy() {
   mv /opt/package/python/* /opt/docker/files/python/code
   unzip /opt/docker/files/python/code/python.zip -d /opt/docker/files/python/code
   chmod +x /opt/docker/files/python/code/web_socket.py
-  sed -i 's/\r$//' /opt/docker/files/python/webSocket.py
+  sed -i 's/\r$//' /opt/docker/files/python/code/web_socket.py
   chmod +x /opt/docker/files/python/code/shell/*.sh
-  sed -i 's/\r$//' /opt/docker/files/python/shell/*.sh
+  sed -i 's/\r$//' /opt/docker/files/python/code/shell/*.sh
 
   startPyDaemon
 }
 
 # python 脚本守护线程
 startPyDaemon() {
+
   # 开机唤醒守护线程配置
   mv /opt/package/conf/websocket-watchdog.service /etc/systemd/system/
   sed -i 's/\r$//' /etc/systemd/system/websocket-watchdog.service
+
   # 守护线程
   mv /opt/package/conf/websocket_watchdog.sh /opt/docker/files/python
   sed -i 's/\r$//' /opt/docker/files/python/websocket_watchdog.sh
   chmod +x /opt/docker/files/python/websocket_watchdog.sh
+
+  # 重启脚本
+  mv /opt/package/conf/restart_python.sh /opt/docker/files/python
+  sed -i 's/\r$//' /opt/docker/files/python/restart_python.sh
+  chmod +x /opt/docker/files/python/restart_python.sh
 
   # 重新加载systemd配置
   sudo systemctl daemon-reload
@@ -187,7 +209,7 @@ startPISci() {
 
   # 安装 0.7.0 版本 libcamera
   unzip /opt/package/csi/libcamera.zip -d /root
-  cd /root/libcamera
+  cd /root/libcamera || exit
   git checkout v0.7.0
   meson setup build
   ninja -C build
@@ -195,7 +217,7 @@ startPISci() {
   ldconfig
 
   unzip /opt/package/csi/libcamera-apps.zip -d /root
-  cd /root/libcamera-apps
+  cd /root/libcamera-apps || exit
   meson setup build --buildtype=release
   meson configure build -Denable_libav=disabled
   ninja -C build
@@ -218,15 +240,13 @@ startMediaMTX() {
 }
 
 # 安装 Frp 客户端
+# wget https://github.com/fatedier/frp/releases/download/v0.68.0/frp_0.68.0_linux_arm64.tar.gz
 startFrpc() {
   mkdir -p /opt/frpc
-  cd /opt/frpc
-#  wget https://github.com/fatedier/frp/releases/download/v0.55.1/frp_0.55.1_linux_arm64.tar.gz
-  mv /opt/package/csi/frp_0.55.1_linux_arm64.tar.gz /opt/frpc
-  tar -zxvf frp_0.55.1_linux_arm64.tar.gz
-  cd frp_0.55.1_linux_arm64
-  mv /opt/package/conf/frpc.ini /opt/frpc/frp_0.55.1_linux_arm64
-  nohup ./frpc -c frpc.ini > frpc.log 2>&1 &
+  mv /opt/package/soft/frp_0.68.0_linux_arm64.tar.gz /opt/frpc
+  tar -zxvf /opt/frpc/frp_0.68.0_linux_arm64.tar.gz -C /opt/frpc
+  mv /opt/package/conf/frpc.ini /opt/frpc/frp_0.68.0_linux_arm64
+  nohup /opt/frpc/frp_0.68.0_linux_arm64/frpc -c /opt/frpc/frp_0.68.0_linux_arm64/frpc.ini > /opt/frpc/frp_0.68.0_linux_arm64/frpc.log 2>&1 &
 }
 
 main() {

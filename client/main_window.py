@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
 
 from features.file_manager import FileManager
 from features.settings import Settings
+from features.video_page import VideoPage
 
 
 # -------------------- FlowLayout --------------------
@@ -90,7 +91,8 @@ class FlowLayout(QLayout):
 # -------------------- 功能注册表 --------------------
 FEATURE_REGISTRY = {
     "file_manager": FileManager,
-    "settings": Settings
+    "settings": Settings,
+    "video_page": VideoPage
 }
 
 
@@ -152,6 +154,7 @@ class MainWindow(QMainWindow):
         # -------------------- 首页卡片 --------------------
         self.home_cards = []
         self.add_home_card("📁 文件管理", "file_manager")
+        self.add_home_card("📹 监控视频", "video_page")
         self.add_home_card("⚙️ 设置", "settings")
 
         # -------------------- 右键菜单 --------------------

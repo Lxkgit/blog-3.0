@@ -108,7 +108,9 @@ public class FtpUtil {
     private void createDirectoryByPathName(FTPClient ftpClient, String pathName) throws IOException {
         String[] dirList = pathName.split("/");
         for (String dir : dirList) {
-            if (dir == null || dir.isEmpty()) continue;
+            if (dir == null || dir.isEmpty()) {
+                continue;
+            }
             if (!ftpClient.changeWorkingDirectory(dir)) {
                 ftpClient.makeDirectory(dir);
                 ftpClient.changeWorkingDirectory(dir);

@@ -65,6 +65,7 @@ def load_templates():
         for img_name in os.listdir(cls_dir):
             path = os.path.join(cls_dir, img_name)
             try:
+                print(f"加载图片: {cls_dir} {img_name}")
                 feat = extract_feature(path)
                 features.append(feat)
             except:
@@ -115,6 +116,6 @@ def recognize(image_path, threshold=0.70):
 # --------------------------------------------------------------------
 if __name__ == "__main__":
 
-    test_image = os.path.join(TARGET_DIR, "20.png")
+    test_image = os.path.join(TARGET_DIR, "22.png")
     cls, score = recognize(test_image)
     print(f"Result: {cls}, similarity={score:.3f}")

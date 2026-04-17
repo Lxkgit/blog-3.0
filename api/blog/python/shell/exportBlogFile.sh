@@ -15,7 +15,7 @@ sudo docker exec mysql bash /opt/docker/files/python/code/shell/exportSql.sh
 echo "docker exec exportSql.sh return code: $?"
 
 # 导出博客文件数据
-cd /opt/docker/minio
+cd /opt/docker/minio || exit
 
 echo "设置 mc alias"
 ./mc alias set local http://172.18.0.11:9000 minio minio-960@*
@@ -25,7 +25,7 @@ echo "mirror minio blog bucket"
 ./mc mirror local/blog ./files
 echo "mc mirror return code: $?"
 
-cd /opt/docker/minio/files
+cd /opt/docker/minio/files || exit
 
 echo "压缩 files.zip"
 zip -r files.zip ./*
@@ -42,7 +42,7 @@ rm -rf /opt/docker/minio/files
 echo "rm -rf return code: $?"
 
 # 压缩文件
-cd /opt/docker/files/temp/blog
+cd /opt/docker/files/temp/blog || exit
 
 echo "压缩 blog.zip"
 zip -r blog.zip ./*

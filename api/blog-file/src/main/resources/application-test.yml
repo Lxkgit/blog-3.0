@@ -15,7 +15,7 @@ spring:
     time-zone: GMT+8
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${devServiceIp}:3306/blog_file?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://${devServiceIp}:3306/blog_file_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
     username: root
     password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)
   servlet:
@@ -24,7 +24,7 @@ spring:
       max-request-size: 110MB # 设置单次请求文件的总大小
   data:
     redis:
-      database: 0
+      database: 1
       host: ${devServiceIp}
       port: 6379
       password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
@@ -38,12 +38,12 @@ spring:
 rocketmq:
   name-server: ${devServiceIp}:9876 # 访问地址
   producer:
-    group: file # 必须指定group
+    group: fileTest # 必须指定group
     send-message-timeout: 3000 # 消息发送超时时长，默认3s
     retry-times-when-send-failed: 3 # 同步发送消息失败重试次数，默认2
     retry-times-when-send-async-failed: 3 # 异步发送消息失败重试次数，默认2
   consumer:
-    groupName: file
+    groupName: fileTest
     namesrvAddr: ${devServiceIp}:9876 # mq的nameserver地址
     #该消费者订阅的主题和tags("*"号表示订阅该主题下所有的tags),格式：topic~tag1||tag2||tag3;topic2~*;
     topics: BLOG_USER_DATA~*;BLOG_SYSTEM_DATA~*;

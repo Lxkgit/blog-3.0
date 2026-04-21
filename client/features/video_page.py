@@ -41,8 +41,7 @@ class VideoPage(QWidget):
         self.list_widget.customContextMenuRequested.connect(self.open_context_menu)
 
         self.streams = {
-            "摄像头1": "rtsp://49.232.129.253:8554/cam1",
-            "摄像头2": "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov",
+            "摄像头1": "rtsp://49.232.129.253:8554/cam1"
         }
 
         # 初始化列表（全部设为 idle 图标）

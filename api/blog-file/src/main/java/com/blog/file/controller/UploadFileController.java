@@ -90,7 +90,7 @@ public class UploadFileController {
         );
 
         // 3. 动态设置Content-Type
-        String contentType = determineContentType(objectName); // 实现此方法
+        String contentType = determineContentType(objectName);
         if (contentType == null || contentType.isEmpty()) {
             contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }

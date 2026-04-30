@@ -1,52 +1,48 @@
 <template>
   <div>
-    <div class="title_style">
-      <span>日历</span>
-    </div>
     <div>
-      <div class="calendar-container">
-        <div class="calendar">
-          <div class="calendar-header">
-            <button class="nav-button" @click="changeMonth(-1)">← 上月</button>
-            <div class="month-year">{{ monthYear }}</div>
-            <button class="nav-button" @click="changeMonth(1)">下月 →</button>
-          </div>
+      <div class="calendar">
+        <div class="calendar-header">
+          <button class="nav-button" @click="changeMonth(-1)">← 上月</button>
+          <div class="month-year">{{ monthYear }}</div>
+          <button class="nav-button" @click="changeMonth(1)">下月 →</button>
+        </div>
 
-          <div class="calendar-grid">
-            <div v-for="day in dayHeaders" :key="day" class="day-header">
-              {{ day }}
+        <div class="calendar-grid">
+          <div v-for="day in dayHeaders" :key="day" class="day-header">
+            {{ day }}
+          </div>
+          <div
+            v-for="(day, index) in calendarDays"
+            :key="index"
+            class="calendar-day"
+            :class="{
+              'other-month': !day.isCurrentMonth,
+              today: day.isToday,
+            }"
+            @click="handleDayClick(day.date)"
+            @contextmenu.prevent="handleContextMenu($event, day.date)"
+          >
+            <div class="date-number">{{ day.date.getDate() }}</div>
+            <div class="events-container">
+              <div
+                v-for="event in getDayEvents(day.date)"
+                :key="event.title"
+                class="event-marker"
+                :style="{ backgroundColor: event.color }"
+              >
+                {{ event.title }}
+              </div>
             </div>
-            <div
-              v-for="(day, index) in calendarDays"
-              :key="index"
-              class="calendar-day"
-              :class="{
-                'other-month': !day.isCurrentMonth,
-                today: day.isToday,
-              }"
-              @click="handleDayClick(day.date)"
-              @contextmenu.prevent="handleContextMenu($event, day.date)"
-            >
-              <div class="date-number">{{ day.date.getDate() }}</div>
-              <div class="events-container">
-                <div
-                  v-for="event in getDayEvents(day.date)"
-                  :key="event.title"
-                  class="event-marker"
-                  :style="{ backgroundColor: event.color }"
-                >
-                  {{ event.title }}
-                </div>
-              </div>
-              <div v-if="getDayEvents(day.date).length > 0" class="event-count">
-                {{ getDayEvents(day.date).length }}
-              </div>
+            <div v-if="getDayEvents(day.date).length > 0" class="event-count">
+              {{ getDayEvents(day.date).length }}
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- 事件详情弹窗 -->
-        <!-- <div v-if="showEventModal" class="modal" @click.self="closeModal">
+      <!-- 事件详情弹窗 -->
+      <!-- <div v-if="showEventModal" class="modal" @click.self="closeModal">
                     <div class="modal-close" @click="closeModal">×</div>
                     <h3>{{ modalDateString }}</h3>
                     <div class="modal-events">
@@ -57,12 +53,11 @@
                     </div>
                 </div> -->
 
-        <!-- 右键菜单 -->
-        <div v-show="showContextMenu" class="context-menu" :style="contextMenuStyle">
-          <div class="menu-item" @click="addEvent('meeting')">添加会议</div>
-          <div class="menu-item" @click="addEvent('reminder')">添加提醒</div>
-          <div class="menu-item" @click="addEvent('custom')">自定义事项</div>
-        </div>
+      <!-- 右键菜单 -->
+      <div v-show="showContextMenu" class="context-menu" :style="contextMenuStyle">
+        <div class="menu-item" @click="addEvent('meeting')">添加会议</div>
+        <div class="menu-item" @click="addEvent('reminder')">添加提醒</div>
+        <div class="menu-item" @click="addEvent('custom')">自定义事项</div>
       </div>
     </div>
   </div>

@@ -1,11 +1,13 @@
 <template>
   <div>
-    <div class="title_style">
-      <span>定时任务日志</span>
-    </div>
-    <el-card style="margin: 18px 2%; width: 95%">
-      <el-table @expand-change="selectTaskLogByTaskUUIDFun" row-key="taskUUID" :expand-row-keys="expandedRowKeys"
-        :data="taskLogList.data" stripe style="width: 100%; height: calc(100vh - 296px)">
+    <el-card>
+      <el-table
+        @expand-change="selectTaskLogByTaskUUIDFun"
+        row-key="taskUUID"
+        :data="taskLogList.data"
+        stripe
+        style="height: 75vh"
+      >
         <el-table-column type="expand">
           <template #default="props">
             <div m="4">
@@ -18,9 +20,7 @@
                 </el-table-column>
                 <el-table-column label="任务执行返回数据">
                   <template #default="scope">
-                    {{
-                      scope.row.taskResult
-                    }}
+                    {{ scope.row.taskResult }}
                   </template>
                 </el-table-column>
 
@@ -47,9 +47,17 @@
         </el-table-column>
       </el-table>
       <div style="margin: 20px 0 50px 0">
-        <el-pagination background v-model:current-page="page" v-model:page-size="size" :page-sizes="[10, 20, 50, 100]"
-          style="float: right" layout="total, sizes, prev, pager, next, jumper" @current-change="pageChange"
-          @size-change="sizeChange" :total="total">
+        <el-pagination
+          background
+          v-model:current-page="page"
+          v-model:page-size="size"
+          :page-sizes="[10, 20, 50, 100]"
+          style="float: right"
+          layout="total, sizes, prev, pager, next, jumper"
+          @current-change="pageChange"
+          @size-change="sizeChange"
+          :total="total"
+        >
         </el-pagination>
       </div>
     </el-card>
@@ -64,16 +72,8 @@ import icon from '@/utils/icon'
 import timeFormat from '@/utils/timeFormat'
 
 let { diffFormat } = timeFormat()
-let {
-  page,
-  size,
-  total,
-  expandedRowKeys,
-  taskLogList,
-  pageChange,
-  sizeChange,
-  selectTaskLogByTaskUUIDFun,
-} = taskLogFn()
+let { page, size, total, taskLogList, pageChange, sizeChange, selectTaskLogByTaskUUIDFun } =
+  taskLogFn()
 
 let { MyIcon } = icon()
 
@@ -89,8 +89,6 @@ function taskLogFn(): any {
   let page = ref<number>(1)
   let size = ref<number>(20)
   let total = ref<number>(0)
-
-  let expandedRowKeys: any[]
 
   // 用户列表
   let taskLogList: any = reactive({ data: [] })
@@ -128,8 +126,6 @@ function taskLogFn(): any {
    */
   const selectTaskLogByTaskUUIDFun = (row: any, expandedRows: any[]) => {
     console.log(row)
-    // 更新expandedRowKeys
-    expandedRowKeys = expandedRows.map((item) => item.taskCode)
     selectTaskLogByTaskUUIDApi({
       taskUUID: row.taskUUID,
     }).then((res: any) => {
@@ -144,7 +140,6 @@ function taskLogFn(): any {
     page,
     size,
     total,
-    expandedRowKeys,
     taskLogList,
     pageChange,
     sizeChange,

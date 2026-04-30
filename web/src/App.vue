@@ -86,42 +86,6 @@ watch(
   },
 )
 
-// async function selectBlogSettingByIdFun() {
-//   if (!store.socketFlag) {
-//     let fGlobal = false
-//     let fUser = false
-//     if (store.serviceIP === "") {
-//       await selectBlogSettingByIdApi(SettingEnum.getEnumValueByLabel("serviceIP")).then((res) => {
-//         if (res.code === 200) {
-//           store.setServiceIP(res.result.value)
-//         }
-//       })
-//     }
-//     await selectBlogSettingByIdApi(SettingEnum.getEnumValueByLabel("globalSocket")).then((res) => {
-//       if (res.code === 200) {
-//         store.setGlobalSocket(res.result.bool)
-//         fGlobal = true
-//       }
-//     })
-//     await selectBlogSettingByIdApi(SettingEnum.getEnumValueByLabel("userSocket")).then((res) => {
-//       if (res.code === 200) {
-//         store.setUserSocket(res.result.bool)
-//         fUser = true
-//       }
-//     })
-//     if (fGlobal && fUser) {
-//       store.setSocketFlag(true)
-//     }
-//   }
-//   if (store.globalSocket) {
-//     openSocketAll();
-//   }
-//   if (store.userSocket) {
-//     if (isLogin.value) {
-//       openSocketUser(userId.value);
-//     }
-//   }
-// }
 </script>
 
 <style>

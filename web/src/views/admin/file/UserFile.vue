@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div class="title_style">
-      <span>个人云盘</span>
-    </div>
-    <el-card style="margin: 18px 2%; width: 95%; color: #606266">
+    <el-card style="height: 85vh; color: #606266">
       <div
         style="display: flex; font-size: 14px; justify-content: flex-start; align-items: flex-start"
       >
@@ -39,6 +36,7 @@
             style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
             active-text="列表"
             inactive-text="卡片"
+            @change="updateSwitchFlag"
           />
         </div>
       </div>
@@ -55,7 +53,7 @@
         @contextmenu.prevent="openMenu($event)"
       >
         <div style="display: flex">
-          <div v-if="switchFlag" style="width: 77vw" @contextmenu.prevent.stop="openMenu($event)">
+          <div v-if="switchFlag" style="width: 84vw" @contextmenu.prevent.stop="openMenu($event)">
             <!-- 表头 -->
             <ul class="table-header">
               <li
@@ -319,6 +317,23 @@
                         type="icon-delete"
                         @click="deleteFileFun(item)"
                       />
+                      <el-dropdown>
+                        <el-button type="primary">移动</el-button>
+                        <template #dropdown>
+                          <el-dropdown-menu>
+                            <el-dropdown-item
+                              v-for="(dir, rowIndex) in dirList.data"
+                              :key="rowIndex"
+                              @click="moveFileFun(dir, item)"
+                            >
+                              {{ dir.dirName }}
+                            </el-dropdown-item>
+                            <el-dropdown-item @click="moveFileFun(null, item)">
+                              删除
+                            </el-dropdown-item>
+                          </el-dropdown-menu>
+                        </template>
+                      </el-dropdown>
                     </div>
                   </div>
                 </div>
@@ -555,6 +570,7 @@ import mixin from '@/mixins/fileType'
 import { ElImageViewer } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import timeFormat from '@/utils/timeFormat'
+import { fileStore } from '@/store/file'
 
 let { timeToMinOrHour } = timeFormat()
 
@@ -569,6 +585,7 @@ let {
   dialogImageUrl,
   menu,
   openMenu,
+  updateSwitchFlag,
   showFileDesc,
   saveFileDirFun,
   changeUpload,
@@ -597,6 +614,9 @@ let {
   handleDialogOpen,
   handleDialogClose,
 } = videoFn()
+
+const fStore = fileStore()
+
 let { fileTypeEnum, fileStatusEnum, fileSizeConvert } = mixin()
 let { MyIcon } = icon()
 
@@ -610,6 +630,12 @@ let headers = [
 ]
 
 onMounted(() => {
+  // 初始化目录
+  if (fStore.filePath !== 'null') {
+    filePath.value = fStore.filePath
+    filePathArr.value = fStore.filePathArr
+  }
+  switchFlag.value = fStore.switchFlag
   selectFileDirOrFileFun()
 })
 
@@ -766,6 +792,7 @@ function fileFn(): any {
     dir: null,
     file: null,
   })
+
   /**
    * 打开菜单
    */
@@ -803,7 +830,12 @@ function fileFn(): any {
   // 注册表单验证规则
   const createFileRules = {
     name: [{ required: true, message: '请输入目录名称', trigger: 'blur' }],
-    // dirType: [{ required: true, message: '请选择目录类型', trigger: 'blur' }],
+  }
+
+  const updateSwitchFlag = (val: boolean) => {
+    console.log('切换开关')
+    console.log('切换开关' + val)
+    fStore.switchFlag = val
   }
 
   /**
@@ -908,11 +940,15 @@ function fileFn(): any {
       filePath.value = null
       filePathArr.value = []
       selectFileDirOrFileFun()
+      fStore.filePath = filePath.value
+      fStore.filePathArr = filePathArr.value
     } else if (idx === -2) {
       // 回到上一级
       if (filePathArr.value.length <= 1) {
         filePath.value = null
         filePathArr.value = []
+        fStore.filePath = filePath.value
+        fStore.filePathArr = filePathArr.value
       } else {
         idx = filePathArr.value.length - 2
         filePath.value = ''
@@ -920,6 +956,8 @@ function fileFn(): any {
           filePath.value += filePathArr.value[i]
         }
         filePathArr.value.splice(idx + 1)
+        fStore.filePath = filePath.value
+        fStore.filePathArr = filePathArr.value
       }
       selectFileDirOrFileFun()
     } else {
@@ -931,8 +969,11 @@ function fileFn(): any {
         }
         filePathArr.value.splice(idx + 1)
         selectFileDirOrFileFun()
+        fStore.filePath = filePath.value
+        fStore.filePathArr = filePathArr.value
       }
     }
+    console.log('当前路径 ： ' + filePath + '  store' + fStore.filePath)
   }
 
   /**
@@ -946,6 +987,8 @@ function fileFn(): any {
     } else {
       filePath.value = '/' + dir.dirName
     }
+    fStore.filePath = filePath.value
+    fStore.filePathArr = filePathArr.value
     selectFileDirOrFileFun()
   }
 
@@ -1029,7 +1072,7 @@ function fileFn(): any {
       dirName: item.dirName,
     }).then((res: any) => {
       if (res.code === 200) {
-        ElMessage.success('文件删除成功')
+        ElMessage.success('目录删除成功')
         selectFileDirOrFileFun()
       }
     })
@@ -1107,6 +1150,7 @@ function fileFn(): any {
     dialogImageUrl,
     menu,
     openMenu,
+    updateSwitchFlag,
     showFileDesc,
     saveFileDirFun,
     changeUpload,

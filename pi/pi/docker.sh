@@ -6,6 +6,31 @@ mysqlPassword="MySql@Admin123*."
 # redis登陆密码
 redisPassword="redis-960@*"
 
+# 服务器相关依赖下载
+util(){
+	echo "下载服务器环境所需依赖..."
+	waitAptLock
+	sudo apt update
+	# 压缩解压工具
+	apt install -y unzip zip
+}
+
+# 等待解锁方法
+waitAptLock() {
+    echo "等待 apt/dpkg 锁释放..."
+
+    while fuser /var/lib/dpkg/lock >/dev/null 2>&1 || \
+          fuser /var/lib/apt/lists/lock >/dev/null 2>&1 || \
+          fuser /var/cache/apt/archives/lock >/dev/null 2>&1 || \
+          fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1
+    do
+        echo "锁被占用，等待 3 秒..."
+        sleep 3
+    done
+
+    echo "锁已释放，继续执行..."
+}
+
 # 依赖文件解压
 unzipPi() {
   mkdir -p /opt/package
@@ -146,7 +171,7 @@ startJar() {
 buildPyEnv() {
 	echo "安装python3.9 ... "
 
-  sudo apt update
+  waitAptLock
   sudo apt install -y python3 python3-pip python3.12-venv
 
   python3 -m venv /opt/python
@@ -200,8 +225,10 @@ startPyDaemon() {
 
 # 安装树莓派SCI摄像头服务
 startPISci() {
+  waitAptLock
   sudo apt update
-  sudo apt upgrade -y
+  sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y
+  sleep 10m
   sudo apt install -y git cmake meson ninja-build build-essential python3-pip python3-yaml python3-ply libgnutls28-dev openssl libexpat1-dev libcamera-dev v4l-utils
   sudo apt install -y libboost-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev
   sudo apt install -y libavutil-dev libexif-dev libjpeg-dev libtiff5-dev libpng-dev libavcodec-dev libavdevice-dev libavformat-dev libswscale-dev libepoxy-dev libdrm-dev libwebp-dev libx11-dev
@@ -251,6 +278,9 @@ startFrpc() {
 
 main() {
   timer_start=$(date "+%Y-%m-%d %H:%M:%S")
+
+  # 安装依赖工具
+  util
 
   # 解压依赖文件
   unzipPi

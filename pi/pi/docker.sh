@@ -236,6 +236,7 @@ startPISci() {
 
   # 安装 0.7.0 版本 libcamera
   unzip /opt/package/csi/libcamera.zip -d /root
+  unzip /opt/package/csi/libpisp-1.3.0.zip -d /root/libcamera
   cd /root/libcamera || exit
   git checkout v0.7.0
   meson setup build

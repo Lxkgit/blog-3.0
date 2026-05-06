@@ -196,32 +196,10 @@ startPy() {
   chmod +x /opt/docker/files/python/code/shell/*.sh
   sed -i 's/\r$//' /opt/docker/files/python/code/shell/*.sh
 
-  startPyDaemon
-}
-
-# python 脚本守护线程
-startPyDaemon() {
-
-  # 开机唤醒守护线程配置
-  mv /opt/package/conf/websocket-watchdog.service /etc/systemd/system/
-  sed -i 's/\r$//' /etc/systemd/system/websocket-watchdog.service
-
-  # 守护线程
-  mv /opt/package/conf/websocket_watchdog.sh /opt/docker/files/python
-  sed -i 's/\r$//' /opt/docker/files/python/websocket_watchdog.sh
-  chmod +x /opt/docker/files/python/websocket_watchdog.sh
-
   # 重启脚本
   mv /opt/package/conf/restart_python.sh /opt/docker/files/python
   sed -i 's/\r$//' /opt/docker/files/python/restart_python.sh
   chmod +x /opt/docker/files/python/restart_python.sh
-
-  # 重新加载systemd配置
-  sudo systemctl daemon-reload
-  # 开机自启
-  sudo systemctl enable websocket-watchdog.service
-  # 立即启动
-  sudo systemctl start websocket-watchdog.service
 }
 
 # 安装树莓派SCI摄像头服务
@@ -266,6 +244,7 @@ startMediaMTX() {
   docker run --name mediamtx --network host -v /opt/docker/mediamtx/config/mediamtx.yml:/mediamtx.yml -v /opt/docker/mediamtx/recordings:/opt/docker/mediamtx/recordings -d bluenviron/mediamtx:1
 
   startFrpc
+  startCamera
 }
 
 # 安装 Frp 客户端
@@ -276,6 +255,38 @@ startFrpc() {
   tar -zxvf /opt/frpc/frp_0.68.0_linux_arm64.tar.gz -C /opt/frpc
   mv /opt/package/conf/frpc.ini /opt/frpc/frp_0.68.0_linux_arm64
   nohup /opt/frpc/frp_0.68.0_linux_arm64/frpc -c /opt/frpc/frp_0.68.0_linux_arm64/frpc.ini > /opt/frpc/frp_0.68.0_linux_arm64/frpc.log 2>&1 &
+}
+
+# 启动摄像头脚本文件位置，脚本由守护线程管理
+startCamera() {
+  mkdir -p /opt/docker/camera
+  mv /opt/package/conf/startCSI.sh /opt/docker/camera
+  sed -i 's/\r$//' /opt/docker/camera/startCSI.sh
+  mv /opt/package/conf/stopCSI.sh /opt/docker/camera
+  sed -i 's/\r$//' /opt/docker/camera/stopCSI.sh
+
+}
+
+# 脚本守护线程
+startWatchService() {
+
+  mkdir -p /opt/docker/watchdog
+
+  # 开机唤醒守护线程配置
+  mv /opt/package/conf/watchdog.service /etc/systemd/system/
+  sed -i 's/\r$//' /etc/systemd/system/watchdog.service
+
+  # 守护线程
+  mv /opt/package/conf/watchdog.sh /opt/docker/files/python
+  sed -i 's/\r$//' /opt/docker/watchdog/watchdog.sh
+  chmod +x /opt/docker/watchdog/watchdog.sh
+
+  # 重新加载systemd配置
+  sudo systemctl daemon-reload
+  # 开机自启
+  sudo systemctl enable watchdog.service
+  # 立即启动
+  sudo systemctl start watchdog.service
 }
 
 main() {
@@ -296,6 +307,9 @@ main() {
   # 启动树莓派SCI摄像头服务
   startMediaMTX
 
+  # 脚本守护线程
+  startWatchService
+
   timer_end=$(date "+%Y-%m-%d %H:%M:%S")
   diff=$(( $(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}") ))
   duration=$(printf "%02d:%02d:%02d" $((diff/3600)) $((diff%3600/60)) $((diff%60)))
@@ -304,10 +318,3 @@ main() {
 }
 
 main
-
-# 压缩包pi.zip目录
-# pi.zip
-# - images        # 存放docker镜像文件
-# - jar           # 存放博客jar包
-# - sql           # 存放博客sql文件
-# - conf          # 存放需要替换的配置文件

@@ -163,6 +163,7 @@ startJar() {
   chmod +x /opt/docker/files/jar/restart.sh
   # shellcheck disable=SC2164
   cd /opt/docker/files/jar
+  docker load -i /opt/package/images/jdk17.tar
   docker build -t pi:1 .
   docker run -d --name pi --privileged=true --cap-add=SYS_ADMIN --restart=always --network blog_network --ip 172.18.0.5 -p 10201:10201 -p 9092:9092 -p 5005:5005 -v /opt/docker/files:/opt/docker/files pi:1
 }

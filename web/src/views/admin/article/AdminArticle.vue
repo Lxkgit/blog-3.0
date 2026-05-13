@@ -1,8 +1,5 @@
 <template>
   <div>
-    <div class="title_style">
-      <span>文章管理</span>
-    </div>
     <el-card style="margin: 18px 2%; width: 95%">
       <el-button type="primary" plain @click="editArticle('null')">新增</el-button>
       <el-popover :visible="deleteBtnPopoverByIds" placement="top" :width="160">

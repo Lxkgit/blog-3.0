@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div class="title_style">
-      <span>服务器设备管理</span>
-    </div>
-    <el-card style="margin: 18px 2%; width: 95%; height: calc(100vh - 206px); overflow-y: auto;">
+    <el-card style="height: 85vh; overflow-y: auto;">
       <div style="height: 30px; ">
         <el-breadcrumb separator="/">
           <el-breadcrumb-item style="cursor: pointer;" @click="showType = 0">云服务器</el-breadcrumb-item>
@@ -87,14 +84,5 @@ const receiveSensor = (sensor: any) => {
 </script>
 
 <style scoped>
-.title_style {
-  display: flex;
-  justify-content: flex-start;
-  align-items: baseline;
-  max-height: 31px;
-  color: #445160;
-  font-size: 24px;
-  font-weight: 600;
-  text-align: left;
-}
+
 </style>

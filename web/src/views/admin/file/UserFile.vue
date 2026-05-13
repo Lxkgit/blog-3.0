@@ -565,7 +565,7 @@ import {
   moveFileApi,
 } from '@/api/file'
 import icon from '@/utils/icon'
-import { onMounted, onBeforeUnmount, ref, reactive, nextTick } from 'vue'
+import { onMounted, onUnmounted, onBeforeUnmount, ref, reactive, nextTick } from 'vue'
 import mixin from '@/mixins/fileType'
 import { ElImageViewer } from 'element-plus'
 import { ElMessage } from 'element-plus'
@@ -637,7 +637,18 @@ onMounted(() => {
   }
   switchFlag.value = fStore.switchFlag
   selectFileDirOrFileFun()
+  window.addEventListener("keydown", onKey)
 })
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", onKey)
+})
+
+function onKey(e: KeyboardEvent) {
+  if (e.key === "Backspace") {
+    changePath(-2)
+  }
+}
 
 function videoFn(): any {
   let video: any = reactive({

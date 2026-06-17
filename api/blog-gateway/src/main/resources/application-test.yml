@@ -16,7 +16,7 @@ spring:
       password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${devServiceIp}:3306/blog_gateway_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${devServiceIp}:3306/blog_gateway?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
     username: root
     password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)
 

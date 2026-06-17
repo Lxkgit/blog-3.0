@@ -265,7 +265,7 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <devServiceIp>49.232.129.253</devServiceIp>
+                <devServiceIp>192.168.152.129</devServiceIp>
                 <env>test</env>
             </properties>
         </profile>

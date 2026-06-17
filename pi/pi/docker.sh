@@ -183,6 +183,9 @@ buildPyEnv() {
 
 	/opt/python/bin/pip install websockets
 	/opt/python/bin/pip install psutil
+
+	# 退出python虚拟环境
+	deactivate
 }
 
 # 启动python脚本
@@ -209,7 +212,7 @@ startPy() {
 startPISci() {
   waitAptLock
   sudo apt update
-  sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y
+  sudo apt upgrade -y
   sleep 10m
   sudo apt install -y git cmake meson ninja-build build-essential python3-pip python3-yaml python3-ply libgnutls28-dev openssl libexpat1-dev libcamera-dev v4l-utils
   sudo apt install -y libboost-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev
@@ -265,8 +268,11 @@ startCamera() {
   mkdir -p /opt/docker/camera
   mv /opt/package/conf/startCSI.sh /opt/docker/camera
   sed -i 's/\r$//' /opt/docker/camera/startCSI.sh
+  chmod +x /opt/docker/camera/startCSI.sh
+
   mv /opt/package/conf/stopCSI.sh /opt/docker/camera
   sed -i 's/\r$//' /opt/docker/camera/stopCSI.sh
+  chmod +x /opt/docker/camera/stopCSI.sh
 
 }
 
@@ -280,7 +286,7 @@ startWatchService() {
   sed -i 's/\r$//' /etc/systemd/system/watchdog.service
 
   # 守护线程
-  mv /opt/package/conf/watchdog.sh /opt/docker/files/python
+  mv /opt/package/conf/watchdog.sh /opt/docker/watchdog
   sed -i 's/\r$//' /opt/docker/watchdog/watchdog.sh
   chmod +x /opt/docker/watchdog/watchdog.sh
 
@@ -311,7 +317,7 @@ main() {
   startMediaMTX
 
   # 脚本守护线程
-  startWatchService
+#  startWatchService
 
   timer_end=$(date "+%Y-%m-%d %H:%M:%S")
   diff=$(( $(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}") ))

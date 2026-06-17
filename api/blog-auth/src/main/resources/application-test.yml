@@ -7,12 +7,6 @@ jasypt:
   encryptor:
     password: gszero
 
-#logging:
-#  level:
-#    org:
-#      springframework:
-#        security: trace
-
 spring:
   application:
     name: blog-auth
@@ -21,7 +15,7 @@ spring:
     time-zone: GMT+8
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${devServiceIp}:3306/blog_auth_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${devServiceIp}:3306/blog_auth?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
     username: root
     password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)
   data:
@@ -56,6 +50,6 @@ easy-es:
   password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
 
 redirect:
-  login: http://localhost:5173/login
-  callback: http://localhost:5173/callback
-  serviceIp: http://localhost:60001
+  login: http://${devServiceIp}/login
+  callback: http://${devServiceIp}/callback
+  serviceIp: http://${devServiceIp}/api

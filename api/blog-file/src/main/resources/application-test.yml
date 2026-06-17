@@ -15,7 +15,7 @@ spring:
     time-zone: GMT+8
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${devServiceIp}:3306/blog_file_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://${devServiceIp}:3306/blog_file?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
     username: root
     password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)
   servlet:
@@ -74,7 +74,7 @@ file:
   system: linux
   basePath: /opt/files
   baseUri: /files
-  serviceIp: http://localhost
+  serviceIp: http://${devServiceIp}
 
 netty:
   port: 60032

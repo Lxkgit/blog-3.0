@@ -18,6 +18,7 @@ minioPassword="minio-960@*"
 ftpUsername="system"
 ftpPassword="Ftp@Admin123*."
 
+hostIpAddr="192.168.152.128"
 oldIpAddr="49.232.129.253"
 
 

@@ -63,7 +63,7 @@ getServiceIp() {
 
   if [ -f "$SERVICE_INFO_FILE" ]; then
     # shellcheck disable=SC1090
-    source "${SERVICE_INFO_FILE}"
+    . "${SERVICE_INFO_FILE}"
   else
     echo "首次部署，未找到历史配置文件"
   fi

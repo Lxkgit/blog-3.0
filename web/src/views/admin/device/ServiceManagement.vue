@@ -3,7 +3,8 @@
     <el-card style="height: 85vh; overflow-y: auto;">
       <div style="height: 30px; ">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item style="cursor: pointer;" @click="showType = 0">云服务器</el-breadcrumb-item>
+          <el-breadcrumb-item style="cursor: pointer;"
+            @click="showType = 0">云服务器</el-breadcrumb-item>
           <el-breadcrumb-item style="cursor: pointer;" v-if="showType >= 0"
             @click="showType = 1">服务器设备</el-breadcrumb-item>
           <el-breadcrumb-item style="cursor: pointer;" v-if="showType == 2"

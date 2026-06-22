@@ -6,12 +6,13 @@ MAINTAINER gszero
 # 指定工作目录
 WORKDIR /opt
 
-# 拷贝jar包并重命名为demo.jar
-ADD run.sh run.sh
-ADD blog-gateway.jar blog-gateway.jar
-ADD blog-auth.jar blog-auth.jar
-ADD blog-content.jar blog-content.jar
-ADD blog-file.jar blog-file.jar
+# 文件与目录复制到docker容器中
+ADD run.sh /opt/run.sh
+
+ADD gateway /opt/gateway
+ADD auth /opt/auth
+ADD content /opt/content
+ADD file /opt/file
 
 #  expose  该容器暴露的端口是多少，就是jar在容器中以多少端口运行
 EXPOSE 60001
@@ -19,7 +20,7 @@ EXPOSE 60001
 # 赋予启动脚本可执行权限
 RUN chmod +x run.sh
 
-CMD ["./run.sh"]
+CMD ["/opt/run.sh"]
 
 #CMD ["java", "-jar", "blog-gateway.jar"]
 #CMD ["java", "-jar", "blog-user.jar"]

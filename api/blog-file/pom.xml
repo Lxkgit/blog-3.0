@@ -206,11 +206,12 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <includes>
-                    <include>**.*</include>
-                    <include>**/**.*</include>
-                </includes>
-                <filtering>true</filtering>
+                <excludes>
+                    <exclude>application.yml</exclude>
+                    <exclude>application-*.yml</exclude>
+                    <exclude>bootstrap.yml</exclude>
+                    <exclude>bootstrap-*.yml</exclude>
+                </excludes>
             </resource>
         </resources>
     </build>

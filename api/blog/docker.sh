@@ -1,10 +1,17 @@
 #! /bin/bash
 
+# 参数部分
 # 下载失败重新尝试次数
 reload=10
+# 默认服务配置
+profile="pro"
+
 
 # 将命令赋值给变量
 command=""
+
+# 服务器部署文件信息
+SERVICE_INFO_FILE="/opt/docker/info.conf"
 
 # MySQL登陆密码
 mysqlPassword="MySql@Admin123*."
@@ -18,9 +25,17 @@ minioPassword="minio-960@*"
 ftpUsername="system"
 ftpPassword="Ftp@Admin123*."
 
-hostIpAddr="192.168.152.128"
-oldIpAddr="49.232.129.253"
+# 本机ip
+hostIp=""
+# 上次部署ip
+lastIp=""
 
+# 系统颜色变量
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
+NC='\033[0m'
 
 # 服务器相关依赖下载
 util(){
@@ -36,6 +51,29 @@ unzipBlog() {
 	mkdir -p /opt/package
   mv ./blog.zip /opt/package/
   unzip /opt/package/blog.zip -d /opt/package/
+}
+
+getServiceIp() {
+
+  if [ "$profile" = "pro" ]; then
+    hostIp=$(curl -4 -s ifconfig.me)
+  else
+    hostIp=$(ip route get 8.8.8.8 | awk '{print $7; exit}')
+  fi
+  echo "hostIp: $hostIp"
+
+  if [ -f "SERVICE_INFO_FILE" ]; then
+    source "SERVICE_INFO_FILE"
+    echo "上次部署IP: $lastIp"
+  else
+    echo "首次部署，未找到历史配置文件"
+  fi
+
+  echo "${YELLOW}====================================${NC}"
+  echo -e "上次部署IP: ${RED}${lastIp}${NC}"
+  echo -e "本次部署IP: ${GREEN}${hostIp}${NC}"
+  echo "${YELLOW}====================================${NC}"
+
 }
 
 # 添加4g的虚拟内存
@@ -202,8 +240,13 @@ updateMysqlConf() {
 
 # 更新MySQL数据IP地址，用于迁移服务器，替换旧ip
 updateSqlData() {
-  newIpAddr=$(curl -4s --fail --connect-timeout 2 ifconfig.me 2>/dev/null || curl -4s --fail --connect-timeout 2 icanhazip.com 2>/dev/null | tr -d '\n')
-  echo ":-No IP Found}"
+    # 配置文件中ip替换
+    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/nacos.sql
+    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_auth.sql
+    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_content.sql
+    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_file.sql
+    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_gateway.sql
+
 }
 
 # MySQL 数据修改与导入
@@ -378,8 +421,8 @@ startMinio() {
 	importMinio
 }
 
-# 启动Java服务
-startJar() {
+updateJarConfig() {
+  # jar包打包文件移动
   mkdir -p /opt/docker/files/jar
   mv /opt/package/jar/* /opt/docker/files/jar
   sed -i 's/\r$//' /opt/docker/files/jar/run.sh
@@ -387,6 +430,24 @@ startJar() {
   sed -i 's/\r$//' /opt/docker/files/jar/restart.sh
   chmod +x /opt/docker/files/jar/restart.sh
   mkdir -p /opt/docker/files/logs
+
+  # 指定配置文件
+  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/auth/bootstrap.yml
+  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/content/bootstrap.yml
+  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/gateway/bootstrap.yml
+  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/file/bootstrap.yml
+
+  # 配置文件中ip替换
+  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/jar/auth/application-${profile}.yml
+  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/jar/content/application-${profile}.yml
+  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/jar/gateway/application-${profile}.yml
+  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/jar/file/application-${profile}.yml
+
+}
+
+# 启动Java服务
+startJar() {
+  updateJarConfig
   # 等待nacos启动
   echo "3分钟后启动博客服务..."
   sleep 3m
@@ -480,6 +541,9 @@ main() {
   # 解压压缩包
   unzipBlog
 
+  # 获取服务器ip
+  getServiceIp
+
   # 添加虚拟内存
   addVirtualMemory
 
@@ -497,7 +561,7 @@ main() {
 }
 
 # 获取参数
-while getopts "n:" arg
+while getopts "n:e:" arg
   do
 		case "$arg" in
 		  n)
@@ -505,11 +569,16 @@ while getopts "n:" arg
 				reload=$OPTARG
 				echo "$reload"
 				;;
+      e)
+        profile=$OPTARG
+        ;;
 			?)
 				echo "没有找到这条命令 ... "
 				exit 1
 				;;
 		esac
 	done
+
+
 
 main

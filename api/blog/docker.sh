@@ -438,10 +438,18 @@ updateJarConfig() {
   sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/file/bootstrap.yml
 
   # 配置文件中ip替换
-  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/jar/auth/application-${profile}.yml
-  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/jar/content/application-${profile}.yml
-  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/jar/gateway/application-${profile}.yml
-  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/jar/file/application-${profile}.yml
+  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/auth/bootstrap.yml
+  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/content/bootstrap.yml
+  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/gateway/bootstrap.yml
+  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/file/bootstrap.yml
+
+  # 配置文件中ip替换
+  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/auth/application-${profile}.yml
+  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/content/application-${profile}.yml
+  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/gateway/application-${profile}.yml
+  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/file/application-${profile}.yml
+
+
 
 }
 

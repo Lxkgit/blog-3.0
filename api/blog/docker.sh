@@ -11,7 +11,7 @@ profile="pro"
 command=""
 
 # 服务器部署文件信息
-SERVICE_INFO_FILE="/opt/docker/info.conf"
+SERVICE_INFO_FILE="/opt/package/info.conf"
 
 # MySQL登陆密码
 mysqlPassword="MySql@Admin123*."
@@ -60,18 +60,17 @@ getServiceIp() {
   else
     hostIp=$(ip route get 8.8.8.8 | awk '{print $7; exit}')
   fi
-  echo "hostIp: $hostIp"
 
-  if [ -f "SERVICE_INFO_FILE" ]; then
-    source "SERVICE_INFO_FILE"
-    echo "上次部署IP: $lastIp"
+  if [ -f "$SERVICE_INFO_FILE" ]; then
+    # shellcheck disable=SC1090
+    source "${SERVICE_INFO_FILE}"
   else
     echo "首次部署，未找到历史配置文件"
   fi
 
   echo "${YELLOW}====================================${NC}"
-  echo -e "上次部署IP: ${RED}${lastIp}${NC}"
-  echo -e "本次部署IP: ${GREEN}${hostIp}${NC}"
+  echo "上次部署IP: ${RED}${lastIp}${NC}"
+  echo "本次部署IP: ${GREEN}${hostIp}${NC}"
   echo "${YELLOW}====================================${NC}"
 
 }

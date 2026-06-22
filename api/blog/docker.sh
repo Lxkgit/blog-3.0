@@ -467,14 +467,14 @@ startJar() {
 buildPyEnv() {
 	echo "安装python3.9 ... "
 
-  sudo apt update
-  sudo apt install -y python3 python3-pip python3.12-venv
+  apt-get update
+  apt-get install -y python3 python3-pip python3-venv
 
-  python3 -m venv /opt/python
-  source /opt/python/bin/activate
+  python3 -m venv /opt/python || exit 1
 
-	/opt/python/bin/pip install websockets
-	/opt/python/bin/pip install psutil
+  /opt/python/bin/python -m pip install --upgrade pip
+  /opt/python/bin/python -m pip install websockets psutil
+
 }
 
 # 启动python脚本

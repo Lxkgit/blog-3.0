@@ -8,10 +8,6 @@ blogContentSql="blog_content"
 blogFileSql="blog_file"
 blogGatewaySql="blog_gateway"
 
-blogAuthTestSql="blog_auth_test"
-blogContentTestSql="blog_content_test"
-blogFileTestSql="blog_file_test"
-blogGatewayTestSql="blog_gateway_test"
 # MySQL登陆密码
 mysqlPassword=
 
@@ -44,26 +40,6 @@ mysqlSQL() {
   CREATE DATABASE  ${blogGatewaySql} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
   use ${blogGatewaySql};
   source /opt/docker/files/sql/${blogGatewaySql}.sql;
-
-  drop database if exists ${blogAuthTestSql};
-  CREATE DATABASE  ${blogAuthTestSql} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-  use ${blogAuthTestSql};
-  source /opt/docker/files/sql/${blogAuthTestSql}.sql;
-
-  drop database if exists ${blogContentTestSql};
-  CREATE DATABASE  ${blogContentTestSql} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-  use ${blogContentTestSql};
-  source /opt/docker/files/sql/${blogContentTestSql}.sql;
-
-  drop database if exists ${blogFileTestSql};
-  CREATE DATABASE  ${blogFileTestSql} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-  use ${blogFileTestSql};
-  source /opt/docker/files/sql/${blogFileTestSql}.sql;
-
-  drop database if exists ${blogGatewayTestSql};
-  CREATE DATABASE  ${blogGatewayTestSql} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-  use ${blogGatewayTestSql};
-  source /opt/docker/files/sql/${blogGatewayTestSql}.sql;
 
   exit
 

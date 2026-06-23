@@ -62,6 +62,7 @@ getServiceIp() {
   fi
 
   if [ -f "$SERVICE_INFO_FILE" ]; then
+    sed -i 's/\r$//' ${SERVICE_INFO_FILE}
     # shellcheck disable=SC1090
     . "${SERVICE_INFO_FILE}"
   else
@@ -239,13 +240,17 @@ updateMysqlConf() {
 
 # 更新MySQL数据IP地址，用于迁移服务器，替换旧ip
 updateSqlData() {
-    # 配置文件中ip替换
-    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/nacos.sql
-    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_auth.sql
-    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_content.sql
-    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_file.sql
-    sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_gateway.sql
-
+  echo "开始替换sql文件中IP地址..."
+  echo "${YELLOW}====================================${NC}"
+  echo "替换前IP: ${RED}${lastIp}${NC}"
+  echo "替换后IP: ${GREEN}${hostIp}${NC}"
+  echo "${YELLOW}====================================${NC}"
+  # 配置文件中ip替换
+  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/nacos.sql
+  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_auth.sql
+  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_content.sql
+  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_file.sql
+  sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_gateway.sql
 }
 
 # MySQL 数据修改与导入

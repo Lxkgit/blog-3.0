@@ -465,7 +465,11 @@ startJar() {
 
 # python 脚本执行环境配置
 buildPyEnv() {
-	echo "安装python3.9 ... "
+	echo "安装python环境 ... "
+  mkdir /opt/python
+
+  echo "exit 0" > /usr/sbin/needrestart
+  chmod +x /usr/sbin/needrestart
 
   apt-get update
   apt-get install -y python3 python3-pip python3-venv

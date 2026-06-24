@@ -15,6 +15,7 @@ docker pull nacos/nacos-server:v2.4.3
 docker pull apache/rocketmq:5.1.4
 docker pull elasticsearch:7.14.1
 docker pull minio/minio:RELEASE.2025-05-24T17-08-30Z
+docker pull bluenviron/mediamtx:1
 
 # docker将下列镜像保存到 blog_docker_images_x86.tar 文件中
 docker save \
@@ -27,7 +28,8 @@ docker save \
     nacos/nacos-server:v2.4.3 \
     apache/rocketmq:5.1.4 \
     elasticsearch:7.14.1 \
-    minio/minio:RELEASE.2025-05-24T17-08-30Z
+    minio/minio:RELEASE.2025-05-24T17-08-30Z \
+    bluenviron/mediamtx:1
 
 # 将tar文件压缩为 .tar.gz 文件，并不保留原文件
 gzip blog_docker_images_x86.tar

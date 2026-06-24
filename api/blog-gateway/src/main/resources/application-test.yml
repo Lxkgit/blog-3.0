@@ -66,17 +66,3 @@ easy-es:
   schema: http
   username: elastic
   password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
-
-# 服务器内存限制，停用xxlJob
-#xxl:
-#  job:
-#    admin:
-#      addresses: http://${devServiceIp}:8080/xxl-job-admin
-#    accessToken: default_token
-#    executor:
-#      appname: ${spring.application.name}
-#      address:
-#      ip:
-#      port: 60021
-#      logpath: /opt/docker/xxlJob/logs
-#      logretentiondays: 10

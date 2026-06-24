@@ -93,6 +93,9 @@ public class SecurityConfig {
     @Value("${redirect.login}")
     private String loginPage;
 
+    @Value("${hostIp}")
+    private String hostIp;
+
     //密码加密
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -249,7 +252,7 @@ public class SecurityConfig {
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
                 // 关键：设置 issuer 包含上下文路径
-                .issuer("http://127.0.0.1:60002/auth")
+                .issuer("http://" + hostIp +":60002/auth")
                 // 端点路径不需要包含 /auth，Spring 会自动附加 context-path
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenEndpoint("/oauth2/token")

@@ -182,7 +182,8 @@ dockerLoad() {
         nacos/nacos-server:v2.4.3 \
         apache/rocketmq:5.1.4 \
         elasticsearch:7.14.1 \
-        minio/minio:RELEASE.2025-05-24T17-08-30Z
+        minio/minio:RELEASE.2025-05-24T17-08-30Z \
+        bluenviron/mediamtx:1
     do
         echo "${YELLOW}开始下载 ${image} 镜像文件...${NC}"
         command="docker pull ${image}"

@@ -1,3 +1,4 @@
+hostIp: ${devServiceIp}
 server:
   port: 60002
   servlet:

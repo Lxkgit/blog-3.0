@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/sh
 
 # 参数部分
 # 下载失败重新尝试次数
@@ -39,14 +39,14 @@ NC='\033[0m'
 
 # 服务器相关依赖下载
 util(){
-	echo "${BLUE}下载服务器环境所需依赖...${NC}"
+	echo "${YELLOW}下载服务器环境所需依赖...${NC}"
 	# 压缩解压工具
 	apt install -y unzip zip lrzsz
 }
 
 # 解压上传的文件
 unzipBlog() {
-	echo "${BLUE}开始解压博客文件...${NC}"
+	echo "${YELLOW}开始解压博客文件...${NC}"
 	# 上传部署压缩包解压目录
 	mkdir -p /opt/package
   mv ./blog.zip /opt/package/
@@ -66,19 +66,19 @@ getServiceIp() {
     # shellcheck disable=SC1090
     . "${SERVICE_INFO_FILE}"
   else
-    echo "${BLUE}首次部署，未找到历史配置文件${NC}"
+    echo "${YELLOW}首次部署，未找到历史配置文件${NC}"
   fi
 
-  echo "${YELLOW}====================================${NC}"
+  echo "${BLUE}====================================${NC}"
   echo "上次部署IP: ${RED}${lastIp}${NC}"
   echo "本次部署IP: ${GREEN}${hostIp}${NC}"
-  echo "${YELLOW}====================================${NC}"
+  echo "${BLUE}====================================${NC}"
 
 }
 
 # 添加4g的虚拟内存
 addVirtualMemory() {
-	echo "${BLUE}开始创建虚拟内存...${NC}"
+	echo "${YELLOW}开始创建虚拟内存...${NC}"
 	cd /usr || exit
 	mkdir swap
 	cd swap/ || exit
@@ -93,7 +93,7 @@ addVirtualMemory() {
 # 安装docker
 startDocker() {
 
-  echo "${BLUE}开始安装docker...${NC}"
+  echo "${YELLOW}开始安装docker...${NC}"
 
 	# docker镜像存放目录 全部容器共享目录
 	mkdir -p /etc/docker /opt/docker/images /opt/docker/files
@@ -108,11 +108,16 @@ startDocker() {
 	echo "  ]"  >> /etc/docker/daemon.json
 	echo "}"  >> /etc/docker/daemon.json
 
+  # 离线安装docker
   installDocker
 
 	# 创建自定义网络
 	docker network create --subnet=172.18.0.0/24 blog_network
 
+  # 离线导入docker镜像
+  checkAndImportImages
+
+  # 在线下载docker镜像
 	dockerLoad
 }
 
@@ -134,6 +139,18 @@ installDocker() {
 
 }
 
+# 如果有镜像文件可以直接导入
+checkAndImportImages() {
+    IMAGE_FILE="/opt/package/docker/blog_docker_images_x86.tar.gz"
+    [ ! -f "$IMAGE_FILE" ] && {
+        echo "${YELLOW}镜像文件不存在: $IMAGE_FILE${NC}"
+        return  1
+    }
+    echo "${YELLOW}开始导入镜像包...${NC}"
+    docker load -i "$IMAGE_FILE"
+    echo "${GREEN}导入完成${NC}"
+}
+
 # 镜像文件重新下载
 reLoad() {
   count=1
@@ -144,7 +161,7 @@ reLoad() {
       break
     else
       echo "${YELLOW}第 ${count} 次尝试重新下载...${NC}"
-      ((count++))
+      count=$((count + 1))
     fi
     if [ $count -gt "$reload" ]; then
       echo "${RED}docker镜像下载失败，脚本停止执行...${NC}"
@@ -153,44 +170,24 @@ reLoad() {
   done
 }
 
-# docker 镜像文件下载
+# docker 镜像下载
 dockerLoad() {
-	echo "${BLUE}开始下载 openjdk:17 镜像文件...${NC}"
-	command="docker pull openjdk:17"
-	reLoad
 
-	echo "${BLUE}开始下载 mysql:8.0.20 镜像文件...${NC}"
-	command="docker pull mysql:8.0.20"
-	reLoad
-
-	echo "${BLUE}开始下载 fauria/vsftpd 镜像文件...${NC}"
-	command="docker pull fauria/vsftpd"
-	reLoad
-
-	echo "${BLUE}开始下载 nginx:1.20.2 镜像文件...${NC}"
-	command="docker pull nginx:1.20.2"
-	reLoad
-
-	echo "${BLUE}开始下载 redis:6.2.5 镜像文件...${NC}"
-	command="docker pull redis:6.2.5"
-	reLoad
-
-	echo "${BLUE}开始下载 nacos/nacos-server:v2.4.3 镜像文件...${NC}"
-	command="docker pull nacos/nacos-server:v2.4.3"
-	reLoad
-
-	echo "${BLUE}开始下载 apache/rocketmq:5.1.4 镜像文件...${NC}"
-	command="docker pull apache/rocketmq:5.1.4"
-	reLoad
-
-	echo "${BLUE}开始下载 elasticsearch:7.14.1 镜像文件...${NC}"
-	command="docker pull elasticsearch:7.14.1"
-	reLoad
-
-	echo "${BLUE}开始下载 minio/minio:RELEASE.2025-05-24T17-08-30Z 镜像文件...${NC}"
-	command="docker pull minio/minio:RELEASE.2025-05-24T17-08-30Z"
-	reLoad
-
+    for image in \
+        openjdk:17 \
+        mysql:8.0.20 \
+        fauria/vsftpd \
+        nginx:1.20.2 \
+        redis:6.2.5 \
+        nacos/nacos-server:v2.4.3 \
+        apache/rocketmq:5.1.4 \
+        elasticsearch:7.14.1 \
+        minio/minio:RELEASE.2025-05-24T17-08-30Z
+    do
+        echo "${YELLOW}开始下载 ${image} 镜像文件...${NC}"
+        command="docker pull ${image}"
+        reLoad
+    done
 }
 
 # Java相关服务全部启动
@@ -232,7 +229,7 @@ startJava() {
 
 # 修改 MySQL 配置文件
 updateMysqlConf() {
-	echo "${BLUE}开始修改MySQL配置文件...${NC}"
+	echo "${YELLOW}开始修改MySQL配置文件...${NC}"
 	# mysql 配置
 	mv /opt/package/conf/my.cnf /opt/docker/mysql/conf
 	sed -i "s/password=/password=${mysqlPassword}/" /opt/docker/mysql/conf/my.cnf
@@ -240,11 +237,11 @@ updateMysqlConf() {
 
 # 更新MySQL数据IP地址，用于迁移服务器，替换旧ip
 updateSqlData() {
-  echo "${BLUE}开始替换sql文件中IP地址...${NC}"
-  echo "${YELLOW}====================================${NC}"
+  echo "${YELLOW}开始替换sql文件中IP地址...${NC}"
+  echo "${BLUE}====================================${NC}"
   echo "替换前IP: ${RED}${lastIp}${NC}"
   echo "替换后IP: ${GREEN}${hostIp}${NC}"
-  echo "${YELLOW}====================================${NC}"
+  echo "${BLUE}====================================${NC}"
   # 配置文件中ip替换
   sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/nacos.sql
   sed -i "s/${lastIp}/${hostIp}/g" /opt/docker/files/sql/blog_auth.sql
@@ -255,7 +252,7 @@ updateSqlData() {
 
 # MySQL 数据修改与导入
 insertSqlData() {
-	echo "${BLUE}开始导入MySQL数据...${NC}"
+	echo "${YELLOW}开始导入MySQL数据...${NC}"
 	mkdir -p /opt/docker/files/sql
 	mv /opt/package/conf/mysql.sh /opt/docker/files/sql
 	mv /opt/package/sql/* /opt/docker/files/sql
@@ -281,7 +278,7 @@ startMySQL() {
 	mkdir -p /opt/docker/mysql/logs
 	
 	updateMysqlConf
-	echo "${BLUE}正在启动mysql...${NC}"
+	echo "${YELLOW}正在启动mysql...${NC}"
 	docker run -d --name mysql --privileged=true --restart=always --network blog_network --ip 172.18.0.3 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=${mysqlPassword} -v /opt/docker/mysql/data/:/var/lib/mysql -v /opt/docker/mysql/conf/my.cnf:/etc/mysql/my.cnf -v /opt/docker/mysql/logs/:/var/log/mysql/ -v /opt/docker/files/:/opt/docker/files/ mysql:8.0.20
 	
 	insertSqlData
@@ -295,7 +292,7 @@ createFtpDir() {
 
 # 启动 ftp
 startFtp() {
-  echo "${BLUE}正在启动ftp...${NC}"
+  echo "${YELLOW}正在启动ftp...${NC}"
   createFtpDir
   docker run -d --name vsftpd --privileged=true --restart=always --network blog_network --ip 172.18.0.4 -p 61120:20 -p 61121:21 -p 61122-61199:61122-61199 -e FTP_USER=${ftpUsername} -e FTP_PASS=${ftpPassword} -e PASV_MIN_PORT=61122 -e PASV_MAX_PORT=61199 -e PASV_ADDRESS=49.232.129.253 -v /opt/docker/files/ftp:/home/vsftpd fauria/vsftpd
 }
@@ -315,13 +312,13 @@ startNginx() {
   # web页面相关
   mv /opt/package/web/dist/* /opt/docker/nginx/html
 
-	echo "${BLUE}正在启动nginx...${NC}"
+	echo "${YELLOW}正在启动nginx...${NC}"
 	docker run -d --name nginx --privileged=true --restart=always --network blog_network --ip 172.18.0.5 -p 80:80 -v /opt/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v /opt/docker/nginx/html/:/opt/docker/nginx/html/ -v /opt/docker/nginx/logs/:/var/log/nginx/  -v /opt/docker/files/:/opt/docker/files/ nginx:1.20.2
 }
 
 # redis 配置文件修改
 updateRedisConf() {
-	echo "${BLUE}开始修改Redis配置文件...${NC}"
+	echo "${YELLOW}开始修改Redis配置文件...${NC}"
 	# redis 配置
 	mv /opt/package/conf/redis.conf /opt/docker/redis/conf
 	sed -i "s/requirepass/requirepass ${redisPassword}/g" /opt/docker/redis/conf/redis.conf
@@ -334,13 +331,13 @@ startRedis() {
 	mkdir -p /opt/docker/redis/data/
 	
 	updateRedisConf
-	echo "${BLUE}正在启动redis...${NC}"
+	echo "${YELLOW}正在启动redis...${NC}"
 	docker run -d --name redis --privileged=true --restart=always --network blog_network --ip 172.18.0.6 -p 6379:6379 -v /opt/docker/redis/conf/redis.conf:/etc/redis/redis.conf -v /opt/docker/redis/data/:/data/  -v /opt/docker/files/:/opt/docker/files/ redis:6.2.5 redis-server /etc/redis/redis.conf
 }
 
 # 安装nacos
 startNacos() {
-  echo "${BLUE}正在启动nacos...${NC}"
+  echo "${YELLOW}正在启动nacos...${NC}"
   docker run -d --name nacos --privileged=true --restart=always --network blog_network --ip 172.18.0.7 -p 8848:8848 -p 9848:9848 -p 9849:9849 -e JVM_XMS=256m -e JVM_XMX=256m -e MODE=standalone -e PREFER_HOST_MODE=hostname -e SPRING_DATASOURCE_PLATFORM=mysql -e MYSQL_SERVICE_HOST=172.18.0.3 -e MYSQL_SERVICE_PORT=3306 -e MYSQL_SERVICE_USER=root -e MYSQL_SERVICE_PASSWORD=${mysqlPassword} -e MYSQL_SERVICE_DB_NAME=nacos -e MYSQL_SERVICE_DB_PARAM='characterEncoding=utf8&connectTimeout=10000&socketTimeout=30000&autoReconnect=true&serverTimezone=UTC&allowPublicKeyRetrieval=true' nacos/nacos-server:v2.4.3
 }
 
@@ -361,7 +358,7 @@ updateRocketMq() {
 
 # 启动 rocketmq
 startRocketMq() {
-  echo "${BLUE}正在启动rocketmq...${NC}"
+  echo "${YELLOW}正在启动rocketmq...${NC}"
   updateRocketMq
   # rmqnamesrv
   docker run -d --name rmqnamesrv --privileged=true --restart=always  --network blog_network --ip 172.18.0.8 -p 9876:9876 -e "MAX_POSSIBLE_HEAP=100000000" -e "MAX_HEAP_SIZE=256M" -e "HEAP_NEWSIZE=128M" -v /opt/docker/rocketmq/namesrv/logs:/home/rocketmq/logs -v /opt/docker/rocketmq/namesrv/store:/root/store apache/rocketmq:5.1.4 sh mqnamesrv
@@ -386,7 +383,7 @@ startElasticsearch() {
 	chmod -R 777 /opt/docker/elasticsearch/
 
 	updateElasticsearchConf
-	echo "${BLUE}正在启动elasticsearch...${NC}"
+	echo "${YELLOW}正在启动elasticsearch...${NC}"
 	docker run --name elasticsearch -p 9200:9200 -p 9300:9300 --restart=always -e ES_JAVA_OPTS="-Xms128m -Xmx256m" -e "discovery.type=single-node" -v /opt/docker/elasticsearch/data:/usr/share/elasticsearch/data -v /opt/docker/elasticsearch/plugins:/usr/share/elasticsearch/plugins -v /opt/docker/elasticsearch/config/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12 -v /opt/docker/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml -v /opt/docker/files/:/opt/docker/files/ --network blog_network --ip 172.18.0.10 -d elasticsearch:7.14.1
 	
 	nohup sudo docker exec elasticsearch bash /opt/docker/files/elasticsearch.sh >/opt/docker/files/es.log 2>&1
@@ -420,7 +417,7 @@ importMinio() {
 
 # 启动 minio
 startMinio() {
-	echo "${BLUE}正在启动minio...${NC}"
+	echo "${YELLOW}正在启动minio...${NC}"
 	docker run --name minio --network blog_network --ip 172.18.0.11 -p 9000:9000 -p 9001:9001 --restart=always -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=${minioPassword}" -e "MINIO_BROWSER_REDIRECT_URL=http://172.18.0.11:9001/minio/ui/" -v /opt/docker/files/minio:/data -v /mnt/config:/root/.minio -d minio/minio:RELEASE.2025-05-24T17-08-30Z server /data --console-address ":9001"
 	importMinio
 }
@@ -461,7 +458,7 @@ updateJarConfig() {
 startJar() {
   updateJarConfig
   # 等待nacos启动
-  echo "${BLUE}3分钟后启动博客服务...${NC}"
+  echo "${YELLOW}3分钟后启动博客服务...${NC}"
   sleep 3m
   cd /opt/docker/files/jar || exit
   docker build -t blog:3.0 .
@@ -470,7 +467,7 @@ startJar() {
 
 # python 脚本执行环境配置
 buildPyEnv() {
-	echo "${BLUE}安装python环境 ...${NC}"
+	echo "${YELLOW}安装python环境 ...${NC}"
   mkdir /opt/python
 
   echo "exit 0" > /usr/sbin/needrestart
@@ -490,7 +487,7 @@ buildPyEnv() {
 startPy() {
   buildPyEnv
   # Java服务启动较慢，等待Java服务完全启动后进行连接
-  echo "${BLUE}8分钟后启动socket脚本...${NC}"
+  echo "${YELLOW}8分钟后启动socket脚本...${NC}"
   sleep 8m
   mkdir -p /opt/docker/files/python/code
   mv /opt/package/python/* /opt/docker/files/python/code
@@ -572,7 +569,7 @@ main() {
   timer_end=$(date "+%Y-%m-%d %H:%M:%S")
   diff=$(( $(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}") ))
   duration=$(printf "%02d:%02d:%02d" $((diff/3600)) $((diff%3600/60)) $((diff%60)))
-  echo "${BLUE}脚本执行完成 耗时： $duration ${NC}"
+  echo "${YELLOW}脚本执行完成 耗时： $duration ${NC}"
 	exit 0
 }
 

@@ -41,13 +41,13 @@ public class TaskInit implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        logger.info("启动系统任务");
-        redisService.delKey(TaskConstant.TASK_BASE);
-        redisService.delKey(TaskConstant.TASK_QUEUE);
-        blogDateSyncTask();
-        deviceFileUploadTask();
-        minioFileSyncTask();
-        deleteTempFile();
+//        logger.info("启动系统任务");
+//        redisService.delKey(TaskConstant.TASK_BASE);
+//        redisService.delKey(TaskConstant.TASK_QUEUE);
+//        blogDateSyncTask();
+//        deviceFileUploadTask();
+//        minioFileSyncTask();
+//        deleteTempFile();
     }
 
     /**

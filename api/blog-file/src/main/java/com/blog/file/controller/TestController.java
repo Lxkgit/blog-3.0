@@ -1,17 +1,21 @@
 package com.blog.file.controller;
 
-import com.alibaba.fastjson2.JSON;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.file.netty.domain.dto.NettyPacket;
-import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
-import com.blog.file.netty.domain.enums.NettyTopic;
-import com.blog.file.netty.service.NettyServer;
-import com.blog.file.netty.service.NettySyncFileService;
+import com.blog.file.task.BlogDateSyncTaskAction;
+import com.blog.timer.action.TimerActionManager;
+import com.blog.timer.context.TimerTaskContext;
+import com.blog.timer.handle.TimerHandle;
+import com.blog.timer.manager.TimerManager;
+import com.blog.timer.registry.TimerTaskRegistry;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * @Description 测试接口
@@ -24,18 +28,32 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     @Resource
-    private NettySyncFileService nettyFileSyncService;
+    private BlogDateSyncTaskAction timerTask;
 
     @Resource
-    private NettyServer nettyServer;
+    private TimerManager timerManager;
+
+    @Resource
+    private TimerTaskRegistry timerTaskRegistry;
+
+    @Resource
+    private TimerActionManager timerActionManager;
 
     @GetMapping("/get")
     public Result getTest() {
-        System.out.println("测试方法调用");
 
-        NettyPacket<String> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, "test");
+//        TimerTaskContext context = new TimerTaskContext();
+//        context.put("id", 1);
+//        context.put("name", "测试");
+//
+//        timerManager.schedule(Duration.ofSeconds(10), timerTask.getCode(), timerTask, context);
+//        LocalDateTime time = LocalDate.now().atTime(16, 59);
+//        TimerHandle handle = timerManager.schedule(time, timerTask.getCode(), timerTask, context);
+//        timerManager.schedule("0 59 16 * * ?", timerTask.getCode(), timerTask, context);
+//
+//
+//        return ResultFactory.buildSuccessResult(timerTaskRegistry.list());
 
-        return ResultFactory.buildSuccessResult(nettyServer.sendByRegisterIdLimitTime("1:2ecfb95116de4967afe7710e11ac00b4", null,
-                JSON.toJSONString(nettyPacket), 2 * 60));
+        return ResultFactory.buildSuccessResult(timerActionManager.getAllActions());
     }
 }

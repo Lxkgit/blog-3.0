@@ -5,22 +5,24 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.blog</groupId>
-        <artifactId>api</artifactId>
+        <artifactId>blog-common</artifactId>
         <version>3.0</version>
     </parent>
 
-    <artifactId>blog-common</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>common-core</module>
-        <module>common-jasypt</module>
-        <module>common-job</module>
-        <module>common-log</module>
-        <module>common-mq</module>
-        <module>common-redis</module>
-        <module>common-task</module>
-        <module>common-timer</module>
-    </modules>
+    <artifactId>common-timer</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>common-redis</artifactId>
+            <version>3.0</version>
+        </dependency>
+    </dependencies>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

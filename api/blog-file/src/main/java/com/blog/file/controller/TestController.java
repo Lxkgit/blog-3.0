@@ -5,6 +5,9 @@ import com.blog.core.result.ResultFactory;
 import com.blog.file.task.BlogDateSyncTaskAction;
 import com.blog.timer.action.TimerActionManager;
 import com.blog.timer.context.TimerTaskContext;
+import com.blog.timer.entity.TimerTaskDefinition;
+import com.blog.timer.entity.policy.Policy;
+import com.blog.timer.entity.trigger.DelayTrigger;
 import com.blog.timer.handle.TimerHandle;
 import com.blog.timer.manager.TimerManager;
 import com.blog.timer.registry.TimerTaskRegistry;
@@ -42,16 +45,32 @@ public class TestController {
     @GetMapping("/get")
     public Result getTest() {
 
-//        TimerTaskContext context = new TimerTaskContext();
-//        context.put("id", 1);
-//        context.put("name", "测试");
-//
-//        timerManager.schedule(Duration.ofSeconds(10), timerTask.getCode(), timerTask, context);
-//        LocalDateTime time = LocalDate.now().atTime(16, 59);
-//        TimerHandle handle = timerManager.schedule(time, timerTask.getCode(), timerTask, context);
-//        timerManager.schedule("0 59 16 * * ?", timerTask.getCode(), timerTask, context);
-//
-//
+        TimerTaskContext context1 = new TimerTaskContext();
+        context1.put("id", 1);
+        context1.put("name", "任务1");
+
+        TimerTaskDefinition definition1 = TimerTaskDefinition.builder()
+                .taskCode(timerTask.getCode())
+                .action(timerTask)
+                .context(context1)
+                .policy(new Policy(3))
+                .trigger(new DelayTrigger(Duration.ofSeconds(4)))
+                .build();
+
+        TimerTaskContext context2 = new TimerTaskContext();
+        context2.put("id", 2);
+        context2.put("name", "任务2");
+        TimerTaskDefinition definition2 = TimerTaskDefinition.builder()
+                .taskCode(timerTask.getCode())
+                .action(timerTask)
+                .context(context2)
+                .policy(new Policy(4))
+                .trigger(new DelayTrigger(Duration.ofSeconds(5)))
+                .build();
+
+        timerManager.schedule(definition1);
+        timerManager.schedule(definition2);
+
 //        return ResultFactory.buildSuccessResult(timerTaskRegistry.list());
 
         return ResultFactory.buildSuccessResult(timerActionManager.getAllActions());

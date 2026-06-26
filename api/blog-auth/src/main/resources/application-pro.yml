@@ -57,6 +57,6 @@ easy-es:
   password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
 
 redirect:
-  login: http://49.232.129.253/login
-  callback: http://49.232.129.253/callback
-  serviceIp: http://49.232.129.253/api
+  login: http://${devServiceIp}/login
+  callback: http://${devServiceIp}/callback
+  serviceIp: http://${devServiceIp}/api

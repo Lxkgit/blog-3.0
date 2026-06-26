@@ -1,5 +1,6 @@
 package com.blog.file.task;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.common.MsgHead;
 import com.blog.file.netty.service.NettySyncFileService;
@@ -39,7 +40,8 @@ public class BlogDateSyncTaskAction implements TimerAction {
     @Override
     public void execute(TimerTaskContext context) {
         logger.info("开始备份博客数据");
-        String filePath = nettySyncFileService.syncBlogDataFirstStep(new MsgHead());
+        logger.info(JSONObject.toJSONString(context.getData()));
+//        String filePath = nettySyncFileService.syncBlogDataFirstStep(new MsgHead());
     }
 
     @Override

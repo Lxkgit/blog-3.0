@@ -18,5 +18,5 @@ public interface TimerHandle {
 
     LocalDateTime getTriggerTime();
 
-    boolean cancel();
+//    boolean cancel();
 }

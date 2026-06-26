@@ -13,43 +13,47 @@ import java.util.Collection;
 public interface TimerTaskRegistry {
 
     /**
-     * 注册任务
+     * 注册任务。
+     *
+     * @param handle 任务句柄
      */
     void register(TimerHandle handle);
 
     /**
-     * 获取任务
+     * 注销任务。
+     *
+     * @param taskId 任务实例ID
+     */
+    void unregister(String taskId);
+
+    /**
+     * 获取任务句柄。
+     *
+     * @param taskId 任务实例ID
+     * @return TimerHandle
      */
     TimerHandle get(String taskId);
 
     /**
-     * 是否存在
+     * 判断任务是否存在。
+     *
+     * @param taskId 任务实例ID
+     * @return true 存在
      */
     boolean contains(String taskId);
 
     /**
-     * 任务执行完成从注册表中删除
-     */
-    TimerHandle unregister(String taskId);
-
-    /**
-     * 取消任务
-     */
-    boolean cancel(String taskId);
-
-    /**
-     * 当前任务数量
+     * 当前任务数量。
+     *
+     * @return 数量
      */
     int size();
 
     /**
-     * 获取所有任务
+     * 获取全部任务。
+     *
+     * @return Collection
      */
     Collection<TimerHandle> list();
-
-    /**
-     * 获取所有任务
-     */
-    Collection<TimerHandle> list(String taskCode);
 
 }

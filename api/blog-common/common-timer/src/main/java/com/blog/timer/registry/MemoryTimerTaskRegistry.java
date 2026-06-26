@@ -17,49 +17,57 @@ import java.util.stream.Collectors;
 
 public class MemoryTimerTaskRegistry implements TimerTaskRegistry {
 
-    private final Map<String, TimerHandle> taskMap = new ConcurrentHashMap<>();
+    /**
+     * 当前注册任务
+     */
+    private final Map<String, TimerHandle> handles = new ConcurrentHashMap<>();
 
+    /**
+     *
+     */
     @Override
     public void register(TimerHandle handle) {
-        taskMap.put(handle.getTaskId(), handle);
+        handles.put(handle.getTaskId(), handle);
     }
 
+    /**
+     *
+     */
+    @Override
+    public void unregister(String taskId) {
+        handles.remove(taskId);
+    }
+
+    /**
+     *
+     */
     @Override
     public TimerHandle get(String taskId) {
-        return taskMap.get(taskId);
+        return handles.get(taskId);
     }
 
+    /**
+     *
+     */
     @Override
     public boolean contains(String taskId) {
-        return taskMap.containsKey(taskId);
+        return handles.containsKey(taskId);
     }
 
-    @Override
-    public TimerHandle unregister(String taskId) {
-        return taskMap.remove(taskId);
-    }
-
-    @Override
-    public boolean cancel(String taskId) {
-        TimerHandle handle = taskMap.remove(taskId);
-        if (handle == null) {
-            return false;
-        }
-        return handle.cancel();
-    }
-
+    /**
+     *
+     */
     @Override
     public int size() {
-        return taskMap.size();
+        return handles.size();
     }
 
+    /**
+     *
+     */
     @Override
     public Collection<TimerHandle> list() {
-        return taskMap.values();
+        return handles.values();
     }
 
-    @Override
-    public Collection<TimerHandle> list(String taskCode) {
-        return taskMap.values().stream().filter(handle -> handle.getTaskCode().equals(taskCode)).collect(Collectors.toList());
-    }
 }

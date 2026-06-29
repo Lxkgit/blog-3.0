@@ -1,5 +1,7 @@
 package com.blog.timer.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,9 +17,9 @@ import java.util.concurrent.ScheduledFuture;
 public class TimerTask {
 
     /**
-     * 当前实例ID
+     * 任务执行记录随机id
      */
-    private final String taskId;
+    private final String uuid;
 
     /**
      * 任务定义
@@ -32,20 +34,23 @@ public class TimerTask {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime createTime;
 
     /**
      * 本次触发时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime triggerTime;
 
     /**
      * 当前Future
      */
+    @JsonIgnore
     private ScheduledFuture<?> future;
 
     public TimerTask(String taskId, TimerTaskDefinition definition, int executeCount) {
-        this.taskId = taskId;
+        this.uuid = taskId;
         this.definition = definition;
         this.executeCount = executeCount;
         this.createTime = LocalDateTime.now();

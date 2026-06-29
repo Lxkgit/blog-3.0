@@ -18,9 +18,14 @@ import lombok.Data;
 public class TimerTaskDefinition {
 
     /**
+     * 数据库中任务id
+     */
+    private final Integer id;
+
+    /**
      * 任务编码
      */
-    private String taskCode;
+    private final String taskCode;
 
     /**
      * 执行动作
@@ -42,4 +47,20 @@ public class TimerTaskDefinition {
      */
     private Policy policy;
 
+    /**
+     * 创建当前任务定义的副本。
+     * Action、Trigger、Policy 为不可变对象，
+     * 直接共享引用即可
+     * Context 会复制一份新的参数容器，
+     * 防止任务创建后参数继续修改。
+     */
+    public TimerTaskDefinition snapshot() {
+        return TimerTaskDefinition.builder()
+                .taskCode(taskCode)
+                .action(action)
+                .context(context == null ? null : context.snapshot())
+                .trigger(trigger)
+                .policy(policy)
+                .build();
+    }
 }

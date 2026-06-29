@@ -1,11 +1,10 @@
-package com.blog.task.service;
+package com.blog.file.service;
 
 import com.blog.core.domain.file.task.del.entity.TaskLog;
-import com.blog.core.domain.file.task.del.entity.TaskParam;
-import com.blog.core.domain.file.task.del.vo.TaskLogVo;
-import com.blog.core.domain.file.task.del.vo.TaskParamVo;
+
+import com.blog.core.domain.file.task.entity.TaskParam;
+import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.result.ResultPage;
-import com.blog.task.domain.TaskEntity;
 
 import java.util.List;
 
@@ -17,17 +16,23 @@ import java.util.List;
 
 public interface TaskService {
 
+    void insertTask(TaskParamVo taskParamVo);
+
+    void deleteTask(Integer id);
+
     void updateTask(TaskParamVo taskParamVo);
+
+    List<TaskParam> selectTaskList(TaskParamVo taskParamVo);
 
     List<Object> selectTaskBaseList();
 
     List<TaskParam> selectTaskEntityById(String taskCode);
 
-    ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
+//    ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
 
     List<TaskLog> selectTaskLogByTaskUUID(String taskUUID);
 
-    void createChildTask(TaskEntity taskEntity, TaskParam taskParam);
+    void createChildTask(TaskParam taskParam);
 
     void startTask(String childTaskCode);
 }

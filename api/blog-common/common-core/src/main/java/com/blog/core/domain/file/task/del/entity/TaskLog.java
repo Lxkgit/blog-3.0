@@ -1,4 +1,4 @@
-package com.blog.core.domain.file.task.entity;
+package com.blog.core.domain.file.task.del.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

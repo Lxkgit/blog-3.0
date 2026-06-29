@@ -1,6 +1,6 @@
 package com.blog.timer.handle;
 
-import com.blog.timer.context.TimerTaskContext;
+import com.blog.timer.entity.TimerTaskDefinition;
 
 import java.time.LocalDateTime;
 
@@ -18,5 +18,6 @@ public interface TimerHandle {
 
     LocalDateTime getTriggerTime();
 
+    TimerTaskDefinition getTaskDefinition();
 //    boolean cancel();
 }

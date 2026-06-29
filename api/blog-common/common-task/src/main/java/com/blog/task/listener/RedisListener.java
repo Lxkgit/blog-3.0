@@ -1,6 +1,6 @@
 package com.blog.task.listener;
 
-import com.blog.core.domain.file.task.entity.TaskLog;
+import com.blog.core.domain.file.task.del.entity.TaskLog;
 import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.mapper.TaskLogMapper;

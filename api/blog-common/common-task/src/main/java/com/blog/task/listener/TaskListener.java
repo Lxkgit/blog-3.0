@@ -2,7 +2,7 @@ package com.blog.task.listener;
 
 import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.common.TaskMsgHead;
-import com.blog.core.domain.file.task.entity.TaskLog;
+import com.blog.core.domain.file.task.del.entity.TaskLog;
 import com.blog.redis.service.RedisService;
 import com.blog.task.config.SpringContextHolder;
 import com.blog.task.constant.TaskConstant;

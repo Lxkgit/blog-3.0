@@ -1,6 +1,6 @@
-package com.blog.core.domain.file.task.vo;
+package com.blog.core.domain.file.task.del.vo;
 
-import com.blog.core.domain.file.task.entity.TaskLog;
+import com.blog.core.domain.file.task.del.entity.TaskLog;
 import lombok.Getter;
 import lombok.Setter;
 

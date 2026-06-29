@@ -1,6 +1,7 @@
 package com.blog.timer.entity.trigger;
 
 import com.blog.timer.enums.TriggerType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
 import java.time.Duration;
@@ -18,6 +19,7 @@ public class AtTimeTrigger extends Trigger {
     /**
      * 触发时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime time;
 
     public AtTimeTrigger(LocalDateTime time) {

@@ -53,4 +53,9 @@ public class BlogDateSyncTaskAction implements TimerAction {
     public String getName() {
         return "定时备份博客数据";
     }
+
+    @Override
+    public String getParamTemplate() {
+        return "";
+    }
 }

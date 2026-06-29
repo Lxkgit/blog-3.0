@@ -1,5 +1,7 @@
 package com.blog.timer.context;
 
+import lombok.Getter;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -9,10 +11,16 @@ import java.util.concurrent.ConcurrentHashMap;
  * @CreateTime 2026-06-25
  */
 
+@Getter
 public class TimerTaskContext {
 
     /**
      * 上下文参数。
+     * -- GETTER --
+     *  返回全部参数。
+     *
+     * @return 参数集合
+
      */
     private final Map<String, Object> data = new ConcurrentHashMap<>();
 
@@ -38,12 +46,14 @@ public class TimerTaskContext {
     }
 
     /**
-     * 返回全部参数。
-     *
-     * @return 参数集合
+     * 复制上下文
+     * 仅复制参数容器（Map），
+     * Map 中存放的对象仍共享引用。
      */
-    public Map<String, Object> getData() {
-        return data;
+    public TimerTaskContext snapshot() {
+        TimerTaskContext context = new TimerTaskContext();
+        context.data.putAll(this.data);
+        return context;
     }
 
 }

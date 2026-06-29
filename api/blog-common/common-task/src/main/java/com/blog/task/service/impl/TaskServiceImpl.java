@@ -3,11 +3,10 @@ package com.blog.task.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.core.domain.file.task.entity.TaskLog;
-import com.blog.core.domain.file.task.entity.TaskParam;
-import com.blog.core.domain.file.task.vo.TaskLogVo;
-import com.blog.core.domain.file.task.vo.TaskParamVo;
+import com.blog.core.domain.file.task.del.entity.TaskLog;
+import com.blog.core.domain.file.task.del.entity.TaskParam;
+import com.blog.core.domain.file.task.del.vo.TaskLogVo;
+import com.blog.core.domain.file.task.del.vo.TaskParamVo;
 import com.blog.core.result.ResultPage;
 import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.SecurityUtil;
@@ -15,7 +14,7 @@ import com.blog.redis.service.RedisService;
 import com.blog.task.constant.TaskConstant;
 import com.blog.task.domain.TaskEntity;
 import com.blog.task.mapper.TaskLogMapper;
-import com.blog.task.mapper.TaskParamMapper;
+import com.blog.task.mapper.DTaskParamMapper;
 import com.blog.task.service.TaskService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -45,7 +44,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskLogMapper taskLogMapper;
 
     @Resource
-    private TaskParamMapper taskParamMapper;
+    private DTaskParamMapper taskParamMapper;
 
     @Resource
     private CreateTaskService createTaskService;

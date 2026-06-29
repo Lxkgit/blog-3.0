@@ -11,13 +11,9 @@ import com.blog.timer.entity.trigger.DelayTrigger;
 import com.blog.timer.entity.trigger.Trigger;
 import com.blog.timer.handle.DefaultTimerHandle;
 import com.blog.timer.handle.TimerHandle;
-import com.blog.timer.context.TimerTaskContext;
-import com.blog.timer.registry.TimerTaskRegistry;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.support.CronExpression;
-import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -45,18 +41,12 @@ public class DefaultTimerManager implements TimerManager {
     private final ScheduledThreadPoolExecutor executor;
 
     /**
-     * 任务注册中心
-     */
-    private final TimerTaskRegistry registry;
-
-    /**
      * 当前运行中的任务
      */
     private final Map<String, TimerTask> runningTasks = new ConcurrentHashMap<>();
 
-    public DefaultTimerManager(int poolSize, TimerTaskRegistry registry) {
+    public DefaultTimerManager(int poolSize) {
         this.executor = new ScheduledThreadPoolExecutor(poolSize);
-        this.registry = registry;
     }
 
     /**
@@ -65,7 +55,6 @@ public class DefaultTimerManager implements TimerManager {
     @Override
     public TimerHandle schedule(TimerTaskDefinition definition) {
         return schedule(definition, 1);
-
     }
 
     /**
@@ -81,16 +70,18 @@ public class DefaultTimerManager implements TimerManager {
         if (delay.isNegative()) {
             throw new IllegalArgumentException("触发时间已过");
         }
-        TimerTask task = new TimerTask(taskId, definition, executeCount);
+        TimerTask task = new TimerTask(taskId, definition.snapshot(), executeCount);
         task.setTriggerTime(LocalDateTime.now().plus(delay));
-        ScheduledFuture<?> future = executor.schedule(() -> execute(task), delay.toMillis(), TimeUnit.MILLISECONDS);
 
+        // 执行任务
+        ScheduledFuture<?> future = executor.schedule(() -> execute(task), delay.toMillis(), TimeUnit.MILLISECONDS);
         task.setFuture(future);
+
+        // 管理任务执行队列
         runningTasks.put(taskId, task);
 
-        TimerHandle handle = new DefaultTimerHandle(taskId, definition.getTaskCode(), task.getTriggerTime());
-
-        registry.register(handle);
+        // 管理任务注册队列
+        TimerHandle handle = new DefaultTimerHandle(taskId, definition.getTaskCode(), task.getTriggerTime(), task.getDefinition());
 
         logger.info("任务注册，taskId：{}，taskCode：{}，triggerTime：{}，context：{}",
                 taskId, definition.getTaskCode(), task.getTriggerTime(), JSONObject.toJSONString(definition.getContext().getData()));
@@ -103,7 +94,6 @@ public class DefaultTimerManager implements TimerManager {
      *
      * @param task 当前任务实例
      */
-    @SuppressWarnings("unchecked")
     private void execute(TimerTask task) {
         TimerTaskDefinition definition = task.getDefinition();
         TimerAction action = definition.getAction();
@@ -111,7 +101,7 @@ public class DefaultTimerManager implements TimerManager {
             action.execute(definition.getContext());
 //            logger.info("任务执行完成，taskId：{}，result：{}", task.getTaskId(), JSONObject.toJSONString(result));
         } catch (Exception e) {
-            logger.error("任务执行异常，taskId：{}", task.getTaskId(), e);
+            logger.error("任务执行异常，taskId：{}", task.getUuid(), e);
         } finally {
             afterExecute(task);
         }
@@ -123,39 +113,29 @@ public class DefaultTimerManager implements TimerManager {
      * @param task 当前任务
      */
     private void afterExecute(TimerTask task) {
-        runningTasks.remove(task.getTaskId());
-        registry.unregister(task.getTaskId());
+        runningTasks.remove(task.getUuid());
         Policy policy = task.getDefinition().getPolicy();
         if (policy.shouldContinue(task.getExecuteCount())) {
             schedule(task.getDefinition(), task.getExecuteCount() + 1);
         }
     }
 
-    /**
-     * 创建下一次任务实例。
-     *
-     * @param currentTask 当前任务
-     */
-    private void scheduleNext(TimerTask currentTask) {
-        schedule(currentTask.getDefinition(), currentTask.getExecuteCount() + 1);
-
-    }
-
     @Override
     public void executeNow(String taskId) {
         TimerTask task = runningTasks.get(taskId);
         if (task == null) {
+            logger.info("任务不存在，taskId：{}", taskId);
             return;
         }
         ScheduledFuture<?> future = task.getFuture();
         // 已经开始执行
         if (future.isDone()) {
+            logger.info("任务已经开始执行，taskId：{}", taskId);
             return;
         }
         future.cancel(false);
         executor.execute(() -> execute(task));
     }
-
 
     @Override
     public boolean cancel(String taskId) {
@@ -163,9 +143,23 @@ public class DefaultTimerManager implements TimerManager {
         if (task == null) {
             return false;
         }
-        registry.unregister(taskId);
         logger.info("任务取消，taskId：{}", taskId);
         return task.getFuture().cancel(false);
+    }
+
+    @Override
+    public TimerTask get(String taskId) {
+        return runningTasks.get(taskId);
+    }
+
+    @Override
+    public Collection<TimerTask> list() {
+        return runningTasks.values();
+    }
+
+    @Override
+    public int size() {
+        return runningTasks.size();
     }
 
     /**
@@ -187,21 +181,6 @@ public class DefaultTimerManager implements TimerManager {
         throw new IllegalArgumentException("未知 Trigger 类型：" + trigger.getClass());
     }
 
-    @Override
-    public TimerTask get(String taskId) {
-        return runningTasks.get(taskId);
-    }
-
-    @Override
-    public Collection<TimerTask> list() {
-        return runningTasks.values();
-    }
-
-    @Override
-    public int size() {
-        return runningTasks.size();
-    }
-
     /**
      * 计算 Cron 下一次执行时间。
      *
@@ -209,97 +188,15 @@ public class DefaultTimerManager implements TimerManager {
      * @return Duration
      */
     private Duration getDelay(String cron) {
-        throw new UnsupportedOperationException("暂未实现");
+
+        CronExpression expression = CronExpression.parse(cron);
+        LocalDateTime now = LocalDateTime.now();
+        // 获取下一次执行时间
+        LocalDateTime nextExecution = expression.next(now);
+        if (nextExecution == null) {
+            logger.error("cron 表达式错误");
+            throw new RuntimeException("cron 表达式错误");
+        }
+        return Duration.between(now, nextExecution);
     }
-
 }
-
-
-//public class DefaultTimerManager implements TimerManager {
-//
-//    private static final Logger logger = LoggerFactory.getLogger(DefaultTimerManager.class);
-//
-//    // 负责执行信息
-//    private final Map<String, TimerTaskDefinition> taskStore = new ConcurrentHashMap<>();
-//
-//    private final ScheduledThreadPoolExecutor executor;
-//
-//    private final TimerTaskRegistry registry;
-//
-//    public DefaultTimerManager(int corePoolSize, TimerTaskRegistry registry) {
-//        this.executor = new ScheduledThreadPoolExecutor(corePoolSize);
-//        this.registry = registry;
-//    }
-//
-//    @Override
-//    public TimerHandle schedule(TimerTaskDefinition definition) throws Exception {
-//        String taskId = UUID.randomUUID().toString();
-//        String taskCode = definition.getTaskCode();
-//        TimerAction action = definition.getAction();
-//        TimerTaskContext context = definition.getContext();
-//
-//        Duration delay;
-//        if (definition.getTrigger() instanceof DelayTrigger) {
-//            delay = ((DelayTrigger) definition.getTrigger()).getDelay();
-//        } else if (definition.getTrigger() instanceof AtTimeTrigger) {
-//            delay = Duration.between(LocalDateTime.now(), ((AtTimeTrigger) definition.getTrigger()).getTime());
-//        } else if (definition.getTrigger() instanceof CronTrigger) {
-//            delay = getDelay(((CronTrigger) definition.getTrigger()).getCron());
-//        } else {
-//            throw new Exception();
-//        }
-//
-//        taskStore.put(taskId, definition);
-//
-//        ScheduledFuture<?> future = executor.schedule(() -> {
-//                    try {
-//                        action.execute(context);
-//                    } catch (Exception e) {
-//                        logger.error("定时任务执行异常, taskId: {}", taskId, e);
-//                    } finally {
-//                        registry.unregister(taskId);
-//                        taskStore.remove(taskId);
-//                    }
-//                }, delay.toMillis(), TimeUnit.MILLISECONDS
-//        );
-//
-//        // 任务执行时间
-//        LocalDateTime triggerTime = LocalDateTime.now().plus(delay);
-//        TimerHandle handle = new DefaultTimerHandle(taskId, taskCode, triggerTime, future);
-//        logger.info("任务注册, taskId: {}, context: {}", taskId, JSONObject.toJSONString(context.getData()));
-//        registry.register(handle);
-//        return handle;
-//    }
-//
-//    private int executeCount;
-//
-//    private int maxExecuteCount;
-//
-//
-//
-//    @Override
-//    public void executeNow(String taskId) {
-//        TimerTaskDefinition def = taskStore.get(taskId);
-//        if (def == null) {
-//            return;
-//        }
-//        // 1. 取消原定时任务
-//        TimerHandle handle = registry.get(taskId);
-//        if (handle != null) {
-//            handle.cancel();
-//            registry.unregister(taskId);
-//        }
-//        // 2. 清理任务定义（避免重复执行）
-//        taskStore.remove(taskId);
-//        // 3. 立即执行
-//        executor.execute(() -> def.getAction().execute(def.getContext()));
-//    }
-//
-//    public Duration getDelay(String cron) {
-//        CronExpression expression = CronExpression.parse(cron);
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime next = expression.next(now);
-//        return Duration.between(now, next);
-//    }
-//
-//}

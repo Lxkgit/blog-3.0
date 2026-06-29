@@ -1,4 +1,4 @@
-package com.blog.core.domain.file;
+package com.blog.core.domain.file.task.del;
 
 import lombok.Data;
 

@@ -14,6 +14,10 @@ public interface TimerAction {
 
     String getName();
 
+    String getParamTemplate();
+
+
+
     void execute(TimerTaskContext context);
 
 }

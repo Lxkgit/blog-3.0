@@ -1,12 +1,15 @@
 package com.blog.file.controller;
 
-import com.blog.core.domain.file.task.vo.TaskLogVo;
+
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.task.service.TaskService;
+import com.blog.core.utils.SecurityUtil;
+import com.blog.file.service.TaskService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 /**
  * @Description 任务功能接口
@@ -29,6 +32,7 @@ public class TaskController {
      */
     @PostMapping("/insert")
     public Result insertTask(@RequestBody TaskParamVo taskParamVo) {
+        taskService.insertTask(taskParamVo);
         return ResultFactory.buildSuccessResult();
     }
 
@@ -40,6 +44,7 @@ public class TaskController {
      */
     @DeleteMapping("/delete")
     public Result deleteTask(@RequestParam(value = "id") Integer id) {
+        taskService.deleteTask(id);
         return ResultFactory.buildSuccessResult();
     }
 
@@ -53,6 +58,12 @@ public class TaskController {
     public Result updateTask(@RequestBody TaskParamVo taskParamVo) {
         taskService.updateTask(taskParamVo);
         return ResultFactory.buildSuccessResult();
+    }
+
+    @PostMapping("/select/list")
+    public Result selectTaskList(@RequestBody TaskParamVo taskParamVo) {
+
+        return ResultFactory.buildSuccessResult(taskService.selectTaskList(taskParamVo));
     }
 
     /**
@@ -87,16 +98,16 @@ public class TaskController {
         return ResultFactory.buildSuccessResult();
     }
 
-    /**
-     * 查询任务执行日志
-     *
-     * @param taskLogVo
-     * @return
-     */
-    @GetMapping("/log/select/list")
-    public Result selectTaskLogList(TaskLogVo taskLogVo) {
-        return ResultFactory.buildSuccessResult(taskService.selectTaskLogList(taskLogVo));
-    }
+//    /**
+//     * 查询任务执行日志
+//     *
+//     * @param taskLogVo
+//     * @return
+//     */
+//    @GetMapping("/log/select/list")
+//    public Result selectTaskLogList(TaskLogVo taskLogVo) {
+//        return ResultFactory.buildSuccessResult(taskService.selectTaskLogList(taskLogVo));
+//    }
 
     /**
      * 查询任务执行日志

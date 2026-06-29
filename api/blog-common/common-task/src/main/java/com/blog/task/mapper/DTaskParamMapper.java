@@ -1,7 +1,7 @@
 package com.blog.task.mapper;
 
-import com.blog.core.domain.file.task.entity.TaskParam;
-import com.blog.core.domain.file.task.vo.TaskParamVo;
+import com.blog.core.domain.file.task.del.entity.TaskParam;
+import com.blog.core.domain.file.task.del.vo.TaskParamVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -14,7 +14,7 @@ import java.util.List;
  */
 
 @Mapper
-public interface TaskParamMapper {
+public interface DTaskParamMapper {
 
     void updateTaskParamById(TaskParamVo taskParamVo);
 

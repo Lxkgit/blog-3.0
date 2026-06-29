@@ -9,8 +9,8 @@ import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
-import com.blog.core.domain.file.task.bo.SyncDeviceFileBo;
-import com.blog.core.domain.file.task.bo.SyncServiceFileBo;
+import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
+import com.blog.core.domain.file.task.del.bo.SyncServiceFileBo;
 import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.FileCategoryDataMapper;
@@ -29,13 +29,8 @@ import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
 import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.domain.service.SocketMessageSendService;
 import com.blog.file.socket.config.SocketService;
-import com.blog.file.task.TaskLogService;
 import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
-import com.blog.task.constant.TaskConstant;
-import com.blog.task.domain.TaskBase;
-import com.blog.task.domain.TaskEntity;
-import com.blog.task.service.impl.CreateTaskService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,8 +69,8 @@ public class NettySyncFileService {
     @Resource
     private SocketService socketService;
 
-    @Resource
-    private CreateTaskService createTaskService;
+//    @Resource
+//    private CreateTaskService createTaskService;
 
     @Resource
     private UserDeviceMapper userDeviceMapper;
@@ -86,8 +81,8 @@ public class NettySyncFileService {
     @Resource
     private RedisService redisService;
 
-    @Resource
-    private TaskLogService taskLogService;
+//    @Resource
+//    private TaskLogService taskLogService;
 
     @Resource
     private FileCategoryMapper fileCategoryMapper;
@@ -194,7 +189,7 @@ public class NettySyncFileService {
 
         // 文件同步 任务请求头不为空时记录任务日志
         if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
-            taskLogService.recordSyncFileTaskLog(nettySyncFileDto, msgHead);
+//            taskLogService.recordSyncFileTaskLog(nettySyncFileDto, msgHead);
         }
     }
 
@@ -433,19 +428,19 @@ public class NettySyncFileService {
      * @param time 删除操作延迟时间
      */
     public void deleteTempFile(String filePath, String time) {
-        List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
-        for (Object o : taskList) {
-            TaskBase taskBase = (TaskBase) o;
-            if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
-                // 定时删除同步文件
-                TaskEntity taskEntity = new TaskEntity();
-                BeanUtils.copyProperties(taskBase, taskEntity);
-                taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
-                taskEntity.setTaskTime(time);
-                taskEntity.setTaskCount(1);
-                createTaskService.createTask(taskEntity);
-            }
-        }
+//        List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
+//        for (Object o : taskList) {
+//            TaskBase taskBase = (TaskBase) o;
+//            if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
+//                // 定时删除同步文件
+//                TaskEntity taskEntity = new TaskEntity();
+//                BeanUtils.copyProperties(taskBase, taskEntity);
+//                taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
+//                taskEntity.setTaskTime(time);
+//                taskEntity.setTaskCount(1);
+//                createTaskService.createTask(taskEntity);
+//            }
+//        }
     }
 
     /**
@@ -455,20 +450,20 @@ public class NettySyncFileService {
      * @param time 删除操作延迟时间
      */
     public void deleteTempFile(String taskUUID, String filePath, String time) {
-        List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
-        for (Object o : taskList) {
-            TaskBase taskBase = (TaskBase) o;
-            if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
-                // 定时删除同步文件
-                TaskEntity taskEntity = new TaskEntity();
-                taskEntity.setTaskUUID(taskUUID);
-                BeanUtils.copyProperties(taskBase, taskEntity);
-                taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
-                taskEntity.setTaskTime(time);
-                taskEntity.setTaskCount(1);
-                createTaskService.createTask(taskEntity);
-            }
-        }
+//        List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
+//        for (Object o : taskList) {
+//            TaskBase taskBase = (TaskBase) o;
+//            if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
+//                // 定时删除同步文件
+//                TaskEntity taskEntity = new TaskEntity();
+//                taskEntity.setTaskUUID(taskUUID);
+//                BeanUtils.copyProperties(taskBase, taskEntity);
+//                taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
+//                taskEntity.setTaskTime(time);
+//                taskEntity.setTaskCount(1);
+//                createTaskService.createTask(taskEntity);
+//            }
+//        }
     }
 
     /**
@@ -480,7 +475,7 @@ public class NettySyncFileService {
     public void receiveSocketDeleteFileMsg(SocketDeleteFileOrDirDto dto, MsgHead msgHead) {
         // 文件同步 任务请求头不为空时记录任务日志
         if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
-            taskLogService.recordDelFileTaskLog(dto, msgHead);
+//            taskLogService.recordDelFileTaskLog(dto, msgHead);
         }
 
         if (StringUtils.isNotEmpty(dto.getFileName())) {

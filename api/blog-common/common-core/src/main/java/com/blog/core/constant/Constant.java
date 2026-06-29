@@ -8,6 +8,13 @@ package com.blog.core.constant;
 
 public class Constant {
 
+    // 全局参数
+
+    // 状态-启动
+    public static final String START = "1";
+    // 状态-停止
+    public static final String STOP = "2";
+
     // 授权信息有效时间
     public static  final Integer AUTH_EFFECTIVE_TIME = 28800;
     public static final String articleSaveFail = "文章保存失败";

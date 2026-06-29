@@ -1,8 +1,7 @@
 package com.blog.task.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.blog.core.domain.file.task.entity.TaskLog;
-import com.blog.core.domain.file.task.vo.TaskLogVo;
+import com.blog.core.domain.file.task.del.entity.TaskLog;
+import com.blog.core.domain.file.task.del.vo.TaskLogVo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

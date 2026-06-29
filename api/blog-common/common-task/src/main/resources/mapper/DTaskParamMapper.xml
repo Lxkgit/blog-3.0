@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
-<mapper namespace="com.blog.task.mapper.TaskParamMapper">
+<mapper namespace="com.blog.task.mapper.DTaskParamMapper">
 
     <!-- resultMap -->
-    <resultMap id="TaskInfoResultMap" type="com.blog.core.domain.file.task.entity.TaskParam">
+    <resultMap id="TaskInfoResultMap" type="com.blog.core.domain.file.task.del.entity.TaskParam">
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
         <result property="taskCode" column="task_code"/>
@@ -25,7 +25,7 @@
     </sql>
 
     <!-- 插入 -->
-    <insert id="insertTask" parameterType="com.blog.core.domain.file.task.entity.TaskParam" useGeneratedKeys="true"
+    <insert id="insertTask" parameterType="com.blog.core.domain.file.task.del.entity.TaskParam" useGeneratedKeys="true"
             keyProperty="id">
         INSERT INTO task_param
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -55,7 +55,7 @@
     </insert>
 
     <!-- 更新 -->
-    <update id="updateTaskParamById" parameterType="com.blog.core.domain.file.task.entity.TaskParam">
+    <update id="updateTaskParamById" parameterType="com.blog.core.domain.file.task.del.entity.TaskParam">
         UPDATE task_param
         <set>
             <if test="userId != null">user_id = #{userId},</if>
@@ -80,7 +80,7 @@
     </delete>
 
     <!-- 查询（根据 taskUUID 可作为网格编码） -->
-    <select id="selectTaskByTaskCode" resultMap="TaskInfoResultMap" parameterType="com.blog.core.domain.file.task.vo.TaskParamVo">
+    <select id="selectTaskByTaskCode" resultMap="TaskInfoResultMap" parameterType="com.blog.core.domain.file.task.del.vo.TaskParamVo">
         SELECT
         <include refid="Base_Column_List"/>
         FROM task_param
@@ -110,7 +110,7 @@
 
     <!-- 通用条件查询（可扩展） -->
     <select id="selectTaskList" resultMap="TaskInfoResultMap"
-            parameterType="com.blog.core.domain.file.task.entity.TaskParam">
+            parameterType="com.blog.core.domain.file.task.del.entity.TaskParam">
         SELECT <include refid="Base_Column_List"/>
         FROM task_param
         <where>

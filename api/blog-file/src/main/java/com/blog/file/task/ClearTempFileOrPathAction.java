@@ -38,4 +38,11 @@ public class ClearTempFileOrPathAction implements TimerAction {
     public String getName() {
         return "清理服务器文件";
     }
+
+    @Override
+    public String getParamTemplate() {
+        return "";
+
+
+    }
 }

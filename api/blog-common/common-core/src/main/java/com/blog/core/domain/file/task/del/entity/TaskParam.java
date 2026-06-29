@@ -1,4 +1,4 @@
-package com.blog.core.domain.file.task.entity;
+package com.blog.core.domain.file.task.del.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -6,9 +6,9 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * @Description
+ * @Description 任务参数表
  * @Author lxk
- * @CreateTime 2026-06-29
+ * @CreateTime 2025-09-16
  */
 
 @Data
@@ -27,6 +27,16 @@ public class TaskParam {
     private String taskCode;
 
     /**
+     * 子任务编码
+     */
+    private String childTaskCode;
+
+    /**
+     * json格式参数类
+     */
+    private String paramClazz;
+
+    /**
      * json格式任务执行参数
      */
     private String paramJson;
@@ -37,19 +47,25 @@ public class TaskParam {
     private Integer taskCount;
 
     /**
-     * 任务触发方式：1：指定时间 2：延时 3： cron表达式
+     * 任务执行cron表达式
      */
-    private String taskTrigger;
+    private String taskCron;
 
     /**
-     * 任务启动时间（延时方式记录为秒）
+     * 任务启动时间，秒不支持小数
+     * 1.5h 1.5小时后执行
+     * 3m   3分钟后执行
+     * 50s  50秒后执行
      */
     private String taskTime;
 
     /**
-     * 任务状态 1：启动 2：停止
+     * 任务状态
+     * 1 待执行
+     * 2 进行中
+     * 3 已结束
      */
-    private String taskStatus;
+    private Integer taskStatus;
 
     /**
      * 创建时间

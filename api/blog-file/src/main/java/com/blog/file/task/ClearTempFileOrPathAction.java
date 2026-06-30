@@ -45,4 +45,9 @@ public class ClearTempFileOrPathAction implements TimerAction {
 
 
     }
+
+    @Override
+    public void checkParam(String json) {
+
+    }
 }

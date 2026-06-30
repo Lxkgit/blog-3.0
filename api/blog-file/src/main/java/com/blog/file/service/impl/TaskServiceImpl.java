@@ -45,17 +45,20 @@ public class TaskServiceImpl implements TaskService {
     @Resource
     private TimerActionManager timerActionManager;
 
-    @Resource
-    private TimerAction action;
-
     @Override
     public void insertTask(TaskParamVo taskParamVo) {
+
+        // 校验参数
+        timerActionManager.get(taskParamVo.getTaskCode()).checkParam(taskParamVo.getParamJson());
+
+        // 保存任务
         taskParamVo.setUserId(SecurityUtil.getLoginUser().getId());
         taskParamVo.setCreateTime(new Date());
         taskParamVo.setUpdateTime(new Date());
         taskParamMapper.insert(taskParamVo);
-        if (Constant.START.equals(taskParamVo.getTaskStatus())) {
 
+        // 任务为启动状态时创建任务
+        if (Constant.START.equals(taskParamVo.getTaskStatus())) {
             TimerTaskContext context = new TimerTaskContext();
             context.put("param", taskParamVo.getParamJson());
             TimerTaskDefinition definition = TimerTaskDefinition.builder()

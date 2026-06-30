@@ -74,4 +74,9 @@ public class MinioFileSyncTaskAction implements TimerAction {
 
         return json.toString();
     }
+
+    @Override
+    public void checkParam(String json) {
+
+    }
 }

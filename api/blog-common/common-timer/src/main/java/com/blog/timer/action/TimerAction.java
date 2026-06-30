@@ -16,6 +16,7 @@ public interface TimerAction {
 
     String getParamTemplate();
 
+    void checkParam(String json);
 
 
     void execute(TimerTaskContext context);

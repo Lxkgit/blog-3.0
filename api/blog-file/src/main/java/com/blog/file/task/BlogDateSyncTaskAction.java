@@ -55,6 +55,11 @@ public class BlogDateSyncTaskAction implements TimerAction {
     }
 
     @Override
+    public void checkParam(String json) {
+
+    }
+
+    @Override
     public String getParamTemplate() {
         return "";
     }

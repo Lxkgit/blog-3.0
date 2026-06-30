@@ -41,4 +41,9 @@ public class DeviceFileUploadTaskAction implements TimerAction {
     public String getParamTemplate() {
         return "";
     }
+
+    @Override
+    public void checkParam(String json) {
+
+    }
 }

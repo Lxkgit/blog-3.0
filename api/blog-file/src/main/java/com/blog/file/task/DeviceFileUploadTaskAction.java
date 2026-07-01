@@ -6,6 +6,7 @@ import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
+import com.blog.timer.entity.TimerTask;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class DeviceFileUploadTaskAction implements TimerAction {
+public class DeviceFileUploadTaskAction extends SystemTimerAction {
 
     @Resource
     private NettySyncFileService nettySyncFileService;

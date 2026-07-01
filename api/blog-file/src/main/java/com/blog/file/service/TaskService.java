@@ -4,7 +4,7 @@ import com.blog.core.domain.file.task.del.entity.TaskLog;
 
 import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
-import com.blog.core.result.ResultPage;
+import com.blog.timer.entity.TimerTask;
 
 import java.util.List;
 
@@ -24,9 +24,19 @@ public interface TaskService {
 
     List<TaskParam> selectTaskList(TaskParamVo taskParamVo);
 
-    List<Object> selectTaskBaseList();
+    void startTask(Integer id);
 
-    List<TaskParam> selectTaskEntityById(String taskCode);
+    void stopTask(Integer id);
+
+    void runningTask(Integer id);
+
+    void cancelTask(Integer id);
+
+    List<Object> selectBaseTaskList();
+
+    List<TimerTask> selectRunningTask();
+
+
 
 //    ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
 
@@ -34,5 +44,5 @@ public interface TaskService {
 
     void createChildTask(TaskParam taskParam);
 
-    void startTask(String childTaskCode);
+
 }

@@ -6,6 +6,7 @@ import com.blog.core.domain.common.MsgHead;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
+import com.blog.timer.entity.TimerTask;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class BlogDateSyncTaskAction implements TimerAction {
+public class BlogDateSyncTaskAction extends SystemTimerAction {
 
     private static final Logger logger = LoggerFactory.getLogger(BlogDateSyncTaskAction.class);
 
@@ -52,11 +53,6 @@ public class BlogDateSyncTaskAction implements TimerAction {
     @Override
     public String getName() {
         return "定时备份博客数据";
-    }
-
-    @Override
-    public void checkParam(String json) {
-
     }
 
     @Override

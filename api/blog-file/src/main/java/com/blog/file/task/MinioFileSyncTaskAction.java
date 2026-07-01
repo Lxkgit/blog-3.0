@@ -8,6 +8,7 @@ import com.blog.core.domain.file.task.del.bo.SyncServiceFileBo;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
+import com.blog.timer.entity.TimerTask;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class MinioFileSyncTaskAction implements TimerAction {
+public class MinioFileSyncTaskAction extends SystemTimerAction {
 
 
     @Resource
@@ -44,35 +45,35 @@ public class MinioFileSyncTaskAction implements TimerAction {
     public String getParamTemplate() {
         //        [{ "minioPath": "/user/data/video", "devicePath": "/mnt/E80499A6049977F0/ss/Telegram/video", "count": 10, "maxFileCount":400 }]
 
-        JSONObject json = new JSONObject();
+        JSONArray array = new JSONArray();
 
         JSONObject minioPath = new JSONObject();
         minioPath.put("type", "input");
         minioPath.put("name", "服务器文件路径");
         minioPath.put("length", "200");
-        json.put("minioPath", minioPath);
+        array.add(minioPath);
 
         JSONObject devicePath = new JSONObject();
         devicePath.put("type", "input");
         devicePath.put("name", "设备文件路径");
         devicePath.put("length", "200");
-        json.put("devicePath", devicePath);
+        array.add(devicePath);
 
         JSONObject count = new JSONObject();
         count.put("type", "input-number");
         count.put("name", "同步文件数量");
         count.put("min", 0);
         count.put("max", 50);
-        json.put("count", count);
+        array.add(count);
 
         JSONObject maxFileCount = new JSONObject();
         maxFileCount.put("type", "input-number");
         maxFileCount.put("name", "目录下最大文件数量");
         maxFileCount.put("min", 0);
         maxFileCount.put("max", 200);
-        json.put("maxFileCount", maxFileCount);
+        array.add(maxFileCount);
 
-        return json.toString();
+        return array.toString();
     }
 
     @Override

@@ -1,15 +1,13 @@
 package com.blog.file.controller;
 
 
+import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
-import com.blog.core.utils.SecurityUtil;
 import com.blog.file.service.TaskService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 
 /**
  * @Description 任务功能接口
@@ -60,10 +58,61 @@ public class TaskController {
         return ResultFactory.buildSuccessResult();
     }
 
+    /**
+     * 查看任务列表
+     *
+     * @param taskParamVo
+     * @return
+     */
     @PostMapping("/select/list")
     public Result selectTaskList(@RequestBody TaskParamVo taskParamVo) {
-
         return ResultFactory.buildSuccessResult(taskService.selectTaskList(taskParamVo));
+    }
+
+    /**
+     * 操作任务参数配置-启用任务
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/start")
+    public Result startTask(@RequestParam(value = "id") Integer id) {
+        taskService.startTask(id);
+        return ResultFactory.buildSuccessResult();
+    }
+
+    /**
+     * 操作任务参数配置-停止任务
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/stop")
+    public Result stopTask(@RequestParam(value = "id") Integer id) {
+        taskService.stopTask(id);
+        return ResultFactory.buildSuccessResult();
+    }
+
+    /**
+     * 操作执行队列中的任务-立即执行任务
+     *
+     * @return
+     */
+    @GetMapping("/running")
+    public Result runningTask(@RequestParam(value = "id") Integer id) {
+        taskService.runningTask(id);
+        return ResultFactory.buildSuccessResult();
+    }
+
+    /**
+     * 操作执行队列中的任务-取消执行任务
+     *
+     * @return
+     */
+    @GetMapping("/cancel")
+    public Result cancelTask(@RequestParam(value = "id") Integer id) {
+        taskService.cancelTask(id);
+        return ResultFactory.buildSuccessResult();
     }
 
     /**
@@ -73,30 +122,19 @@ public class TaskController {
      */
     @GetMapping("/select/base/list")
     public Result selectTaskBaseList() {
-        return ResultFactory.buildSuccessResult(taskService.selectTaskBaseList());
+        return ResultFactory.buildSuccessResult(taskService.selectBaseTaskList());
     }
 
     /**
      * 查询子任务
      *
-     * @param taskCode
      * @return
      */
-    @GetMapping("/select/child/id")
-    public Result selectTaskEntityById(@RequestParam("taskCode") String taskCode) {
-        return ResultFactory.buildSuccessResult(taskService.selectTaskEntityById(taskCode));
+    @GetMapping("/select/running")
+    public Result selectTaskEntityById() {
+        return ResultFactory.buildSuccessResult(taskService.selectRunningTask());
     }
 
-    /**
-     * 立即执行任务
-     *
-     * @return
-     */
-    @GetMapping("/start")
-    public Result startTask(@RequestParam(value = "childTaskCode") String childTaskCode) {
-        taskService.startTask(childTaskCode);
-        return ResultFactory.buildSuccessResult();
-    }
 
 //    /**
 //     * 查询任务执行日志

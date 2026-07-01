@@ -49,8 +49,8 @@ public class TimerTask {
     @JsonIgnore
     private ScheduledFuture<?> future;
 
-    public TimerTask(String taskId, TimerTaskDefinition definition, int executeCount) {
-        this.uuid = taskId;
+    public TimerTask(String uuid, TimerTaskDefinition definition, int executeCount) {
+        this.uuid = uuid;
         this.definition = definition;
         this.executeCount = executeCount;
         this.createTime = LocalDateTime.now();

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.file.mapper.TaskUuidMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.task.entity.TaskUuid">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="uuid" property="uuid"/>
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, task_id, uuid
+    </sql>
+
+    <select id="selectUUidByTaskId" resultType="java.lang.String">
+        select uuid
+        from task_uuid
+        where task_id = #{taskId}
+    </select>
+
+</mapper>

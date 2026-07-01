@@ -29,6 +29,10 @@ public class TimerActionManager {
         }
     }
 
+    public boolean checkCode(String code) {
+        return actionMap.containsKey(code);
+    }
+
     public TimerAction get(String code) {
         return actionMap.get(code);
     }

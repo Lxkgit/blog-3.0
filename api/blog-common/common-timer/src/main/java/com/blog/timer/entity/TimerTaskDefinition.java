@@ -56,6 +56,7 @@ public class TimerTaskDefinition {
      */
     public TimerTaskDefinition snapshot() {
         return TimerTaskDefinition.builder()
+                .id(id)
                 .taskCode(taskCode)
                 .action(action)
                 .context(context == null ? null : context.snapshot())

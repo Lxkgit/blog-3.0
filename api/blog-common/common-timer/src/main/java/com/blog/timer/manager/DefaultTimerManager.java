@@ -17,9 +17,7 @@ import org.springframework.scheduling.support.CronExpression;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -65,72 +63,106 @@ public class DefaultTimerManager implements TimerManager {
      * @return TimerHandle 任务实例
      */
     private TimerHandle schedule(TimerTaskDefinition definition, int executeCount) {
-        String taskId = UUID.randomUUID().toString();
+        String uuid = UUID.randomUUID().toString();
         Duration delay = calculateDelay(definition.getTrigger());
         if (delay.isNegative()) {
             throw new IllegalArgumentException("触发时间已过");
         }
-        TimerTask task = new TimerTask(taskId, definition.snapshot(), executeCount);
+        TimerTask task = new TimerTask(uuid, definition.snapshot(), executeCount);
         task.setTriggerTime(LocalDateTime.now().plus(delay));
 
+        // 任务执行前
+        beforeExecute(task);
+
         // 执行任务
-        ScheduledFuture<?> future = executor.schedule(() -> execute(task), delay.toMillis(), TimeUnit.MILLISECONDS);
+        ScheduledFuture<?> future = executor.schedule(() -> executeFlow(task), delay.toMillis(), TimeUnit.MILLISECONDS);
         task.setFuture(future);
 
         // 管理任务执行队列
-        runningTasks.put(taskId, task);
+        runningTasks.put(uuid, task);
 
         // 管理任务注册队列
-        TimerHandle handle = new DefaultTimerHandle(taskId, definition.getTaskCode(), task.getTriggerTime(), task.getDefinition());
+        TimerHandle handle = new DefaultTimerHandle(uuid, definition.getTaskCode(), task.getTriggerTime(), task.getDefinition());
 
         logger.info("任务注册，taskId：{}，taskCode：{}，triggerTime：{}，context：{}",
-                taskId, definition.getTaskCode(), task.getTriggerTime(), JSONObject.toJSONString(definition.getContext().getData()));
+                uuid, definition.getTaskCode(), task.getTriggerTime(), JSONObject.toJSONString(definition.getContext().getData()));
 
         return handle;
     }
 
     /**
-     * 执行任务
+     * 执行任务流程
      *
      * @param task 当前任务实例
      */
-    private void execute(TimerTask task) {
-        TimerTaskDefinition definition = task.getDefinition();
-        TimerAction action = definition.getAction();
+    private void executeFlow(TimerTask task) {
         try {
-            action.execute(definition.getContext());
-//            logger.info("任务执行完成，taskId：{}，result：{}", task.getTaskId(), JSONObject.toJSONString(result));
+            execute(task);
         } catch (Exception e) {
-            logger.error("任务执行异常，taskId：{}", task.getUuid(), e);
+            logger.error("任务执行异常，uuid：{}", task.getUuid(), e);
         } finally {
             afterExecute(task);
         }
     }
 
     /**
-     * 任务执行完成后的生命周期处理。
+     * 任务执行前
      *
-     * @param task 当前任务
+     * @param task
      */
-    private void afterExecute(TimerTask task) {
-        runningTasks.remove(task.getUuid());
-        Policy policy = task.getDefinition().getPolicy();
-        if (policy.shouldContinue(task.getExecuteCount())) {
-            schedule(task.getDefinition(), task.getExecuteCount() + 1);
-        }
+    private void beforeExecute(TimerTask task) {
+        TimerTaskDefinition definition = task.getDefinition();
+        TimerAction action = definition.getAction();
+
+        action.beforeExecute(task);
     }
 
+    /**
+     * 任务执行
+     *
+     * @param task
+     */
+    private void execute(TimerTask task) {
+        TimerTaskDefinition definition = task.getDefinition();
+        TimerAction action = definition.getAction();
+
+        action.execute(definition.getContext());
+    }
+
+    /**
+     * 任务执行后
+     *
+     * @param task
+     */
+    private void afterExecute(TimerTask task) {
+        TimerTaskDefinition definition = task.getDefinition();
+        TimerAction action = definition.getAction();
+
+        // 任务运行队列移除当前执行任务
+        runningTasks.remove(task.getUuid());
+        // 结束任务执行任务状态修改
+        action.afterExecute(task);
+        // 判断当前任务是否需要继续执行
+        Policy policy = task.getDefinition().getPolicy();
+        if (policy.shouldContinue(task.getExecuteCount())) {
+            // 任务开始下一次循环
+            schedule(task.getDefinition(), task.getExecuteCount() + 1);
+        }
+
+    }
+
+
     @Override
-    public void executeNow(String taskId) {
-        TimerTask task = runningTasks.get(taskId);
+    public void executeNow(String uuid) {
+        TimerTask task = runningTasks.get(uuid);
         if (task == null) {
-            logger.info("任务不存在，taskId：{}", taskId);
+            logger.info("任务不存在，taskId：{}", uuid);
             return;
         }
         ScheduledFuture<?> future = task.getFuture();
         // 已经开始执行
         if (future.isDone()) {
-            logger.info("任务已经开始执行，taskId：{}", taskId);
+            logger.info("任务已经开始执行，taskId：{}", uuid);
             return;
         }
         future.cancel(false);
@@ -138,18 +170,19 @@ public class DefaultTimerManager implements TimerManager {
     }
 
     @Override
-    public boolean cancel(String taskId) {
-        TimerTask task = runningTasks.remove(taskId);
-        if (task == null) {
-            return false;
+    public boolean cancel(String uuid) {
+        if (runningTasks.containsKey(uuid)) {
+            logger.info("任务取消，uuid：{}", uuid);
+            TimerTask task = runningTasks.get(uuid);
+            afterExecute(task);
+            return task.getFuture().cancel(false);
         }
-        logger.info("任务取消，taskId：{}", taskId);
-        return task.getFuture().cancel(false);
+        return false;
     }
 
     @Override
-    public TimerTask get(String taskId) {
-        return runningTasks.get(taskId);
+    public TimerTask get(String uuid) {
+        return runningTasks.get(uuid);
     }
 
     @Override

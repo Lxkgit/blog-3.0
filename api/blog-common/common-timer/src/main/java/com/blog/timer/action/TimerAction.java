@@ -1,6 +1,7 @@
 package com.blog.timer.action;
 
 import com.blog.timer.context.TimerTaskContext;
+import com.blog.timer.entity.TimerTask;
 
 /**
  * @Description
@@ -18,7 +19,11 @@ public interface TimerAction {
 
     void checkParam(String json);
 
+    void beforeExecute(TimerTask timerTask);
 
     void execute(TimerTaskContext context);
 
+    void afterExecute(TimerTask timerTask);
+
+    void finalExecute(TimerTask timerTask);
 }

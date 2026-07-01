@@ -23,32 +23,29 @@ public interface TimerManager {
     TimerHandle schedule(TimerTaskDefinition definition);
 
     /**
-     * 立即执行指定任务。
-     *
-     * <p>
+     * 立即执行指定任务
      * 立即执行后，将根据任务策略重新创建下一次任务
      * 或结束任务生命周期。
-     * </p>
      *
-     * @param taskId 任务实例ID
+     * @param uuid 任务uuid
      */
-    void executeNow(String taskId);
+    void executeNow(String uuid);
 
     /**
-     * 取消任务。
+     * 取消任务
      *
-     * @param taskId 任务实例ID
+     * @param uuid 任务uuid
      * @return true 成功
      */
-    boolean cancel(String taskId);
+    boolean cancel(String uuid);
 
     /**
      * 获取任务实例。
      *
-     * @param taskId 任务实例ID
+     * @param uuid 任务uuid
      * @return TimerTask
      */
-    TimerTask get(String taskId);
+    TimerTask get(String uuid);
 
     /**
      * 获取全部运行中的任务。

@@ -39,7 +39,7 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
      * 4. socket移动文件完成，netty再次回应消息，响应同步数据成功
      */
     @Override
-    public void execute(TimerTaskContext context) {
+    public void doExecute(TimerTaskContext context) {
         logger.info("开始备份博客数据");
         logger.info(JSONObject.toJSONString(context.getData()));
 //        String filePath = nettySyncFileService.syncBlogDataFirstStep(new MsgHead());
@@ -57,6 +57,6 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
 
     @Override
     public String getParamTemplate() {
-        return "";
+        return "参数模板";
     }
 }

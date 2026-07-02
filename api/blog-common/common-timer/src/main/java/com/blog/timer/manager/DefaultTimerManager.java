@@ -126,7 +126,7 @@ public class DefaultTimerManager implements TimerManager {
         TimerTaskDefinition definition = task.getDefinition();
         TimerAction action = definition.getAction();
 
-        action.execute(definition.getContext());
+        action.execute(task);
     }
 
     /**
@@ -140,17 +140,18 @@ public class DefaultTimerManager implements TimerManager {
 
         // 任务运行队列移除当前执行任务
         runningTasks.remove(task.getUuid());
-        // 结束任务执行任务状态修改
+        // 任务执行后删除任务uuid与任务id映射表数据
         action.afterExecute(task);
         // 判断当前任务是否需要继续执行
         Policy policy = task.getDefinition().getPolicy();
         if (policy.shouldContinue(task.getExecuteCount())) {
             // 任务开始下一次循环
             schedule(task.getDefinition(), task.getExecuteCount() + 1);
+        } else {
+            // 任务结束
+            action.finalExecute(task);
         }
-
     }
-
 
     @Override
     public void executeNow(String uuid) {
@@ -181,17 +182,17 @@ public class DefaultTimerManager implements TimerManager {
     }
 
     @Override
-    public TimerTask get(String uuid) {
+    public TimerTask getTaskByUuid(String uuid) {
         return runningTasks.get(uuid);
     }
 
     @Override
-    public Collection<TimerTask> list() {
+    public Collection<TimerTask> getAllTask() {
         return runningTasks.values();
     }
 
     @Override
-    public int size() {
+    public int getTaskCount() {
         return runningTasks.size();
     }
 

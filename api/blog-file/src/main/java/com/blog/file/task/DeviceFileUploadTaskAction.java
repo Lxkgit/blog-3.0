@@ -33,7 +33,7 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
     }
 
     @Override
-    public void execute(TimerTaskContext context) {
+    public void doExecute(TimerTaskContext context) {
         SyncDeviceFileBo bo = context.get("");
         nettySyncFileService.syncDeviceFile(bo, new MsgHead());
     }
@@ -43,8 +43,4 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
         return "";
     }
 
-    @Override
-    public void checkParam(String json) {
-
-    }
 }

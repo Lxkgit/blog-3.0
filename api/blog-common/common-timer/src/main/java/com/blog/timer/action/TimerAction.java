@@ -17,11 +17,11 @@ public interface TimerAction {
 
     String getParamTemplate();
 
-    void checkParam(String json);
+    void checkParam(TimerAction action, String json);
 
     void beforeExecute(TimerTask timerTask);
 
-    void execute(TimerTaskContext context);
+    void execute(TimerTask task);
 
     void afterExecute(TimerTask timerTask);
 

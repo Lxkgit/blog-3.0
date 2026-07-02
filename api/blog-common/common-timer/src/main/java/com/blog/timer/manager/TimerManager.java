@@ -45,20 +45,20 @@ public interface TimerManager {
      * @param uuid 任务uuid
      * @return TimerTask
      */
-    TimerTask get(String uuid);
+    TimerTask getTaskByUuid(String uuid);
 
     /**
      * 获取全部运行中的任务。
      *
      * @return Collection
      */
-    Collection<TimerTask> list();
+    Collection<TimerTask> getAllTask();
 
     /**
      * 当前任务数量。
      *
      * @return 数量
      */
-    int size();
+    int getTaskCount();
 
 }

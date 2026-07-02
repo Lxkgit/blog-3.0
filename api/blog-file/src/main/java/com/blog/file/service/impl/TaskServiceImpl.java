@@ -2,14 +2,19 @@ package com.blog.file.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
-import com.blog.core.domain.file.task.del.entity.TaskLog;
+import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.domain.file.task.entity.TaskParam;
+import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.exception.ServiceException;
+import com.blog.core.result.ResultPage;
+import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.SecurityUtil;
+import com.blog.file.mapper.TaskLogMapper;
 import com.blog.file.mapper.TaskParamMapper;
 import com.blog.file.mapper.TaskUuidMapper;
 import com.blog.file.service.TaskService;
+import com.blog.timer.action.TimerAction;
 import com.blog.timer.action.TimerActionManager;
 import com.blog.timer.context.TimerTaskContext;
 import com.blog.timer.entity.TimerTask;
@@ -21,6 +26,7 @@ import com.blog.timer.entity.trigger.DelayTrigger;
 import com.blog.timer.entity.trigger.Trigger;
 import com.blog.timer.manager.TimerManager;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -48,6 +54,9 @@ public class TaskServiceImpl implements TaskService {
     private TaskParamMapper taskParamMapper;
 
     @Resource
+    private TaskLogMapper taskLogMapper;
+
+    @Resource
     private TaskUuidMapper taskUuidMapper;
 
     @Resource
@@ -63,8 +72,10 @@ public class TaskServiceImpl implements TaskService {
             throw new ServiceException("任务编码错误");
         }
 
+        TimerAction action = timerActionManager.get(taskParamVo.getTaskCode());
+
         // 校验任务参数
-        timerActionManager.get(taskParamVo.getTaskCode()).checkParam(taskParamVo.getParamJson());
+        action.checkParam(action, taskParamVo.getParamJson());
 
         // 保存任务
         taskParamVo.setUserId(SecurityUtil.getLoginUser().getId());
@@ -137,10 +148,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskParam> selectTaskList(TaskParamVo taskParamVo) {
-        LambdaQueryWrapper<TaskParam> wrapper = new LambdaQueryWrapper<>();
+    public ResultPage<TaskParam> selectTaskList(TaskParamVo taskParamVo) {
         PageHelper.startPage(taskParamVo.getPageNum(), taskParamVo.getPageSize());
-        return taskParamMapper.selectList(wrapper);
+        LambdaQueryWrapper<TaskParam> wrapper = new LambdaQueryWrapper<>();
+        List<TaskParam> taskLogVoList = taskParamMapper.selectList(wrapper);
+        return ResultPageUtils.pageUtil(taskLogVoList, taskParamVo.getPageNum(), taskParamVo.getPageSize(), new PageInfo<>(taskLogVoList).getTotal());
     }
 
     @Override
@@ -174,21 +186,22 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TimerTask> selectRunningTask() {
-        return timerManager.list().stream().toList();
-    }
-
-
-
-
-    @Override
-    public List<TaskLog> selectTaskLogByTaskUUID(String taskUUID) {
-        return List.of();
+        return timerManager.getAllTask().stream().toList();
     }
 
     @Override
-    public void createChildTask(TaskParam taskParam) {
-
+    public ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo) {
+        PageHelper.startPage(taskLogVo.getPageNum(), taskLogVo.getPageSize());
+        List<TaskLogVo> taskLogVoList = taskLogMapper.selectTaskLogList();
+        return ResultPageUtils.pageUtil(taskLogVoList, taskLogVo.getPageNum(), taskLogVo.getPageSize(), new PageInfo<>(taskLogVoList).getTotal());
     }
 
-
+    @Override
+    public ResultPage<TaskLog> selectTaskLogByUuid(TaskLogVo taskLogVo) {
+        LambdaQueryWrapper<TaskLog> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(TaskLog::getTaskUuid, taskLogVo.getTaskUuid());
+        PageHelper.startPage(taskLogVo.getPageNum(), taskLogVo.getPageSize());
+        List<TaskLog> taskLogVoList = taskLogMapper.selectList(wrapper);
+        return ResultPageUtils.pageUtil(taskLogVoList, taskLogVo.getPageNum(), taskLogVo.getPageSize(), new PageInfo<>(taskLogVoList).getTotal());
+    }
 }

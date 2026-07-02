@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.blog.task.mapper.TaskLogMapper">
-    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.task.del.entity.TaskLog">
+<mapper namespace="com.blog.file.mapper.TaskLogMapper">
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.task.entity.TaskLog">
         <id column="id" property="id"/>
-        <result column="task_id" property="taskId"/>
         <result column="task_name" property="taskName"/>
         <result column="task_code" property="taskCode"/>
         <result column="child_task_code" property="childTaskCode"/>
@@ -19,13 +18,12 @@
     </resultMap>
 
 
-    <insert id="insertTaskLog" parameterType="com.blog.core.domain.file.task.del.entity.TaskLog">
+    <insert id="insertTaskLog" parameterType="com.blog.core.domain.file.task.entity.TaskLog">
         INSERT INTO task_log (
-            id, task_id, task_name, task_code, child_task_code, task_uuid, task_log_type, index_count, task_count,
+            id, task_name, task_code, child_task_code, task_uuid, task_log_type, index_count, task_count,
             task_result_status,task_result, error_msg, start_time,end_time
         ) VALUES (
                      #{id},
-                     #{taskId},
                      #{taskName},
                      #{taskCode},
                      #{childTaskCode},
@@ -43,11 +41,10 @@
 
 
 
-    <select id="selectTaskLogList" resultType="com.blog.core.domain.file.task.del.vo.TaskLogVo">
+    <select id="selectTaskLogList" resultType="com.blog.core.domain.file.task.vo.TaskLogVo">
         select l.*, c.logCount
         from task_log l
-                 left join (select task_uuid, count(task_uuid) as logCount from task_log group by task_uuid) c
-                           on l.task_uuid = c.task_uuid
+        left join (select task_uuid, count(task_uuid) as logCount from task_log group by task_uuid) c on l.task_uuid = c.task_uuid
         where task_log_type = 1
         order by l.id desc
     </select>
@@ -58,7 +55,7 @@
         where task_uuid = #{taskUUID} and task_log_type = 1
     </update>
 
-    <select id="selectTaskLogByUUID" resultType="com.blog.core.domain.file.task.del.entity.TaskLog">
+    <select id="selectTaskLogByUUID" resultType="com.blog.core.domain.file.task.entity.TaskLog">
         select *
         from task_log
         where task_uuid = #{taskUUID}

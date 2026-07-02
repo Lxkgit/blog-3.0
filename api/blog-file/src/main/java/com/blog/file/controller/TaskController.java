@@ -1,7 +1,7 @@
 package com.blog.file.controller;
 
 
-import com.blog.core.domain.file.task.entity.TaskParam;
+import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
@@ -116,46 +116,46 @@ public class TaskController {
     }
 
     /**
-     * 查询主任务列表
+     * 查询全部基础任务
      *
      * @return
      */
-    @GetMapping("/select/base/list")
+    @GetMapping("/select/base")
     public Result selectTaskBaseList() {
         return ResultFactory.buildSuccessResult(taskService.selectBaseTaskList());
     }
 
     /**
-     * 查询子任务
+     * 查询运行中的任务
      *
      * @return
      */
     @GetMapping("/select/running")
-    public Result selectTaskEntityById() {
+    public Result selectRunningTask() {
         return ResultFactory.buildSuccessResult(taskService.selectRunningTask());
     }
 
 
-//    /**
-//     * 查询任务执行日志
-//     *
-//     * @param taskLogVo
-//     * @return
-//     */
-//    @GetMapping("/log/select/list")
-//    public Result selectTaskLogList(TaskLogVo taskLogVo) {
-//        return ResultFactory.buildSuccessResult(taskService.selectTaskLogList(taskLogVo));
-//    }
+    /**
+     * 查询任务执行日志
+     *
+     * @param taskLogVo
+     * @return
+     */
+    @GetMapping("/log/select/list")
+    public Result selectTaskLogList(TaskLogVo taskLogVo) {
+        return ResultFactory.buildSuccessResult(taskService.selectTaskLogList(taskLogVo));
+    }
 
     /**
      * 查询任务执行日志
      *
-     * @param taskUUID
+     * @param taskLogVo
      * @return
      */
     @GetMapping("/log/select/id")
-    public Result selectTaskLogByTaskUUID(@RequestParam("taskUUID") String taskUUID) {
-        return ResultFactory.buildSuccessResult(taskService.selectTaskLogByTaskUUID(taskUUID));
+    public Result selectTaskLogByUuid(TaskLogVo taskLogVo) {
+        return ResultFactory.buildSuccessResult(taskService.selectTaskLogByUuid(taskLogVo));
     }
 
 }

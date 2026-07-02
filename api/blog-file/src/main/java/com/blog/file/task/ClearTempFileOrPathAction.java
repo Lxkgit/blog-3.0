@@ -26,7 +26,7 @@ public class ClearTempFileOrPathAction extends SystemTimerAction {
     private NettySyncFileService nettySyncFileService;
 
     @Override
-    public void execute(TimerTaskContext context) {
+    public void doExecute(TimerTaskContext context) {
         nettySyncFileService.clearTempFileOrPath(context.get("path"), new MsgHead());
     }
 
@@ -43,12 +43,5 @@ public class ClearTempFileOrPathAction extends SystemTimerAction {
     @Override
     public String getParamTemplate() {
         return "";
-
-
-    }
-
-    @Override
-    public void checkParam(String json) {
-
     }
 }

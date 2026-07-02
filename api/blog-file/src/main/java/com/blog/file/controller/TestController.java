@@ -59,7 +59,7 @@ public class TestController {
     @GetMapping("/list")
     public Result getTaskList() {
 
-        ArrayList<Object> list =  new ArrayList<>(timerManager.list());
+        ArrayList<Object> list =  new ArrayList<>(timerManager.getAllTask());
         return ResultFactory.buildSuccessResult(list);
     }
 

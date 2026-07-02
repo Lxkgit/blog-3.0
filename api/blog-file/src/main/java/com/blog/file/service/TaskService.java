@@ -1,9 +1,11 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.file.task.del.entity.TaskLog;
 
+import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.domain.file.task.entity.TaskParam;
+import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
+import com.blog.core.result.ResultPage;
 import com.blog.timer.entity.TimerTask;
 
 import java.util.List;
@@ -22,7 +24,7 @@ public interface TaskService {
 
     void updateTask(TaskParamVo taskParamVo);
 
-    List<TaskParam> selectTaskList(TaskParamVo taskParamVo);
+    ResultPage<TaskParam> selectTaskList(TaskParamVo taskParamVo);
 
     void startTask(Integer id);
 
@@ -38,11 +40,9 @@ public interface TaskService {
 
 
 
-//    ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
+    ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
 
-    List<TaskLog> selectTaskLogByTaskUUID(String taskUUID);
-
-    void createChildTask(TaskParam taskParam);
+    ResultPage<TaskLog> selectTaskLogByUuid(TaskLogVo taskLogVo);
 
 
 }

@@ -36,7 +36,7 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
     }
 
     @Override
-    public void execute(TimerTaskContext context) {
+    public void doExecute(TimerTaskContext context) {
         SyncServiceFileBo bo = context.get("");
         nettySyncFileService.syncServiceFile(bo, new MsgHead());
     }
@@ -74,10 +74,5 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
         array.add(maxFileCount);
 
         return array.toString();
-    }
-
-    @Override
-    public void checkParam(String json) {
-
     }
 }

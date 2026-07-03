@@ -31,7 +31,8 @@ export default defineConfig({
     // },
     proxy: {
       '/api': {
-        target: 'http://localhost:60001',	//实际请求地址
+        // target: 'http://localhost:60001',
+        target: 'http://192.168.200.128:60001',
         changeOrigin: true,
         secure: false,
         // protocolRewrite: "https",

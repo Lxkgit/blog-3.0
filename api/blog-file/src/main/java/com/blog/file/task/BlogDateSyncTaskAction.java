@@ -3,10 +3,10 @@ package com.blog.file.task;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.common.TaskMsgHead;
+import com.blog.core.utils.MyStringUtils;
 import com.blog.file.netty.service.NettySyncFileService;
-import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
-import com.blog.timer.entity.TimerTask;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +39,12 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
      * 4. socket移动文件完成，netty再次回应消息，响应同步数据成功
      */
     @Override
-    public void doExecute(TimerTaskContext context) {
-        logger.info("开始备份博客数据");
-        logger.info(JSONObject.toJSONString(context.getData()));
-//        String filePath = nettySyncFileService.syncBlogDataFirstStep(new MsgHead());
+    public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
+        logger.info("开始备份博客数据 : {}", JSONObject.toJSONString(context.getData()));
+        String blogFilePath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
+        String filePath = nettySyncFileService.syncBlogDataFirstStep(blogFilePath, MsgHead.buildTaskMsgHead(taskMsgHead.getUserId(), taskMsgHead));
+        JSONObject jsonObject = JSONObject.parseObject(filePath);
+        return jsonObject.toJSONString();
     }
 
     @Override
@@ -57,6 +59,6 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
 
     @Override
     public String getParamTemplate() {
-        return "参数模板";
+        return null;
     }
 }

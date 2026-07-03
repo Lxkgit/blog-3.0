@@ -28,6 +28,11 @@ public class TaskLog {
     private Integer id;
 
     /**
+     * 用户id
+     */
+    private Integer userId;
+
+    /**
      * 任务名称
      */
     private String taskName;

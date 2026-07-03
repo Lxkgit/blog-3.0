@@ -11,6 +11,7 @@ import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.enums.file.FileTypeEnum;
 import com.blog.core.exception.ServiceException;
+import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
@@ -43,6 +44,10 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -110,15 +115,7 @@ public class FileServiceImpl implements FileService {
         uploadFileService.createFileCategory(createDir, dirType);
     }
 
-    /**
-     * 创建目录
-     *
-     * @param path 目录
-     */
-    public Integer createDirWithUserId(String path) {
-        SecurityUtil.setSystem();
-        return uploadFileService.createFileCategory(path, 1);
-    }
+
 
     /**
      * 删除云盘中文件目录
@@ -494,108 +491,7 @@ public class FileServiceImpl implements FileService {
         fileCategoryDataMapper.updateById(update);
     }
 
-    /**
-     * 文件导入minio
-     *
-     * @param nettyUploadBlogFileDto
-     */
-    @Override
-    public void fileImportMinio(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead) {
-        logger.info("===== 文件导入minio ===== NettySyncFileDto: {} ", nettyUploadBlogFileDto);
-        Integer userId = msgHead.getUserId();
-        String minioPath = nettyUploadBlogFileDto.getMinioPath();
-        if (StringUtils.isEmpty(minioPath)) {
-            return;
-        }
-        Integer categoryId = createDirWithUserId(minioPath);
-        for (String fileName : nettyUploadBlogFileDto.getFileNameList()) {
 
-            LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(FileCategoryData::getFileCategoryId, categoryId);
-            wrapper.eq(FileCategoryData::getFileName, fileName);
-            FileCategoryData fileCategoryData = fileCategoryDataMapper.selectOne(wrapper);
 
-            if (fileCategoryData == null) {
-                // 文件本地存放目录
-                String localFilePath = Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName;
 
-                // 文件转为 MultipartFile
-                File file = new File(localFilePath);
-
-                String fileUrl = minioService.getFileUrl(minioPath, fileName);
-                FileCategoryData newFile = new FileCategoryData();
-                newFile.setUserId(userId);
-                newFile.setFileName(fileName);
-                newFile.setFileCategoryId(categoryId);
-                newFile.setFileUrl(fileUrl);
-                newFile.setFileSize(file.length());
-                newFile.setFileStatus(0);
-                newFile.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase());
-                newFile.setFileJson(VideoUtil.resolveVideo(file));
-                newFile.setCreateBy("system");
-                newFile.setCreateTime(new Date());
-
-                boolean importFlag = minioService.importFile(localFilePath, minioPath);
-                logger.info("系统外部文件导入minio结果: {}", importFlag);
-                fileCategoryDataMapper.insert(newFile);
-
-            } else {
-                // 文件本地存放目录
-                String localFilePath = Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName;
-                boolean importFlag = minioService.importFile(localFilePath, minioPath);
-                logger.info("系统内部文件导入minio结果: {}", importFlag);
-                fileCategoryData.setFileStatus(0);
-                fileCategoryDataMapper.updateById(fileCategoryData);
-            }
-        }
-    }
-
-    /**
-     * 文件下载到树莓派设备
-     *
-     * @param nettyUploadBlogFileDto
-     * @param msgHead
-     */
-    @Override
-    public void fileDownloadDevice(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead) {
-        logger.info("树莓派下载完成 {} 文件", nettyUploadBlogFileDto.getFileNameList());
-        String minioPath = nettyUploadBlogFileDto.getMinioPath();
-        if (StringUtils.isEmpty(minioPath)) {
-            return;
-        }
-        Integer categoryId = createDirWithUserId(minioPath);
-        for (String fileName : nettyUploadBlogFileDto.getFileNameList()) {
-
-            LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(FileCategoryData::getFileCategoryId, categoryId);
-            wrapper.eq(FileCategoryData::getFileName, fileName);
-            FileCategoryData fileCategoryData = fileCategoryDataMapper.selectOne(wrapper);
-
-            if (fileCategoryData != null) {
-                fileCategoryData.setFileStatus(4);
-                fileCategoryDataMapper.updateById(fileCategoryData);
-            }
-        }
-
-        if (nettyUploadBlogFileDto.getMinioDeleteFlag() == 1) {
-            if (CollectionUtils.isNotEmpty(nettyUploadBlogFileDto.getFileCodeList())) {
-                for (String fileCode : nettyUploadBlogFileDto.getFileCodeList()) {
-                    Integer id = Integer.valueOf(fileCode.split(":")[0]);
-                    FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(id);
-                    FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
-
-                    // 修改目录下文件状态为远程服务器
-                    LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
-                    dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCode);
-                    FileCategoryData data = new FileCategoryData();
-                    data.setFileStatus(4);
-                    fileCategoryDataMapper.update(data, dataWrapper);
-
-                    // 移除minio中文件
-                    String fileName = minioService.getFileName(fileCategoryData.getFileUrl());
-                    minioService.deleteFile(fileCategory.getDirPath(), fileName);
-                }
-            }
-        }
-    }
 }

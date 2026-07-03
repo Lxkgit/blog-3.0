@@ -5,6 +5,7 @@ import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
+import com.blog.file.service.TaskLogService;
 import com.blog.file.service.TaskService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,9 @@ public class TaskController {
 
     @Resource
     private TaskService taskService;
+
+    @Resource
+    private TaskLogService taskLogService;
 
     /**
      * 创建任务
@@ -144,7 +148,7 @@ public class TaskController {
      */
     @GetMapping("/log/select/list")
     public Result selectTaskLogList(TaskLogVo taskLogVo) {
-        return ResultFactory.buildSuccessResult(taskService.selectTaskLogList(taskLogVo));
+        return ResultFactory.buildSuccessResult(taskLogService.selectTaskLogList(taskLogVo));
     }
 
     /**
@@ -155,7 +159,7 @@ public class TaskController {
      */
     @GetMapping("/log/select/id")
     public Result selectTaskLogByUuid(TaskLogVo taskLogVo) {
-        return ResultFactory.buildSuccessResult(taskService.selectTaskLogByUuid(taskLogVo));
+        return ResultFactory.buildSuccessResult(taskLogService.selectTaskLogByUuid(taskLogVo));
     }
 
 }

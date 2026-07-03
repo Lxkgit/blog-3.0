@@ -137,6 +137,7 @@ public class TaskServiceImpl implements TaskService {
             context.put("param", taskParamVo.getParamJson());
             TimerTaskDefinition definition = TimerTaskDefinition.builder()
                     .id(taskParamVo.getId())
+                    .userId(SecurityUtil.getLoginUser().getId())
                     .taskCode(taskParamVo.getTaskCode())
                     .action(timerActionManager.get(taskParamVo.getTaskCode()))
                     .context(context)
@@ -189,19 +190,5 @@ public class TaskServiceImpl implements TaskService {
         return timerManager.getAllTask().stream().toList();
     }
 
-    @Override
-    public ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo) {
-        PageHelper.startPage(taskLogVo.getPageNum(), taskLogVo.getPageSize());
-        List<TaskLogVo> taskLogVoList = taskLogMapper.selectTaskLogList();
-        return ResultPageUtils.pageUtil(taskLogVoList, taskLogVo.getPageNum(), taskLogVo.getPageSize(), new PageInfo<>(taskLogVoList).getTotal());
-    }
 
-    @Override
-    public ResultPage<TaskLog> selectTaskLogByUuid(TaskLogVo taskLogVo) {
-        LambdaQueryWrapper<TaskLog> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(TaskLog::getTaskUuid, taskLogVo.getTaskUuid());
-        PageHelper.startPage(taskLogVo.getPageNum(), taskLogVo.getPageSize());
-        List<TaskLog> taskLogVoList = taskLogMapper.selectList(wrapper);
-        return ResultPageUtils.pageUtil(taskLogVoList, taskLogVo.getPageNum(), taskLogVo.getPageSize(), new PageInfo<>(taskLogVoList).getTotal());
-    }
 }

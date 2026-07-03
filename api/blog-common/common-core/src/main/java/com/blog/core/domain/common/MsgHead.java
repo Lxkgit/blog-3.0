@@ -38,7 +38,7 @@ public class MsgHead {
 
     public static MsgHead buildTaskMsgHead(Integer userId, TaskMsgHead taskMsgHead) {
         MsgHead msgHead = new MsgHead();
-        msgHead.setMsgType(1);
+        msgHead.setMsgType(2);
         msgHead.setUserId(userId);
         msgHead.setTaskMsgHead(taskMsgHead);
         return msgHead;

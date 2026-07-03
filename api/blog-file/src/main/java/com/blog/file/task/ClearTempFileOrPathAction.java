@@ -1,7 +1,9 @@
 package com.blog.file.task;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.common.TaskMsgHead;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
@@ -26,8 +28,10 @@ public class ClearTempFileOrPathAction extends SystemTimerAction {
     private NettySyncFileService nettySyncFileService;
 
     @Override
-    public void doExecute(TimerTaskContext context) {
-        nettySyncFileService.clearTempFileOrPath(context.get("path"), new MsgHead());
+    public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
+        String clearPath = nettySyncFileService.clearTempFileOrPath(context.get("path"), new MsgHead());
+        JSONObject jsonObject = JSONObject.parseObject(clearPath);
+        return jsonObject.toJSONString();
     }
 
     @Override

@@ -70,14 +70,15 @@ public class SocketService {
      * @param message 消息内容
      * @param <T>
      */
-    public <T> void sendMessage(String type, String id, SocketPacket<T> message) {
+    public <T> boolean sendMessage(String type, String id, SocketPacket<T> message) {
         Session session = connections.get(type).get(id);
         if (session != null && session.isOpen()) {
             String jsonMessage = JSON.toJSONString(message);
             logger.debug("socket 发送消息: 向{}/{}发送消息: requestId: {} message: {}", type, id, message.getRequestId(), jsonMessage);
-            sendMessageToSession(session, jsonMessage);
+            return sendMessageToSession(session, jsonMessage);
         } else {
             logger.warn("目标会话不存在或已关闭: {}/{}", type, id);
+            return false;
         }
     }
 
@@ -106,16 +107,18 @@ public class SocketService {
      * @param session
      * @param message
      */
-    private void sendMessageToSession(Session session, String message) {
+    private boolean sendMessageToSession(Session session, String message) {
         if (session != null && session.isOpen()) {
             synchronized (session) {
                 try {
                     session.getBasicRemote().sendText(message);
+                    return true;
                 } catch (IOException e) {
                     logger.error("消息发送失败: {}", e.getMessage(), e);
                 }
             }
         }
+        return false;
     }
 
     /**

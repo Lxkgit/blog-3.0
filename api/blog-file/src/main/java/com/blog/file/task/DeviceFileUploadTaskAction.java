@@ -2,6 +2,7 @@ package com.blog.file.task;
 
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.common.TaskMsgHead;
 import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.timer.action.TimerAction;
@@ -33,9 +34,10 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
     }
 
     @Override
-    public void doExecute(TimerTaskContext context) {
+    public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
         SyncDeviceFileBo bo = context.get("");
         nettySyncFileService.syncDeviceFile(bo, new MsgHead());
+        return "";
     }
 
     @Override

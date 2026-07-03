@@ -11,8 +11,10 @@ import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
 import com.blog.core.domain.file.task.del.bo.SyncServiceFileBo;
+import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.MyStringUtils;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.mapper.UserDeviceMapper;
@@ -21,6 +23,8 @@ import com.blog.file.netty.domain.dto.NettyPacket;
 import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 import com.blog.file.netty.domain.enums.NettyTopic;
 import com.blog.file.service.FileService;
+import com.blog.file.service.TaskLogService;
+import com.blog.file.service.UploadFileService;
 import com.blog.file.socket.domain.SocketPacket;
 import com.blog.file.socket.domain.constant.SocketClientType;
 import com.blog.file.socket.domain.constant.SocketConstant;
@@ -29,6 +33,7 @@ import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
 import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.domain.service.SocketMessageSendService;
 import com.blog.file.socket.config.SocketService;
+import com.blog.file.utils.VideoUtil;
 import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
@@ -39,13 +44,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -69,9 +75,6 @@ public class NettySyncFileService {
     @Resource
     private SocketService socketService;
 
-//    @Resource
-//    private CreateTaskService createTaskService;
-
     @Resource
     private UserDeviceMapper userDeviceMapper;
 
@@ -81,8 +84,8 @@ public class NettySyncFileService {
     @Resource
     private RedisService redisService;
 
-//    @Resource
-//    private TaskLogService taskLogService;
+    @Resource
+    private TaskLogService taskLogService;
 
     @Resource
     private FileCategoryMapper fileCategoryMapper;
@@ -96,17 +99,20 @@ public class NettySyncFileService {
     @Resource
     private MinioService minioService;
 
+    @Resource
+    private UploadFileService uploadFileService;
+
     /**
      * 发送文件同步消息至树莓派
      *
      * @param nettySyncFileDto 同步文件参数
      */
-    public void sendSyncFileMsg(MsgHead msgHead, NettySyncFileDto nettySyncFileDto, Integer userId) {
+    public boolean sendSyncFileMsg(MsgHead msgHead, NettySyncFileDto nettySyncFileDto, Integer userId) {
 
         // 获取用户默认同步数据设备
-        LambdaQueryWrapper<UserDevice> userDeviceLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        userDeviceLambdaQueryWrapper.eq(UserDevice::getUserId, userId);
-        List<UserDevice> deviceList = userDeviceMapper.selectList(userDeviceLambdaQueryWrapper);
+        LambdaQueryWrapper<UserDevice> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserDevice::getUserId, userId);
+        List<UserDevice> deviceList = userDeviceMapper.selectList(wrapper);
 
         if (CollectionUtils.isNotEmpty(deviceList)) {
             UserDevice device = deviceList.get(0);
@@ -114,9 +120,11 @@ public class NettySyncFileService {
 
             NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
             nettyPacket.setMsgHead(msgHead);
-            nettyServer.sendByRegisterIdLimitTime(registerId, nettyPacket.getMsgHead().getNettyMsgHead().getRequestId(),
+            return nettyServer.sendByRegisterIdLimitTime(registerId, nettyPacket.getMsgHead().getNettyMsgHead().getRequestId(),
                     JSON.toJSONString(nettyPacket), 2 * 60);
+
         }
+        return false;
     }
 
     /**
@@ -133,40 +141,14 @@ public class NettySyncFileService {
             if (nettySyncFileDto.getSyncResult() == 1) {
                 if (nettySyncFileDto.getSyncType() == 1) {
                     // 文件下载消息响应
-
-                    fileService.fileDownloadDevice(nettySyncFileDto, msgHead);
+                    fileDownloadDevice(nettySyncFileDto, msgHead);
                 } else if (nettySyncFileDto.getSyncType() == 2) {
+
                     // 文件上传消息响应
-                    if (nettySyncFileDto.getFileSource() != null) {
-                        if (nettySyncFileDto.getFileSource() == 2) {
-                            // 系统外部来源的文件需要进行重命名
-                            String filePath = Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath();
-                            List<String> fileNameList = nettySyncFileDto.getFileNameList();
-                            List<String> newFileNameList = new ArrayList<>();
-                            for (String fileName : fileNameList) {
-                                String newFileName = DateUtil.formatDateTimeNoSpaces() + "_" + fileName;
-                                if (renameLocalFile(filePath, fileName, filePath, newFileName)) {
-                                    newFileNameList.add(newFileName);
-                                } else {
-                                    newFileNameList.add(fileName);
-                                }
-                            }
-                            nettySyncFileDto.setFileNameList(newFileNameList);
-                        } else if (nettySyncFileDto.getFileSource() == 1) {
-                            // 系统内部部来源的文件修改文件状态
-                            for (String fileCode : nettySyncFileDto.getFileCodeList()) {
-                                // 修改目录下文件状态为本地服务器
-                                LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
-                                dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCode.split(":")[0]);
-                                FileCategoryData data = new FileCategoryData();
-                                data.setFileStatus(0);
-                                fileCategoryDataMapper.update(data, dataWrapper);
-                            }
-                        }
-                    }
+                    fileUploadService(nettySyncFileDto);
 
                     // 文件导入minio
-                    fileService.fileImportMinio(nettySyncFileDto, msgHead);
+                    fileImportMinio(nettySyncFileDto, msgHead);
                 }
             }
 
@@ -182,15 +164,150 @@ public class NettySyncFileService {
 
                 // 文件同步任务收到消息后重置发送标识
                 if (msgHead != null && msgHead.getTaskMsgHead() != null && nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
-                    redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1", 5 * 60 * 60);
+                    redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "1", 5 * 60 * 60);
                 }
             }
         }
 
         // 文件同步 任务请求头不为空时记录任务日志
-        if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
+        if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUuid())) {
 //            taskLogService.recordSyncFileTaskLog(nettySyncFileDto, msgHead);
         }
+    }
+
+    /**
+     * 文件下载到树莓派设备
+     *
+     * @param nettyUploadBlogFileDto
+     * @param msgHead
+     */
+    private void fileDownloadDevice(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead) {
+        logger.info("树莓派下载完成 {} 文件", nettyUploadBlogFileDto.getFileCodeList());
+        String minioPath = nettyUploadBlogFileDto.getMinioPath();
+        if (StringUtils.isEmpty(minioPath)) {
+            return;
+        }
+
+        // 修改文件同步状态为远程服务器
+        if (CollectionUtils.isNotEmpty(nettyUploadBlogFileDto.getFileCodeList())) {
+            for (String fileCode : nettyUploadBlogFileDto.getFileCodeList()) {
+                Integer id = Integer.valueOf(fileCode.split(":")[0]);
+                FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(id);
+                FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
+
+                // 修改目录下文件状态为远程服务器
+                LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
+                dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCode);
+                FileCategoryData data = new FileCategoryData();
+                data.setFileStatus(4);
+                fileCategoryDataMapper.update(data, dataWrapper);
+
+                // 移除minio中文件
+                if (nettyUploadBlogFileDto.getMinioDeleteFlag() == 1) {
+                    String fileName = minioService.getFileName(fileCategoryData.getFileUrl());
+                    minioService.deleteFile(fileCategory.getDirPath(), fileName);
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param nettySyncFileDto
+     */
+    private void fileUploadService(NettySyncFileDto nettySyncFileDto) {
+        if (nettySyncFileDto.getFileSource() != null) {
+            if (nettySyncFileDto.getFileSource() == 2) {
+                // 系统外部来源的文件需要进行重命名
+                String filePath = Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath();
+                List<String> fileNameList = nettySyncFileDto.getFileNameList();
+                List<String> newFileNameList = new ArrayList<>();
+                for (String fileName : fileNameList) {
+                    String newFileName = DateUtil.formatDateTimeNoSpaces() + "_" + fileName;
+                    if (renameLocalFile(filePath, fileName, filePath, newFileName)) {
+                        newFileNameList.add(newFileName);
+                    } else {
+                        newFileNameList.add(fileName);
+                    }
+                }
+                nettySyncFileDto.setFileNameList(newFileNameList);
+            } else if (nettySyncFileDto.getFileSource() == 1) {
+                // 系统内部部来源的文件修改文件状态
+                for (String fileCode : nettySyncFileDto.getFileCodeList()) {
+                    // 修改目录下文件状态为本地服务器
+                    LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
+                    dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCode.split(":")[0]);
+                    FileCategoryData data = new FileCategoryData();
+                    data.setFileStatus(0);
+                    fileCategoryDataMapper.update(data, dataWrapper);
+                }
+            }
+        }
+    }
+
+    /**
+     * 文件导入minio
+     *
+     * @param nettyUploadBlogFileDto
+     */
+    private void fileImportMinio(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead) {
+        logger.info("===== 文件导入minio ===== NettySyncFileDto: {} ", nettyUploadBlogFileDto);
+        Integer userId = msgHead.getUserId();
+        String minioPath = nettyUploadBlogFileDto.getMinioPath();
+        if (StringUtils.isEmpty(minioPath)) {
+            return;
+        }
+        Integer categoryId = createDirWithUserId(minioPath);
+        for (String fileName : nettyUploadBlogFileDto.getFileNameList()) {
+
+            LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(FileCategoryData::getFileCategoryId, categoryId);
+            wrapper.eq(FileCategoryData::getFileName, fileName);
+            FileCategoryData fileCategoryData = fileCategoryDataMapper.selectOne(wrapper);
+
+            if (fileCategoryData == null) {
+                // 文件本地存放目录
+                String localFilePath = Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName;
+
+                // 文件转为 MultipartFile
+                File file = new File(localFilePath);
+
+                String fileUrl = minioService.getFileUrl(minioPath, fileName);
+                FileCategoryData newFile = new FileCategoryData();
+                newFile.setUserId(userId);
+                newFile.setFileName(fileName);
+                newFile.setFileCategoryId(categoryId);
+                newFile.setFileUrl(fileUrl);
+                newFile.setFileSize(file.length());
+                newFile.setFileStatus(0);
+                newFile.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase());
+                newFile.setFileJson(VideoUtil.resolveVideo(file));
+                newFile.setCreateBy("system");
+                newFile.setCreateTime(new Date());
+
+                boolean importFlag = minioService.importFile(localFilePath, minioPath);
+                logger.info("系统外部文件导入minio结果: {}", importFlag);
+                fileCategoryDataMapper.insert(newFile);
+
+            } else {
+                // 文件本地存放目录
+                String localFilePath = Constant.FTP_PATH_SYSTEM + nettyUploadBlogFileDto.getServiceFilePath() + "/" + fileName;
+                boolean importFlag = minioService.importFile(localFilePath, minioPath);
+                logger.info("系统内部文件导入minio结果: {}", importFlag);
+                fileCategoryData.setFileStatus(0);
+                fileCategoryDataMapper.updateById(fileCategoryData);
+            }
+        }
+    }
+
+    /**
+     * 创建目录
+     *
+     * @param path 目录
+     */
+    private Integer createDirWithUserId(String path) {
+        SecurityUtil.setSystem();
+        return uploadFileService.createFileCategory(path, 1);
     }
 
     /**
@@ -235,15 +352,28 @@ public class NettySyncFileService {
      * 博客数据同步任务-第一步
      * 发送socket导出博客数据任务
      */
-    public String syncBlogDataFirstStep(MsgHead msgHead) {
+    public String syncBlogDataFirstStep(String blogFilePath, MsgHead msgHead) {
         logger.info("===== 定时任务-博客数据同步-socket导出数据 ===== MsgHead: {}", msgHead);
-        SocketExportBlogFileDto exportBlogFileDto = new SocketExportBlogFileDto();
-        String blogFilePath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
-        exportBlogFileDto.setBlogFilePath(blogFilePath);
+        TaskLog log = TaskLog.builder().taskName("发送socket消息开始导出博客文件").build();
+        taskLogService.executeTaskLog(msgHead, log);
+        msgHead.getTaskMsgHead().setLogStepId(log.getId());
 
-        SocketPacket<SocketExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE,
-                msgHead, exportBlogFileDto);
-        socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
+        // 构建socket发送消息包
+        SocketExportBlogFileDto exportBlogFileDto = new SocketExportBlogFileDto();
+        exportBlogFileDto.setBlogFilePath(blogFilePath);
+        SocketPacket<SocketExportBlogFileDto> requestPacket = SocketPacket.buildRequest(SocketTopic.SOCKET_EXPORT_BLOG_FILE, msgHead, exportBlogFileDto);
+
+        taskLogService.taskStartLog(log.getId());
+
+        // 发送socket消息开始导出博客文件
+        boolean result = socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
+
+        if (result) {
+            taskLogService.taskSuccessLog(log.getId(), JSONObject.parseObject(blogFilePath).toJSONString());
+        } else {
+            taskLogService.taskFailureLog(log.getId(), null);
+        }
+
         return blogFilePath;
     }
 
@@ -253,15 +383,33 @@ public class NettySyncFileService {
      */
     public void syncBlogDataSecondStep(String data, MsgHead msgHead) {
         logger.info("===== 定时任务-博客数据同步-文件同步树莓派 ===== data：{} MsgHead: {}", data, msgHead);
-        SocketExportBlogFileDto socketExportBlogFileDto = JSONObject.parseObject(data, SocketExportBlogFileDto.class);
+        // 文件导出日志结束
+        taskLogService.taskEndLog(msgHead.getTaskMsgHead().getLogStepId());
+
+        TaskLog log = TaskLog.builder().taskName("发送netty消息开始下载博客文件").build();
+        taskLogService.executeTaskLog(msgHead, log);
+        msgHead.getTaskMsgHead().setLogStepId(log.getId());
 
         // 此处将文件在ftp的全路径转换为在ftp/system用户目录下的路径
+        SocketExportBlogFileDto socketExportBlogFileDto = JSONObject.parseObject(data, SocketExportBlogFileDto.class);
         String serviceFilePath = socketExportBlogFileDto.getBlogFilePath().substring(Constant.FTP_PATH_SYSTEM.length());
         String fileName = socketExportBlogFileDto.getBlogFileName();
         String deviceFilePath = Constant.DISK_PATH_BLOG_BAK;
+
+        // 构建netty发送消息包
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
         nettySyncFileDto.setFileNameList(List.of(fileName));
-        sendSyncFileMsg(msgHead, nettySyncFileDto, 1);
+
+        taskLogService.taskStartLog(log.getId());
+
+        // 发送netty消息开始下载博客文件
+        boolean result = sendSyncFileMsg(msgHead, nettySyncFileDto, msgHead.getUserId());
+
+        if (result) {
+            taskLogService.taskSuccessLog(log.getId(), JSONObject.parseObject(deviceFilePath).toJSONString());
+        } else {
+            taskLogService.taskFailureLog(log.getId(), null);
+        }
     }
 
     /**
@@ -273,7 +421,7 @@ public class NettySyncFileService {
      */
     public String syncServiceFile(SyncServiceFileBo bo, MsgHead msgHead) {
         logger.info("===== 定时任务-云盘文件同步 ===== SyncServiceFileBo: {} MsgHead: {}", bo, msgHead);
-        redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "1", 5 * 60 * 60);
+        redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "1", 5 * 60 * 60);
         baseThread.execute(() -> syncServiceFileSend(bo, msgHead));
         return "minio文件同步任务已启动";
     }
@@ -315,16 +463,16 @@ public class NettySyncFileService {
                     int localCount = 0;
                     while (true) {
                         if (localCount > waitCount) {
-                            logger.info("===== 定时任务-云盘文件同步-超出最大等待时间: {} 秒 ===== taskUUID: {}", waitCount * scanTime, msgHead.getTaskMsgHead().getTaskUUID());
+                            logger.info("===== 定时任务-云盘文件同步-超出最大等待时间: {} 秒 ===== taskUUID: {}", waitCount * scanTime, msgHead.getTaskMsgHead().getTaskUuid());
                             return;
                         }
-                        String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID()).toString();
+                        String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid()).toString();
                         if (StringUtils.isNotEmpty(status) && "1".equals(status)) {
                             MsgHead head = new MsgHead();
-                            msgHead.getTaskMsgHead().setSubTaskUUID(msgHead.getTaskMsgHead().getTaskUUID() + "-" + "clear");
+                            msgHead.getTaskMsgHead().setSubTaskUUID(msgHead.getTaskMsgHead().getTaskUuid() + "-" + "clear");
                             BeanUtils.copyProperties(msgHead, head);
                             sendSyncFileMsg(head, nettySyncFileDto, 1);
-                            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUUID(), "0", waitCount * scanTime);
+                            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "0", waitCount * scanTime);
                             break;
                         } else {
                             try {
@@ -351,7 +499,7 @@ public class NettySyncFileService {
                 minioService.deleteFileByPath(fileCategory.getDirPath());
             }
         }
-        logger.info("===== 定时任务-云盘文件同步结束 ===== taskUUID: {}", msgHead.getTaskMsgHead().getTaskUUID());
+        logger.info("===== 定时任务-云盘文件同步结束 ===== taskUUID: {}", msgHead.getTaskMsgHead().getTaskUuid());
     }
 
     /**
@@ -418,7 +566,7 @@ public class NettySyncFileService {
     public String clearTempFileOrPath(String path, MsgHead msgHead) {
         logger.info("===== 定时任务-清理服务器文件 ===== path: {} MsgHead: {}", path, msgHead);
         socketMessageSendService.deleteDir(path, msgHead);
-        return "删除文件: " + path;
+        return "清理文件(目录): " + path;
     }
 
     /**
@@ -474,7 +622,7 @@ public class NettySyncFileService {
      */
     public void receiveSocketDeleteFileMsg(SocketDeleteFileOrDirDto dto, MsgHead msgHead) {
         // 文件同步 任务请求头不为空时记录任务日志
-        if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUUID())) {
+        if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUuid())) {
 //            taskLogService.recordDelFileTaskLog(dto, msgHead);
         }
 

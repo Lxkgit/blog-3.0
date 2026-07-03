@@ -2,8 +2,11 @@ package com.blog.auth.config.oauth;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.auth.config.filter.MyAuthenticationFilter;
-import com.blog.auth.config.oauth.point.MyLoginUrlAuthenticationEntryPoint;
+//import com.blog.auth.config.oauth.password.CustomUserDetailsService;
+import com.blog.auth.config.oauth.password.PasswordAuthenticationConverter;
+import com.blog.auth.config.oauth.password.PasswordAuthenticationProvider;
 import com.blog.auth.config.oauth.repository.RedisSecurityContextRepository;
+import com.blog.auth.config.oauth.service.AuthService;
 import com.blog.auth.mapper.UserMapper;
 import com.blog.auth.entity.MyUserDetails;
 import com.blog.core.constant.PermitUrl;
@@ -17,7 +20,6 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +37,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,6 +45,7 @@ import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.*;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -51,8 +53,7 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
+import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.KeyPair;
@@ -62,6 +63,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.Module;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
@@ -102,42 +104,91 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * 授权服务安全过滤器链
-     * 第一个进来
-     *
-     * @param
-     * @return
-     * @throws Exception
-     */
-    @Order(1)
-    @Bean
-    public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {
+    @Resource
+    private AuthService authService;
 
-        //授权服务配置 应用默认安全性 简化配置,在源码给你都配置好了
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        //禁用session,前后端分离不需要, cookie中就不会显示JSESSIONID
-        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        //配置上下文 从redis中读取
-        http.securityContext(x -> x.securityContextRepository(redisSecurityContextRepository));
-        //配置OpenID Connect（OIDC）登录,是一种在OAuth 2.0基础上实现身份验证和授权的协议。
-        //与传统的OAuth 2.0授权不同的是，OIDC需要在OAuth 2.0授权服务器和OAuth客户端之间建立信任关系，
-        // 并使用JWT（JSON Web Tokens）来安全地传输信息
-        //生成oidc授权码和令牌 在客户端使用scope:openid 的时候就会生效 返回对应的授权码
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
-        //异常处理
-        http.exceptionHandling(x -> x.defaultAuthenticationEntryPointFor(
-                //自定义未登录地址,地址为前端vue的地址，当没有登陆的时候，自动跳转到前端登陆界面
-                new MyLoginUrlAuthenticationEntryPoint(loginPage),
-                //只有带有 "text/html" 媒体类型的请求需要进行身份验证
-                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-        ));
-        //资源服务器通过jwt令牌 去访问
-        http.oauth2ResourceServer(x -> x.jwt(Customizer.withDefaults()));
-        //禁用csrf
-        http.csrf(AbstractHttpConfigurer::disable);
-        //建造对象
+//    /**
+//     * 授权服务安全过滤器链
+//     * 第一个进来
+//     *
+//     * @param
+//     * @return
+//     * @throws Exception
+//     */
+//    @Order(1)
+//    @Bean
+//    public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {
+//
+//        //授权服务配置 应用默认安全性 简化配置,在源码给你都配置好了
+//        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+//        //禁用session,前后端分离不需要, cookie中就不会显示JSESSIONID
+//        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//        //配置上下文 从redis中读取
+//        http.securityContext(x -> x.securityContextRepository(redisSecurityContextRepository));
+//        //配置OpenID Connect（OIDC）登录,是一种在OAuth 2.0基础上实现身份验证和授权的协议。
+//        //与传统的OAuth 2.0授权不同的是，OIDC需要在OAuth 2.0授权服务器和OAuth客户端之间建立信任关系，
+//        // 并使用JWT（JSON Web Tokens）来安全地传输信息
+//        //生成oidc授权码和令牌 在客户端使用scope:openid 的时候就会生效 返回对应的授权码
+//        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
+//        //异常处理
+//        http.exceptionHandling(x -> x.defaultAuthenticationEntryPointFor(
+//                //自定义未登录地址,地址为前端vue的地址，当没有登陆的时候，自动跳转到前端登陆界面
+//                new MyLoginUrlAuthenticationEntryPoint(loginPage),
+//                //只有带有 "text/html" 媒体类型的请求需要进行身份验证
+//                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+//        ));
+//        //资源服务器通过jwt令牌 去访问
+//        http.oauth2ResourceServer(x -> x.jwt(Customizer.withDefaults()));
+//        //禁用csrf
+//        http.csrf(AbstractHttpConfigurer::disable);
+//        //建造对象
+//        return http.build();
+//    }
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(
+            HttpSecurity http,
+            OAuth2AuthorizationService authorizationService,
+            RegisteredClientRepository registeredClientRepository,
+            OAuth2TokenGenerator<?> tokenGenerator,
+            PasswordEncoder passwordEncoder
+    ) throws Exception {
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+                OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+        http
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+                .with(authorizationServerConfigurer, (authorizationServer) ->
+                        authorizationServer
+                                .oidc(Customizer.withDefaults())
+                )
+                .authorizeHttpRequests((authorize) ->
+                        authorize
+                                .anyRequest().authenticated()
+                )
+                .exceptionHandling((exceptions) -> exceptions
+                        .defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint("/login"),
+                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                        )
+                );
+        // 设置自定义 UserDetailsService
+        http.userDetailsService(authService);
+        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                .tokenEndpoint(tokenEndpoint ->
+                        tokenEndpoint
+                                .accessTokenRequestConverter(new PasswordAuthenticationConverter())
+                                .authenticationProvider(new PasswordAuthenticationProvider(authorizationService, tokenGenerator)));
         return http.build();
+    }
+
+    @Bean
+    public OAuth2TokenGenerator<?> tokenGenerator(JWKSource<SecurityContext> jwkSource) {
+        JwtGenerator jwtGenerator = new JwtGenerator(new NimbusJwtEncoder(jwkSource));
+        OAuth2AccessTokenGenerator accessTokenGenerator = new OAuth2AccessTokenGenerator();
+        OAuth2RefreshTokenGenerator refreshTokenGenerator = new OAuth2RefreshTokenGenerator();
+        return new DelegatingOAuth2TokenGenerator(jwtGenerator, accessTokenGenerator, refreshTokenGenerator);
     }
 
     //忽略路径 放行路径

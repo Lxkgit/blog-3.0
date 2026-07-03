@@ -23,6 +23,11 @@ public class TimerTaskDefinition {
     private final Integer id;
 
     /**
+     * 用户id
+     */
+    private final Integer userId;
+
+    /**
      * 任务编码
      */
     private final String taskCode;

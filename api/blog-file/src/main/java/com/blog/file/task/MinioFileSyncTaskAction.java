@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.common.TaskMsgHead;
 import com.blog.core.domain.file.task.del.bo.SyncServiceFileBo;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.timer.action.TimerAction;
@@ -36,9 +37,10 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
     }
 
     @Override
-    public void doExecute(TimerTaskContext context) {
+    public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
         SyncServiceFileBo bo = context.get("");
         nettySyncFileService.syncServiceFile(bo, new MsgHead());
+        return "";
     }
 
     @Override

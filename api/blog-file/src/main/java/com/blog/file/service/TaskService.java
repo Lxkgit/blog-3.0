@@ -38,11 +38,4 @@ public interface TaskService {
 
     List<TimerTask> selectRunningTask();
 
-
-
-    ResultPage<TaskLogVo> selectTaskLogList(TaskLogVo taskLogVo);
-
-    ResultPage<TaskLog> selectTaskLogByUuid(TaskLogVo taskLogVo);
-
-
 }

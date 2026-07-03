@@ -33,9 +33,11 @@ public interface FileService {
 
     void syncFile(FileCategoryDataVo fileDataVo) throws ServiceException;
 
-    void fileImportMinio(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead);
+//    void fileImportMinio(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead);
 
-    void fileDownloadDevice(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead);
+//    void fileDownloadDevice(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead);
+//
+//    public void fileUploadService(NettySyncFileDto nettySyncFileDto);
 //
 //    boolean syncFileList(List<FileCategoryDataVo> fileDataVoList);
 }

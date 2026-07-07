@@ -1,14 +1,17 @@
-hostIp: ${devServiceIp}
+#hostIp: ${devServiceIp}
+hostIp: ${authIp}
 server:
   port: 60002
   servlet:
     context-path: /auth
+  forward-headers-strategy: framework
 
-logging:
-  level:
-    org:
-      springframework:
-        security: TRACE
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        security: TRACE
+
 jasypt:
   encryptor:
     password: gszero

@@ -121,21 +121,26 @@ public class SecurityConfig {
         //授权服务配置 应用默认安全性 简化配置,在源码给你都配置好了
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         //禁用session,前后端分离不需要, cookie中就不会显示JSESSIONID
-        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         //配置上下文 从redis中读取
-        http.securityContext(x -> x.securityContextRepository(redisSecurityContextRepository));
+//        http.securityContext(x -> x.securityContextRepository(redisSecurityContextRepository));
         //配置OpenID Connect（OIDC）登录,是一种在OAuth 2.0基础上实现身份验证和授权的协议。
         //与传统的OAuth 2.0授权不同的是，OIDC需要在OAuth 2.0授权服务器和OAuth客户端之间建立信任关系，
         // 并使用JWT（JSON Web Tokens）来安全地传输信息
         //生成oidc授权码和令牌 在客户端使用scope:openid 的时候就会生效 返回对应的授权码
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
-        //异常处理
+//        //异常处理
+//        http.exceptionHandling(x -> x.defaultAuthenticationEntryPointFor(
+//                //自定义未登录地址,地址为前端vue的地址，当没有登陆的时候，自动跳转到前端登陆界面
+//                new MyLoginUrlAuthenticationEntryPoint(loginPage),
+//                //只有带有 "text/html" 媒体类型的请求需要进行身份验证
+//                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+//        ));
         http.exceptionHandling(x -> x.defaultAuthenticationEntryPointFor(
                 //自定义未登录地址,地址为前端vue的地址，当没有登陆的时候，自动跳转到前端登陆界面
-                new MyLoginUrlAuthenticationEntryPoint(loginPage),
+                new MyLoginUrlAuthenticationEntryPoint("/login"),
                 //只有带有 "text/html" 媒体类型的请求需要进行身份验证
-                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-        ));
+                new MediaTypeRequestMatcher(MediaType.TEXT_HTML))).exceptionHandling(exception -> exception.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")));
         //资源服务器通过jwt令牌 去访问
         http.oauth2ResourceServer(x -> x.jwt(Customizer.withDefaults()));
         //禁用csrf
@@ -148,7 +153,7 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         //放行登录接口 这样才能登录成功
-        return x -> x.ignoring().requestMatchers("/doLogin", "/getToken", "/login");
+        return x -> x.ignoring().requestMatchers("/doLogin", "/getToken");
     }
 
     /**
@@ -165,16 +170,18 @@ public class SecurityConfig {
     public SecurityFilterChain appFilterChain(HttpSecurity http) throws Exception {
         //先进行自定义的过滤器,在进行账号密码验证
         http.addFilterBefore(myAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http
-//                .securityMatcher("/auth/**")
-                .authorizeHttpRequests((authorize) -> authorize
-                        //放行资源
-                        .requestMatchers("/auth/doLogin", "/auth/login", "/auth/getToken").permitAll()
-                        .requestMatchers(PermitUrl.permitAllUrl("auth")).permitAll()
-                        .anyRequest().authenticated()
-                )
-                //禁用表单登陆 前后分离不在使用
-                .formLogin(AbstractHttpConfigurer::disable);
+        http.authorizeHttpRequests((authorize) -> authorize
+                //放行资源
+                .requestMatchers("/auth/doLogin", "/auth/login", "/auth/getToken", "/login").permitAll()
+                .requestMatchers(PermitUrl.permitAllUrl("auth")).permitAll()
+                .anyRequest().authenticated()
+        );
+        http.formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+        );
+        http.oauth2ResourceServer(oauth ->
+                oauth.jwt(Customizer.withDefaults()));
         //禁用csrf
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
@@ -221,10 +228,7 @@ public class SecurityConfig {
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
         redisService.setString(AuthRedisConstant.PUBLIC_KEY, Base64.getEncoder().encodeToString(publicKey.getEncoded()));
         redisService.setString(AuthRedisConstant.PRIVATE_KEY, Base64.getEncoder().encodeToString(privateKey.getEncoded()));
-        RSAKey rsaKey = new RSAKey.Builder(publicKey)
-                .privateKey(privateKey)
-                .keyID(UUID.randomUUID().toString())
-                .build();
+        RSAKey rsaKey = new RSAKey.Builder(publicKey).privateKey(privateKey).keyID(UUID.randomUUID().toString()).build();
         JWKSet jwkSet = new JWKSet(rsaKey);
         return new ImmutableJWKSet<>(jwkSet);
     }
@@ -256,7 +260,7 @@ public class SecurityConfig {
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
                 // 关键：设置 issuer 包含上下文路径
-                .issuer("http://" + hostIp +":60002/auth")
+                .issuer("http://" + hostIp + ":60002/auth")
                 // 端点路径不需要包含 /auth，Spring 会自动附加 context-path
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenEndpoint("/oauth2/token")
@@ -278,11 +282,8 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthorizationService auth2AuthorizationService() {
         //解决自定义user 登录报错
-        JdbcOAuth2AuthorizationService service = new JdbcOAuth2AuthorizationService(jdbcTemplate,
-                registeredClientRepository());
-        JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper authorizationRowMapper =
-                new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(
-                        registeredClientRepository());
+        JdbcOAuth2AuthorizationService service = new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository());
+        JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper authorizationRowMapper = new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(registeredClientRepository());
         authorizationRowMapper.setLobHandler(new DefaultLobHandler());
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -356,8 +357,8 @@ public class SecurityConfig {
         //写入jwt
         context.getClaims().claim("id", user.getId());
         context.getClaims().claim("username", user.getUsername());
-        context.getClaims().claim("auths", auths);
-        context.getClaims().claim("name", user.getNickname());
+//        context.getClaims().claim("auths", auths);
+//        context.getClaims().claim("name", user.getNickname());
     }
 
 

@@ -39,13 +39,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         //禁止csrf
         http.csrf(AbstractHttpConfigurer::disable);
+
         //拦截所有请求
-        http.authorizeHttpRequests(x -> x
-                        .requestMatchers(PermitUrl.permitAllUrl("file")).permitAll()
-                        .anyRequest().authenticated())
-                //oauth2资源服务器 使用jwt 带着jwt的token访问资源服务器
-                //使用JWT解码器来验证JWT令牌的签名和内容
-                .oauth2ResourceServer(x -> x.jwt(jwt -> jwt.decoder(JwtDecoders.fromIssuerLocation(issuerUri))));
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(PermitUrl.permitAllUrl("file")).permitAll()
+                .anyRequest().authenticated()
+        );
+        //oauth2资源服务器 使用jwt 带着jwt的token访问资源服务器
+        //使用JWT解码器来验证JWT令牌的签名和内容
+        http.oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                        .decoder(JwtDecoders.fromIssuerLocation(issuerUri))
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
+        );
+
         return http.build();
     }
 

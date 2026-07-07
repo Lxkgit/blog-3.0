@@ -55,8 +55,8 @@ function user() {
       store.userSession.access_token = res.result.access_token
       store.userSession.user_id = res.result.user_id
       store.userLocal.refresh_token = res.result.refresh_token
-      ;(store.userMessage.userId = res.result.user_id),
-        (store.userMessage.username = store.userLocal.username)
+      // (store.userMessage.userId = res.result.user_id),
+        // (store.userMessage.username = store.userLocal.username)
       store.isLogin = true
       userInfoFun()
       //然后跳转到首页

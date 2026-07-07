@@ -40,6 +40,11 @@ public class TaskParam {
     private String taskCode;
 
     /**
+     * 主任务编码
+     */
+    private String taskName;
+
+    /**
      * json格式任务执行参数
      */
     private String paramJson;
@@ -60,7 +65,7 @@ public class TaskParam {
     private String taskTime;
 
     /**
-     * 任务状态 1：启动 2：停止
+     * 任务状态 1：待执行 2：进行中 3：已结束
      */
     private String taskStatus;
 

@@ -52,18 +52,21 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
         JSONObject minioPath = new JSONObject();
         minioPath.put("type", "input");
         minioPath.put("name", "服务器文件路径");
+        minioPath.put("paramName", "servicePath");
         minioPath.put("length", "200");
         array.add(minioPath);
 
         JSONObject devicePath = new JSONObject();
         devicePath.put("type", "input");
         devicePath.put("name", "设备文件路径");
+        devicePath.put("paramName", "devicePath");
         devicePath.put("length", "200");
         array.add(devicePath);
 
         JSONObject count = new JSONObject();
         count.put("type", "input-number");
         count.put("name", "同步文件数量");
+        count.put("paramName", "syncCount");
         count.put("min", 0);
         count.put("max", 50);
         array.add(count);
@@ -71,6 +74,7 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
         JSONObject maxFileCount = new JSONObject();
         maxFileCount.put("type", "input-number");
         maxFileCount.put("name", "目录下最大文件数量");
+        maxFileCount.put("paramName", "maxCount");
         maxFileCount.put("min", 0);
         maxFileCount.put("max", 200);
         array.add(maxFileCount);

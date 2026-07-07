@@ -6,6 +6,7 @@ import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.result.ResultPage;
+import com.blog.timer.action.TimerAction;
 import com.blog.timer.entity.TimerTask;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public interface TaskService {
 
     void cancelTask(Integer id);
 
-    List<Object> selectBaseTaskList();
+    List<TimerAction> selectBaseTaskList();
 
     List<TimerTask> selectRunningTask();
 

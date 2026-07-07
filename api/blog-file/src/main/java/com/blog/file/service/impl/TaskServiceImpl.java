@@ -152,6 +152,7 @@ public class TaskServiceImpl implements TaskService {
     public ResultPage<TaskParam> selectTaskList(TaskParamVo taskParamVo) {
         PageHelper.startPage(taskParamVo.getPageNum(), taskParamVo.getPageSize());
         LambdaQueryWrapper<TaskParam> wrapper = new LambdaQueryWrapper<>();
+        wrapper.orderByDesc(TaskParam::getUpdateTime);
         List<TaskParam> taskLogVoList = taskParamMapper.selectList(wrapper);
         return ResultPageUtils.pageUtil(taskLogVoList, taskParamVo.getPageNum(), taskParamVo.getPageSize(), new PageInfo<>(taskLogVoList).getTotal());
     }
@@ -181,8 +182,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Object> selectBaseTaskList() {
-        return Collections.singletonList(timerActionManager.getAllActions().values());
+    public List<TimerAction> selectBaseTaskList() {
+        return timerActionManager.getAllActions().values().stream().toList();
     }
 
     @Override

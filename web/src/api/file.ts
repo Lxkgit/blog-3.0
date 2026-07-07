@@ -237,15 +237,61 @@ export const startTaskApi = (params: any) => {
     return api.get(uri, params)
 }
 
+// export const selectTaskLogListApi = (params: any) => {
+//     const uri = "/file/task/log/select/list"
+//     return api.get(uri, params)
+// }
+
+// export const selectTaskLogByTaskUUIDApi = (params: any) => {
+//     const uri = "/file/task/log/select/id"
+//     return api.get(uri, params)
+// }
+
+
+// 保存任务
+export const saveTaskApi = (params: any) => {
+    const uri = "/file/task/insert"
+    return api.post(uri, params)
+}
+
+// 删除任务
+export const deleteTaskApi = (id: any) => {
+    const uri = "/file/task/delete?id=" + id
+    return api.delete(uri)
+}
+
+// 修改任务
+export const updateTaskApi = (params: any) => {
+    const uri = "/file/task/update"
+    return api.post(uri, params)
+}
+
+// 查询任务列表
+export const selectTaskListApi = (params: any) => {
+    const uri = "/file/task/select/list"
+    return api.post(uri, params)
+}
+
+// 查询基础任务
+export const selectTaskBaseApi = () => {
+    const uri = "/file/task/select/base"
+    return api.get(uri)
+}
+
+// 查询待执行任务列表
+export const runningTaskListApi = (params: any) => {
+    const uri = "/file/task/select/running"
+    return api.post(uri, params)
+}
+
+// 查询任务日志列表
 export const selectTaskLogListApi = (params: any) => {
     const uri = "/file/task/log/select/list"
     return api.get(uri, params)
 }
 
-export const selectTaskLogByTaskUUIDApi = (params: any) => {
-    const uri = "/file/task/log/select/id"
-    return api.get(uri, params)
+// 根据uuid查询日志详情
+export const selectTaskLogByTaskUuidApi = (uuid: any) => {
+    const uri = "/file/task/log/select/id?taskUuid="+ uuid
+    return api.get(uri)
 }
-
-
-

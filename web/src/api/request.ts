@@ -20,7 +20,7 @@ export function  request(config: any) {
     (config) => {
       if (token) {
         config.headers.Authorization = 'Bearer ' + token
-        config.headers.rzId = rz_id
+        // config.headers.rzId = rz_id
       }
       return config
     },

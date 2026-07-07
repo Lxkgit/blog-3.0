@@ -204,6 +204,16 @@ const router = createRouter({
           },
         },
         {
+          path: 'task',
+          name: 'Task',
+          component: () => import('@/views/admin/task/TaskList.vue'),
+          meta: {
+            title: '定时任务',
+            keepAlive: false,
+            isAuth: true,
+          },
+        },
+        {
           path: 'file',
           name: 'File',
           component: () => import('@/views/admin/file/UserFile.vue'),

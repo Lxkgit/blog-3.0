@@ -50,11 +50,6 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
                 JSONObject jwt = JwtUtil.decodeJwt(token.substring(7));
                 SecurityUtil.setLoginUser(jwt);
             }
-            //从请求头获取认证id
-            String rzId = request.getHeader("rzId");
-            if (StringUtils.isNotEmpty(rzId)) {
-                SecurityUtil.setRzId(rzId);
-            }
         } catch (Exception e) {
             logger.error("用户鉴权信息获取异常:{}", e.getMessage(), e);
         }

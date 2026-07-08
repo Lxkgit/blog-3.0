@@ -101,21 +101,17 @@ public class TaskServiceImpl implements TaskService {
     public void updateTask(TaskParamVo taskParamVo) {
         taskParamMapper.updateById(taskParamVo);
 
-        String uuid = taskUuidMapper.selectUUidByTaskId(taskParamVo.getId());
-        if (StringUtils.isNotEmpty(uuid)) {
-            timerManager.cancel(uuid);
-        }
         createTask(taskParamVo);
     }
 
     /**
      * 创建定时任务
-     *
      */
     private void createTask(TaskParamVo taskParamVo) {
-        if ("2".equals(taskParamVo.getTaskStatus())) {
+        if (!"1".equals(taskParamVo.getTaskStatus())) {
             return;
         }
+        cancelTask(taskParamVo.getId());
         // 任务触发方式：1：指定时间 2：延时 3： cron表达式
         Trigger trigger;
         if ("1".equals(taskParamVo.getTaskTrigger())) {
@@ -178,7 +174,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void cancelTask(Integer id) {
         String uuid = taskUuidMapper.selectUUidByTaskId(id);
-        timerManager.cancel(uuid);
+        if (StringUtils.isNotEmpty(uuid)) {
+            timerManager.cancel(uuid);
+        }
     }
 
     @Override
@@ -187,8 +185,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TimerTask> selectRunningTask() {
-        return timerManager.getAllTask().stream().toList();
+    public ResultPage<Map<String, Object>> selectRunningTask(TaskParamVo taskParamVo) {
+        List<TimerTask> taskList = timerManager.getAllTask().stream().toList();
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        // TimerTask 属于依赖包中类 不方便在core包引用
+        Map<String, Object> objectMap = new HashMap<>();
+        int from = (taskParamVo.getPageNum() - 1) * taskParamVo.getPageSize();
+        int to = Math.min(from + taskParamVo.getPageSize(), taskList.size());
+        List<TimerTask> runList = taskList.subList(from, to);
+        for (TimerTask task : runList) {
+            objectMap.put("timerTask", task);
+            objectMap.put("task", taskParamMapper.selectById(task.getDefinition().getId()));
+            resultList.add(objectMap);
+        }
+        return ResultPageUtils.pageUtil(resultList, taskParamVo.getPageNum(), taskParamVo.getPageSize(), taskList.size());
     }
 
 

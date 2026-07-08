@@ -249,7 +249,7 @@ export const startTaskApi = (params: any) => {
 
 
 // 保存任务
-export const saveTaskApi = (params: any) => {
+export const insertTaskApi = (params: any) => {
     const uri = "/file/task/insert"
     return api.post(uri, params)
 }
@@ -281,7 +281,7 @@ export const selectTaskBaseApi = () => {
 // 查询待执行任务列表
 export const runningTaskListApi = (params: any) => {
     const uri = "/file/task/select/running"
-    return api.post(uri, params)
+    return api.get(uri, params)
 }
 
 // 查询任务日志列表

@@ -65,7 +65,7 @@ public class TaskParam {
     private String taskTime;
 
     /**
-     * 任务状态 1：待执行 2：进行中 3：已结束
+     * 任务状态 1：启用 2：禁用 3： 执行完成
      */
     private String taskStatus;
 

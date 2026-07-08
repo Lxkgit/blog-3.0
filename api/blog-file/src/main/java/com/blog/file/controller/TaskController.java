@@ -135,8 +135,8 @@ public class TaskController {
      * @return
      */
     @GetMapping("/select/running")
-    public Result selectRunningTask() {
-        return ResultFactory.buildSuccessResult(taskService.selectRunningTask());
+    public Result selectRunningTask(TaskParamVo taskParamVo) {
+        return ResultFactory.buildSuccessResult(taskService.selectRunningTask(taskParamVo));
     }
 
 

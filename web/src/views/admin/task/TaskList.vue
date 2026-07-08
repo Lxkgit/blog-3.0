@@ -16,7 +16,7 @@
       <el-table :data="taskList.data" stripe style="width: 100%; height: calc(100vh - 328px)">
         <!-- <el-table-column type="selection" width="55"/> -->
         <el-table-column prop="taskName" label="任务名称" fit />
-        <el-table-column prop="taskCode" label="任务编码" fit />
+        <el-table-column prop="taskCode" label="任务编码" width="240" />
         <el-table-column prop="taskCount" label="执行次数" width="110" />
         <el-table-column prop="taskStatus" label="任务状态" width="110">
           <template #default="scope">
@@ -28,32 +28,28 @@
             {{ taskTrigger(scope.row.taskTrigger) }}
           </template>
         </el-table-column>
-        <el-table-column prop="taskTime" label="执行时间" width="110" />
-        <el-table-column prop="createTime" label="创建时间" fit />
+        <el-table-column prop="taskTime" label="执行时间" width="160" />
+        <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column prop="updateTime" label="最近更新" fit />
         <el-table-column fixed="right" label="操作" width="110">
-          <!-- <template #default="scope">
-            <el-button style="margin: 0; padding: 8px;" @click="showDiaryDialogFun(scope.row)" size="small" text>
-              <MyIcon type="icon-eye" />
-            </el-button>
-            <el-button style="margin: 0; padding: 8px;" @click="updateDiaryDialogFun(scope.row)" size="small" text>
+          <template #default="scope">
+            <el-button
+              style="margin: 0; padding: 8px"
+              @click="clickViewTaskFun(scope.row)"
+              size="small"
+              text
+            >
               <MyIcon type="icon-edit" />
             </el-button>
-            <el-popover :visible="deleteDiaryVisible && selectRow === scope.$index" placement="top" :width="160"
-              :ref="`popover-${scope.$index}`">
-              <p>删除所选日记？</p>
-              <div style="text-align: right; margin: 0">
-                <el-button size="small" text @click="deleteDiaryVisible = false">取消</el-button>
-                <el-button size="small" type="primary" @click="deleteDiaryFun(scope.row.id)">删除</el-button>
-              </div>
-              <template #reference>
-                <el-button style="margin: 0; padding: 8px;" @click="deleteDiaryVisible = true; selectRow = scope.$index"
-                  size="small" text>
-                  <MyIcon type="icon-delete" />
-                </el-button>
-              </template>
-            </el-popover>
-          </template> -->
+            <el-button
+              style="margin: 0; padding: 8px"
+              @click="deleteTaskFun(scope.row.id)"
+              size="small"
+              text
+            >
+              <MyIcon type="icon-delete" />
+            </el-button>
+          </template>
         </el-table-column>
       </el-table>
       <div style="margin: 20px 0 50px 0">
@@ -68,7 +64,7 @@
         </el-pagination>
       </div>
 
-      <el-dialog v-model="createTaskDialog" title="创建任务" width="660px">
+      <el-dialog v-model="createTaskDialog" title="创建任务" width="760px">
         <div>
           <el-form :model="taskItem" label-position="left" label-width="100px">
             <el-form-item label="任务名称">
@@ -98,13 +94,13 @@
             <el-form-item label="任务状态">
               <el-switch
                 v-model="taskItem.taskStatus"
-                active-text="启用任务"
+                active-text="启用"
                 active-value="1"
                 active-color="#13ce66"
-                inactive-text="禁用任务"
+                inactive-text="禁用"
                 inactive-value="2"
                 inactive-color="#ff4949"
-                style="padding-left: 30px"
+                style="padding-left: 20px"
               />
             </el-form-item>
 
@@ -113,7 +109,11 @@
             </el-form-item>
 
             <el-form-item label="触发方式">
-              <el-select v-model="taskItem.taskTrigger" placeholder="选择触发方式" style="width: 250px">
+              <el-select
+                v-model="taskItem.taskTrigger"
+                placeholder="选择触发方式"
+                style="width: 250px"
+              >
                 <el-option label="指定时间" :value="1" />
                 <el-option label="延时" :value="2" />
                 <el-option label="cron表达式" :value="3" />
@@ -122,7 +122,7 @@
             <!-- 指定时间 -->
             <el-form-item v-if="taskItem.taskTrigger === 1" label="执行时间">
               <el-date-picker
-                v-model="taskItem.triggerTime"
+                v-model="taskItem.taskTime"
                 type="datetime"
                 placeholder="请选择执行时间"
                 style="width: 300px"
@@ -132,22 +132,21 @@
 
             <!-- 延时 -->
             <el-form-item v-else-if="taskItem.taskTrigger === 2" label="延时时间">
-              <el-input-number v-model="taskItem.delayTime" :min="1" style="width: 200px" />
+              <el-input-number v-model="taskItem.taskTime" :min="1" style="width: 150px" />
               <span style="margin-left: 10px">秒</span>
             </el-form-item>
 
             <!-- cron -->
             <el-form-item v-else-if="taskItem.taskTrigger === 3" label="Cron表达式">
               <el-input
-                v-model="taskItem.cronExpression"
+                v-model="taskItem.taskTime"
                 placeholder="例如： 0 0/5 * * * ?"
                 style="width: 300px"
-                clearable
               />
             </el-form-item>
 
             <el-form-item label="任务参数">
-              <el-form :model="taskItem.paramJson" label-position="left" label-width="200px">
+              <el-form :model="taskItem.paramJson" label-position="left" label-width="150px">
                 <el-form-item
                   v-for="item in selectTaskType.paramTemplate"
                   :key="item.paramName"
@@ -159,7 +158,7 @@
                     v-if="item.type === 'input'"
                     v-model="taskItem.paramJson[item.paramName]"
                     :maxlength="item.length"
-                    clearable
+                    style="width: 350px"
                   />
                   <!-- 数字 -->
                   <el-input-number
@@ -167,6 +166,7 @@
                     v-model="taskItem.paramJson[item.paramName]"
                     :min="item.min"
                     :max="item.max"
+                    style="width: 150px"
                   />
                 </el-form-item>
               </el-form>
@@ -187,7 +187,14 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import icon from '@/utils/icon'
-import { saveTaskApi, selectTaskBaseApi, startTaskApi, selectTaskListApi } from '@/api/file'
+import {
+  insertTaskApi,
+  updateTaskApi,
+  deleteTaskApi,
+  selectTaskBaseApi,
+  startTaskApi,
+  selectTaskListApi,
+} from '@/api/file'
 
 import mixin from '@/mixins/task'
 
@@ -205,8 +212,10 @@ let {
 
   selectTaskListFun,
   clickCreateTaskFun,
+  clickViewTaskFun,
   taskTypeChange,
   saveTaskFun,
+  deleteTaskFun,
 } = taskFn()
 
 /**
@@ -220,6 +229,7 @@ onMounted(() => {
  * 角色删改查接口方法合集
  */
 function taskFn(): any {
+
   // 页面展示任务条数
   let size = ref<number>(10)
   // 总任务数
@@ -232,7 +242,6 @@ function taskFn(): any {
   let createTaskDialog = ref(false)
   // 基础任务列表
   let baseTaskList: any = reactive({ data: [] })
-
   // 当前选中基础任务
   let selectTaskType: any = ref({
     code: '',
@@ -258,12 +267,9 @@ function taskFn(): any {
   /**
    * 查询基础任务列表
    */
-  const selectTaskBaseFun = () => {
-    selectTaskBaseApi().then((res: any) => {
-      if (res.code === 200) {
-        baseTaskList.data = res.result
-      }
-    })
+  const selectTaskBaseFun = async () => {
+    const res: any = await selectTaskBaseApi()
+    baseTaskList.data = res.result
   }
 
   /**
@@ -283,7 +289,7 @@ function taskFn(): any {
   }
 
   /**
-   * 点击创建任务按钮
+   * 点击创建任务按钮 打开弹窗
    */
   const clickCreateTaskFun = () => {
     createTaskDialog.value = true
@@ -291,17 +297,109 @@ function taskFn(): any {
   }
 
   /**
-   *保存任务
-   * @param params 任务对象
+   * 点击保存任务按钮 关闭弹窗
    */
-  const saveTaskFun = () => {
-    saveTaskApi({
+  const clickSaveTaskFun = () => {
+    createTaskDialog.value = false
+    resetTaskItem()
+  }
+
+  /**
+   * 重置任务对象
+   */
+  const resetTaskItem = () => {
+    Object.keys(taskItem).forEach((key) => {
+      delete taskItem[key]
+    })
+
+    Object.assign(taskItem, {
+      paramJson: {},
+    })
+  }
+
+  /**
+   *点击查看任务按钮 打开弹窗
+   * @param row 当前行
+   */
+  const clickViewTaskFun = async (row: any) => {
+    await selectTaskBaseFun()
+    Object.assign(taskItem, {
+      ...row,
+      taskTrigger: Number(row.taskTrigger),
+      taskTime: row.taskTrigger === 2 ? row.taskTime : Number(row.taskTime),
+      paramJson: row.paramJson ? JSON.parse(row.paramJson) : {},
+    })
+
+    for (const baseTask of baseTaskList.data) {
+      if (baseTask.code === row.taskCode) {
+        taskTypeChange(baseTask)
+        break
+      }
+    }
+
+    createTaskDialog.value = true
+  }
+
+  /**
+   *保存任务
+   */
+  const saveTaskFun = async () => {
+    if (taskItem.id != null && taskItem.id !== '') {
+      await updateTaskFun()
+    } else {
+      await insertTaskFun()
+    }
+    clickSaveTaskFun()
+    selectTaskListFun(1)
+  }
+
+  /**
+   *创建任务
+   */
+  const insertTaskFun = async () => {
+    await insertTaskApi({
       taskName: taskItem.taskName,
       taskCode: taskItem.taskCode,
+      taskStatus: taskItem.taskStatus,
+      taskCount: taskItem.taskCount,
+      taskTrigger: taskItem.taskTrigger,
+      taskTime: taskItem.taskTime,
       paramJson: JSON.stringify(taskItem.paramJson),
     }).then((res: any) => {
       if (res.code === 200) {
         ElMessage.success('保存成功')
+      }
+    })
+  }
+
+  /**
+   *修改任务
+   */
+  const updateTaskFun = async () => {
+    await updateTaskApi({
+      id: taskItem.id,
+      taskName: taskItem.taskName,
+      taskCode: taskItem.taskCode,
+      taskStatus: taskItem.taskStatus,
+      taskCount: taskItem.taskCount,
+      taskTrigger: taskItem.taskTrigger,
+      taskTime: taskItem.taskTime,
+      paramJson: JSON.stringify(taskItem.paramJson),
+    }).then((res: any) => {
+      if (res.code === 200) {
+        ElMessage.success('修改成功')
+      }
+    })
+  }
+
+  /**
+   * 删除任务
+   * @param id 任务id
+   */
+  const deleteTaskFun = (id: number) => {
+    deleteTaskApi(id).then((res: any) => {
+      if (res.code === 200) {
+        ElMessage.success('删除成功')
         selectTaskListFun(1)
       }
     })
@@ -319,7 +417,10 @@ function taskFn(): any {
     selectTaskListFun,
     clickCreateTaskFun,
     taskTypeChange,
+    clickViewTaskFun,
     saveTaskFun,
+    updateTaskFun,
+    deleteTaskFun,
   }
 }
 </script>

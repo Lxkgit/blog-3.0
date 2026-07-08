@@ -2,20 +2,20 @@ export default function () {
 
   /**
    *
-   * @param type 任务状态 1：待执行 2：进行中 3：已结束
+   * @param type 任务状态 1：启用 2：禁用 3： 执行完成
    *
    */
   const taskStatus = (type: any) => {
     let val = ''
     switch (type) {
       case '1':
-        val = '待执行'
+        val = '启用'
         break
       case '2':
-        val = '进行中'
+        val = '禁用'
         break
       case '3':
-        val = '已结束'
+        val = '执行完成'
         break
       default:
         val = ''

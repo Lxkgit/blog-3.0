@@ -10,6 +10,7 @@ import com.blog.timer.action.TimerAction;
 import com.blog.timer.entity.TimerTask;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author lxk
@@ -37,6 +38,6 @@ public interface TaskService {
 
     List<TimerAction> selectBaseTaskList();
 
-    List<TimerTask> selectRunningTask();
+    ResultPage<Map<String, Object>> selectRunningTask(TaskParamVo taskParamVo);
 
 }

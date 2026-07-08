@@ -214,6 +214,26 @@ const router = createRouter({
           },
         },
         {
+          path: 'task/exec',
+          name: 'TaskExec',
+          component: () => import('@/views/admin/task/TaskExec.vue'),
+          meta: {
+            title: '执行列表',
+            keepAlive: false,
+            isAuth: true,
+          },
+        },
+        {
+          path: 'task/log',
+          name: 'TaskLog1',
+          component: () => import('@/views/admin/task/TaskLog.vue'),
+          meta: {
+            title: '任务日志',
+            keepAlive: false,
+            isAuth: true,
+          },
+        },
+        {
           path: 'file',
           name: 'File',
           component: () => import('@/views/admin/file/UserFile.vue'),

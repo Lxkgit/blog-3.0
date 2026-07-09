@@ -291,7 +291,19 @@ export const selectTaskLogListApi = (params: any) => {
 }
 
 // 根据uuid查询日志详情
-export const selectTaskLogByTaskUuidApi = (uuid: any) => {
-    const uri = "/file/task/log/select/id?taskUuid="+ uuid
+export const selectTaskLogByTaskUuidApi = (params: any) => {
+    const uri = "/file/task/log/select/id"
+    return api.get(uri, params)
+}
+
+// 立即执行任务
+export const runningTaskApi = (id: any) => {
+    const uri = "/file/task/running?id=" + id
+    return api.get(uri)
+}
+
+// 取消任务
+export const cancelTaskApi = (id: any) => {
+    const uri = "/file/task/cancel?id=" + id
     return api.get(uri)
 }

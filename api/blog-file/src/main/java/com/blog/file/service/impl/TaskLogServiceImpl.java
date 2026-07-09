@@ -73,17 +73,12 @@ public class TaskLogServiceImpl implements TaskLogService {
     }
 
     @Override
-    public Integer executeTaskLog(MsgHead msgHead, TaskLog param) {
-        TaskLog taskLog = TaskLog.builder()
-                .userId(msgHead.getTaskMsgHead().getUserId())
-                .taskCode(msgHead.getTaskMsgHead().getTaskCode())
-                .taskUuid(msgHead.getTaskMsgHead().getTaskUuid())
-                .taskLogType(2)
-                .build();
-
-        BeanUtils.copyProperties(param, taskLog);
+    public Integer executeTaskLog(MsgHead msgHead, TaskLog taskLog) {
+        taskLog.setUserId(msgHead.getTaskMsgHead().getUserId());
+        taskLog.setTaskCode(msgHead.getTaskMsgHead().getTaskCode());
+        taskLog.setTaskUuid(msgHead.getTaskMsgHead().getTaskUuid());
+        taskLog.setTaskLogType(2);
         taskLogMapper.insert(taskLog);
-
         return taskLog.getId();
     }
 

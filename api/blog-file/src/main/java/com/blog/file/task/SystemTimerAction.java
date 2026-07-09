@@ -2,9 +2,12 @@ package com.blog.file.task;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.common.TaskMsgHead;
+import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.entity.TaskUuid;
+import com.blog.file.mapper.TaskParamMapper;
 import com.blog.file.mapper.TaskUuidMapper;
 import com.blog.file.service.TaskLogService;
+import com.blog.file.service.TaskService;
 import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
 import com.blog.timer.entity.TimerTask;
@@ -29,6 +32,9 @@ public abstract class SystemTimerAction implements TimerAction {
     @Resource
     private TaskLogService taskLogService;
 
+    @Resource
+    private TaskParamMapper taskParamMapper;
+
     @Override
     public void checkParam(TimerAction action, String json) {
         logger.info("开始校验参数: {}", action.getParamTemplate());
@@ -47,7 +53,7 @@ public abstract class SystemTimerAction implements TimerAction {
     }
 
     @Override
-    public void execute(TimerTask timerTask) {
+    public void execute(TimerTask timerTask)  {
         try {
             taskLogService.taskStartLog(timerTask);
             TaskMsgHead taskMsgHead = TaskMsgHead.builder()
@@ -78,7 +84,12 @@ public abstract class SystemTimerAction implements TimerAction {
 
     @Override
     public void finalExecute(TimerTask timerTask) {
-        logger.info("任务结束");
+        Integer taskId = timerTask.getDefinition().getId();
+        logger.info("任务 {} 结束", taskId);
+
+        TaskParam param = TaskParam.builder().id(taskId).taskStatus("2").build();
+        taskParamMapper.updateById(param);
+
     }
 
 

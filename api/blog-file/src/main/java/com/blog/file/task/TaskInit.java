@@ -1,54 +1,57 @@
-//package com.blog.file.task;
-//
-//import com.blog.core.constant.Constant;
-//import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
-//import com.blog.core.domain.file.task.del.bo.SyncServiceFileBo;
-//import com.blog.core.domain.file.task.del.entity.TaskParam;
-//import com.blog.core.domain.file.task.del.vo.TaskParamVo;
-//import com.blog.file.netty.service.NettySyncFileService;
-//import com.blog.redis.service.RedisService;
-//import com.blog.task.constant.TaskConstant;
-//import com.blog.task.domain.TaskBase;
-//import com.blog.task.domain.TaskEntity;
-//import com.blog.task.mapper.DTaskParamMapper;
-//import com.blog.task.service.TaskService;
-//import jakarta.annotation.Resource;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//import org.springframework.beans.BeanUtils;
-//import org.springframework.boot.ApplicationArguments;
-//import org.springframework.boot.ApplicationRunner;
-//import org.springframework.stereotype.Component;
-//
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.List;
-//
-//@Component
-//public class TaskInit implements ApplicationRunner {
-//
-//    private static final Logger logger = LoggerFactory.getLogger(TaskInit.class);
-//
-//    @Resource
-//    private DTaskParamMapper taskParamMapper;
-//
-//    @Resource
-//    private RedisService redisService;
-//
-//    @Resource
-//    private TaskService taskService;
-//
-//    @Override
-//    public void run(ApplicationArguments args) {
-////        logger.info("启动系统任务");
-////        redisService.delKey(TaskConstant.TASK_BASE);
-////        redisService.delKey(TaskConstant.TASK_QUEUE);
-////        blogDateSyncTask();
-////        deviceFileUploadTask();
-////        minioFileSyncTask();
-////        deleteTempFile();
-//    }
-//
+package com.blog.file.task;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.core.domain.file.task.entity.TaskParam;
+import com.blog.core.domain.file.task.vo.TaskParamVo;
+import com.blog.file.mapper.TaskParamMapper;
+import com.blog.file.mapper.TaskUuidMapper;
+import com.blog.file.service.TaskService;
+import com.blog.redis.service.RedisService;
+import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+
+@Component
+public class TaskInit implements ApplicationRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskInit.class);
+
+    @Resource
+    private RedisService redisService;
+
+    @Resource
+    private TaskUuidMapper taskUuidMapper;
+
+    @Resource
+    private TaskParamMapper taskParamMapper;
+
+    @Resource
+    private TaskService taskService;
+
+    @Override
+    public void run(ApplicationArguments args) {
+        // 服务重启清空任务记录表
+        taskUuidMapper.delete(new LambdaQueryWrapper<>());
+
+        LambdaQueryWrapper<TaskParam> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(TaskParam::getTaskStatus, "1");
+        List<TaskParam> paramList = taskParamMapper.selectList(wrapper);
+        for (TaskParam param : paramList) {
+            TaskParamVo vo = new TaskParamVo();
+            BeanUtils.copyProperties(param, vo);
+            taskService.createTask(vo);
+        }
+
+
+    }
+
 //    /**
 //     * 初始化全部可执行任务
 //     *
@@ -159,4 +162,4 @@
 //        // 创建主任务
 //        redisService.setList(TaskConstant.TASK_BASE, taskBase);
 //    }
-//}
+}

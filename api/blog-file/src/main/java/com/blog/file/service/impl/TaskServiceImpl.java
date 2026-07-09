@@ -31,6 +31,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -83,6 +84,7 @@ public class TaskServiceImpl implements TaskService {
         taskParamVo.setUpdateTime(new Date());
         taskParamMapper.insert(taskParamVo);
 
+        taskParamVo.setUserId(SecurityUtil.getLoginUser().getId());
         createTask(taskParamVo);
 
     }
@@ -100,14 +102,15 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void updateTask(TaskParamVo taskParamVo) {
         taskParamMapper.updateById(taskParamVo);
-
+        taskParamVo.setUserId(SecurityUtil.getLoginUser().getId());
         createTask(taskParamVo);
     }
 
     /**
      * 创建定时任务
      */
-    private void createTask(TaskParamVo taskParamVo) {
+    @Override
+    public void createTask(TaskParamVo taskParamVo) {
         if (!"1".equals(taskParamVo.getTaskStatus())) {
             return;
         }
@@ -133,7 +136,7 @@ public class TaskServiceImpl implements TaskService {
             context.put("param", taskParamVo.getParamJson());
             TimerTaskDefinition definition = TimerTaskDefinition.builder()
                     .id(taskParamVo.getId())
-                    .userId(SecurityUtil.getLoginUser().getId())
+                    .userId(taskParamVo.getUserId())
                     .taskCode(taskParamVo.getTaskCode())
                     .action(timerActionManager.get(taskParamVo.getTaskCode()))
                     .context(context)
@@ -157,6 +160,10 @@ public class TaskServiceImpl implements TaskService {
     public void startTask(Integer id) {
         TaskParam param = TaskParam.builder().id(id).taskStatus("1").build();
         taskParamMapper.updateById(param);
+
+        TaskParamVo vo = new TaskParamVo();
+        BeanUtils.copyProperties(taskParamMapper.selectById(id), vo);
+        createTask(vo);
     }
 
     @Override

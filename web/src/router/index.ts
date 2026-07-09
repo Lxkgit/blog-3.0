@@ -225,7 +225,7 @@ const router = createRouter({
         },
         {
           path: 'task/log',
-          name: 'TaskLog1',
+          name: 'TaskLog',
           component: () => import('@/views/admin/task/TaskLog.vue'),
           meta: {
             title: '任务日志',
@@ -255,7 +255,7 @@ const router = createRouter({
         },
         {
           path: 'log/task',
-          name: 'TaskLog',
+          name: 'TaskLog1',
           component: () => import('@/views/admin/log/TaskLog.vue'),
           meta: {
             title: '定时任务日志',

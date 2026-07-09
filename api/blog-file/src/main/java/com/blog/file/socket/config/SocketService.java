@@ -3,6 +3,7 @@ package com.blog.file.socket.config;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
+import com.blog.core.exception.ServiceException;
 import com.blog.file.socket.domain.SocketPacket;
 import com.blog.file.socket.domain.SocketPacketEvent;
 import jakarta.websocket.*;
@@ -70,16 +71,21 @@ public class SocketService {
      * @param message 消息内容
      * @param <T>
      */
-    public <T> boolean sendMessage(String type, String id, SocketPacket<T> message) {
-        Session session = connections.get(type).get(id);
-        if (session != null && session.isOpen()) {
-            String jsonMessage = JSON.toJSONString(message);
-            logger.debug("socket 发送消息: 向{}/{}发送消息: requestId: {} message: {}", type, id, message.getRequestId(), jsonMessage);
-            return sendMessageToSession(session, jsonMessage);
-        } else {
-            logger.warn("目标会话不存在或已关闭: {}/{}", type, id);
-            return false;
+    public <T> boolean sendMessage(String type, String id, SocketPacket<T> message) throws ServiceException {
+        if (connections.containsKey(type)) {
+            Map<String, Session> sessionTypeMap = connections.get(type);
+            if (sessionTypeMap.containsKey(id)) {
+                Session session = connections.get(type).get(id);
+                if (session != null && session.isOpen()) {
+                    String jsonMessage = JSON.toJSONString(message);
+                    logger.debug("socket 发送消息: 向{}/{}发送消息: requestId: {} message: {}", type, id, message.getRequestId(), jsonMessage);
+                    return sendMessageToSession(session, jsonMessage);
+                } else {
+                    throw new ServiceException("目标会话已关闭: " + type + "/" + id);
+                }
+            }
         }
+        throw new ServiceException("目标会话不存在: " + type + "/" + id);
     }
 
     /**

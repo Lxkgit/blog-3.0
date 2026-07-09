@@ -46,10 +46,29 @@ export default function () {
     return val
   }
 
-
+  /**
+   *
+   * @param type 任务执行结果：0失败，1成功
+   *
+   */
+  const taskResult = (type: any) => {
+    let val = ''
+    switch (type) {
+      case 0:
+        val = '失败'
+        break
+      case 1:
+        val = '成功'
+        break
+      default:
+        val = ''
+    }
+    return val
+  }
 
   return {
     taskStatus,
     taskTrigger,
+    taskResult
   }
 }

@@ -9,6 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serial;
 
+/**
+ * @author 27992
+ */
+
 @Setter
 @Getter
 public class ServiceException extends BaseException {

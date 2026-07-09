@@ -96,13 +96,8 @@ public class DefaultTimerManager implements TimerManager {
      * @param task 当前任务实例
      */
     private void executeFlow(TimerTask task) {
-        try {
-            execute(task);
-        } catch (Exception e) {
-            logger.error("任务执行异常，uuid：{}", task.getUuid(), e);
-        } finally {
-            afterExecute(task);
-        }
+        execute(task);
+        afterExecute(task, false);
     }
 
     /**
@@ -132,9 +127,10 @@ public class DefaultTimerManager implements TimerManager {
     /**
      * 任务执行后
      *
-     * @param task
+     * @param task     任务参数
+     * @param isCancel 是否取消执行
      */
-    private void afterExecute(TimerTask task) {
+    private void afterExecute(TimerTask task, boolean isCancel) {
         TimerTaskDefinition definition = task.getDefinition();
         TimerAction action = definition.getAction();
 
@@ -144,7 +140,7 @@ public class DefaultTimerManager implements TimerManager {
         action.afterExecute(task);
         // 判断当前任务是否需要继续执行
         Policy policy = task.getDefinition().getPolicy();
-        if (policy.shouldContinue(task.getExecuteCount())) {
+        if (!isCancel && policy.shouldContinue(task.getExecuteCount())) {
             // 任务开始下一次循环
             schedule(task.getDefinition(), task.getExecuteCount() + 1);
         } else {
@@ -168,6 +164,7 @@ public class DefaultTimerManager implements TimerManager {
         }
         future.cancel(false);
         executor.execute(() -> execute(task));
+        afterExecute(task, false);
     }
 
     @Override
@@ -175,7 +172,7 @@ public class DefaultTimerManager implements TimerManager {
         if (runningTasks.containsKey(uuid)) {
             logger.info("任务取消，uuid：{}", uuid);
             TimerTask task = runningTasks.get(uuid);
-            afterExecute(task);
+            afterExecute(task, true);
             return task.getFuture().cancel(false);
         }
         return false;

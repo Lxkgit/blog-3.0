@@ -28,6 +28,8 @@ public interface TaskService {
 
     ResultPage<TaskParam> selectTaskList(TaskParamVo taskParamVo);
 
+    void createTask(TaskParamVo taskParamVo);
+
     void startTask(Integer id);
 
     void stopTask(Integer id);

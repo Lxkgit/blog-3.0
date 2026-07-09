@@ -365,15 +365,14 @@ public class NettySyncFileService {
 
         taskLogService.taskStartLog(log.getId());
 
-        // 发送socket消息开始导出博客文件
-        boolean result = socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
-
-        if (result) {
+        try {
+            // 发送socket消息开始导出博客文件
+            boolean result = socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
             taskLogService.taskSuccessLog(log.getId(), JSONObject.parseObject(blogFilePath).toJSONString());
-        } else {
-            taskLogService.taskFailureLog(log.getId(), null);
+        } catch (Exception e) {
+            taskLogService.taskFailureLog(log.getId(), e);
+            throw e;
         }
-
         return blogFilePath;
     }
 

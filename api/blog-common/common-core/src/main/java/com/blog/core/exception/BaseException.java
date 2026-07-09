@@ -7,6 +7,10 @@ import lombok.Setter;
 
 import java.io.Serial;
 
+/**
+ * @author 27992
+ */
+
 @Setter
 @Getter
 public abstract class BaseException extends RuntimeException {
@@ -20,6 +24,7 @@ public abstract class BaseException extends RuntimeException {
     private Object data;
 
     public BaseException(String errMsg) {
+        super(errMsg);
         this.errMsg = errMsg;
     }
 

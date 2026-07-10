@@ -91,9 +91,6 @@ public class SecurityConfig {
     @Resource
     private RedisService redisService;
 
-    @Value("${redirect.login}")
-    private String loginPage;
-
     @Value("${hostIp}")
     private String hostIp;
 

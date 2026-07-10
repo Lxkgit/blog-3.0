@@ -85,7 +85,6 @@ public abstract class SystemTimerAction implements TimerAction {
     @Override
     public void finalExecute(TimerTask timerTask) {
         Integer taskId = timerTask.getDefinition().getId();
-        logger.info("任务 {} 结束", taskId);
 
         TaskParam param = TaskParam.builder().id(taskId).taskStatus("2").build();
         taskParamMapper.updateById(param);

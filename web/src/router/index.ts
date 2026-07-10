@@ -254,16 +254,6 @@ const router = createRouter({
           },
         },
         {
-          path: 'log/task',
-          name: 'TaskLog1',
-          component: () => import('@/views/admin/log/TaskLog.vue'),
-          meta: {
-            title: '定时任务日志',
-            keepAlive: false,
-            isAuth: true,
-          },
-        },
-        {
           path: 'setting/web',
           name: 'WebSetting',
           component: () => import('@/views/admin/setting/WebSetting.vue'),

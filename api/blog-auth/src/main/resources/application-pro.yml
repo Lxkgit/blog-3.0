@@ -8,6 +8,9 @@ jasypt:
   encryptor:
     password: gszero
 
+auth:
+  serviceIp: 172.18.0.13
+
 #logging:
 #  level:
 #    org:

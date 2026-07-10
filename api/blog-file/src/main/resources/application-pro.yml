@@ -7,6 +7,9 @@ jasypt:
   encryptor:
     password: gszero
 
+auth:
+  serviceIp: 172.18.0.13
+
 spring:
   application:
     name: blog-file
@@ -30,7 +33,7 @@ spring:
       resourceserver:
         jwt:
           #访问授权服务器 在OIDC中是一个非常重要的标识符，有助于标识身份提供者和验证ID Token
-          issuer-uri: http://${devServiceIp}:60002/auth
+          issuer-uri: http://${auth.serviceIp}:60002/auth
 
 rocketmq:
   name-server: 172.18.0.8:9876 # 访问地址
@@ -74,3 +77,5 @@ file:
 
 netty:
   port: 60032
+
+

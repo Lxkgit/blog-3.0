@@ -33,7 +33,7 @@ spring:
       resourceserver:
         jwt:
           #访问授权服务器 在OIDC中是一个非常重要的标识符，有助于标识身份提供者和验证ID Token
-          issuer-uri: http://127.0.0.1:60002/auth
+          issuer-uri: http://${devServiceIp}:60002/auth
 
 rocketmq:
   name-server: ${devServiceIp}:9876 # 访问地址
@@ -79,10 +79,3 @@ file:
 netty:
   port: 60032
 
-task:
-  thread: true
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${devServiceIp}:3306/blog_file?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8
-    username: root
-    password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)

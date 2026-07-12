@@ -64,7 +64,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
-//开启web安全 应用在web环境下
+// 开启web安全 应用在web环境下
 // 1: 加载了WebSecurityConfiguration配置类, 配置安全认证策略
 // 2: 加载了AuthenticationConfiguration, 配置了认证信息
 
@@ -89,8 +89,8 @@ public class SecurityConfig {
     @Resource
     private RedisService redisService;
 
-    @Value("${auth.serviceIp}")
-    private String serviceIp;
+    @Value("${auth.issuer}")
+    private String issuer;
 
     //密码加密
     @Bean
@@ -255,7 +255,7 @@ public class SecurityConfig {
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
                 // 关键：设置 issuer 包含上下文路径
-                .issuer("http://" + serviceIp + ":60002/auth")
+                .issuer(issuer)
                 // 端点路径不需要包含 /auth，Spring 会自动附加 context-path
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenEndpoint("/oauth2/token")

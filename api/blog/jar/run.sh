@@ -13,11 +13,14 @@ JAVA_FILE_OPTS="-Duser.timezone=GMT+8 -agentlib:jdwp=transport=dt_socket,server=
 echo "启动鉴权服务..."
 nohup java ${JAVA_AUTH_OPTS} -Dspring.config.location=file:/opt/auth/ -jar /opt/auth/${blogAuthJar}.jar &
 
-echo "3分钟后启动剩余服务..."
-sleep 3m
+echo "1分钟后启动网关服务..."
+sleep 1m
 
 echo "启动网关服务..."
 nohup java ${JAVA_GATEWAY_OPTS} -Dspring.config.location=file:/opt/gateway/ -jar /opt/gateway/${blogGatewayJar}.jar &
+
+echo "1分钟后启动剩余服务..."
+sleep 1m
 
 echo "启动内容服务..."
 nohup java ${JAVA_CONTENT_OPTS} -Dspring.config.location=file:/opt/content/ -jar /opt/content/${blogContentJar}.jar &

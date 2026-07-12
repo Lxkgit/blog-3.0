@@ -40,7 +40,7 @@ public class TaskParam {
     private String taskCode;
 
     /**
-     * 主任务编码
+     * 任务名称
      */
     private String taskName;
 

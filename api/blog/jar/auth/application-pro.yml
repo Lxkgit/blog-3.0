@@ -1,12 +1,15 @@
-hostIp: ${devServiceIp}
 server:
   port: 60002
   servlet:
     context-path: /auth
+  forward-headers-strategy: framework
 
 jasypt:
   encryptor:
     password: gszero
+
+auth:
+  issuer: http://172.18.0.13:60002/auth
 
 #logging:
 #  level:

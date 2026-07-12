@@ -22,16 +22,21 @@ util(){
 waitAptLock() {
     echo "等待 apt/dpkg 锁释放..."
 
-    while fuser /var/lib/dpkg/lock >/dev/null 2>&1 || \
-          fuser /var/lib/apt/lists/lock >/dev/null 2>&1 || \
-          fuser /var/cache/apt/archives/lock >/dev/null 2>&1 || \
-          fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1
+    while \
+        fuser /var/lib/dpkg/lock >/dev/null 2>&1 || \
+        fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+        fuser /var/lib/apt/lists/lock >/dev/null 2>&1 || \
+        fuser /var/cache/apt/archives/lock >/dev/null 2>&1 || \
+        pgrep -x apt >/dev/null || \
+        pgrep -x apt-get >/dev/null || \
+        pgrep -x dpkg >/dev/null || \
+        pgrep -x unattended-upgrade >/dev/null
     do
-        echo "锁被占用，等待 3 秒..."
+        echo "apt 正在运行，等待 3 秒..."
         sleep 3
     done
 
-    echo "锁已释放，继续执行..."
+    echo "apt 已空闲"
 }
 
 # 依赖文件解压
@@ -57,6 +62,11 @@ startDocker() {
 
   # 启动docker服务
   systemctl start docker
+
+  until docker info >/dev/null 2>&1; do
+    echo "等待docker服务启动 ... "
+    sleep 1
+  done
 
 	# 创建自定义网络
 	docker network create --subnet=172.18.0.0/24 blog_network
@@ -230,6 +240,23 @@ startPISci() {
   ldconfig
 
   unzip /opt/package/csi/libcamera-apps.zip -d /root
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   cd /root/libcamera-apps || exit
   meson setup build --buildtype=release
   meson configure build -Denable_libav=disabled
@@ -314,7 +341,7 @@ main() {
   startJava
 
   # 启动树莓派SCI摄像头服务
-  startMediaMTX
+#  startMediaMTX
 
   # 脚本守护线程
 #  startWatchService

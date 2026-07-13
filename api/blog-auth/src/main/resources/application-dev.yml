@@ -1,20 +1,21 @@
-#hostIp: ${devServiceIp}
-hostIp: ${authIp}
 server:
   port: 60002
   servlet:
     context-path: /auth
   forward-headers-strategy: framework
 
+jasypt:
+  encryptor:
+    password: gszero
+
+auth:
+  issuer: http://localhost:60002/auth
+
 #logging:
 #  level:
 #    org:
 #      springframework:
-#        security: TRACE
-
-jasypt:
-  encryptor:
-    password: gszero
+#        security: trace
 
 spring:
   application:
@@ -59,6 +60,5 @@ easy-es:
   password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
 
 redirect:
-  login: http://localhost:5173/login
   callback: http://localhost:5173/callback
   serviceIp: http://localhost:60001

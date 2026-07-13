@@ -43,5 +43,5 @@ public class TaskMsgHead {
     /**
      * 指定子任务任务执行流水号
      */
-    private String subTaskUUID;
+    private String subTaskUuid;
 }

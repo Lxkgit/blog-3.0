@@ -14,10 +14,7 @@ async def topic_move_file(ws, receiveMsg):
     if not fileNameList:
         fileNameList = file.get_path_first_x_filename(sourceDirectory, count)
     for filename in fileNameList:
-        if fileSource == 1:
-            file.copy_file_or_directory(sourceDirectory + "/" + filename, targetDirectory)
-        if fileSource == 2:
-            file.move_file_or_directory(sourceDirectory + "/" + filename, targetDirectory)
+           file.move_file_or_directory(sourceDirectory + "/" + filename, targetDirectory)
     # 执行完成响应socket
     msg = {
         "data": {

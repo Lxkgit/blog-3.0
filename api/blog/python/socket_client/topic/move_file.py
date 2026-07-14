@@ -1,11 +1,12 @@
 from logger.log_util import logger
+import utils.file_util as file
 import socket_client.domain.socket_msg as packet
 
 
 # export_blog_file topic 处理方法
 async def topic_move_file(ws, receiveMsg):
     logger.info(f"调用文件同步脚本: {receiveMsg.get('data')}")
-    # await execute_shell_script(ws, SHELL_PATH["EXPORT_SCRIPT"], receiveMsg)
+    file.move_file_or_directory("/opt/docker/files/temp/blog/blog.zip", blogFilePath)
     msg = {
         "data": {
             "fileResult": receiveMsg.get('data'),

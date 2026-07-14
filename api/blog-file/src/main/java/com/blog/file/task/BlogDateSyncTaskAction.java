@@ -46,7 +46,8 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
         String blogFilePath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
         taskMsgHead.setTaskParam(context.get("param"));
         String filePath = nettySyncFileService.syncBlogDataFirstStep(blogFilePath, MsgHead.buildTaskMsgHead(taskMsgHead.getUserId(), taskMsgHead));
-        JSONObject jsonObject = JSONObject.parseObject(filePath);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("tempFilePath", filePath);
         return jsonObject.toJSONString();
     }
 

@@ -1,14 +1,14 @@
 [Unit]
-Description=Watchdog Service
+Description=Watchdog for WebSocket Python Script
 # 确保网络就绪后启动
 After=network.target
 
 [Service]
 Type=simple
 # 替换为你的脚本目录
-WorkingDirectory=/opt/docker/watchdog
+WorkingDirectory=/opt/docker/files/python
 # 替换为守护脚本的实际路径
-ExecStart=/opt/docker/watchdog/watchdog.sh
+ExecStart=/opt/docker/files/python/websocket_watchdog.sh
 # 任何原因停止都自动重启
 Restart=always
 # 停止后等待10秒再重启

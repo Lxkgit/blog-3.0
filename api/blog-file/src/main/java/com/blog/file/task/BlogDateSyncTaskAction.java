@@ -1,5 +1,7 @@
 package com.blog.file.task;
 
+import com.alibaba.excel.metadata.Head;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.common.MsgHead;
@@ -42,6 +44,7 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
     public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
         logger.info("开始备份博客数据 : {}", JSONObject.toJSONString(context.getData()));
         String blogFilePath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
+        taskMsgHead.setTaskParam(JSONObject.parseObject("deviceFilePath", context.get("deviceFilePath")).toString());
         String filePath = nettySyncFileService.syncBlogDataFirstStep(blogFilePath, MsgHead.buildTaskMsgHead(taskMsgHead.getUserId(), taskMsgHead));
         JSONObject jsonObject = JSONObject.parseObject(filePath);
         return jsonObject.toJSONString();
@@ -59,6 +62,15 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
 
     @Override
     public String getParamTemplate() {
-        return null;
+        JSONArray array = new JSONArray();
+
+        JSONObject deviceFilePath = new JSONObject();
+        deviceFilePath.put("type", "input");
+        deviceFilePath.put("name", "备份文件存放路径");
+        deviceFilePath.put("paramName", "deviceFilePath");
+        deviceFilePath.put("length", "200");
+        array.add(deviceFilePath);
+
+        return array.toString();
     }
 }

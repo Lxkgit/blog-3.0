@@ -44,4 +44,9 @@ public class TaskMsgHead {
      * 指定子任务任务执行流水号
      */
     private String subTaskUuid;
+
+    /**
+     * 任务参数 （JSON格式）
+     */
+    private String taskParam;
 }

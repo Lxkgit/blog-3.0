@@ -19,7 +19,7 @@ spring:
       password: redis-960@*
 
 netty:
-  ip: 49.232.129.253
+  ip: 124.221.195.130
   port: 60032
 
   registerCode: 1:2ecfb95116de4967afe7710e11ac00b4
@@ -32,7 +32,7 @@ mqtt:
   clientId: SMP1
 
 ftp:
-  ip: 49.232.129.253
+  ip: 124.221.195.130
   port: 61121
   username: system
   password: Ftp@Admin123*.

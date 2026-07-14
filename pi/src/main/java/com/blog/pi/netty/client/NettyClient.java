@@ -88,10 +88,10 @@ public class NettyClient implements CommandLineRunner {
             //客户端断线重连逻辑
             future.addListener((ChannelFutureListener) futureListener -> {
                 if (futureListener.isSuccess()) {
-                    logger.info("===== netty 连接成功 =====");
+                    logger.info("===== Netty 连接成功 ===== ip: {} port: {}", ip, port);
 //                    baseThread.execute(replayThread);
                 } else {
-                    logger.warn("===== netty 连接失败，30秒后尝试重新连接 =====");
+                    logger.warn("===== Netty 连接失败，30秒后尝试重新连接 ===== ip: {} port: {}", ip, port);
                     futureListener.channel().eventLoop().schedule((Runnable) this::run, 30, TimeUnit.SECONDS);
                 }
             });

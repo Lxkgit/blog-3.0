@@ -13,9 +13,9 @@ redisPassword="redis-960@*"
 util(){
 	echo "下载服务器环境所需依赖..."
 	waitAptLock
-	sudo apt update
+	sudo apt-get update
 	# 压缩解压工具
-	apt install -y unzip zip
+	apt-get install -y unzip zip
 }
 
 # 等待解锁方法
@@ -32,11 +32,11 @@ waitAptLock() {
         pgrep -x dpkg >/dev/null || \
         pgrep -x unattended-upgrade >/dev/null
     do
-        echo "apt 正在运行，等待 3 秒..."
+        echo "apt-get 正在运行，等待 3 秒..."
         sleep 3
     done
 
-    echo "apt 已空闲"
+    echo "apt-get 已空闲"
 }
 
 # 依赖文件解压
@@ -186,7 +186,7 @@ buildPyEnv() {
 	echo "安装python3.9 ... "
 
   waitAptLock
-  sudo apt install -y python3 python3-pip python3.12-venv
+  sudo apt-get install -y python3 python3-pip python3.12-venv
 
   python3 -m venv /opt/python
   source /opt/python/bin/activate
@@ -221,13 +221,13 @@ startPy() {
 # 安装树莓派SCI摄像头服务
 startPISci() {
   waitAptLock
-  sudo apt update
-  sudo apt upgrade -y
-  sleep 10m
-  sudo apt install -y git cmake meson ninja-build build-essential python3-pip python3-yaml python3-ply libgnutls28-dev openssl libexpat1-dev libcamera-dev v4l-utils
-  sudo apt install -y libboost-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev
-  sudo apt install -y libavutil-dev libexif-dev libjpeg-dev libtiff5-dev libpng-dev libavcodec-dev libavdevice-dev libavformat-dev libswscale-dev libepoxy-dev libdrm-dev libwebp-dev libx11-dev
-  sudo apt install -y python3-jinja2 libevent-dev libyaml-dev libudev-dev libtiff-dev libegl1-mesa-dev libgles2-mesa-dev ffmpeg
+  sudo apt-get update
+  sudo apt-get upgrade -y
+  waitAptLock
+  sudo apt-get install -y git cmake meson ninja-build build-essential python3-pip python3-yaml python3-ply libgnutls28-dev openssl libexpat1-dev libcamera-dev v4l-utils \
+  libboost-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev \
+  libavutil-dev libexif-dev libjpeg-dev libpng-dev libavcodec-dev libavdevice-dev libavformat-dev libswscale-dev libepoxy-dev libdrm-dev libwebp-dev libx11-dev \
+  python3-jinja2 libevent-dev libyaml-dev libudev-dev libtiff-dev libegl1-mesa-dev libgles2-mesa-dev ffmpeg
 
   # 安装 0.7.0 版本 libcamera
   unzip /opt/package/csi/libcamera.zip -d /root
@@ -240,22 +240,6 @@ startPISci() {
   ldconfig
 
   unzip /opt/package/csi/libcamera-apps.zip -d /root
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   cd /root/libcamera-apps || exit
   meson setup build --buildtype=release

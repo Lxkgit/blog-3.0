@@ -26,8 +26,9 @@ async def topic_export_blog_file(ws, receiveMsg):
                 'blogFileName': 'blog.zip'
             }
         }
-        logger.info(f"博客数据导出任务执行完成: {msg}")
-        await ws.send(packet.build_socket_response(receiveMsg, msg))
+        result = packet.build_socket_response(receiveMsg, msg)
+        logger.info(f"博客数据导出任务执行完成: {result}")
+        await ws.send(result)
     finally:
         cost = (time.perf_counter() - start_time)
         logger.info("博客数据导出 完成，耗时 %.2f s", cost)

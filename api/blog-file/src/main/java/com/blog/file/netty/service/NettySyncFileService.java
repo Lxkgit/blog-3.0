@@ -376,7 +376,7 @@ public class NettySyncFileService {
         try {
             // 发送socket消息开始导出博客文件
             boolean result = socketService.sendMessage(SocketClientType.PYTHON, SocketConstant.LOCALHOST_REGISTER_CODE, requestPacket);
-            taskLogService.taskSuccessLog(log.getId(), JSONObject.parseObject(blogFilePath).toJSONString());
+            taskLogService.taskSuccessLog(log.getId(), JSONObject.toJSONString(exportBlogFileDto));
         } catch (Exception e) {
             taskLogService.taskFailureLog(log.getId(), e);
             throw e;
@@ -401,7 +401,9 @@ public class NettySyncFileService {
         SocketExportBlogFileDto socketExportBlogFileDto = JSONObject.parseObject(data, SocketExportBlogFileDto.class);
         String serviceFilePath = socketExportBlogFileDto.getBlogFilePath().substring(Constant.FTP_PATH_SYSTEM.length());
         String fileName = socketExportBlogFileDto.getBlogFileName();
-        String deviceFilePath = Constant.DISK_PATH_BLOG_BAK;
+//        String deviceFilePath = Constant.DISK_PATH_BLOG_BAK;
+        JSONObject param = JSONObject.parseObject(msgHead.getTaskMsgHead().getTaskParam());
+        String deviceFilePath = param.getString("deviceFilePath");
 
         // 构建netty发送消息包
         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);

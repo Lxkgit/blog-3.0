@@ -8,6 +8,9 @@ jasypt:
   encryptor:
     password: gszero
 
+auth:
+  issuer: http://172.18.0.13:60002/auth
+
 spring:
   application:
     name: blog-auth
@@ -51,6 +54,5 @@ easy-es:
   password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)
 
 redirect:
-  login: http://${devServiceIp}/login
   callback: http://${devServiceIp}/callback
   serviceIp: http://${devServiceIp}/api

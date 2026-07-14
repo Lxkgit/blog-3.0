@@ -66,6 +66,12 @@ minio:
   # MinIO桶名称
   bucket: blog
 
+file:
+  system: linux
+  basePath: /opt/files
+  baseUri: /files
+  serviceIp: http://${devServiceIp}
+
 netty:
   port: 60032
 

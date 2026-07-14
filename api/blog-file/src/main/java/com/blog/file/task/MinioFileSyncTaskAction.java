@@ -39,13 +39,15 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
     @Override
     public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
         SyncServiceFileBo bo = context.get("");
-        nettySyncFileService.syncServiceFile(bo, new MsgHead());
+        nettySyncFileService.syncServiceFile(bo, MsgHead.buildTaskMsgHead(taskMsgHead.getUserId(), taskMsgHead));
         return "";
     }
 
     @Override
     public String getParamTemplate() {
-        //        [{ "minioPath": "/user/data/video", "devicePath": "/mnt/E80499A6049977F0/ss/Telegram/video", "count": 10, "maxFileCount":400 }]
+        // [{ "userId": 1, "dirPath": "/",
+        // "clearPath":["/1/user/data/img/1", "/1/user/data/img/2", "/1/user/data/video/1", "/1/user/data/video/2",
+        // "/1/user/data/video/3", "/1/user/data/video/4", "/1/user/data/video/5"] }]
 
         JSONArray array = new JSONArray();
 

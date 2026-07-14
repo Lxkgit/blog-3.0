@@ -33,7 +33,7 @@ spring:
       resourceserver:
         jwt:
           #访问授权服务器 在OIDC中是一个非常重要的标识符，有助于标识身份提供者和验证ID Token
-          issuer-uri: http://${authIp}:60002/auth
+          issuer-uri: http://localhost:60002/auth
 
 rocketmq:
   name-server: ${devServiceIp}:9876 # 访问地址
@@ -68,6 +68,12 @@ minio:
   password: minio-960@*
   # MinIO桶名称
   bucket: blog
+
+file:
+  system: linux
+  basePath: /opt/files
+  baseUri: /files
+  serviceIp: http://${devServiceIp}
 
 netty:
   port: 60032

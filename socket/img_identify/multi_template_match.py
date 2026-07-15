@@ -9,7 +9,7 @@ import cv2
 
 
 # ================================
-# 路径设置（100% 不会再找不到文件）
+# 路径设置
 # ================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "template")   # 你的模板根目录
@@ -116,6 +116,6 @@ def recognize(image_path, threshold=0.70):
 # --------------------------------------------------------------------
 if __name__ == "__main__":
 
-    test_image = os.path.join(TARGET_DIR, "22.png")
+    test_image = os.path.join(TARGET_DIR, "20.png")
     cls, score = recognize(test_image)
     print(f"Result: {cls}, similarity={score:.3f}")

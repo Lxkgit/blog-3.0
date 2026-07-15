@@ -48,13 +48,12 @@ public abstract class SystemTimerAction implements TimerAction {
         taskUuid.setTaskId(timerTask.getDefinition().getId());
         taskUuid.setUuid(timerTask.getUuid());
         taskUuidMapper.insert(taskUuid);
-
-        taskLogService.registerTaskLog(timerTask);
     }
 
     @Override
     public void execute(TimerTask timerTask)  {
         try {
+            taskLogService.registerTaskLog(timerTask);
             taskLogService.taskStartLog(timerTask);
             TaskMsgHead taskMsgHead = TaskMsgHead.builder()
                     .userId(timerTask.getDefinition().getUserId())

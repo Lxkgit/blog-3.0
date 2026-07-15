@@ -116,6 +116,6 @@ def recognize(image_path, threshold=0.70):
 # --------------------------------------------------------------------
 if __name__ == "__main__":
 
-    test_image = os.path.join(TARGET_DIR, "20.png")
+    test_image = os.path.join(TARGET_DIR, "13.png")
     cls, score = recognize(test_image)
     print(f"Result: {cls}, similarity={score:.3f}")

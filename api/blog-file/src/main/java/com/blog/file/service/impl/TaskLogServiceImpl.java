@@ -73,13 +73,12 @@ public class TaskLogServiceImpl implements TaskLogService {
     }
 
     @Override
-    public Integer executeTaskLog(MsgHead msgHead, TaskLog taskLog) {
+    public void executeTaskLog(MsgHead msgHead, TaskLog taskLog) {
         taskLog.setUserId(msgHead.getTaskMsgHead().getUserId());
         taskLog.setTaskCode(msgHead.getTaskMsgHead().getTaskCode());
         taskLog.setTaskUuid(msgHead.getTaskMsgHead().getTaskUuid());
         taskLog.setTaskLogType(2);
         taskLogMapper.insert(taskLog);
-        return taskLog.getId();
     }
 
     /**
@@ -155,8 +154,22 @@ public class TaskLogServiceImpl implements TaskLogService {
     }
 
     @Override
+    public void taskEndLog(String taskUuid) {
+        TaskLog taskLog = TaskLog.builder().endTime(new Date()).build();
+        LambdaQueryWrapper<TaskLog> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(TaskLog::getTaskUuid, taskUuid);
+        wrapper.eq(TaskLog::getTaskLogType, 1);
+        taskLogMapper.update(taskLog, wrapper);
+    }
+
+    @Override
     public void taskEndLog(Integer id) {
         TaskLog taskLog = TaskLog.builder().id(id).endTime(new Date()).build();
         taskLogMapper.updateById(taskLog);
+    }
+
+    @Override
+    public void completeTaskLog(TaskLog taskLog) {
+
     }
 }

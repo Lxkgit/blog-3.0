@@ -158,9 +158,26 @@ public class NettySyncFileService {
             }
         }
 
+        // 任务中触发文件交互流程记录任务日志
+        recordTaskLog(msgHead, nettySyncFileDto);
+    }
+
+    /**
+     * 记录任务触发的文件同步日志
+     *
+     * @param msgHead
+     * @param nettySyncFileDto
+     */
+    private void recordTaskLog(MsgHead msgHead, NettySyncFileDto nettySyncFileDto) {
         // 文件同步 任务请求头不为空时记录任务日志
         if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUuid())) {
-
+            if (nettySyncFileDto.getResultType() == 1) {
+                if (msgHead.getTaskMsgHead().getLogStepId() != null) {
+                    taskLogService.taskEndLog(msgHead.getTaskMsgHead().getLogStepId());
+                }
+            } else if (nettySyncFileDto.getResultType() == 2) {
+                taskLogService.taskEndLog(msgHead.getTaskMsgHead().getTaskUuid());
+            }
         }
     }
 
@@ -219,6 +236,8 @@ public class NettySyncFileService {
                 }
             }
         }
+
+
     }
 
     /**

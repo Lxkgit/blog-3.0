@@ -1,6 +1,7 @@
 package com.blog.file.task;
 
 import com.alibaba.excel.metadata.Head;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
@@ -13,6 +14,8 @@ import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
 
 /**
  * @Description 定时备份博客数据
@@ -46,9 +49,7 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
         String blogFilePath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
         taskMsgHead.setTaskParam(context.get("param"));
         String filePath = nettySyncFileService.syncBlogDataFirstStep(blogFilePath, MsgHead.buildTaskMsgHead(taskMsgHead.getUserId(), taskMsgHead));
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("tempFilePath", filePath);
-        return jsonObject.toJSONString();
+        return JSON.toJSONString(Collections.singletonMap("tempFilePath", filePath));
     }
 
     @Override

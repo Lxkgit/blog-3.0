@@ -1,17 +1,29 @@
 from logger.log_util import logger
-import utils.file_util as file
 import socket_client.domain.socket_msg as packet
+import utils.file_util as file
 
 
 # export_blog_file topic 处理方法
 async def topic_move_file(ws, receiveMsg):
     logger.info(f"调用文件同步脚本: {receiveMsg.get('data')}")
-    file.move_file_or_directory("/opt/docker/files/temp/blog/blog.zip", blogFilePath)
+    fileNameList = receiveMsg.get('data').get('fileNameList')
+    fileSource = receiveMsg.get('data').get('fileSource')
+    sourceDirectory = receiveMsg.get('data').get("sourceDirectory")
+    targetDirectory = receiveMsg.get('data').get("targetDirectory")
+    count = receiveMsg.get('data').get("count")
+    if not fileNameList:
+        fileNameList = file.get_path_first_x_filename(sourceDirectory, count)
+    for filename in fileNameList:
+           file.move_file_or_directory(sourceDirectory + "/" + filename, targetDirectory)
+    # 执行完成响应socket
     msg = {
         "data": {
-            "fileResult": receiveMsg.get('data'),
-            "sqlResult": "sqlResult"
+            "type": receiveMsg.get('data').get("type"),
+            "data": receiveMsg.get('data').get("data"),
+            "servicePath": receiveMsg.get('data').get("servicePath"),
+            "fileNameList": fileNameList,
+            "targetDirectory": targetDirectory
         }
     }
-    logger.info(f"文件移动完成: {msg}")
+    logger.info(f"博客数据导出任务执行完成: {msg}")
     await ws.send(packet.build_socket_response(receiveMsg, msg))

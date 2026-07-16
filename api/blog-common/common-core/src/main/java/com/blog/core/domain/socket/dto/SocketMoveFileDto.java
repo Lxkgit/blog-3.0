@@ -26,7 +26,7 @@ public class SocketMoveFileDto {
     private String targetDirectory;
 
     /**
-     *
+     * 文件最终上传服务器位置
      */
     private String servicePath;
 
@@ -34,9 +34,6 @@ public class SocketMoveFileDto {
      * 文件移动数量
      */
     private Integer count;
-
-
-
 
     /**
      * 上下文类型: 用于文件移动操作，识别上下文类型，执行对应方法流程
@@ -50,32 +47,12 @@ public class SocketMoveFileDto {
      */
     private String data;
 
-//    /**
-//     * 文件移动源路径
-//     */
-//    private String sourceDirectory;
-
-//    /**
-//     * 文件移动目标路径
-//     */
-//    private String targetDirectory;
-
-//    /**
-//     * 文件最终上传服务器位置
-//     */
-//    private String servicePath;
-
     /**
      * 文件来源
      * 1 系统内文件
      * 2 系统外文件
      */
     private Integer fileSource;
-
-//    /**
-//     * 文件移动数量
-//     */
-//    private Integer count;
 
     /**
      * 文件名称列表

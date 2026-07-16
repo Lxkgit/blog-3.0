@@ -283,7 +283,7 @@ public class NettySyncFileService {
             fileSyncDto.setMinioDeleteFlag(nettySyncFileDto.getMinioDeleteFlag());
             // 下载指定文件时响应永远为未结束，上传按照列表判断是否接收
             if (nettySyncFileDto.getSyncType() == 1) {
-                fileSyncDto.setSyncEnd(0);
+                fileSyncDto.setSyncEnd(1);
             } else if (nettySyncFileDto.getSyncType() == 2) {
                 if (nettySyncFileDto.getFileSource() == 1) {
                     // 系统内文件上传时需要携带文件编码

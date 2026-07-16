@@ -1,6 +1,5 @@
 package com.blog.file.netty.service;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -36,6 +35,12 @@ import com.blog.file.socket.config.SocketService;
 import com.blog.file.utils.VideoUtil;
 import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
+import com.blog.timer.action.TimerActionManager;
+import com.blog.timer.context.TimerTaskContext;
+import com.blog.timer.entity.TimerTaskDefinition;
+import com.blog.timer.entity.policy.Policy;
+import com.blog.timer.entity.trigger.DelayTrigger;
+import com.blog.timer.manager.TimerManager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +55,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -101,6 +107,12 @@ public class NettySyncFileService {
 
     @Resource
     private UploadFileService uploadFileService;
+
+    @Resource
+    private TimerManager timerManager;
+
+    @Resource
+    private TimerActionManager timerActionManager;
 
     /**
      * 发送文件同步消息至树莓派
@@ -160,61 +172,6 @@ public class NettySyncFileService {
 
         // 任务中触发文件交互流程记录任务日志
         recordTaskLog(msgHead, nettySyncFileDto);
-    }
-
-    /**
-     * 记录任务触发的文件同步日志
-     *
-     * @param msgHead
-     * @param nettySyncFileDto
-     */
-    private void recordTaskLog(MsgHead msgHead, NettySyncFileDto nettySyncFileDto) {
-        // 文件同步 任务请求头不为空时记录任务日志
-        if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUuid())) {
-            if (nettySyncFileDto.getResultType() == 1) {
-                if (msgHead.getTaskMsgHead().getLogStepId() != null) {
-                    taskLogService.taskEndLog(msgHead.getTaskMsgHead().getLogStepId());
-                }
-            } else if (nettySyncFileDto.getResultType() == 2) {
-                // 修改任务创建日志结束时间
-                taskLogService.taskEndLog(msgHead.getTaskMsgHead().getTaskUuid());
-
-
-                if (nettySyncFileDto.getSyncType() == 1) {
-                    taskLogService.completeTaskLog(TaskLog.builder()
-                            .taskName("文件下载成功: " + nettySyncFileDto.getFileCodeList().toString())
-                            .taskCode(msgHead.getTaskMsgHead().getTaskCode())
-                            .taskUuid(msgHead.getTaskMsgHead().getTaskUuid())
-                            .build()
-                    );
-                } else if (nettySyncFileDto.getSyncType() == 2) {
-
-                }
-
-
-            }
-        }
-    }
-
-    /**
-     * 文件同步流程完成
-     *
-     * @param msgHead
-     * @param nettySyncFileDto
-     */
-    private void afterSyncFile(MsgHead msgHead, NettySyncFileDto nettySyncFileDto) {
-        // 上传文件时，最后一个上传的文件上传完成不一定全部文件都正确导入minio，等待1h文件导入完成
-        String time = nettySyncFileDto.getSyncType() == 1 ? "10s" : "1h";
-        if (msgHead != null && msgHead.getTaskMsgHead() != null && StrUtil.isNotBlank(msgHead.getTaskMsgHead().getSubTaskUuid())) {
-            deleteTempFile(msgHead.getTaskMsgHead().getSubTaskUuid(), Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), time);
-        } else {
-            deleteTempFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), time);
-        }
-
-        // 文件同步任务收到消息后重置发送标识
-        if (msgHead != null && msgHead.getTaskMsgHead() != null && nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
-            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "1", 5 * 60 * 60);
-        }
     }
 
     /**
@@ -389,6 +346,72 @@ public class NettySyncFileService {
         }
     }
 
+    /**
+     * 文件同步流程完成
+     *
+     * @param msgHead
+     * @param nettySyncFileDto
+     */
+    private void afterSyncFile(MsgHead msgHead, NettySyncFileDto nettySyncFileDto) {
+        // 上传文件时，最后一个上传的文件上传完成不一定全部文件都正确导入minio，等待1h文件导入完成
+        clearFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath());
+
+        // 文件同步任务收到消息后重置发送标识
+        if (msgHead != null && msgHead.getTaskMsgHead() != null && nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
+            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "1", 5 * 60 * 60);
+        }
+    }
+
+    /**
+     * 创建清理文件任务
+     *
+     * @param path 文件或目录全路径
+     */
+    private void clearFile(String path) {
+        TimerTaskContext context = new TimerTaskContext();
+        context.put("deleteFilePath", path);
+        TimerTaskDefinition definition2 = TimerTaskDefinition.builder()
+                .taskCode(Constant.TASK_DELETE_TEMP_FILE)
+                .action(timerActionManager.get(Constant.TASK_DELETE_TEMP_FILE))
+                .context(context)
+                .policy(new Policy(1))
+                .trigger(new DelayTrigger(Duration.ofSeconds(10)))
+                .build();
+
+        timerManager.schedule(definition2).getTaskId();
+    }
+
+    /**
+     * 记录任务触发的文件同步日志
+     *
+     * @param msgHead
+     * @param nettySyncFileDto
+     */
+    private void recordTaskLog(MsgHead msgHead, NettySyncFileDto nettySyncFileDto) {
+        // 文件同步 任务请求头不为空时记录任务日志
+        if (msgHead != null && msgHead.getTaskMsgHead() != null && StringUtils.isNotEmpty(msgHead.getTaskMsgHead().getTaskUuid())) {
+            if (nettySyncFileDto.getResultType() == 1) {
+                if (msgHead.getTaskMsgHead().getLogStepId() != null) {
+                    taskLogService.taskEndLog(msgHead.getTaskMsgHead().getLogStepId());
+                }
+            } else if (nettySyncFileDto.getResultType() == 2) {
+                // 修改任务创建日志结束时间
+                taskLogService.taskEndLog(msgHead.getTaskMsgHead().getTaskUuid());
+
+
+                if (nettySyncFileDto.getSyncType() == 1) {
+                    taskLogService.completeTaskLog(TaskLog.builder()
+                            .taskName("文件下载成功: " + nettySyncFileDto.getFileCodeList().toString())
+                            .taskCode(msgHead.getTaskMsgHead().getTaskCode())
+                            .taskUuid(msgHead.getTaskMsgHead().getTaskUuid())
+                            .build()
+                    );
+                } else if (nettySyncFileDto.getSyncType() == 2) {
+
+                }
+            }
+        }
+    }
 
     /**
      * 博客数据同步任务-第一步
@@ -435,7 +458,6 @@ public class NettySyncFileService {
         SocketExportBlogFileDto socketExportBlogFileDto = JSONObject.parseObject(data, SocketExportBlogFileDto.class);
         String serviceFilePath = socketExportBlogFileDto.getBlogFilePath().substring(Constant.FTP_PATH_SYSTEM.length());
         String fileName = socketExportBlogFileDto.getBlogFileName();
-//        String deviceFilePath = Constant.DISK_PATH_BLOG_BAK;
         JSONObject param = JSONObject.parseObject(msgHead.getTaskMsgHead().getTaskParam());
         String deviceFilePath = param.getString("deviceFilePath");
 
@@ -634,51 +656,6 @@ public class NettySyncFileService {
         logger.info("===== 定时任务-清理服务器文件 ===== path: {} MsgHead: {}", path, msgHead);
         socketMessageSendService.deleteDir(path, msgHead);
         return "清理文件(目录): " + path;
-    }
-
-    /**
-     * 删除临时同步目录文件
-     *
-     * @param filePath 文件目录
-     * @param time     删除操作延迟时间
-     */
-    public void deleteTempFile(String filePath, String time) {
-//        List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
-//        for (Object o : taskList) {
-//            TaskBase taskBase = (TaskBase) o;
-//            if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
-//                // 定时删除同步文件
-//                TaskEntity taskEntity = new TaskEntity();
-//                BeanUtils.copyProperties(taskBase, taskEntity);
-//                taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
-//                taskEntity.setTaskTime(time);
-//                taskEntity.setTaskCount(1);
-//                createTaskService.createTask(taskEntity);
-//            }
-//        }
-    }
-
-    /**
-     * 删除临时同步目录文件
-     *
-     * @param filePath 文件目录
-     * @param time     删除操作延迟时间
-     */
-    public void deleteTempFile(String taskUUID, String filePath, String time) {
-//        List<Object> taskList = redisService.getList(TaskConstant.TASK_BASE, 0, -1);
-//        for (Object o : taskList) {
-//            TaskBase taskBase = (TaskBase) o;
-//            if (taskBase.getTaskCode().equals(Constant.TASK_DELETE_TEMP_FILE)) {
-//                // 定时删除同步文件
-//                TaskEntity taskEntity = new TaskEntity();
-//                taskEntity.setTaskUUID(taskUUID);
-//                BeanUtils.copyProperties(taskBase, taskEntity);
-//                taskEntity.setTaskParams(new ArrayList<>(Collections.singletonList(filePath)));
-//                taskEntity.setTaskTime(time);
-//                taskEntity.setTaskCount(1);
-//                createTaskService.createTask(taskEntity);
-//            }
-//        }
     }
 
     /**

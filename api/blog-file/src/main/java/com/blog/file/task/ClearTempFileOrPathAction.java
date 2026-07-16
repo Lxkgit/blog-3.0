@@ -1,5 +1,7 @@
 package com.blog.file.task;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.netty.head.MsgHead;
@@ -10,6 +12,8 @@ import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
 
 /**
  * @Description
@@ -27,9 +31,8 @@ public class ClearTempFileOrPathAction extends SystemTimerAction {
 
     @Override
     public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
-        String clearPath = nettySyncFileService.clearTempFileOrPath(context.get("path"), new MsgHead());
-        JSONObject jsonObject = JSONObject.parseObject(clearPath);
-        return jsonObject.toJSONString();
+        String clearPath = nettySyncFileService.clearTempFileOrPath(context.get("deleteFilePath"), new MsgHead());
+        return JSON.toJSONString(Collections.singletonMap("deleteFilePath", clearPath));
     }
 
     @Override
@@ -44,6 +47,15 @@ public class ClearTempFileOrPathAction extends SystemTimerAction {
 
     @Override
     public String getParamTemplate() {
-        return "";
+        JSONArray array = new JSONArray();
+
+        JSONObject deviceFilePath = new JSONObject();
+        deviceFilePath.put("type", "input");
+        deviceFilePath.put("name", "清理文件路径");
+        deviceFilePath.put("paramName", "deleteFilePath");
+        deviceFilePath.put("length", "200");
+        array.add(deviceFilePath);
+
+        return array.toString();
     }
 }

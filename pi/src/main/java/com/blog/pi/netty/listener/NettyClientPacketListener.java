@@ -3,6 +3,7 @@ package com.blog.pi.netty.listener;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.domain.netty.dto.NettyPacket;
+import com.blog.core.domain.netty.dto.NettyResponse;
 import com.blog.core.domain.netty.dto.file.NettySyncFileDto;
 import com.blog.core.domain.netty.enums.NettyPacketType;
 import com.blog.core.domain.netty.enums.NettyTopic;
@@ -51,23 +52,23 @@ public class NettyClientPacketListener implements ApplicationListener<NettyPacke
     @Override
     public void onApplicationEvent(NettyPacketEvent event) {
         ChannelId channelId = (ChannelId) event.getSource();
+
         MsgHead msgHead = event.getNettyPacket().getMsgHead();
+        String data = event.getNettyPacket().getData().toString();
 
         String nettyPacketType = msgHead.getNettyMsgHead().getNettyPacketType();
         String requestId = msgHead.getNettyMsgHead().getRequestId();
         String topic = msgHead.getNettyMsgHead().getTopic();
         String registerCode = msgHead.getNettyMsgHead().getRegisterCode();
 
-        String data = event.getNettyPacket().getData().toString();
-
         logger.info("===== netty 收到消息 ===== msgHead: {} channelId:{} nettyPacketType:{} requestId:{} topic:{} registerCode:{} data:{}",
                 msgHead, channelId, nettyPacketType, requestId, topic, registerCode, data);
         if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
             // 服务器不会下发心跳信息，客户端心跳信息也不会响应
         } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
-            // 回复请求消息响应(业务内部可以会再次响应消息，此响应防止服务器重发消息)
-            NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, topic, "response");
-            nettyClient.sendMsg(requestId, JSONObject.toJSONString(nettyResponse), false);
+            // 回复请求消息响应(业务内部可以再次响应消息，此响应防止服务器重发消息)
+            NettyPacket<String> basePacket = NettyPacket.buildResponse(msgHead, "设备接收消息");
+            nettyClient.sendMsg(msgHead.getNettyMsgHead().getRequestId(), JSONObject.toJSONString(basePacket), false);
 
             if (NettyTopic.BLOG_FILE_SYNC.equals(topic)) {
                 // 处理文件同步消息

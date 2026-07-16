@@ -16,6 +16,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+/**
+ * socket消息监听类
+ *
+ * @author 27992
+ */
 @Component
 public class SocketMessageListener {
 
@@ -52,7 +57,7 @@ public class SocketMessageListener {
         } else if (SocketPacketType.HEARTBEAT.equals(socketPacketType)) {
 
         } else if (SocketPacketType.REQUEST.equals(socketPacketType)) {
-            if(SocketTopic.SYSTEM_INFO.equals(topic)) {
+            if (SocketTopic.SYSTEM_INFO.equals(topic)) {
                 systemInfoService.insertServiceInfoByPy(data);
             }
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {

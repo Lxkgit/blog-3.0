@@ -67,24 +67,17 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     public void onApplicationEvent(NettyPacketEvent event) {
         ChannelHandlerContext ctx = (ChannelHandlerContext) event.getSource();
         MsgHead msgHead = event.getNettyPacket().getMsgHead();
+        String data = event.getNettyPacket().getData().toString();
+
         String nettyPacketType = msgHead.getNettyMsgHead().getNettyPacketType();
 
-        // 注册码只有设备注册时携带，其余消息获取通道绑定编码
-        String registerCode;
-        String data = event.getNettyPacket().getData().toString();
-        if (nettyPacketType.equals(NettyPacketType.REGISTER.getValue())) {
-            registerCode = msgHead.getNettyMsgHead().getRegisterCode();
-            // netty 通道注册,注册失败结束
-            if (!deviceRegister(registerCode, ctx, data)) {
-                return;
-            }
-        }
-        registerCode = ctx.channel().attr(NettyServer.DEVICE_CODE).get();
-
+        // 注册码
+        String registerCode = msgHead.getNettyMsgHead().getRegisterCode();
         String requestId = msgHead.getNettyMsgHead().getRequestId();
         String topic = msgHead.getNettyMsgHead().getTopic();
         Integer userId = Integer.parseInt(registerCode.split(":")[0]);
         String deviceCode = registerCode.split(":")[1];
+
         if (NettyPacketType.HEARTBEAT.getValue().equals(nettyPacketType)) {
             logger.info("===== netty 心跳 ===== registerCode: {} data: {}", registerCode, data);
         } else {
@@ -92,11 +85,13 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
                     msgHead, ctx.channel().id(), requestId, nettyPacketType, topic, deviceCode, data);
         }
 
-        if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
+        if (nettyPacketType.equals(NettyPacketType.REGISTER.getValue())) {
+            // netty 通道注册
+            deviceRegister(registerCode, ctx, data);
+        } else if (nettyPacketType.equals(NettyPacketType.HEARTBEAT.getValue())) {
             // 心跳消息 收到消息设置设备在线3分钟
             redisService.setString(FileRedisConstant.FILE_DEVICE_STATUS + deviceCode, data, 180);
-        }
-        if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
+        } else if (nettyPacketType.equals(NettyPacketType.REQUEST.getValue())) {
             // 回复请求消息响应(业务内部可以会再次响应消息，此响应防止客户端重发消息)
             NettyPacket<String> nettyResponse = NettyPacket.buildResponse(requestId, topic, "response");
             nettyServer.sendByRegisterIdNotRetry(registerCode, JSONObject.toJSONString(nettyResponse));
@@ -109,8 +104,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
             } else if (topic.equals(NettyTopicEnum.DEVICE_INFO.getTopic())) {
                 nettyDeviceData.deviceInfo(data, deviceCode, userId);
             }
-        }
-        if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
+        } else if (nettyPacketType.equals(NettyPacketType.RESPONSE.getValue())) {
             // 记录响应类消息记录消息序列号，取消对此消息重发
             logger.info("消息 requestId：{} 收到响应", requestId);
             redisService.setSet(NettyRedisConstant.NETTY_RECEIVE_QUEUE, requestId);
@@ -138,7 +132,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
      * @param ctx          netty通道
      * @param data         设备注册数据
      */
-    private boolean deviceRegister(String registerCode, ChannelHandlerContext ctx, String data) {
+    private void deviceRegister(String registerCode, ChannelHandlerContext ctx, String data) {
         Integer userId = Integer.parseInt(registerCode.split(":")[0]);
         String deviceCode = registerCode.split(":")[1];
         Channel channel = ctx.channel();
@@ -150,7 +144,6 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         if (selectDevice == null) {
             logger.error("deviceRegister 异常断开 netty 通道连接: 用户与编码匹配失败，拒绝连接");
             ctx.close();
-            return false;
         } else {
             // netty 设备通道绑定 后续发送消息获取通道
             NettyRegisterDto nettyRegisterDto = JSONObject.parseObject(data, NettyRegisterDto.class);
@@ -163,7 +156,6 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
 
             insertOrUpdateDeviceInfo(data, nettyRegisterDto, deviceCode, selectDevice, userId);
         }
-        return true;
     }
 
     /**

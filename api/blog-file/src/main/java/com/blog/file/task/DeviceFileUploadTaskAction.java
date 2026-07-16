@@ -42,15 +42,14 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
 
     @Override
     public String getParamTemplate() {
-
         JSONArray array = new JSONArray();
 
-        JSONObject minioPath = new JSONObject();
-        minioPath.put("type", "input");
-        minioPath.put("name", "服务器文件路径");
-        minioPath.put("paramName", "minioPath");
-        minioPath.put("length", "200");
-        array.add(minioPath);
+        JSONObject servicePath = new JSONObject();
+        servicePath.put("type", "input");
+        servicePath.put("name", "服务器文件路径");
+        servicePath.put("paramName", "servicePath");
+        servicePath.put("length", "200");
+        array.add(servicePath);
 
         JSONObject devicePath = new JSONObject();
         devicePath.put("type", "input");
@@ -59,18 +58,18 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
         devicePath.put("length", "200");
         array.add(devicePath);
 
-        JSONObject count = new JSONObject();
-        count.put("type", "input-number");
-        count.put("name", "同步文件数量");
-        count.put("paramName", "syncCount");
-        count.put("min", 0);
-        count.put("max", 50);
-        array.add(count);
+        JSONObject syncCount = new JSONObject();
+        syncCount.put("type", "input-number");
+        syncCount.put("name", "同步文件数量");
+        syncCount.put("paramName", "syncCount");
+        syncCount.put("min", 0);
+        syncCount.put("max", 50);
+        array.add(syncCount);
 
         JSONObject maxFileCount = new JSONObject();
         maxFileCount.put("type", "input-number");
         maxFileCount.put("name", "目录下最大文件数量");
-        maxFileCount.put("paramName", "maxCount");
+        maxFileCount.put("paramName", "maxFileCount");
         maxFileCount.put("min", 0);
         maxFileCount.put("max", 200);
         array.add(maxFileCount);

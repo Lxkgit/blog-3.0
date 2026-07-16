@@ -1,0 +1,15 @@
+package com.blog.core.domain.netty.common;
+
+/**
+ * @description: Netty专用协议字段
+ * @Author: lxk
+ * @date 2024/1/11 10:29
+ */
+
+
+public class NettyConstant {
+
+    // netty 本机Netty编码
+    public static final String NETTY_DEVICE_CODE = "service";
+
+}

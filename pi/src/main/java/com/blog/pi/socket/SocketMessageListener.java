@@ -1,12 +1,12 @@
 package com.blog.pi.socket;
 
 import com.alibaba.fastjson2.JSON;
-import com.blog.pi.domain.common.MsgHead;
+import com.blog.core.domain.netty.head.MsgHead;
+import com.blog.core.domain.socket.SocketPacketEvent;
+import com.blog.core.domain.socket.constant.SocketPacketType;
+import com.blog.core.domain.socket.constant.SocketTopic;
+import com.blog.core.domain.socket.dto.SocketMoveFileDto;
 import com.blog.pi.netty.service.NettySyncFileService;
-import com.blog.pi.socket.domain.SocketPacketEvent;
-import com.blog.pi.socket.domain.constant.SocketPacketType;
-import com.blog.pi.socket.domain.constant.SocketTopic;
-import com.blog.pi.socket.domain.dto.SocketMoveFileDto;
 import jakarta.annotation.Resource;
 import jakarta.websocket.Session;
 import org.slf4j.Logger;

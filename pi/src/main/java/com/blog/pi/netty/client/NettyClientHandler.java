@@ -2,12 +2,12 @@ package com.blog.pi.netty.client;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
+import com.blog.core.domain.netty.dto.NettyPacket;
+import com.blog.core.domain.netty.dto.heart.NettyHeartBeatDto;
+import com.blog.core.domain.netty.dto.register.NettyRegisterDto;
+import com.blog.core.domain.netty.enums.HeartBeatType;
+import com.blog.core.domain.netty.enums.NettyPacketType;
 import com.blog.pi.mqtt.http.ChipStatusService;
-import com.blog.pi.netty.dto.NettyPacket;
-import com.blog.pi.netty.dto.heart.NettyHeartBeatDto;
-import com.blog.pi.netty.dto.register.NettyRegisterDto;
-import com.blog.pi.netty.enums.HeartBeatType;
-import com.blog.pi.netty.enums.NettyPacketType;
 import com.blog.pi.netty.event.NettyPacketEvent;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;
@@ -57,7 +57,7 @@ public class NettyClientHandler extends ChannelDuplexHandler {
         nettyRegisterDto.setMemo("这个是设备备注信息");
 
         // 发送注册消息
-        NettyPacket<NettyRegisterDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.REGISTER, NettyPacketType.REGISTER.getValue(), nettyRegisterDto);
+        NettyPacket<NettyRegisterDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.REGISTER, NettyPacketType.REGISTER.getValue(), nettyRegisterDto, "1:2ecfb95116de4967afe7710e11ac00b4");
         String nettyRegister = JSONObject.toJSONString(nettyRequest);
         ctx.writeAndFlush(nettyRegister);
     }
@@ -76,15 +76,14 @@ public class NettyClientHandler extends ChannelDuplexHandler {
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
+        if (evt instanceof IdleStateEvent idleStateEvent) {
             if (idleStateEvent.state() == IdleState.WRITER_IDLE) {
                 NettyHeartBeatDto nettyHeartBeat = new NettyHeartBeatDto();
                 nettyHeartBeat.setHeartBeat(new Date());
                 nettyHeartBeat.setType(HeartBeatType.SERVICE.getType());
 
                 // 向服务端发送心跳包
-                NettyPacket<NettyHeartBeatDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.HEARTBEAT, NettyPacketType.HEARTBEAT.getValue(), nettyHeartBeat);
+                NettyPacket<NettyHeartBeatDto> nettyRequest = NettyPacket.buildRequest(NettyPacketType.HEARTBEAT, NettyPacketType.HEARTBEAT.getValue(), nettyHeartBeat, "1:2ecfb95116de4967afe7710e11ac00b4");
                 nettyRequest.getMsgHead().getNettyMsgHead().setNettyPacketType(NettyPacketType.HEARTBEAT.getValue());
 
                 // 发送心跳消息，并在发送失败时关闭该连接

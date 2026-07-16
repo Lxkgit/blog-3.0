@@ -2,14 +2,12 @@ package com.blog.pi.netty.client;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.blog.pi.netty.dto.NettyReplayMessage;
+import com.blog.core.domain.netty.dto.NettyReplayMessage;
 import com.blog.redis.constant.NettyRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;

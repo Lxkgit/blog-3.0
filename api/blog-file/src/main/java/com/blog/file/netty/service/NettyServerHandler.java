@@ -4,7 +4,7 @@ package com.blog.file.netty.service;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import com.blog.core.domain.file.device.entity.Device;
-import com.blog.file.netty.domain.dto.NettyPacket;
+import com.blog.core.domain.netty.dto.NettyPacket;
 import com.blog.file.mapper.DeviceMapper;
 import com.blog.file.netty.event.NettyPacketEvent;
 import com.blog.redis.constant.NettyRedisConstant;
@@ -15,7 +15,6 @@ import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.AttributeKey;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**

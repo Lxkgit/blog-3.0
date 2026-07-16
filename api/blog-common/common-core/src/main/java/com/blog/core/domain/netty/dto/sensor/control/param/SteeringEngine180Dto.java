@@ -1,0 +1,29 @@
+package com.blog.core.domain.netty.dto.sensor.control.param;
+
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.blog.core.domain.netty.dto.sensor.control.SensorCommandCheckDto;
+import com.blog.core.valication.group.InsertGroup;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+/**
+ * @description: 舵机命令下发参数
+ * @Author: lxk
+ * @date 2024/2/2 11:06
+ */
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class SteeringEngine180Dto extends SensorCommandCheckDto {
+
+    /**
+     * 舵机命令控制旋转角度
+     */
+    @Max(value = 180,message="舵机参数范围为0-180",groups={InsertGroup.class})
+    @Min(value = 0,message="舵机参数范围为0-180",groups={InsertGroup.class})
+    @JSONField(name = "data")
+    private Integer data;
+
+}

@@ -1,13 +1,12 @@
 package com.blog.file.task;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.core.domain.common.TaskMsgHead;
+import com.blog.core.domain.netty.head.TaskMsgHead;
 import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.entity.TaskUuid;
 import com.blog.file.mapper.TaskParamMapper;
 import com.blog.file.mapper.TaskUuidMapper;
 import com.blog.file.service.TaskLogService;
-import com.blog.file.service.TaskService;
 import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
 import com.blog.timer.entity.TimerTask;

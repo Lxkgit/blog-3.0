@@ -1,7 +1,7 @@
 //package com.blog.task.listener;
 //
-//import com.blog.core.domain.common.MsgHead;
-//import com.blog.core.domain.common.TaskMsgHead;
+//import com.blog.core.domain.netty.head.MsgHead;
+//import com.blog.core.domain.netty.head.TaskMsgHead;
 //import com.blog.core.domain.file.task.del.entity.TaskLog;
 //import com.blog.redis.service.RedisService;
 //import com.blog.task.config.SpringContextHolder;

@@ -1,10 +1,10 @@
 //package com.blog.file.task;
 //
 //import com.alibaba.fastjson2.JSONObject;
-//import com.blog.core.domain.common.MsgHead;
+//import com.blog.core.domain.netty.head.MsgHead;
 //import com.blog.core.domain.file.task.del.entity.TaskLog;
 //import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
-//import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
+//import com.blog.core.domain.socket.dto.SocketDeleteFileOrDirDto;
 //import com.blog.task.service.impl.CreateTaskService;
 //import jakarta.annotation.Resource;
 //import org.apache.commons.lang3.StringUtils;

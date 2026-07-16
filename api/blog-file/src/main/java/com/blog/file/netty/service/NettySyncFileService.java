@@ -5,7 +5,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
-import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
@@ -19,19 +19,19 @@ import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.minio.MinioService;
-import com.blog.file.netty.domain.dto.NettyPacket;
-import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
-import com.blog.file.netty.domain.enums.NettyTopic;
+import com.blog.core.domain.netty.dto.NettyPacket;
+import com.blog.core.domain.netty.dto.file.NettySyncFileDto;
+import com.blog.core.domain.netty.enums.NettyTopic;
 import com.blog.file.service.FileService;
 import com.blog.file.service.TaskLogService;
 import com.blog.file.service.UploadFileService;
-import com.blog.file.socket.domain.SocketPacket;
-import com.blog.file.socket.domain.constant.SocketClientType;
-import com.blog.file.socket.domain.constant.SocketConstant;
-import com.blog.file.socket.domain.constant.SocketTopic;
-import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
-import com.blog.file.socket.domain.dto.SocketExportBlogFileDto;
-import com.blog.file.socket.domain.service.SocketMessageSendService;
+import com.blog.core.domain.socket.SocketPacket;
+import com.blog.core.domain.socket.constant.SocketClientType;
+import com.blog.core.domain.socket.constant.SocketConstant;
+import com.blog.core.domain.socket.constant.SocketTopic;
+import com.blog.core.domain.socket.dto.SocketDeleteFileOrDirDto;
+import com.blog.core.domain.socket.dto.SocketExportBlogFileDto;
+import com.blog.file.socket.service.SocketMessageSendService;
 import com.blog.file.socket.config.SocketService;
 import com.blog.file.utils.VideoUtil;
 import com.blog.redis.constant.FileRedisConstant;
@@ -176,7 +176,22 @@ public class NettySyncFileService {
                     taskLogService.taskEndLog(msgHead.getTaskMsgHead().getLogStepId());
                 }
             } else if (nettySyncFileDto.getResultType() == 2) {
+                // 修改任务创建日志结束时间
                 taskLogService.taskEndLog(msgHead.getTaskMsgHead().getTaskUuid());
+
+
+                if (nettySyncFileDto.getSyncType() == 1) {
+                    taskLogService.completeTaskLog(TaskLog.builder()
+                            .taskName("文件下载成功: " + nettySyncFileDto.getFileCodeList().toString())
+                            .taskCode(msgHead.getTaskMsgHead().getTaskCode())
+                            .taskUuid(msgHead.getTaskMsgHead().getTaskUuid())
+                            .build()
+                    );
+                } else if (nettySyncFileDto.getSyncType() == 2) {
+
+                }
+
+
             }
         }
     }

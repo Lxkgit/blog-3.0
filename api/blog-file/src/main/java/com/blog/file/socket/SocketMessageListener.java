@@ -1,16 +1,15 @@
 package com.blog.file.socket;
 
 import com.alibaba.fastjson2.JSON;
-import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.file.netty.service.NettySyncFileService;
-import com.blog.file.socket.domain.SocketPacketEvent;
-import com.blog.file.socket.domain.constant.SocketPacketType;
-import com.blog.file.socket.domain.constant.SocketTopic;
-import com.blog.file.socket.domain.dto.SocketDeleteFileOrDirDto;
+import com.blog.core.domain.socket.SocketPacketEvent;
+import com.blog.core.domain.socket.constant.SocketPacketType;
+import com.blog.core.domain.socket.constant.SocketTopic;
+import com.blog.core.domain.socket.dto.SocketDeleteFileOrDirDto;
 import com.blog.file.socket.service.SystemInfoService;
 import jakarta.annotation.Resource;
 import jakarta.websocket.Session;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;

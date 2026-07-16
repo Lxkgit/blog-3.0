@@ -1,7 +1,7 @@
 package com.blog.file.netty.service;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.blog.file.netty.domain.dto.NettyReplayMessage;
+import com.blog.core.domain.netty.dto.NettyReplayMessage;
 import com.blog.redis.constant.NettyRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;

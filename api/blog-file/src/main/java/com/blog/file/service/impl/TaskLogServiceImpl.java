@@ -1,7 +1,7 @@
 package com.blog.file.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.core.domain.common.MsgHead;
+import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.result.ResultPage;
@@ -14,7 +14,6 @@ import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -170,6 +169,12 @@ public class TaskLogServiceImpl implements TaskLogService {
 
     @Override
     public void completeTaskLog(TaskLog taskLog) {
-
+        // 默认记录为成功
+        if (taskLog.getTaskResultStatus() == null) {
+            taskLog.setTaskResultStatus(1);
+        }
+        taskLog.setTaskLogType(2);
+        taskLog.setStartTime(new Date());
+        taskLog.setEndTime(new Date());
     }
 }

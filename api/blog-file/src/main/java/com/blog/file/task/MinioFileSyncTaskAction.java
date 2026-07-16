@@ -3,13 +3,11 @@ package com.blog.file.task;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
-import com.blog.core.domain.common.MsgHead;
-import com.blog.core.domain.common.TaskMsgHead;
+import com.blog.core.domain.netty.head.MsgHead;
+import com.blog.core.domain.netty.head.TaskMsgHead;
 import com.blog.core.domain.file.task.del.bo.SyncServiceFileBo;
 import com.blog.file.netty.service.NettySyncFileService;
-import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
-import com.blog.timer.entity.TimerTask;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 

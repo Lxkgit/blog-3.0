@@ -1,14 +1,10 @@
 package com.blog.file.service;
 
-import com.blog.core.domain.common.MsgHead;
 import com.blog.core.domain.file.files.entity.FileCategory;
-import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.files.vo.FileCategoryDataVo;
 import com.blog.core.domain.file.files.vo.FileCategoryVo;
 import com.blog.core.exception.ServiceException;
-import com.blog.file.netty.domain.dto.file.NettySyncFileDto;
 
-import java.io.IOException;
 import java.util.List;
 
 /**

@@ -4,9 +4,9 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blog.core.domain.file.device.entity.*;
 import com.blog.file.mapper.*;
-import com.blog.file.netty.domain.dto.register.NettyChipRegisterDto;
-import com.blog.file.netty.domain.dto.register.NettySensorRegisterDto;
-import com.blog.file.netty.domain.dto.sensor.receive.SensorDataDto;
+import com.blog.core.domain.netty.dto.register.NettyChipRegisterDto;
+import com.blog.core.domain.netty.dto.register.NettySensorRegisterDto;
+import com.blog.core.domain.netty.dto.sensor.receive.SensorDataDto;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 

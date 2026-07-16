@@ -1,12 +1,12 @@
 package com.blog.pi.mqtt;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.blog.core.domain.netty.dto.NettyPacket;
+import com.blog.core.domain.netty.enums.NettyTopicEnum;
 import com.blog.pi.mqtt.enums.MQTTTopicEnum;
 import com.blog.pi.mqtt.http.ChipStatusService;
 import com.blog.pi.mqtt.service.ChipMsgService;
 import com.blog.pi.netty.client.NettyClient;
-import com.blog.pi.netty.dto.NettyPacket;
-import com.blog.pi.netty.enums.NettyTopicEnum;
 import org.eclipse.paho.client.mqttv3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

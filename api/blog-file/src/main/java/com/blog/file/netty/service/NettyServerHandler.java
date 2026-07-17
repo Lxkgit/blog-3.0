@@ -91,7 +91,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
             // 发布自定义Netty数据包处理事件
             applicationEventPublisher.publishEvent(new NettyPacketEvent(ctx, nettyPacket));
         } catch (Exception e) {
-            logger.error("netty msg:{} 数据解析异常:{}", msg.toString(), e.getMessage(), e);
+            logger.error("Netty msg:{} 数据解析异常:{}", msg.toString(), e.getMessage(), e);
         }
     }
 

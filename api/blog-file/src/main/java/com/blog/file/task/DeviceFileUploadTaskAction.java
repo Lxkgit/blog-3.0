@@ -2,13 +2,22 @@ package com.blog.file.task;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
+import com.blog.core.domain.file.files.entity.FileCategory;
+import com.blog.core.domain.file.files.entity.FileCategoryData;
+import com.blog.core.domain.netty.dto.file.NettySyncFileDto;
 import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.netty.head.TaskMsgHead;
 import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
+import com.blog.core.utils.MyStringUtils;
+import com.blog.file.mapper.FileCategoryDataMapper;
+import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.timer.context.TimerTaskContext;
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,8 +29,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class DeviceFileUploadTaskAction extends SystemTimerAction {
 
+    private static final Logger logger = LoggerFactory.getLogger(DeviceFileUploadTaskAction.class);
+
     @Resource
-    private NettySyncFileService nettySyncFileService;
+    private FileCategoryMapper fileCategoryMapper;
+
+    @Resource
+    private FileCategoryDataMapper fileCategoryDataMapper;
 
     @Override
     public String getCode() {
@@ -36,7 +50,7 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
     @Override
     public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
         SyncDeviceFileBo bo = context.get("");
-        nettySyncFileService.syncDeviceFile(bo, new MsgHead());
+        syncDeviceFile(bo, new MsgHead());
         return "";
     }
 
@@ -75,6 +89,43 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
         array.add(maxFileCount);
 
         return array.toString();
+    }
+
+    /**
+     * 定时任务请求树莓派文件上传
+     *
+     * @param bo
+     * @param msgHead
+     * @return
+     */
+    public String syncDeviceFile(SyncDeviceFileBo bo, MsgHead msgHead) {
+        logger.info("===== 定时任务-树莓派文件上传 ===== SyncDeviceFileBo: {} MsgHead: {}", bo, msgHead);
+        Integer userId = bo.getUserId();
+
+        LambdaQueryWrapper<FileCategory> fileCategoryLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        fileCategoryLambdaQueryWrapper.eq(FileCategory::getDirPath, "/" + userId + bo.getMinioPath());
+        FileCategory fileCategory = fileCategoryMapper.selectOne(fileCategoryLambdaQueryWrapper);
+        if (fileCategory != null) {
+            LambdaQueryWrapper<FileCategoryData> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(FileCategoryData::getFileCategoryId, fileCategory.getId());
+            int fileCount = fileCategoryDataMapper.selectCount(wrapper).intValue();
+            // 当前目录下超过目录下最大待处理文件时 不进行同步
+            if (fileCount > bo.getMaxFileCount()) {
+                return "当前目录下文件超过最大数量: " + bo.getMaxFileCount();
+            }
+
+            // 文件存储minio中路径
+            String minioPath = "/" + userId + bo.getMinioPath();
+            // servicePath 为文件在ftp system用户目录下的相对路径
+            String servicePath = "/temp/" + MyStringUtils.getRandomString(6);
+            // devicePath 为树莓派设备上的绝对路径
+            String devicePath = bo.getDevicePath();
+            NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
+            nettySyncFileDto.setFileSource(2);
+            nettySyncFileDto.setCount(bo.getCount());
+            sendSyncFileMsg(msgHead, nettySyncFileDto, userId);
+        }
+        return "消息发送完成";
     }
 
 }

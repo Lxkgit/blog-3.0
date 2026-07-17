@@ -79,9 +79,9 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         String deviceCode = registerCode.split(":")[1];
 
         if (NettyPacketType.HEARTBEAT.getValue().equals(nettyPacketType)) {
-            logger.info("===== netty 心跳 ===== registerCode: {} data: {}", registerCode, data);
+            logger.info("===== Netty 心跳 ===== registerCode: {} data: {}", registerCode, data);
         } else {
-            logger.info("===== netty 收到消息 ===== msgHead: {} channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
+            logger.info("===== Netty 收到消息 ===== msgHead: {} channelId: {} requestId: {} nettyPacketType: {} topic: {} deviceCode: {} data: {}",
                     msgHead, ctx.channel().id(), requestId, nettyPacketType, topic, deviceCode, data);
         }
 

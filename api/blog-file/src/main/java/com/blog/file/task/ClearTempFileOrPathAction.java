@@ -7,6 +7,7 @@ import com.blog.core.constant.Constant;
 import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.netty.head.TaskMsgHead;
 import com.blog.file.netty.service.NettySyncFileService;
+import com.blog.file.socket.service.SocketMessageSendService;
 import com.blog.timer.context.TimerTaskContext;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -27,11 +28,12 @@ public class ClearTempFileOrPathAction extends SystemTimerAction {
     private static final Logger logger = LoggerFactory.getLogger(BlogDateSyncTaskAction.class);
 
     @Resource
-    private NettySyncFileService nettySyncFileService;
+    private SocketMessageSendService socketMessageSendService;
+
 
     @Override
     public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
-        String clearPath = nettySyncFileService.clearTempFileOrPath(context.get("deleteFilePath"), new MsgHead());
+        String clearPath = clearTempFileOrPath(context.get("deleteFilePath"), new MsgHead());
         return JSON.toJSONString(Collections.singletonMap("deleteFilePath", clearPath));
     }
 
@@ -57,5 +59,17 @@ public class ClearTempFileOrPathAction extends SystemTimerAction {
         array.add(deviceFilePath);
 
         return array.toString();
+    }
+
+    /**
+     * 定时清理服务器文件
+     *
+     * @param path    文件路径
+     * @param msgHead 消息头
+     */
+    public String clearTempFileOrPath(String path, MsgHead msgHead) {
+        logger.info("===== 定时任务-清理服务器文件 ===== path: {} MsgHead: {}", path, msgHead);
+        socketMessageSendService.deleteDir(path, msgHead);
+        return "清理文件(目录): " + path;
     }
 }

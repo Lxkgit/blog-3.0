@@ -8,6 +8,7 @@ import com.blog.core.domain.socket.constant.SocketPacketType;
 import com.blog.core.domain.socket.constant.SocketTopic;
 import com.blog.core.domain.socket.dto.SocketDeleteFileOrDirDto;
 import com.blog.file.socket.service.SystemInfoService;
+import com.blog.file.task.BlogDateSyncTaskAction;
 import jakarta.annotation.Resource;
 import jakarta.websocket.Session;
 import org.slf4j.Logger;
@@ -32,6 +33,9 @@ public class SocketMessageListener {
 
     @Resource
     private SystemInfoService systemInfoService;
+
+    @Resource
+    private BlogDateSyncTaskAction blogDateSyncTaskAction;
 
     @Async
     @EventListener
@@ -62,7 +66,7 @@ public class SocketMessageListener {
             }
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
             if (SocketTopic.SOCKET_EXPORT_BLOG_FILE.equals(topic)) {
-                nettyFileSyncService.syncBlogDataSecondStep(data, msgHead);
+                blogDateSyncTaskAction.syncBlogDataSecondStep(data, msgHead);
             } else if (SocketTopic.SOCKET_DELETE_FILE_OR_DIR.equals(topic)) {
                 SocketDeleteFileOrDirDto dto = JSON.parseObject(data, SocketDeleteFileOrDirDto.class);
                 nettyFileSyncService.receiveSocketDeleteFileMsg(dto, msgHead);

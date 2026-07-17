@@ -176,5 +176,6 @@ public class TaskLogServiceImpl implements TaskLogService {
         taskLog.setTaskLogType(2);
         taskLog.setStartTime(new Date());
         taskLog.setEndTime(new Date());
+        taskLogMapper.insert(taskLog);
     }
 }

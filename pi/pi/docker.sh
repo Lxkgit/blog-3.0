@@ -186,7 +186,7 @@ buildPyEnv() {
 	echo "安装python3.9 ... "
 
   waitAptLock
-  sudo apt-get install -y python3 python3-pip python3.12-venv
+  sudo apt-get install -y python3 python3-pip python3-venv
 
   python3 -m venv /opt/python
   source /opt/python/bin/activate

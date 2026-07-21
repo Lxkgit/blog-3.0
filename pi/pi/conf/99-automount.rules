@@ -1,3 +1,14 @@
-KERNEL=="sd*", SUBSYSTEM=="block", ENV{ID_FS_UUID}!="", \
-  ACTION=="add", RUN+="/bin/systemctl start automount@%E{ID_FS_UUID}.service", \
-  ACTION=="remove", RUN+="/bin/systemctl stop automount@%E{ID_FS_UUID}.service"
+ACTION=="add", \
+SUBSYSTEM=="block", \
+ENV{DEVTYPE}=="partition", \
+ENV{ID_FS_TYPE}=="ntfs", \
+ENV{ID_FS_UUID}!="", \
+TAG+="systemd", \
+ENV{SYSTEMD_WANTS}="automount@%E{ID_FS_UUID}.service"
+
+ACTION=="remove", \
+SUBSYSTEM=="block", \
+ENV{DEVTYPE}=="partition", \
+ENV{ID_FS_TYPE}=="ntfs", \
+ENV{ID_FS_UUID}!="", \
+RUN+="/usr/bin/systemctl stop automount@%E{ID_FS_UUID}.service"

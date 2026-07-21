@@ -13,7 +13,6 @@ import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
-import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.timer.context.TimerTaskContext;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -21,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * @Description
+ * @Description  树莓派文件
  * @Author lxk
  * @CreateTime 2026-06-25
  */
@@ -49,21 +48,22 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
 
     @Override
     public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
-        SyncDeviceFileBo bo = context.get("");
-        syncDeviceFile(bo, new MsgHead());
-        return "";
+        SyncDeviceFileBo bo = JSONObject.parseObject(context.get("param"), SyncDeviceFileBo.class);
+        bo.setUserId(taskMsgHead.getUserId());
+        taskMsgHead.setTaskParam(context.get("param"));
+        return syncDeviceFile(bo, MsgHead.buildTaskMsgHead(taskMsgHead.getUserId(), taskMsgHead));
     }
 
     @Override
     public String getParamTemplate() {
         JSONArray array = new JSONArray();
 
-        JSONObject servicePath = new JSONObject();
-        servicePath.put("type", "input");
-        servicePath.put("name", "服务器文件路径");
-        servicePath.put("paramName", "servicePath");
-        servicePath.put("length", "200");
-        array.add(servicePath);
+        JSONObject minioPath = new JSONObject();
+        minioPath.put("type", "input");
+        minioPath.put("name", "minio文件路径");
+        minioPath.put("paramName", "minioPath");
+        minioPath.put("length", "200");
+        array.add(minioPath);
 
         JSONObject devicePath = new JSONObject();
         devicePath.put("type", "input");
@@ -72,13 +72,13 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
         devicePath.put("length", "200");
         array.add(devicePath);
 
-        JSONObject syncCount = new JSONObject();
-        syncCount.put("type", "input-number");
-        syncCount.put("name", "同步文件数量");
-        syncCount.put("paramName", "syncCount");
-        syncCount.put("min", 0);
-        syncCount.put("max", 50);
-        array.add(syncCount);
+        JSONObject count = new JSONObject();
+        count.put("type", "input-number");
+        count.put("name", "同步文件数量");
+        count.put("paramName", "count");
+        count.put("min", 0);
+        count.put("max", 50);
+        array.add(count);
 
         JSONObject maxFileCount = new JSONObject();
         maxFileCount.put("type", "input-number");
@@ -94,9 +94,9 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
     /**
      * 定时任务请求树莓派文件上传
      *
-     * @param bo
-     * @param msgHead
-     * @return
+     * @param bo 文件同步擦拭
+     * @param msgHead 消息头
+     * @return 响应消息
      */
     public String syncDeviceFile(SyncDeviceFileBo bo, MsgHead msgHead) {
         logger.info("===== 定时任务-树莓派文件上传 ===== SyncDeviceFileBo: {} MsgHead: {}", bo, msgHead);

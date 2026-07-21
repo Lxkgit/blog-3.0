@@ -1,18 +1,14 @@
 package com.blog.file.netty.service;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
-import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
-import com.blog.core.domain.file.task.del.bo.SyncServiceFileBo;
 import com.blog.core.domain.file.task.entity.TaskLog;
 import com.blog.core.utils.DateUtil;
-import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
@@ -24,12 +20,7 @@ import com.blog.core.domain.netty.enums.NettyTopic;
 import com.blog.file.service.FileService;
 import com.blog.file.service.TaskLogService;
 import com.blog.file.service.UploadFileService;
-import com.blog.core.domain.socket.SocketPacket;
-import com.blog.core.domain.socket.constant.SocketClientType;
-import com.blog.core.domain.socket.constant.SocketConstant;
-import com.blog.core.domain.socket.constant.SocketTopic;
 import com.blog.core.domain.socket.dto.SocketDeleteFileOrDirDto;
-import com.blog.core.domain.socket.dto.SocketExportBlogFileDto;
 import com.blog.file.socket.service.SocketMessageSendService;
 import com.blog.file.socket.config.SocketService;
 import com.blog.file.utils.VideoUtil;
@@ -46,7 +37,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -397,26 +387,35 @@ public class NettySyncFileService {
                     taskLogService.taskEndLog(msgHead.getTaskMsgHead().getLogStepId());
                 }
             } else if (nettySyncFileDto.getResultType() == 2) {
+
+                // 获取下载/上传文件名称
+                String fileNameList;
+                if (CollectionUtils.isNotEmpty(nettySyncFileDto.getFileCodeList())) {
+                    fileNameList = nettySyncFileDto.getFileCodeList().toString();
+                } else {
+                    fileNameList = nettySyncFileDto.getFileNameList().toString();
+                }
+
+                Integer syncResult = nettySyncFileDto.getSyncResult();
+                Integer syncType = nettySyncFileDto.getSyncType();
+
+                // 日志响应内容
+                String taskName = syncType == 1 ? "下载文件" : "上传文件";
+                String taskResult = "文件" + (syncType == 1 ? "下载" : "上传") + (syncResult == 1 ? "成功" : "失败") + ": " + fileNameList;
+
+                TaskLog taskLog = TaskLog.builder()
+                        .taskName(taskName)
+                        .taskResult(taskResult)
+                        .taskResultStatus(syncResult)
+                        .errorMsg(nettySyncFileDto.getErrorMsg())
+                        .taskCode(msgHead.getTaskMsgHead().getTaskCode())
+                        .taskUuid(msgHead.getTaskMsgHead().getTaskUuid())
+                        .build();
+
+                taskLogService.completeTaskLog(taskLog);
+
                 // 修改任务创建日志结束时间
                 taskLogService.taskEndLog(msgHead.getTaskMsgHead().getTaskUuid());
-
-
-                if (nettySyncFileDto.getSyncType() == 1) {
-                    String fileNameList;
-                    if (CollectionUtils.isNotEmpty(nettySyncFileDto.getFileCodeList())) {
-                        fileNameList = nettySyncFileDto.getFileCodeList().toString();
-                    } else {
-                        fileNameList = nettySyncFileDto.getFileNameList().toString();
-                    }
-                    taskLogService.completeTaskLog(TaskLog.builder()
-                            .taskName("文件下载成功: " + fileNameList)
-                            .taskCode(msgHead.getTaskMsgHead().getTaskCode())
-                            .taskUuid(msgHead.getTaskMsgHead().getTaskUuid())
-                            .build()
-                    );
-                } else if (nettySyncFileDto.getSyncType() == 2) {
-
-                }
             }
         }
     }

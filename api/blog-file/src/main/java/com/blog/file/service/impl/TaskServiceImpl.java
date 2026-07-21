@@ -194,13 +194,14 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public ResultPage<Map<String, Object>> selectRunningTask(TaskParamVo taskParamVo) {
         List<TimerTask> taskList = timerManager.getAllTask().stream().toList();
-        List<Map<String, Object>> resultList = new ArrayList<>();
-        // TimerTask 属于依赖包中类 不方便在core包引用
-        Map<String, Object> objectMap = new HashMap<>();
         int from = (taskParamVo.getPageNum() - 1) * taskParamVo.getPageSize();
         int to = Math.min(from + taskParamVo.getPageSize(), taskList.size());
+
+        List<Map<String, Object>> resultList = new ArrayList<>();
         List<TimerTask> runList = taskList.subList(from, to);
         for (TimerTask task : runList) {
+            // TimerTask 属于依赖包中类 不方便在core包引用
+            Map<String, Object> objectMap = new HashMap<>();
             objectMap.put("timerTask", task);
             objectMap.put("task", taskParamMapper.selectById(task.getDefinition().getId()));
             resultList.add(objectMap);

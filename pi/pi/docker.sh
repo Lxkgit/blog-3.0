@@ -89,6 +89,9 @@ startJava() {
 
   # 启动python脚本
   startPy
+
+  # 挂载硬盘
+  mountDisk
 }
 
 # 安装MySQL
@@ -238,6 +241,30 @@ startPyDaemon() {
   sudo systemctl enable websocket-watchdog.service
   # 立即启动
   sudo systemctl start websocket-watchdog.service
+}
+
+# 挂载硬盘
+mountDisk() {
+
+    echo "安装 NTFS 热插拔..."
+
+    sudo apt install -y ntfs-3g
+
+    sudo cp /opt/package/conf/automount@.service /etc/systemd/system/
+
+    sudo cp /opt/package/conf/99-automount.rules /etc/udev/rules.d/
+
+    sudo sed -i 's/\r$//' /etc/systemd/system/automount@.service
+
+    sudo sed -i 's/\r$//' /etc/udev/rules.d/99-automount.rules
+
+    sudo systemctl daemon-reload
+
+    sudo udevadm control --reload-rules
+
+    sudo udevadm trigger
+
+    echo "NTFS 热插拔安装完成"
 }
 
 # 安装树莓派SCI摄像头服务

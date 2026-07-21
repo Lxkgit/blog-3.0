@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
+import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
 import com.blog.core.domain.netty.dto.file.NettySyncFileDto;
 import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.netty.head.TaskMsgHead;
@@ -68,9 +69,10 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
 
     @Override
     public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
-        SyncServiceFileBo bo = context.get("");
-        syncServiceFile(bo, MsgHead.buildTaskMsgHead(taskMsgHead.getUserId(), taskMsgHead));
-        return "";
+        SyncServiceFileBo bo = JSONObject.parseObject(context.get("param"), SyncServiceFileBo.class);
+        bo.setUserId(taskMsgHead.getUserId());
+        taskMsgHead.setTaskParam(context.get("param"));
+        return syncServiceFile(bo, MsgHead.buildTaskMsgHead(taskMsgHead.getUserId(), taskMsgHead));
     }
 
     @Override

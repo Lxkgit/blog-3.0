@@ -1,28 +1,47 @@
 [Unit]
-Description=Automount NTFS Drive %I
-After=network.target local-fs.target
+Description=Auto Mount NTFS Drive %I
+After=local-fs.target
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+
 ExecStart=/usr/bin/bash -c '\
-  UUID_PATH="/dev/disk/by-uuid/%I"; \
-  MOUNTPOINT="/mnt/%I"; \
-  if [ -b "$UUID_PATH" ]; then \
-    mkdir -p "$MOUNTPOINT"; \
-    mount -t ntfs-3g -o uid=1000,gid=1000,umask=000 "$UUID_PATH" "$MOUNTPOINT"; \
-    echo "Mounted $UUID_PATH on $MOUNTPOINT"; \
-  else \
+UUID_PATH="/dev/disk/by-uuid/%I"; \
+MOUNTPOINT="/mnt/%I"; \
+\
+# 等待 udev 创建设备节点
+for i in $(seq 1 20); do \
+    [ -e "$UUID_PATH" ] && break; \
+    sleep 0.2; \
+done; \
+\
+if [ ! -e "$UUID_PATH" ]; then \
     echo "Device $UUID_PATH not found"; \
-  fi'
+    exit 1; \
+fi; \
+\
+mkdir -p "$MOUNTPOINT"; \
+\
+if mountpoint -q "$MOUNTPOINT"; then \
+    echo "$MOUNTPOINT already mounted"; \
+    exit 0; \
+fi; \
+\
+mount -t ntfs-3g \
+-o uid=1000,gid=1000,umask=000 \
+"$UUID_PATH" "$MOUNTPOINT"; \
+\
+echo "Mounted $UUID_PATH -> $MOUNTPOINT"; \
+'
 
 ExecStop=/usr/bin/bash -c '\
-  UUID_PATH="/dev/disk/by-uuid/%I"; \
-  MOUNTPOINT="/mnt/%I"; \
-  if mountpoint -q "$MOUNTPOINT"; then \
+MOUNTPOINT="/mnt/%I"; \
+\
+if mountpoint -q "$MOUNTPOINT"; then \
     umount "$MOUNTPOINT"; \
-    echo "Unmounted $UUID_PATH"; \
-  fi'
-
-[Install]
-WantedBy=multi-user.target
+    echo "Unmounted $MOUNTPOINT"; \
+fi; \
+\
+rmdir "$MOUNTPOINT" 2>/dev/null || true; \
+'

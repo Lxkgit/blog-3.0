@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.Date;
 
 @Data
-@TableName("file_MD5")
+@TableName("file_md5")
 public class FileMD5 {
 
     @TableId(value = "id", type = IdType.AUTO)

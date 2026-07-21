@@ -246,7 +246,6 @@ public class NettySyncFileService {
     private void sendReceiveMsg(MsgHead msgHead) {
         // 基础响应数据
         NettySyncFileDto baseResponse = new NettySyncFileDto();
-        baseResponse.setSyncResult(1);
         baseResponse.setResultType(1);
         NettyResponse nettyResponse = new NettyResponse(true, JSONObject.toJSONString(baseResponse));
         NettyPacket<NettyResponse> basePacket = NettyPacket.buildResponse(msgHead, nettyResponse);

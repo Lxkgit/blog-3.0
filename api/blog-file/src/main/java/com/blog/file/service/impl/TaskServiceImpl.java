@@ -101,6 +101,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void updateTask(TaskParamVo taskParamVo) {
+        taskParamVo.setUpdateTime(new Date());
         taskParamMapper.updateById(taskParamVo);
         taskParamVo.setUserId(SecurityUtil.getLoginUser().getId());
         createTask(taskParamVo);

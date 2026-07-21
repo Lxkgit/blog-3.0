@@ -16,7 +16,7 @@
       <el-table :data="taskList.data" stripe style="width: 100%; height: calc(100vh - 328px)">
         <!-- <el-table-column type="selection" width="55"/> -->
         <el-table-column prop="taskName" label="任务名称" fit />
-        <el-table-column prop="taskCode" label="任务编码" width="240" />
+        <el-table-column prop="taskCode" label="任务编码" width="245" />
         <el-table-column prop="taskCount" label="执行次数" width="110" />
         <el-table-column prop="taskStatus" label="任务状态" width="110">
           <template #default="scope">
@@ -229,7 +229,6 @@ onMounted(() => {
  * 角色删改查接口方法合集
  */
 function taskFn(): any {
-
   // 页面展示任务条数
   let size = ref<number>(10)
   // 总任务数
@@ -279,13 +278,8 @@ function taskFn(): any {
   const taskTypeChange = (value: any) => {
     selectTaskType.value = {
       ...value,
-      paramTemplate: value.paramTemplate
-        ? typeof value.paramTemplate === 'string'
-          ? JSON.parse(value.paramTemplate)
-          : value.paramTemplate
-        : [],
+      paramTemplate: value.paramTemplate ? (typeof value.paramTemplate === 'string' ? JSON.parse(value.paramTemplate) : value.paramTemplate) : [],
     }
-    taskItem.taskCode = value.code
   }
 
   /**
@@ -326,7 +320,7 @@ function taskFn(): any {
     Object.assign(taskItem, {
       ...row,
       taskTrigger: Number(row.taskTrigger),
-      taskTime: row.taskTrigger === 2 ? row.taskTime : Number(row.taskTime),
+      taskTime: row.taskTrigger === 2 ? Number(row.taskTime) : row.taskTime,
       paramJson: row.paramJson ? JSON.parse(row.paramJson) : {},
     })
 

@@ -19,8 +19,8 @@ public class Policy {
 
     public Policy(Integer executeCount) {
 
-        if (executeCount != null && executeCount <= 0) {
-            throw new IllegalArgumentException("executeCount 必须大于0");
+        if (executeCount != null && executeCount <= -1) {
+            throw new IllegalArgumentException("executeCount 必须大于等于 -1");
         }
 
         this.executeCount = executeCount;
@@ -33,7 +33,8 @@ public class Policy {
      * @return true 继续执行
      */
     public boolean shouldContinue(int currentCount) {
-        if (executeCount == null) {
+        // 执行次数为 -1 表示无限执行
+        if (executeCount == -1) {
             return true;
         }
         return currentCount < executeCount;

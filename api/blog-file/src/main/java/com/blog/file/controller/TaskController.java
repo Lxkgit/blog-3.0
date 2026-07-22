@@ -5,9 +5,13 @@ import com.blog.core.domain.file.task.vo.TaskLogVo;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
+import com.blog.core.valication.group.InsertGroup;
+import com.blog.core.valication.group.SelectListGroup;
+import com.blog.core.valication.group.UpdateGroup;
 import com.blog.file.service.TaskLogService;
 import com.blog.file.service.TaskService;
 import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,7 +37,7 @@ public class TaskController {
      * @return
      */
     @PostMapping("/insert")
-    public Result insertTask(@RequestBody TaskParamVo taskParamVo) {
+    public Result insertTask(@RequestBody @Validated(value = {InsertGroup.class}) TaskParamVo taskParamVo) {
         taskService.insertTask(taskParamVo);
         return ResultFactory.buildSuccessResult();
     }
@@ -57,7 +61,7 @@ public class TaskController {
      * @return
      */
     @PostMapping("/update")
-    public Result updateTask(@RequestBody TaskParamVo taskParamVo) {
+    public Result updateTask(@RequestBody @Validated(value = {UpdateGroup.class}) TaskParamVo taskParamVo) {
         taskService.updateTask(taskParamVo);
         return ResultFactory.buildSuccessResult();
     }
@@ -135,7 +139,7 @@ public class TaskController {
      * @return
      */
     @GetMapping("/select/running")
-    public Result selectRunningTask(TaskParamVo taskParamVo) {
+    public Result selectRunningTask(@Validated(value = {SelectListGroup.class}) TaskParamVo taskParamVo) {
         return ResultFactory.buildSuccessResult(taskService.selectRunningTask(taskParamVo));
     }
 

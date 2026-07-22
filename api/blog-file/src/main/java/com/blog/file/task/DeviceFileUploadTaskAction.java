@@ -1,5 +1,6 @@
 package com.blog.file.task;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -13,6 +14,7 @@ import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
+import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -44,6 +46,12 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
     @Override
     public String getName() {
         return "定时上传树莓派数据";
+    }
+
+    @Override
+    protected void doCheckParam(TimerAction action, String param) {
+        JSONObject paramJson = JSON.parseObject(param);
+
     }
 
     @Override

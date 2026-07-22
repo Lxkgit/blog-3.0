@@ -11,77 +11,119 @@ PID_DIR="/opt/docker/watchdog/pids"
 mkdir -p "$LOG_DIR"
 mkdir -p "$PID_DIR"
 
-# -------------------- 任务列表（完整命令） --------------------
-TASKS=(
-  "$PYTHON_BIN /opt/docker/files/python/code/web_socket.py --ip 172.18.0.5"
-  "/opt/docker/camera/startCSI.sh"
+# ==========================================================
+# 任务定义
+# name    : 日志、PID 文件名称
+# match   : 用于校验进程是否正确（cmdline 必须包含）
+# command : 启动命令
+# ==========================================================
+
+declare -A WEB_SOCKET=(
+    [name]="web_socket"
+    [match]="/opt/docker/files/python/code/web_socket.py"
+    [command]="$PYTHON_BIN /opt/docker/files/python/code/web_socket.py --ip 172.18.0.5 --port 10201 --path /socket/python/localhost"
 )
 
-# -------------------- 提取脚本路径 --------------------
-# 根据规则：脚本路径一定在第1或第2字段
-get_script_path() {
-    local task="$1"
-    set -- $task
+declare -A CAMERA=(
+    [name]="camera"
+    [match]="/opt/docker/camera/startCSI.sh"
+    [command]="bash /opt/docker/camera/startCSI.sh"
+)
 
-    if [[ "$1" == /* ]]; then
-        echo "$1"
-    elif [[ "$2" == /* ]]; then
-        echo "$2"
-    else
-        echo ""
-    fi
-}
+# ==========================================================
+# 任务列表
+# ==========================================================
 
-# -------------------- 启动任务并记录 PID --------------------
+TASKS=(
+    WEB_SOCKET
+    CAMERA
+)
+
+# ==========================================================
+# 启动任务
+# ==========================================================
+
 start_task() {
-    local task="$1"
-    local script_path
-    script_path=$(get_script_path "$task")
 
-    local script_name
-    script_name=$(basename "$script_path")
+    declare -n task=$1
 
-    echo "$(date): [START] $task" >> "$WATCHDOG_LOG"
+    local name="${task[name]}"
+    local command="${task[command]}"
+    local pid_file="$PID_DIR/${name}.pid"
 
-    nohup bash -c "$task" > "$LOG_DIR/${script_name}.log" 2>&1 &
+    # 避免重复启动
+    if check_task "$1"; then
+        return
+    fi
+
+    echo "$(date): [START] $command" >> "$WATCHDOG_LOG"
+    nohup bash -c "exec $command" > "$LOG_DIR/${name}.log" 2>&1 &
     local pid=$!
-
-    echo "$pid" > "$PID_DIR/${script_name}.pid"
-
-    echo "$(date): [PID $pid] $script_name started" >> "$WATCHDOG_LOG"
+    echo "$pid" > "$pid_file"
+    echo "$(date): [PID $pid] $name started." >> "$WATCHDOG_LOG"
 }
 
-# -------------------- 检查任务是否存活（根据 PID 文件） --------------------
+# ==========================================================
+# 检查任务
+# ==========================================================
+
 check_task() {
-    local task="$1"
-    local script_path
-    script_path=$(get_script_path "$task")
-    local script_name
-    script_name=$(basename "$script_path")
 
-    local pid_file="$PID_DIR/${script_name}.pid"
+    declare -n task=$1
 
-    # PID 文件不存在 => 肯定没在运行
+    local name="${task[name]}"
+    local match="${task[match]}"
+    local pid_file="$PID_DIR/${name}.pid"
+
+    # PID文件不存在
     [[ ! -f "$pid_file" ]] && return 1
 
     local pid
     pid=$(cat "$pid_file")
 
-    # kill -0 检查进程是否存在（不杀死进程）
-    if kill -0 "$pid" >/dev/null 2>&1; then
-        return 0
-    else
+    # PID不存在
+    if ! kill -0 "$pid" >/dev/null 2>&1; then
+        rm -f "$pid_file"
         return 1
     fi
+
+    # 校验命令行，防止PID被系统复用
+    local cmdline
+    cmdline=$(ps -p "$pid" -o args=)
+
+    if [[ "$cmdline" == *"$match"* ]]; then
+        return 0
+    fi
+
+    echo "$(date): [PID REUSED] pid=$pid cmd=$cmdline" >> "$WATCHDOG_LOG"
+
+    rm -f "$pid_file"
+
+    return 1
 }
 
-# -------------------- 主循环 --------------------
+# ==========================================================
+# 退出处理
+# ==========================================================
+
+cleanup() {
+    echo "$(date): Watchdog stopped." >> "$WATCHDOG_LOG"
+    exit 0
+}
+
+trap cleanup SIGINT SIGTERM
+
+# ==========================================================
+# 主循环
+# ==========================================================
+
 echo "$(date): Watchdog started." >> "$WATCHDOG_LOG"
 
 while true; do
     for task in "${TASKS[@]}"; do
         if ! check_task "$task"; then
-            echo "$(date): [MISSING] $task，正在重新启动..." >> "$WATCHDOG_LOG"
+            declare -n t=$task
+            echo "$(date): [RESTART] ${t[name]}" >> "$WATCHDOG_LOG"
             start_task "$task"
         fi
     done

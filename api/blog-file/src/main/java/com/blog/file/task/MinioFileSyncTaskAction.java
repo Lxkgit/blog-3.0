@@ -1,5 +1,6 @@
 package com.blog.file.task;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -18,6 +19,7 @@ import com.blog.file.minio.MinioService;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
+import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -65,6 +67,12 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
     @Override
     public String getName() {
         return "minio文件数据同步";
+    }
+
+    @Override
+    protected void doCheckParam(TimerAction action, String param) {
+        JSONObject paramJson = JSON.parseObject(param);
+
     }
 
     @Override

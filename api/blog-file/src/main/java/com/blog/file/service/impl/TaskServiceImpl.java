@@ -1,5 +1,7 @@
 package com.blog.file.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.task.entity.TaskLog;
@@ -68,15 +70,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void insertTask(TaskParamVo taskParamVo) {
-
         if (!timerActionManager.checkCode(taskParamVo.getTaskCode())) {
             throw new ServiceException("任务编码错误");
         }
-
-        TimerAction action = timerActionManager.get(taskParamVo.getTaskCode());
-
         // 校验任务参数
-        action.checkParam(action, taskParamVo.getParamJson());
+        TimerAction action = timerActionManager.get(taskParamVo.getTaskCode());
+        action.checkParam(action, JSONObject.toJSONString(taskParamVo));
 
         // 保存任务
         taskParamVo.setUserId(SecurityUtil.getLoginUser().getId());
@@ -101,6 +100,13 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void updateTask(TaskParamVo taskParamVo) {
+        if (!timerActionManager.checkCode(taskParamVo.getTaskCode())) {
+            throw new ServiceException("任务编码错误");
+        }
+        // 校验任务参数
+        TimerAction action = timerActionManager.get(taskParamVo.getTaskCode());
+        action.checkParam(action, JSONObject.toJSONString(taskParamVo));
+
         taskParamVo.setUpdateTime(new Date());
         taskParamMapper.updateById(taskParamVo);
         taskParamVo.setUserId(SecurityUtil.getLoginUser().getId());

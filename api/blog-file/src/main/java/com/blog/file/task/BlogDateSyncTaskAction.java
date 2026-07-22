@@ -17,6 +17,7 @@ import com.blog.core.utils.MyStringUtils;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.file.service.TaskLogService;
 import com.blog.file.socket.config.SocketService;
+import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -43,6 +44,22 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
     @Resource
     private TaskLogService taskLogService;
 
+    @Override
+    public String getCode() {
+        return Constant.TASK_SYNC_BLOG_FILE;
+    }
+
+    @Override
+    public String getName() {
+        return "定时备份博客数据";
+    }
+
+    @Override
+    protected void doCheckParam(TimerAction action, String param) {
+        JSONObject paramJson = JSON.parseObject(param);
+
+    }
+
     /**
      * 文件同步任务-定时备份博客数据
      * 服务器端：
@@ -57,21 +74,11 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
      */
     @Override
     public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
-        logger.info("开始备份博客数据 : {}", JSONObject.toJSONString(context.getData()));
+        logger.info("开始备份博客数据: {}", JSONObject.toJSONString(context.getData()));
         String blogFilePath = Constant.FTP_PATH_SYSTEM_TEMP + "/" + MyStringUtils.getRandomString(6);
         taskMsgHead.setTaskParam(context.get("param"));
         String filePath = syncBlogDataFirstStep(blogFilePath, MsgHead.buildTaskMsgHead(taskMsgHead.getUserId(), taskMsgHead));
         return JSON.toJSONString(Collections.singletonMap("tempFilePath", filePath));
-    }
-
-    @Override
-    public String getCode() {
-        return Constant.TASK_SYNC_BLOG_FILE;
-    }
-
-    @Override
-    public String getName() {
-        return "定时备份博客数据";
     }
 
     @Override

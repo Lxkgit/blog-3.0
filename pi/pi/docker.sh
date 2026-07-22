@@ -92,6 +92,9 @@ startJava() {
 
   # 挂载硬盘
   mountDisk
+
+  # 启动NAS服务
+  createSamba
 }
 
 # 安装MySQL
@@ -246,25 +249,44 @@ startPyDaemon() {
 # 挂载硬盘
 mountDisk() {
 
-    echo "安装 NTFS 热插拔..."
+  echo "安装 NTFS 热插拔..."
 
-    sudo apt install -y ntfs-3g
+  sudo apt install -y ntfs-3g
 
-    sudo cp /opt/package/conf/automount@.service /etc/systemd/system/
+  # 处理硬盘挂载配置文件
+  mv /opt/package/conf/automount@.service /etc/systemd/system/
+  mv /opt/package/conf/99-automount.rules /etc/udev/rules.d/
+  sudo sed -i 's/\r$//' /etc/systemd/system/automount@.service
+  sudo sed -i 's/\r$//' /etc/udev/rules.d/99-automount.rules
 
-    sudo cp /opt/package/conf/99-automount.rules /etc/udev/rules.d/
+  sudo systemctl daemon-reload
 
-    sudo sed -i 's/\r$//' /etc/systemd/system/automount@.service
+  sudo udevadm control --reload-rules
+  sudo udevadm trigger
 
-    sudo sed -i 's/\r$//' /etc/udev/rules.d/99-automount.rules
+  echo "NTFS 热插拔安装完成"
+}
 
-    sudo systemctl daemon-reload
+# 配置 NAS 服务
+createSamba() {
 
-    sudo udevadm control --reload-rules
+  # 安装 Samba
+  apt-get install -y samba
 
-    sudo udevadm trigger
+  # 创建一个专用 NAS 用户
+  sudo useradd -M -s /sbin/nologin nas
+  sudo smbpasswd -a nas
 
-    echo "NTFS 热插拔安装完成"
+  # 添加 Samba 配置
+  mv /opt/package/conf/samba.conf /etc/samba
+
+  # 添加nas用户目录权限
+  sudo chown -R nas:nas /mnt
+  sudo chmod -R 775 /mnt
+
+  # 重启 Samba
+  sudo systemctl restart smbd
+  sudo systemctl enable smbd
 }
 
 # 安装树莓派SCI摄像头服务
@@ -374,7 +396,7 @@ main() {
   startJava
 
   # 启动树莓派SCI摄像头服务
-#  startMediaMTX
+  startMediaMTX
 
   # 脚本守护线程
 #  startWatchService

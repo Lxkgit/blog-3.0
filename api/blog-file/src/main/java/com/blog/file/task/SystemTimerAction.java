@@ -1,8 +1,10 @@
 package com.blog.file.task;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.file.device.entity.UserDevice;
+import com.blog.core.domain.file.task.vo.TaskParamVo;
 import com.blog.core.domain.netty.dto.NettyPacket;
 import com.blog.core.domain.netty.dto.file.NettySyncFileDto;
 import com.blog.core.domain.netty.enums.NettyTopic;
@@ -54,8 +56,11 @@ public abstract class SystemTimerAction implements TimerAction {
     @Override
     public void checkParam(TimerAction action, String json) {
         logger.info("开始校验参数: {}", action.getParamTemplate());
-
+        TaskParamVo taskParamVo = JSONObject.parseObject(json, TaskParamVo.class);
+        doCheckParam(action, taskParamVo.getParamJson());
     }
+
+    protected abstract void doCheckParam(TimerAction action, String param);
 
     @Override
     public void beforeExecute(TimerTask timerTask) {

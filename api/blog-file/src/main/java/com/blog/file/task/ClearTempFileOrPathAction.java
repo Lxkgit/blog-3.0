@@ -8,6 +8,7 @@ import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.netty.head.TaskMsgHead;
 import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.file.socket.service.SocketMessageSendService;
+import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -30,13 +31,6 @@ public class ClearTempFileOrPathAction extends SystemTimerAction {
     @Resource
     private SocketMessageSendService socketMessageSendService;
 
-
-    @Override
-    public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
-        String clearPath = clearTempFileOrPath(context.get("deleteFilePath"), new MsgHead());
-        return JSON.toJSONString(Collections.singletonMap("deleteFilePath", clearPath));
-    }
-
     @Override
     public String getCode() {
         return Constant.TASK_DELETE_TEMP_FILE;
@@ -45,6 +39,18 @@ public class ClearTempFileOrPathAction extends SystemTimerAction {
     @Override
     public String getName() {
         return "清理服务器文件";
+    }
+
+    @Override
+    protected void doCheckParam(TimerAction action, String param) {
+        JSONObject paramJson = JSON.parseObject(param);
+
+    }
+
+    @Override
+    public String doExecute(TimerTaskContext context, TaskMsgHead taskMsgHead) {
+        String clearPath = clearTempFileOrPath(context.get("deleteFilePath"), new MsgHead());
+        return JSON.toJSONString(Collections.singletonMap("deleteFilePath", clearPath));
     }
 
     @Override

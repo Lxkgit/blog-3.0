@@ -2,7 +2,7 @@ package com.blog.file.socket;
 
 import com.alibaba.fastjson2.JSON;
 import com.blog.core.domain.netty.head.MsgHead;
-import com.blog.file.netty.service.NettySyncFileService;
+import com.blog.file.netty.service.NettySyncFileReceiveService;
 import com.blog.core.domain.socket.SocketPacketEvent;
 import com.blog.core.domain.socket.constant.SocketPacketType;
 import com.blog.core.domain.socket.constant.SocketTopic;
@@ -29,7 +29,7 @@ public class SocketMessageListener {
 
 
     @Resource
-    private NettySyncFileService nettyFileSyncService;
+    private NettySyncFileReceiveService nettyFileSyncService;
 
     @Resource
     private SystemInfoService systemInfoService;

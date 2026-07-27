@@ -22,12 +22,6 @@ import java.util.Date;
 public class NettyDeviceService {
 
     @Resource
-    private NettyServer nettyServer;
-
-    @Resource
-    private DeviceMapper deviceDAO;
-
-    @Resource
     private ChipMapper chipDAO;
 
     @Resource
@@ -136,10 +130,6 @@ public class NettyDeviceService {
 
             sensorDataDAO.insert(sensorData);
         }
-    }
-
-    public void SensorControl() {
-
     }
 
     public void deviceInfo(String data, String deviceCode, Integer userId) {

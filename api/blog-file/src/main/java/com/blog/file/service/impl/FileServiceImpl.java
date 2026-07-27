@@ -14,7 +14,8 @@ import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
 import com.blog.core.domain.netty.dto.file.NettySyncFileDto;
-import com.blog.file.netty.service.NettySyncFileService;
+import com.blog.file.netty.service.NettySyncFileSendService;
+import com.blog.file.netty.service.NettySyncFileReceiveService;
 import com.blog.file.service.FileService;
 import com.blog.file.service.UploadFileService;
 import com.blog.redis.constant.FileRedisConstant;
@@ -64,13 +65,16 @@ public class FileServiceImpl implements FileService {
 
     @Lazy
     @Resource
-    private NettySyncFileService nettyFileSyncService;
+    private NettySyncFileReceiveService nettyFileSyncService;
 
     @Resource
     private RedisService redisService;
 
     @Resource
     private Executor baseThread;
+
+    @Resource
+    private NettySyncFileSendService nettySyncFileSendService;
 
 
     /**
@@ -430,7 +434,7 @@ public class FileServiceImpl implements FileService {
             nettySyncFileDto.setFileNameList(List.of(fileName));
             nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" + fileCategoryData.getFileName()));
             // 异步导出文件并发送请求
-            baseThread.execute(() -> nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId));
+            baseThread.execute(() -> nettySyncFileSendService.sendSyncFileMsg(null, nettySyncFileDto, userId));
             // 文件状态修改为正在同步远程服务器
             updateFileCategoryDataStatus(fileCategoryData.getId(), Constant.FILE_STATUS_TO_REMOTE);
         } else if (operateFileStatus.equals(Constant.FILE_STATUS_REMOTE)) {
@@ -456,7 +460,7 @@ public class FileServiceImpl implements FileService {
             nettySyncFileDto.setFileNameList(List.of(fileName));
             nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" + fileCategoryData.getFileName()));
             // 异步发送上传文件命令
-            baseThread.execute(() -> nettyFileSyncService.sendSyncFileMsg(null, nettySyncFileDto, userId));
+            baseThread.execute(() -> nettySyncFileSendService.sendSyncFileMsg(null, nettySyncFileDto, userId));
             // 文件状态修改为正在同步本地服务器
             updateFileCategoryDataStatus(fileCategoryData.getId(), Constant.FILE_STATUS_TO_LOCAL);
         }

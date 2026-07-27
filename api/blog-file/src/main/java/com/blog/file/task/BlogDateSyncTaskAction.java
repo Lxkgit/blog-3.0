@@ -14,7 +14,6 @@ import com.blog.core.domain.socket.constant.SocketConstant;
 import com.blog.core.domain.socket.constant.SocketTopic;
 import com.blog.core.domain.socket.dto.SocketExportBlogFileDto;
 import com.blog.core.utils.MyStringUtils;
-import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.file.service.TaskLogService;
 import com.blog.file.socket.config.SocketService;
 import com.blog.timer.action.TimerAction;
@@ -150,7 +149,7 @@ public class BlogDateSyncTaskAction extends SystemTimerAction {
         taskLogService.taskStartLog(log.getId());
 
         // 发送netty消息开始下载博客文件
-        boolean result = sendSyncFileMsg(msgHead, nettySyncFileDto, msgHead.getUserId());
+        boolean result = nettySyncFileSendService.sendSyncFileMsg(msgHead, nettySyncFileDto, msgHead.getUserId());
 
         if (result) {
             taskLogService.taskSuccessLog(log.getId(), JSONObject.parseObject(deviceFilePath).toJSONString());

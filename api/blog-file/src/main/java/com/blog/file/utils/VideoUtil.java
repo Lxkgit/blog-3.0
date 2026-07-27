@@ -87,10 +87,14 @@ public class VideoUtil {
      * 判断 MultipartFile 是否为视频文件
      */
     public static boolean isVideoFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) return false;
+        if (file == null || file.isEmpty()) {
+            return false;
+        }
 
         String contentType = file.getContentType();
-        if (contentType != null && contentType.startsWith("video/")) return true;
+        if (contentType != null && contentType.startsWith("video/")) {
+            return true;
+        }
 
         String fileName = file.getOriginalFilename();
         return isVideoFile(fileName);
@@ -100,7 +104,9 @@ public class VideoUtil {
      * 判断 File 是否为视频文件
      */
     public static boolean isVideoFile(File file) {
-        if (file == null || !file.exists() || file.isDirectory()) return false;
+        if (file == null || !file.exists() || file.isDirectory()) {
+            return false;
+        }
         return isVideoFile(file.getName());
     }
 
@@ -108,7 +114,9 @@ public class VideoUtil {
      * 判断文件名是否为视频文件
      */
     private static boolean isVideoFile(String fileName) {
-        if (fileName == null) return false;
+        if (fileName == null) {
+            return false;
+        }
         String lower = fileName.toLowerCase();
         return lower.matches(".*\\.(mp4|avi|mov|wmv|flv|mkv|3gp|webm|m4v)$");
     }

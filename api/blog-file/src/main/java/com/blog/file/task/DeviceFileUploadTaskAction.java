@@ -131,7 +131,7 @@ public class DeviceFileUploadTaskAction extends SystemTimerAction {
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
             nettySyncFileDto.setFileSource(2);
             nettySyncFileDto.setCount(bo.getCount());
-            sendSyncFileMsg(msgHead, nettySyncFileDto, userId);
+            nettySyncFileSendService.sendSyncFileMsg(msgHead, nettySyncFileDto, userId);
         }
         return "消息发送完成";
     }

@@ -1,10 +1,8 @@
 package com.blog.file.netty.service;
 
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.netty.head.MsgHead;
-import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
 import com.blog.core.domain.file.task.entity.TaskLog;
@@ -12,17 +10,11 @@ import com.blog.core.utils.DateUtil;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
-import com.blog.file.mapper.UserDeviceMapper;
 import com.blog.file.minio.MinioService;
-import com.blog.core.domain.netty.dto.NettyPacket;
 import com.blog.core.domain.netty.dto.file.NettySyncFileDto;
-import com.blog.core.domain.netty.enums.NettyTopic;
-import com.blog.file.service.FileService;
 import com.blog.file.service.TaskLogService;
 import com.blog.file.service.UploadFileService;
 import com.blog.core.domain.socket.dto.SocketDeleteFileOrDirDto;
-import com.blog.file.socket.service.SocketMessageSendService;
-import com.blog.file.socket.config.SocketService;
 import com.blog.file.utils.VideoUtil;
 import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
@@ -49,7 +41,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 /**
  * @description: Netty文件同步业务
@@ -58,24 +49,9 @@ import java.util.concurrent.Executor;
  */
 
 @Service
-public class NettySyncFileService {
+public class NettySyncFileReceiveService {
 
-    private static final Logger logger = LoggerFactory.getLogger(NettySyncFileService.class);
-
-    @Resource
-    private FileService fileService;
-
-    @Resource
-    private NettyServer nettyServer;
-
-    @Resource
-    private SocketService socketService;
-
-    @Resource
-    private UserDeviceMapper userDeviceMapper;
-
-    @Resource
-    private SocketMessageSendService socketMessageSendService;
+    private static final Logger logger = LoggerFactory.getLogger(NettySyncFileReceiveService.class);
 
     @Resource
     private RedisService redisService;
@@ -90,9 +66,6 @@ public class NettySyncFileService {
     private FileCategoryDataMapper fileCategoryDataMapper;
 
     @Resource
-    private Executor baseThread;
-
-    @Resource
     private MinioService minioService;
 
     @Resource
@@ -103,31 +76,6 @@ public class NettySyncFileService {
 
     @Resource
     private TimerActionManager timerActionManager;
-
-    /**
-     * 发送文件同步消息至树莓派
-     *
-     * @param nettySyncFileDto 同步文件参数
-     */
-    public boolean sendSyncFileMsg(MsgHead msgHead, NettySyncFileDto nettySyncFileDto, Integer userId) {
-
-        // 获取用户默认同步数据设备
-        LambdaQueryWrapper<UserDevice> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserDevice::getUserId, userId);
-        List<UserDevice> deviceList = userDeviceMapper.selectList(wrapper);
-
-        if (CollectionUtils.isNotEmpty(deviceList)) {
-            UserDevice device = deviceList.get(0);
-            String registerId = device.getDeviceCode();
-
-            NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
-            nettyPacket.setMsgHead(msgHead);
-            return nettyServer.sendByRegisterIdLimitTime(registerId, nettyPacket.getMsgHead().getNettyMsgHead().getRequestId(),
-                    JSON.toJSONString(nettyPacket), 2 * 60);
-
-        }
-        return false;
-    }
 
     /**
      * 接收文件同步消息

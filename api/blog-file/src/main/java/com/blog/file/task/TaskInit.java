@@ -48,8 +48,6 @@ public class TaskInit implements ApplicationRunner {
             BeanUtils.copyProperties(param, vo);
             taskService.createTask(vo);
         }
-
-
     }
 
 //    /**

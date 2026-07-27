@@ -1,31 +1,21 @@
 package com.blog.file.task;
 
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.core.domain.file.device.entity.UserDevice;
 import com.blog.core.domain.file.task.vo.TaskParamVo;
-import com.blog.core.domain.netty.dto.NettyPacket;
-import com.blog.core.domain.netty.dto.file.NettySyncFileDto;
-import com.blog.core.domain.netty.enums.NettyTopic;
-import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.netty.head.TaskMsgHead;
 import com.blog.core.domain.file.task.entity.TaskParam;
 import com.blog.core.domain.file.task.entity.TaskUuid;
 import com.blog.file.mapper.TaskParamMapper;
 import com.blog.file.mapper.TaskUuidMapper;
-import com.blog.file.mapper.UserDeviceMapper;
-import com.blog.file.netty.service.NettyServer;
+import com.blog.file.netty.service.NettySyncFileSendService;
 import com.blog.file.service.TaskLogService;
 import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;
 import com.blog.timer.entity.TimerTask;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * @Description 系统定时任务类
@@ -48,10 +38,7 @@ public abstract class SystemTimerAction implements TimerAction {
     private TaskParamMapper taskParamMapper;
 
     @Resource
-    private UserDeviceMapper userDeviceMapper;
-
-    @Resource
-    private NettyServer nettyServer;
+    protected NettySyncFileSendService nettySyncFileSendService;
 
     @Override
     public void checkParam(TimerAction action, String json) {
@@ -109,30 +96,5 @@ public abstract class SystemTimerAction implements TimerAction {
         TaskParam param = TaskParam.builder().id(taskId).taskStatus("2").build();
         taskParamMapper.updateById(param);
 
-    }
-
-    /**
-     * 发送文件同步消息至树莓派
-     *
-     * @param nettySyncFileDto 同步文件参数
-     */
-    protected boolean sendSyncFileMsg(MsgHead msgHead, NettySyncFileDto nettySyncFileDto, Integer userId) {
-
-        // 获取用户默认同步数据设备
-        LambdaQueryWrapper<UserDevice> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserDevice::getUserId, userId);
-        List<UserDevice> deviceList = userDeviceMapper.selectList(wrapper);
-
-        if (CollectionUtils.isNotEmpty(deviceList)) {
-            UserDevice device = deviceList.get(0);
-            String registerId = device.getDeviceCode();
-
-            NettyPacket<NettySyncFileDto> nettyPacket = NettyPacket.buildRequest(NettyTopic.BLOG_FILE_SYNC, nettySyncFileDto);
-            nettyPacket.setMsgHead(msgHead);
-            return nettyServer.sendByRegisterIdLimitTime(registerId, nettyPacket.getMsgHead().getNettyMsgHead().getRequestId(),
-                    JSON.toJSONString(nettyPacket), 2 * 60);
-
-        }
-        return false;
     }
 }

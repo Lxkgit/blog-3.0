@@ -6,7 +6,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.netty.head.TaskMsgHead;
-import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.file.socket.service.SocketMessageSendService;
 import com.blog.timer.action.TimerAction;
 import com.blog.timer.context.TimerTaskContext;

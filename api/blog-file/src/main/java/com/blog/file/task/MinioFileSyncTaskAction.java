@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.constant.Constant;
 import com.blog.core.domain.file.files.entity.FileCategory;
 import com.blog.core.domain.file.files.entity.FileCategoryData;
-import com.blog.core.domain.file.task.del.bo.SyncDeviceFileBo;
 import com.blog.core.domain.netty.dto.file.NettySyncFileDto;
 import com.blog.core.domain.netty.head.MsgHead;
 import com.blog.core.domain.netty.head.TaskMsgHead;
@@ -16,7 +15,6 @@ import com.blog.core.utils.MyStringUtils;
 import com.blog.file.mapper.FileCategoryDataMapper;
 import com.blog.file.mapper.FileCategoryMapper;
 import com.blog.file.minio.MinioService;
-import com.blog.file.netty.service.NettySyncFileService;
 import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
 import com.blog.timer.action.TimerAction;
@@ -177,7 +175,7 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
                             msgHead.getTaskMsgHead().setSubTaskUuid(msgHead.getTaskMsgHead().getTaskUuid() + "-" + "clear");
                             BeanUtils.copyProperties(msgHead, head);
                             // 发送文件同步命令
-                            sendSyncFileMsg(head, nettySyncFileDto, 1);
+                            nettySyncFileSendService.sendSyncFileMsg(head, nettySyncFileDto, 1);
                             // 发送后文件同步状态设为0等待树莓派下载数据
                             redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "0", waitCount * scanTime);
                             break;

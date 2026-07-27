@@ -51,13 +51,10 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     private NettyDeviceService nettyDeviceData;
 
     @Resource
-    private NettySyncFileService nettyFileSyncService;
+    private NettySyncFileReceiveService nettyFileSyncService;
 
     @Resource
     private UserDeviceMapper userDeviceDAO;
-
-    @Resource
-    private NettyServerHandler nettyServerHandler;
 
     @Resource
     private RedisService redisService;

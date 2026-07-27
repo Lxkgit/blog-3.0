@@ -13,7 +13,6 @@ redisPassword="redis-960@*"
 util(){
 	echo "下载服务器环境所需依赖..."
 	waitAptLock
-	sudo apt-get update
 	# 压缩解压工具
 	apt-get install -y unzip zip
 }
@@ -212,7 +211,7 @@ startPy() {
   sleep 4m
   mkdir -p /opt/docker/files/python/code
   mv /opt/package/python/* /opt/docker/files/python/code
-  unzip /opt/docker/files/python/code/python.zip -d /opt/docker/files/python/code
+  unzip /opt/docker/files/python/code/socket.zip -d /opt/docker/files/python/code
   chmod +x /opt/docker/files/python/code/web_socket.py
   sed -i 's/\r$//' /opt/docker/files/python/code/web_socket.py
   chmod +x /opt/docker/files/python/code/shell/*.sh
@@ -271,55 +270,113 @@ mountDisk() {
 createSamba() {
 
   # 安装 Samba
-  apt-get install -y samba
+  apt-get install -y samba smbclient
 
   # 创建一个专用 NAS 用户
-  sudo useradd -M -s /sbin/nologin nas
-  sudo smbpasswd -a nas
+  if ! id nas >/dev/null 2>&1; then
+    useradd -M -s /usr/sbin/nologin nas
+  fi
+
+  # 创建 Samba 用户
+  echo -e "nas\nnas" | smbpasswd -a -s nas
+  smbpasswd -e nas
 
   # 添加 Samba 配置
-  mv /opt/package/conf/samba.conf /etc/samba
+  cp /opt/package/conf/samba.conf /etc/samba/smb.conf
 
-  # 添加nas用户目录权限
-  sudo chown -R nas:nas /mnt
-  sudo chmod -R 775 /mnt
+  # 添加 nas 用户目录权限
+  chown -R nas:nas /mnt
+  chmod -R 777 /mnt
+
+  # 检查 Samba 配置
+  testparm -s
 
   # 重启 Samba
-  sudo systemctl restart smbd
-  sudo systemctl enable smbd
+  systemctl restart smbd
+  systemctl enable smbd
 }
 
-# 安装树莓派SCI摄像头服务
+# 安装树莓派 CSI 摄像头服务
 startPISci() {
-  waitAptLock
-  sudo apt-get update
-  sudo apt-get upgrade -y
-  waitAptLock
-  sudo apt-get install -y git cmake meson ninja-build build-essential python3-pip python3-yaml python3-ply libgnutls28-dev openssl libexpat1-dev libcamera-dev v4l-utils \
-  libboost-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev \
-  libavutil-dev libexif-dev libjpeg-dev libpng-dev libavcodec-dev libavdevice-dev libavformat-dev libswscale-dev libepoxy-dev libdrm-dev libwebp-dev libx11-dev \
-  python3-jinja2 libevent-dev libyaml-dev libudev-dev libtiff-dev libegl1-mesa-dev libgles2-mesa-dev ffmpeg
 
-  # 安装 0.7.0 版本 libcamera
+  echo "开始安装 CSI 摄像头环境"
+
+  waitAptLock
+  echo "安装编译依赖"
+  sudo apt-get install -y  git unzip cmake meson ninja-build build-essential pkg-config python3-pip python3-yaml \
+  python3-ply python3-jinja2 libgnutls28-dev openssl libexpat1-dev libboost-dev libboost-system-dev libboost-filesystem-dev \
+  libboost-program-options-dev libavutil-dev libavcodec-dev libavdevice-dev libavformat-dev libswscale-dev libexif-dev \
+  libjpeg-dev libpng-dev libtiff-dev libepoxy-dev libdrm-dev libwebp-dev libx11-dev libevent-dev libyaml-dev libudev-dev \
+  libegl1-mesa-dev libgles2-mesa-dev ffmpeg v4l-utils
+
+  #################################################
+  # 编译 libcamera
+  #################################################
+
+  echo "开始安装 libcamera 0.7.0"
+
+  # 删除 Ubuntu 自带版本，避免冲突
+  sudo apt-get remove -y libcamera-dev libcamera0 2>/dev/null || true
   unzip /opt/package/csi/libcamera.zip -d /root
+  # 安装 libpisp
   unzip /opt/package/csi/libpisp-1.3.0.zip -d /root/libcamera
-  cd /root/libcamera || exit
+  cp /opt/package/csi/googletest-release-1.11.0.zip /root/libcamera/subprojects/packagefiles/gtest-1.11.0.zip
+  cp /opt/package/csi/gtest_1.11.0-1_patch.zip /root/libcamera/subprojects/packagefiles/gtest_1.11.0-1_patch.zip
+#  mv /root/libcamera/subprojects/googletest-release-1.11.0 /root/libcamera/subprojects/googletest
+  cd /root/libcamera || exit 1
   git checkout v0.7.0
-  meson setup build
+  pip3 install --upgrade meson
+  rm -rf build
+  meson setup build --buildtype=release -Dpipelines=rpi/vc4
   ninja -C build
   ninja -C build install
   ldconfig
 
-  unzip /opt/package/csi/libcamera-apps.zip -d /root
+  #################################################
+  # 设置 pkg-config
+  #################################################
+  echo "配置 libcamera pkg-config"
+  export PKG_CONFIG_PATH=/usr/local/lib/aarch64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+  echo "export PKG_CONFIG_PATH=/usr/local/lib/aarch64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:\$PKG_CONFIG_PATH" >> /etc/profile
+  echo "检查 libcamera"
+  pkg-config --modversion libcamera
 
-  cd /root/libcamera-apps || exit
-  meson setup build --buildtype=release
+  #################################################
+  # 编译 rpicam-apps
+  #################################################
+  echo "开始编译 rpicam-apps"
+  unzip /opt/package/csi/libcamera-apps.zip -d /root
+  cd /root/libcamera-apps || exit 1
+  rm -rf build
+  PKG_CONFIG_PATH=/usr/local/lib/aarch64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig  meson setup build --buildtype=release
+
+  # 关闭 libav，避免额外依赖
   meson configure build -Denable_libav=disabled
   ninja -C build
   ninja -C build install
+
+  #################################################
+  # 动态库配置
+  #################################################
   echo "/usr/local/lib" > /etc/ld.so.conf.d/rpicam.conf
+  echo "/usr/local/lib/aarch64-linux-gnu" >> /etc/ld.so.conf.d/rpicam.conf
   ldconfig
+
+  #################################################
+  # 验证
+  #################################################
+  echo "安装完成"
+  echo "libcamera版本:"
+  pkg-config --modversion libcamera
+
+  echo "rpicam版本:"
+  rpicam-hello --version
+
+  echo "摄像头列表:"
+  rpicam-hello --list-cameras
+
 }
+
 
 # 安装 MediaMTX
 startMediaMTX() {
@@ -358,28 +415,6 @@ startCamera() {
 
 }
 
-# 脚本守护线程
-startWatchService() {
-
-  mkdir -p /opt/docker/watchdog
-
-  # 开机唤醒守护线程配置
-  mv /opt/package/conf/watchdog.service /etc/systemd/system/
-  sed -i 's/\r$//' /etc/systemd/system/watchdog.service
-
-  # 守护线程
-  mv /opt/package/conf/watchdog.sh /opt/docker/watchdog
-  sed -i 's/\r$//' /opt/docker/watchdog/watchdog.sh
-  chmod +x /opt/docker/watchdog/watchdog.sh
-
-  # 重新加载systemd配置
-  sudo systemctl daemon-reload
-  # 开机自启
-  sudo systemctl enable watchdog.service
-  # 立即启动
-  sudo systemctl start watchdog.service
-}
-
 main() {
   timer_start=$(date "+%Y-%m-%d %H:%M:%S")
 
@@ -397,9 +432,6 @@ main() {
 
   # 启动树莓派SCI摄像头服务
   startMediaMTX
-
-  # 脚本守护线程
-#  startWatchService
 
   timer_end=$(date "+%Y-%m-%d %H:%M:%S")
   diff=$(( $(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}") ))

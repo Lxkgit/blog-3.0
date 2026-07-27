@@ -113,9 +113,10 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.error("exceptionCaught 异常断开 netty 通道连接");
+        logger.info("Netty 通道: {} 发生异常: {}", ctx.channel().attr(NettyServer.DEVICE_CODE).get(), cause.getMessage(), cause);
+
         // 当出现异常就关闭连接
-        ctx.close();
+//        ctx.close();
     }
 
     /**

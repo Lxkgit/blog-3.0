@@ -492,7 +492,7 @@ startPy() {
   sleep 8m
   mkdir -p /opt/docker/files/python/code
   mv /opt/package/python/* /opt/docker/files/python/code
-  unzip /opt/docker/files/python/code/python.zip -d /opt/docker/files/python/code
+  unzip /opt/docker/files/python/code/socket.zip -d /opt/docker/files/python/code
   chmod +x /opt/docker/files/python/code/web_socket.py
   sed -i 's/\r$//' /opt/docker/files/python/code/web_socket.py
   chmod +x /opt/docker/files/python/code/shell/*.sh

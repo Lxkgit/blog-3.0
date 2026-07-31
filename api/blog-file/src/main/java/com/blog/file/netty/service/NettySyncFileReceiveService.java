@@ -315,9 +315,8 @@ public class NettySyncFileReceiveService {
                 .action(timerActionManager.get(Constant.TASK_DELETE_TEMP_FILE))
                 .context(context)
                 .policy(new Policy(1))
-                .trigger(new DelayTrigger(Duration.ofSeconds(10)))
+                .trigger(new DelayTrigger(Duration.ofHours(1)))
                 .build();
-
         timerManager.schedule(definition).getTaskId();
     }
 

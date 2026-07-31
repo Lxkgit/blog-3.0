@@ -65,13 +65,14 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        String clientIp = inetSocketAddress.getAddress().getHostAddress();
-        int clientPort = inetSocketAddress.getPort();
-        // 获取终止连接的客户端ID
-        ChannelId channelId = ctx.channel().id();
-        logger.info("客户端: {} 断开连接", ctx.channel().attr(NettyServer.DEVICE_CODE).get());
-        NettyServer.CHANNEL_MAP.remove(ctx.channel().attr(NettyServer.DEVICE_CODE).get());
+        String deviceCode = ctx.channel().attr(NettyServer.DEVICE_CODE).get();
+        logger.info("Netty 客户端断开连接 deviceCode={}, channelId={}", deviceCode, ctx.channel().id());
+        if (deviceCode != null) {
+            NettyServer.CHANNEL_MAP.remove(deviceCode);
+        } else {
+            logger.warn("客户端断开，但是没有绑定设备ID channelId={}", ctx.channel().id());
+        }
+        ctx.fireChannelInactive();
     }
 
     /**
@@ -113,10 +114,11 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.info("Netty 通道: {} 发生异常: {}", ctx.channel().attr(NettyServer.DEVICE_CODE).get(), cause.getMessage(), cause);
+        String deviceCode = ctx.channel().attr(NettyServer.DEVICE_CODE).get();
 
-        // 当出现异常就关闭连接
-//        ctx.close();
+        logger.error("Netty异常 device={}, channel={}", deviceCode, ctx.channel().id(), cause);
+
+        ctx.close();
     }
 
     /**

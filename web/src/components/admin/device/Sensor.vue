@@ -1,224 +1,210 @@
 <template>
-  <el-card style="margin: 18px 2%; width: 94%;">
-    <div style="margin: 18px 2%; display: flex">
-      <div style="width: 80%; display: flex;">
-        <div style="flex: 1;">
-          <div style="margin-bottom: 10px;">
-            <el-button @click="openChipInfo(props.chipId)" type='success' text>
-              查看单片机详情
-            </el-button>
-          </div>
-          <div>
-            <span>设备类型：</span> <el-tag type="success">单片机</el-tag>
-          </div>
-          <div>
-            <span>单片机名称：</span> <span>{{ chip.chipName }}</span>
-          </div>
+  <!-- 单片机信息 -->
+
+  <div class="chip-wrapper">
+    <el-card class="chip-detail-card">
+      <div class="card-header">
+        <div class="chip-title">
+          <el-tag type="success"> 单片机 </el-tag>
+          <span>
+            {{ chip.chipName }}
+          </span>
         </div>
-
-        <div style="flex: 1;">
-
-          <div>
-            <span>单片机编码：</span> <span>{{ chip.chipCode }}</span>
-          </div>
-          <div>
-            <span>单片机状态：</span>
-            <span><el-tag type="success">{{ chip.chipStatus }}</el-tag></span>
-          </div>
-          <div>
-            <span>备注信息：</span> <span>{{ chip.memo }}</span>
-          </div>
-          <div>
-            <span>创建时间：</span> <span>{{ chip.createTime }}</span>
-          </div>
-          <div>
-            <span>修改时间：</span> <span>{{ chip.updateTime }}</span>
-          </div>
-        </div>
-
-
+        <el-button type="success" text @click="openChipInfo(props.chipId)">
+          查看单片机详情
+        </el-button>
       </div>
 
-    </div>
-  </el-card>
-  <el-card v-for="(sensor, id) in sensorList.data" style="
-      margin: 18px 2%;
-      width: 45%;
-      height: 200px;
-      margin-bottom: 20px;
-
-    " :key="id">
-    <div style="display: flex">
-      <div style="width: 85%; display: flex">
-
-        <div style="flex: 1;">
-          <div style="margin-bottom: 10px;">
-            <el-button @click="openSensor(sensor)" type='danger' text>
-              打开传感器
-            </el-button>
-          </div>
-          <div>
-            <span>设备类型：</span> <el-tag type="danger">传感器</el-tag>
-          </div>
+      <div class="device-content">
+        <div class="info-item">
+          <label> 单片机编码 </label>
+          <span>
+            {{ chip.chipCode }}
+          </span>
         </div>
 
-        <div style="flex: 1;">
-          <div>
-            <span>传感器名称：</span> <span>{{ sensor.sensorName }}</span>
-          </div>
-          <div>
-            <span>传感器编码：</span> <span>{{ sensor.sensorCode }}</span>
-          </div>
-          <div>
-            <span>备注信息：</span> <span>{{ sensor.memo }}</span>
-          </div>
-          <div>
-            <span>创建时间：</span> <span>{{ sensor.createTime }}</span>
-          </div>
-          <div>
-            <span>修改时间：</span> <span>{{ sensor.updateTime }}</span>
-          </div>
+        <div class="info-item">
+          <label> 单片机状态 </label>
+
+          <el-tag v-if="chip.chipStatus === 1" type="success">
+            {{ deviceStatus(chip.chipStatus) }}
+          </el-tag>
+
+          <el-tag v-else type="warning">
+            {{ deviceStatus(chip.chipStatus) }}
+          </el-tag>
         </div>
 
+        <!-- 备注 -->
+        <div class="info-item full-row">
+          <label> 备注信息 </label>
+          <span>
+            {{ chip.memo }}
+          </span>
+        </div>
+
+        <!-- 时间 -->
+        <div class="time-row">
+          <div class="info-time">
+            创建时间：
+            {{ chip.createTime }}
+          </div>
+          <div class="info-time">
+            修改时间：
+            {{ chip.updateTime }}
+          </div>
+        </div>
+      </div>
+    </el-card>
+  </div>
+
+  <!-- 传感器列表 -->
+  <div class="sensor-container">
+    <el-card
+      v-for="sensor in sensorList.data"
+      :key="sensor.id"
+      class="sensor-card"
+      @click="openSensor(sensor)"
+    >
+      <div class="sensor-header">
+        <div class="sensor-title">
+          <el-tag type="danger"> 传感器 </el-tag>
+          <span>
+            {{ sensor.sensorName }}
+          </span>
+        </div>
+        <el-button type="danger" text @click.stop="openSensor(sensor)"> 打开 </el-button>
       </div>
 
-    </div>
-  </el-card>
-  <!-- <el-card style="margin: 18px 2%; width: 45%; height: 200px; cursor: pointer"
-    @click="dialogFormVisible = true; selectSensorTypeListFun()">
-    + 新增传感器
-  </el-card> -->
+      <div class="device-content">
+        <div class="info-item">
+          <label> 传感器编码 </label>
+          <span>
+            {{ sensor.sensorCode }}
+          </span>
+        </div>
 
-  <!-- <el-dialog v-model="dialogFormVisible" title="新增传感器" width="500" :close-on-click-modal="false">
-    <el-form :model="sensor" ref="sensorRef" :rules="sensorRules">
-      <el-form-item prop="sensorName" label="传感器名称" :label-width="formLabelWidth">
-        <el-input v-model="sensor.sensorName" autocomplete="off" />
-      </el-form-item>
-      <el-form-item prop="sensorCode" label="传感器编码" :label-width="formLabelWidth">
-        <el-input v-model="sensor.sensorCode" autocomplete="off" />
-      </el-form-item>
-      <el-form-item prop="sensorTypeId" label="传感器类型" :label-width="formLabelWidth">
-        <el-select v-model="sensor.sensorTypeId" placeholder="选择传感器类型">
-          <el-option v-for="item in sensorTypeList.data" :key="item.id" :label="item.sensorName" :value="item.id" />
-        </el-select>
-      </el-form-item>
-      <el-form-item prop="memo" label="备注信息" :label-width="formLabelWidth">
-        <el-input v-model="sensor.memo" autocomplete="off" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveSensorFun()"> 保存 </el-button>
+        <div class="info-item">
+          <label> 类型 </label>
+          <span>
+            {{ sensor.sensorType }}
+          </span>
+        </div>
+
+        <div class="info-item full-row">
+          <label> 备注信息 </label>
+          <span>
+            {{ sensor.memo }}
+          </span>
+        </div>
+
+        <div class="time-row">
+          <div class="info-time">
+            创建时间：
+            {{ sensor.createTime }}
+          </div>
+          <div class="info-time">
+            修改时间：
+
+            {{ sensor.updateTime }}
+          </div>
+        </div>
       </div>
-    </template>
-</el-dialog> -->
+    </el-card>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
-import { ElMessage } from 'element-plus';
+import { ref, reactive, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import {
   selectChipByIdApi,
   selectSensorListApi,
   selectSensorTypeListApi,
   saveSensorApi,
-} from "@/api/file";
-let {
-  sensorRef,
-  dialogFormVisible,
-  formLabelWidth,
-  sensor,
-  sensorRules,
-  chip,
-  sensorList,
-  sensorTypeList,
-  openChipInfo,
-  selectChipByIdFun,
-  selectSensorListFun,
-  saveSensorFun,
-  selectSensorTypeListFun,
-  openSensor,
-} = sensorFun();
+} from '@/api/file'
+let { chip, sensorList, openChipInfo, selectChipByIdFun, selectSensorListFun, openSensor } =
+  sensorFun()
+import mixin from '@/mixins/device'
 
-const emit = defineEmits(["sensor", "chipId"]);
+const { deviceStatus } = mixin()
+const emit = defineEmits(['sensor', 'chipId'])
 
 const props = defineProps({
   chipId: Number,
-});
+})
 
 onMounted(() => {
-  selectChipByIdFun(props.chipId);
-  selectSensorListFun();
-});
+  selectChipByIdFun(props.chipId)
+  selectSensorListFun()
+})
 
 function sensorFun() {
   // 新增设备表单对象
-  const sensorRef: any = ref(null);
+  const sensorRef: any = ref(null)
   // 新增设备dialog
-  const dialogFormVisible = ref(false);
-  const formLabelWidth = "100px";
+  const dialogFormVisible = ref(false)
+  const formLabelWidth = '100px'
   // 新增设备信息
   const sensor = reactive({
-    sensorName: "",
-    sensorCode: "",
-    sensorTypeId: "",
-    memo: "",
-  });
+    sensorName: '',
+    sensorCode: '',
+    sensorTypeId: '',
+    memo: '',
+  })
 
   // 新增设备表单验证规则
   const sensorRules = {
     sensorName: [
       {
         required: true,
-        message: "请输入设备名称",
-        trigger: "blur",
+        message: '请输入设备名称',
+        trigger: 'blur',
       },
     ],
     sensorCode: [
       {
         required: true,
-        message: "请输入设备编码",
-        trigger: "blur",
+        message: '请输入设备编码',
+        trigger: 'blur',
       },
     ],
     sensorTypeId: [
       {
         required: true,
-        message: "请输入设备位置",
-        trigger: "blur",
+        message: '请输入设备位置',
+        trigger: 'blur',
       },
     ],
     memo: [
       {
         required: true,
-        message: "请输入设备备注信息",
-        trigger: "blur",
+        message: '请输入设备备注信息',
+        trigger: 'blur',
       },
     ],
-  };
+  }
   // 单片机信息
-  let chip: any = ref({});
+  let chip: any = ref({})
 
   // 传感器列表
-  let sensorList: any = reactive({ data: [] });
+  let sensorList: any = reactive({ data: [] })
 
   // 传感器列表
-  let sensorTypeList: any = reactive({ data: [] });
+  let sensorTypeList: any = reactive({ data: [] })
 
   // 获取单片机信息
   const selectChipByIdFun = (id: any) => {
     selectChipByIdApi({ id: id }).then((res: any) => {
       if (res.code === 200) {
-        chip.value = res.result;
+        chip.value = res.result
       }
-    });
-  };
-
+    })
+  }
 
   const openChipInfo = (chipId: any) => {
-    emit('chipId', chipId);
-  };
+    emit('chipId', chipId)
+  }
 
   // 查询单片机下全部传感器
   const selectSensorListFun = () => {
@@ -228,27 +214,8 @@ function sensorFun() {
       chipId: props.chipId,
     }).then((res: any) => {
       if (res.code === 200) {
-        sensorList.data = res.result.list;
-      }
-    });
-  };
-
-  const saveSensorFun = () => {
-    saveSensorApi({
-      chipId: props.chipId,
-      sensorTypeId: sensor.sensorTypeId,
-      sensorName: sensor.sensorName,
-      sensorCode: sensor.sensorCode,
-      memo: sensor.memo
-    }).then((res: any) => {
-      if (res.code === 200) {
-        dialogFormVisible.value = false;
-        ElMessage.success('传感器创建成功');
-        selectSensorListFun();
-        sensor.sensorName = "";
-        sensor.sensorCode = "";
-        sensor.sensorTypeId = "";
-        sensor.memo = "";
+        console.log(res.result.list)
+        sensorList.data = res.result.list
       }
     })
   }
@@ -256,14 +223,14 @@ function sensorFun() {
   // 查询支持的全部传感器类型
   const selectSensorTypeListFun = () => {
     selectSensorTypeListApi().then((res: any) => {
-      sensorTypeList.data = res.result;
-    });
-  };
+      sensorTypeList.data = res.result
+    })
+  }
 
   // 打开传感器
   const openSensor = (sensor: any) => {
-    emit("sensor", sensor);
-  };
+    emit('sensor', sensor)
+  }
 
   return {
     sensorRef,
@@ -277,11 +244,165 @@ function sensorFun() {
     openChipInfo,
     selectChipByIdFun,
     selectSensorListFun,
-    saveSensorFun,
     selectSensorTypeListFun,
     openSensor,
-  };
+  }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+/* 单片机详情 */
+
+.chip-wrapper {
+  width: 100%;
+
+  margin-top: 20px;
+}
+
+.chip-detail-card {
+  width: 45%;
+
+  min-width: 420px;
+
+  margin-left: 2%;
+
+  border-radius: 14px;
+
+  transition: 0.25s;
+}
+
+.chip-detail-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* 通用头部 */
+
+.card-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 18px;
+}
+
+.chip-title,
+.sensor-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  font-size: 18px;
+
+  font-weight: 600;
+}
+
+/* 信息 */
+
+.device-content {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+
+  align-items: center;
+
+  font-size: 14px;
+
+  color: #606266;
+}
+
+.info-item label {
+  width: 100px;
+
+  flex-shrink: 0;
+
+  color: #909399;
+}
+
+.full-row {
+  grid-column: 1/-1;
+}
+
+.time-row {
+  grid-column: 1/-1;
+
+  display: flex;
+
+  gap: 60px;
+}
+
+.info-time {
+  font-size: 12px;
+
+  color: #999;
+}
+
+/* 传感器 */
+
+.sensor-container {
+  margin: 20px 2%;
+
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+
+  gap: 20px;
+}
+
+.sensor-card {
+  height: 180px;
+
+  border-radius: 14px;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+.sensor-card:hover {
+  transform: translateY(-5px);
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.sensor-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 18px;
+}
+
+@media screen and (max-width: 900px) {
+  .chip-detail-card {
+    width: 95%;
+
+    min-width: 0;
+  }
+
+  .device-content {
+    grid-template-columns: 1fr;
+  }
+
+  .time-row {
+    flex-direction: column;
+
+    gap: 8px;
+  }
+
+  .sensor-container {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

@@ -1,10 +1,10 @@
 <template>
   <div style="display: flex;">
     <div style="flex: 1; width: 40%;">
-      <CpuChart />
+      <!-- <CpuChart /> -->
     </div>
     <div style="flex: 1; width: 40%;">
-      <MemoryChart />
+      <!-- <MemoryChart /> -->
     </div>
   </div>
 </template>

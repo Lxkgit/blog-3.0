@@ -576,7 +576,6 @@ let { timeToMinOrHour } = timeFormat()
 
 let {
   switchFlag,
-  createFileFormRef,
   createFileRules,
   filePath,
   filePathArr,
@@ -596,7 +595,6 @@ let {
   changePath,
   openFileDirFun,
   openFileFun,
-  showImg,
   deleteFileDirFun,
   deleteFileFun,
   syncFileFun,
@@ -637,15 +635,15 @@ onMounted(() => {
   }
   switchFlag.value = fStore.switchFlag
   selectFileDirOrFileFun()
-  window.addEventListener("keydown", onKey)
+  window.addEventListener('keydown', onKey)
 })
 
 onUnmounted(() => {
-  window.removeEventListener("keydown", onKey)
+  window.removeEventListener('keydown', onKey)
 })
 
 function onKey(e: KeyboardEvent) {
-  if (e.key === "Backspace") {
+  if (e.key === 'Backspace') {
     changePath(-2)
   }
 }
@@ -687,7 +685,12 @@ function videoFn(): any {
     },
   }
 
-  const videoPlayerRef = ref(null)
+  interface PlayerRef {
+    playPlayer: () => void
+    pausePlayer?: () => void
+  }
+
+  const videoPlayerRef = ref<PlayerRef | null>(null)
 
   // 打开对话框时设置视频URL
   const openDialog = () => {
@@ -1066,7 +1069,7 @@ function fileFn(): any {
   }
 
   const removeVideo = (file: any) => {
-    video.videoList = video.videoList.filter((v) => v.id !== file.id)
+    video.videoList = video.videoList.filter((v: any) => v.id !== file.id)
     if (video.videoList.length === 0) {
       handleDialogClose()
       return

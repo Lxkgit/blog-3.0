@@ -1,115 +1,151 @@
 <template>
+  <div class="device-page" @contextmenu.prevent="openMenu($event, null)">
+    <!-- 设备列表 -->
 
-  <div style="width: 100%; height: 100%; display: flex; flex-flow: wrap;overflow-y: auto; align-items:flex-start;"
-    @contextmenu.prevent="openMenu($event, null)">
-    <el-card v-for="(device, id) in deviceList.data" :key="id" @contextmenu.prevent.stop="openMenu($event, device)"
-      style="
-      margin: 18px 2%;
-      width: 45%;
-      height: 200px;
-      margin-bottom: 20px;
-    ">
-      <div style="display: flex">
-        <div style="width: 85%; display: flex;">
-          <div style="flex: 1;">
-            <div style="margin-bottom: 10px;">
-              <el-button @click="openDevice(device)" type='primary' text>
-                打开设备
-              </el-button>
-            </div>
-            <div>
-              <span>设备类型：</span> <el-tag type="primary">设备</el-tag>
-            </div>
-            <div>
-              <span>设备名称：</span> <span>{{ device.deviceName }}</span>
-            </div>
-            <div>
-              <span>设备编码：</span> <span>{{ showText(device.deviceCode, 10) }}</span>
-            </div>
+    <el-card
+      v-for="device in deviceList.data"
+      :key="device.id"
+      class="device-card"
+      @contextmenu.prevent.stop="openMenu($event, device)"
+    >
+      <div class="card-header">
+        <div class="device-title">
+          <el-tag type="primary"> 设备 </el-tag>
+          <span>
+            {{ device.deviceName }}
+          </span>
+        </div>
+
+        <el-button type="primary" text @click="openDevice(device)"> 打开设备 </el-button>
+      </div>
+
+      <div class="device-content">
+        <div class="info-item">
+          <label> 设备编码 </label>
+
+          <span>
+            {{ showText(device.deviceCode, 15) }}
+          </span>
+        </div>
+
+        <div class="info-item">
+          <label> 设备位置 </label>
+
+          <span>
+            {{ device.devicePosition }}
+          </span>
+        </div>
+
+        <div class="info-item">
+          <label> 设备状态 </label>
+
+          <el-tag v-if="device.deviceStatus === 1" type="success">
+            {{ deviceStatus(device.deviceStatus) }}
+          </el-tag>
+
+          <el-tag v-else type="warning">
+            {{ deviceStatus(device.deviceStatus) }}
+          </el-tag>
+        </div>
+
+        <!-- 备注信息 独占一行 -->
+        <div class="info-item full-row">
+          <label> 备注信息 </label>
+
+          <span>
+            {{ device.memo }}
+          </span>
+        </div>
+
+        <!-- 时间 同一行 -->
+        <div class="time-row">
+          <div class="info-time">
+            创建时间：
+            {{ device.createTime }}
           </div>
-          <div style="flex: 1;">
-            <div>
-              <span>设备位置：</span> <span>{{ device.devicePosition }}</span>
-            </div>
-            <div>
-              <span>设备状态：</span>
-              <span>
-                <el-tag v-if="device.deviceStatus === 1" type="success">{{ deviceStatus(device.deviceStatus) }}</el-tag>
-                <el-tag v-if="device.deviceStatus === 0" type="warning">{{ deviceStatus(device.deviceStatus) }}</el-tag>
-              </span>
-            </div>
-            <div><span>时间模板：</span> <span>模板1</span></div>
-            <div>
-              <span>备注信息：</span> <span>{{ device.memo }}</span>
-            </div>
-            <div>
-              <span>创建时间：</span> <span>{{ device.createTime }}</span>
-            </div>
-            <div>
-              <span>修改时间：</span> <span>{{ device.updateTime }}</span>
-            </div>
+
+          <div class="info-time">
+            修改时间：
+            {{ device.updateTime }}
           </div>
         </div>
-        <!-- <div style="width: 18%">
-          <MyIcon type="icon-device" />
-        </div> -->
       </div>
     </el-card>
 
-    <el-dialog v-model="dialogFormVisible" title="新增服务器设备" width="500" :close-on-click-modal="false">
-      <el-form :model="device" ref="deviceRef" :rules="deviceRules">
-        <el-form-item prop="deviceName" label="设备名称" :label-width="formLabelWidth">
-          <el-input v-model="device.deviceName" autocomplete="off" />
+    <!-- 新增设备 -->
+
+    <el-dialog
+      v-model="dialogFormVisible"
+      title="新增服务器设备"
+      width="500px"
+      :close-on-click-modal="false"
+    >
+      <el-form ref="deviceRef" :model="device" :rules="deviceRules">
+        <el-form-item label="设备名称" :label-width="formLabelWidth" prop="deviceName">
+          <el-input v-model="device.deviceName" />
         </el-form-item>
-        <el-form-item prop="deviceCode" label="设备编码" :label-width="formLabelWidth">
-          <el-input v-model="device.deviceCode" autocomplete="off" />
+
+        <el-form-item label="设备编码" :label-width="formLabelWidth" prop="deviceCode">
+          <el-input v-model="device.deviceCode" />
         </el-form-item>
-        <el-form-item prop="devicePosition" label="设备位置" :label-width="formLabelWidth">
-          <el-input v-model="device.devicePosition" autocomplete="off" />
+
+        <el-form-item label="设备位置" :label-width="formLabelWidth" prop="devicePosition">
+          <el-input v-model="device.devicePosition" />
         </el-form-item>
-        <el-form-item prop="memo" label="备注信息" :label-width="formLabelWidth">
-          <el-input v-model="device.memo" autocomplete="off" />
+
+        <el-form-item label="备注信息" :label-width="formLabelWidth" prop="memo">
+          <el-input v-model="device.memo" />
         </el-form-item>
-        <el-form-item prop="timeTemplate" label="时间模板" :label-width="formLabelWidth">
+
+        <el-form-item label="时间模板" :label-width="formLabelWidth" prop="timeTemplate">
           <el-select v-model="device.timeTemplate" placeholder="选择时间模板">
             <el-option label="时间模板1" :value="1" />
+
             <el-option label="时间模板2" :value="2" />
           </el-select>
         </el-form-item>
       </el-form>
+
       <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="addDeviceFun"> 保存 </el-button>
-        </div>
+        <el-button @click="dialogFormVisible = false"> 取消 </el-button>
+
+        <el-button type="primary" @click="addDeviceFun"> 保存 </el-button>
       </template>
     </el-dialog>
 
-    <ul v-if="menu.visible" :style="{ left: menu.left + 'px', top: menu.top + 'px' }" class="contextmenu">
-      <li @click="refreshDevice()">刷新</li>
-      <li v-if="menu.type === 1">
-        修改设备信息
-      </li>
+    <!-- 右键菜单 -->
+
+    <ul
+      v-if="menu.visible"
+      class="contextmenu"
+      :style="{
+        left: menu.left + 'px',
+        top: menu.top + 'px',
+      }"
+    >
+      <li @click="refreshDevice">刷新</li>
+
+      <li v-if="menu.type === 1">修改设备信息</li>
+
       <li @click="menu.visible = false">关闭菜单</li>
     </ul>
   </div>
-
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { selectDeviceListApi, saveDeviceApi } from '@/api/file';
-import { ElMessage } from 'element-plus';
-import mixin from '@/mixins/device';
-import icon from '@/utils/icon';
+import { ref, reactive, onMounted } from 'vue'
 
-let { MyIcon } = icon();
+import { selectDeviceListApi, saveDeviceApi } from '@/api/file'
 
+import { ElMessage } from 'element-plus'
 
-let { deviceStatus } = mixin();
+import mixin from '@/mixins/device'
 
-let {
-  deviceRef,
+const { deviceStatus } = mixin()
+
+const emit = defineEmits(['deviceId'])
+
+const {
   dialogFormVisible,
   formLabelWidth,
   device,
@@ -121,44 +157,51 @@ let {
   getDeviceListFun,
   openDevice,
   addDeviceFun,
-} = deviceFun();
-
-const emit = defineEmits(['deviceId']);
+} = deviceFun()
 
 onMounted(() => {
-  getDeviceListFun();
-});
+  getDeviceListFun()
+})
 
-const showText = (text: any, maxLength: Number) => {
-  if (text.length > maxLength) {
-    return text.substring(0, maxLength) + '...';
+const showText = (text: string, max: number) => {
+  if (!text) {
+    return ''
   }
-  return text;
-};
+
+  return text.length > max ? text.substring(0, max) + '...' : text
+}
 
 function deviceFun() {
-  // 新增设备表单对象
-  const deviceRef: any = ref(null);
-  // 新增设备dialog
-  const dialogFormVisible = ref(false);
-  const formLabelWidth = '90px';
-  // 新增设备信息
+  const deviceRef: any = ref(null)
+
+  const dialogFormVisible = ref(false)
+
+  const formLabelWidth = '90px'
+
   const device = reactive({
     deviceName: '',
     deviceCode: '',
     devicePosition: '',
     memo: '',
     timeTemplate: '',
-  });
+  })
 
-  let menu: any = reactive({
+  const menu: any = reactive({
     visible: false,
-    left: 0,
-    top: 0,
-    type: 0,
-  });
 
-  // 新增设备表单验证规则
+    left: 0,
+
+    top: 0,
+
+    type: 0,
+
+    device: null,
+  })
+
+  const deviceList: any = reactive({
+    data: [],
+  })
+
   const deviceRules = {
     deviceName: [
       {
@@ -167,6 +210,7 @@ function deviceFun() {
         trigger: 'blur',
       },
     ],
+
     deviceCode: [
       {
         required: true,
@@ -174,6 +218,7 @@ function deviceFun() {
         trigger: 'blur',
       },
     ],
+
     devicePosition: [
       {
         required: true,
@@ -181,89 +226,85 @@ function deviceFun() {
         trigger: 'blur',
       },
     ],
+
     memo: [
       {
         required: true,
-        message: '请输入设备备注信息',
+        message: '请输入备注',
         trigger: 'blur',
       },
     ],
+
     timeTemplate: [
       {
         required: true,
-        message: '请选择时间模板',
+        message: '请选择模板',
         trigger: 'blur',
       },
     ],
-  };
-  // 设备列表
-  let deviceList: any = reactive({ data: [] });
+  }
 
-  /**
-   * 打开菜单
-   */
-  const openMenu = (e: any, item?: any) => {
-    if (item !== null) {
-      menu.device = item;
-      menu.type = 1;
+  const openMenu = (e: any, item: any) => {
+    menu.visible = true
+
+    menu.left = e.clientX
+
+    menu.top = e.clientY
+
+    if (item) {
+      menu.device = item
+
+      menu.type = 1
     } else {
-      menu.device = null;
-      menu.type = 0;
+      menu.device = null
+
+      menu.type = 0
     }
-    menu.visible = true;
-    menu.left = e.clientX;
-    menu.top = e.clientY;
-  };
+  }
 
-  /**
-   * 刷新当前目录
-   */
   const refreshDevice = () => {
-    menu.visible = false;
-    getDeviceListFun();
-  };
+    menu.visible = false
 
-  // 获取设备列表
+    getDeviceListFun()
+  }
+
   const getDeviceListFun = () => {
     selectDeviceListApi().then((res: any) => {
       if (res.code === 200) {
-        deviceList.data = res.result;
+        deviceList.data = res.result
       }
-    });
-  };
+    })
+  }
 
-  // 打开设备
-  const openDevice = (device: any) => {
-    emit('deviceId', device.id);
-  };
+  const openDevice = (item: any) => {
+    emit('deviceId', item.id)
+  }
 
-  // 新增设备
   const addDeviceFun = () => {
-    if (deviceRef.value !== null) {
-      deviceRef.value.validate((valid: any) => {
-        if (valid) {
-          dialogFormVisible.value = false;
-          saveDeviceApi({
-            deviceName: device.deviceName,
-            deviceCode: device.deviceCode,
-            devicePosition: device.devicePosition,
-            memo: device.memo,
-            timeTemplate: device.timeTemplate,
-          }).then((res: any) => {
-            if (res.code === 200) {
-              ElMessage.success('设备创建成功');
-              getDeviceListFun();
-            }
-          });
-          device.deviceName = '';
-          device.deviceCode = '';
-          device.devicePosition = '';
-          device.memo = '';
-          device.timeTemplate = '';
-        }
-      });
-    }
-  };
+    deviceRef.value.validate((valid: any) => {
+      if (valid) {
+        saveDeviceApi({
+          deviceName: device.deviceName,
+
+          deviceCode: device.deviceCode,
+
+          devicePosition: device.devicePosition,
+
+          memo: device.memo,
+
+          timeTemplate: device.timeTemplate,
+        }).then((res: any) => {
+          if (res.code === 200) {
+            ElMessage.success('设备创建成功')
+
+            getDeviceListFun()
+          }
+        })
+
+        dialogFormVisible.value = false
+      }
+    })
+  }
 
   return {
     deviceRef,
@@ -278,63 +319,144 @@ function deviceFun() {
     getDeviceListFun,
     openDevice,
     addDeviceFun,
-  };
+  }
 }
 </script>
 
 <style scoped>
+.device-page {
+  width: 100%;
+
+  height: 100%;
+
+  padding: 20px;
+
+  overflow: auto;
+
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+
+  gap: 20px;
+
+  align-content: start;
+}
+
+.device-card {
+  height: 220px;
+
+  border-radius: 14px;
+
+  transition: 0.25s;
+}
+
+.device-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 18px;
+}
+
+.device-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  font-size: 18px;
+
+  font-weight: 600;
+}
+
+.device-content {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 14px;
+}
+
+/* 独占一行 */
+
+.full-row {
+  grid-column: 1 / -1;
+}
+
+/* 创建更新时间 */
+
+.time-row {
+  grid-column: 1 / -1;
+
+  display: flex;
+
+  gap: 50px;
+
+  align-items: center;
+}
+
+.info-time {
+  font-size: 12px;
+
+  color: #999;
+}
+
+.info-item {
+  display: flex;
+
+  align-items: center;
+
+  font-size: 14px;
+}
+
+.info-item label {
+  width: 80px;
+
+  color: #909399;
+}
+
+.info-time {
+  font-size: 12px;
+
+  color: #999;
+}
+
 .contextmenu {
   position: fixed;
-  min-width: min-content;
-  z-index: 1900;
-  border: 1px solid #d4d4d5;
-  line-height: 1.4285em;
-  max-width: 150px;
-  background: #fff;
-  font-weight: 400;
-  font-style: normal;
-  color: rgba(0, 0, 0, 0.87);
-  border-radius: 0.28571429rem;
-  box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12),
-    0 2px 10px 0 rgba(34, 36, 38, 0.15);
-}
 
-.contextmenu div {
-  position: relative;
-  vertical-align: middle;
-  line-height: 1;
-  -webkit-tap-highlight-color: transparent;
-  padding: 10px 15px;
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.contextmenu div:hover {
-  background: #eee;
-}
-
-.contextmenu {
-  margin: 0;
-  background: #fff;
   z-index: 3000;
-  position: absolute;
-  list-style-type: none;
-  padding: 5px 0;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 400;
-  color: #333;
-  box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.3);
+
+  background: white;
+
+  border-radius: 8px;
+
+  padding: 6px 0;
+
+  margin: 0;
+
+  list-style: none;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
 }
 
 .contextmenu li {
-  margin: 0;
-  padding: 7px 16px;
+  padding: 8px 20px;
+
   cursor: pointer;
+
+  font-size: 14px;
 }
 
 .contextmenu li:hover {
-  background: #eee;
+  background: #f5f7fa;
 }
 </style>

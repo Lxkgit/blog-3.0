@@ -7,6 +7,13 @@ rtspTransports: [udp, multicast, tcp]
 # RTSP服务监听地址，默认端口8554
 rtspAddress: :8554
 
+webrtc: true
+webrtcAddress: :8889
+webrtcLocalUDPAddress: :8189
+
+webrtcAdditionalHosts:
+  - 124.221.195.130
+
 pathDefaults:
   # 流来源，默认接受客户端推流
   source: publisher
@@ -29,4 +36,6 @@ paths:
     record: true
     source: rtsp://172.17.0.1:18554/cam1
     sourceProtocol: tcp
-    sourceOnDemand: no
+    sourceOnDemand: yes
+    sourceOnDemandStartTimeout: 10s
+    sourceOnDemandCloseAfter: 600s

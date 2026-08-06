@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div ref="chartRef" class="chart"></div>
 </template>
 
@@ -90,4 +90,4 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 350px;
 }
-</style>
+</style> -->

@@ -35,20 +35,14 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class NettyClient implements CommandLineRunner {
 
+
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
-    private Channel channel;
+    private volatile Channel channel;
+
     private final EventLoopGroup workGroup = new NioEventLoopGroup();
+
     private final NettyClientInitializer nettyClientInitializer;
-
-    @Resource
-    private RegisterSettingMapper registerSettingDAO;
-
-    @Resource
-    private PiSystemConfig piSystemConfig;
-
-    @Resource
-    private RedisService redisService;
 
     @Value("${netty.ip}")
     private String ip;
@@ -57,47 +51,85 @@ public class NettyClient implements CommandLineRunner {
     private Integer port;
 
     /**
-     * 使用自定义线程池
+     * 是否正在连接
      */
-    @Resource
-    private Executor baseThread;
-
-    @Lazy
-    @Resource
-    private NettyMessageReplayThread replayThread;
+    private volatile boolean connecting = false;
 
     @Override
     public void run(String... args) {
-        try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(workGroup)
-                    .channel(NioSocketChannel.class)
-                    // 设置TCP长连接，TCP会主动探测空闲连接的有效性
-                    .option(ChannelOption.SO_KEEPALIVE, true)
-                    // 禁用Nagle算法，小数据时可以即时传输
-                    .option(ChannelOption.TCP_NODELAY, true)
-                    // 发送缓冲区大小
-                    .option(ChannelOption.SO_SNDBUF, 256 * 1024)
-                    // 接收缓冲区大小
-                    .option(ChannelOption.SO_RCVBUF, 256 * 1024)
-                    // Netty客户端channel初始化
-                    .handler(nettyClientInitializer);
-            // 连接服务器ip、端口
-            ChannelFuture future = bootstrap.connect(ip, port);
+        connect();
+    }
 
-            //客户端断线重连逻辑
-            future.addListener((ChannelFutureListener) futureListener -> {
-                if (futureListener.isSuccess()) {
-                    logger.info("===== Netty 连接成功 ===== ip: {} port: {}", ip, port);
-//                    baseThread.execute(replayThread);
-                } else {
-                    logger.warn("===== Netty 连接失败，30秒后尝试重新连接 ===== ip: {} port: {}", ip, port);
-                    futureListener.channel().eventLoop().schedule((Runnable) this::run, 30, TimeUnit.SECONDS);
-                }
-            });
-            channel = future.channel();
-        } catch (Exception e) {
-            logger.error("连接Netty服务端异常 error:{}", e.getMessage(), e);
+
+    /**
+     * 真正连接方法
+     */
+    private synchronized void connect() {
+        // 已经存在连接
+        if (channel != null && channel.isActive()) {
+            logger.warn("===== Netty已有连接，不重复连接 channel:{} =====", channel.id().asShortText());
+            return;
+        }
+        // 正在连接
+        if (connecting) {
+            logger.warn("===== Netty正在连接，跳过 =====");
+            return;
+        }
+        connecting = true;
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(workGroup).channel(NioSocketChannel.class)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.SO_SNDBUF, 256 * 1024)
+                .option(ChannelOption.SO_RCVBUF, 256 * 1024)
+                .handler(nettyClientInitializer);
+        logger.info("===== Netty开始连接 {}:{} =====", ip, port);
+        bootstrap.connect(ip, port).addListener((ChannelFutureListener) future -> {
+            connecting = false;
+            if (future.isSuccess()) {
+                channel = future.channel();
+                logger.info("===== Netty连接成功 channel:{} =====", channel.id().asShortText());
+            } else {
+                logger.error("===== Netty连接失败，30秒后重试 =====");
+                scheduleReconnect();
+            }
+        });
+    }
+
+
+    /**
+     * 统一重连
+     */
+    public void scheduleReconnect() {
+        workGroup.schedule(this::connect, 30, TimeUnit.SECONDS);
+
+    }
+
+
+    /**
+     * Handler调用
+     */
+    public void channelInactive(Channel inactiveChannel) {
+        if (channel == inactiveChannel) {
+            logger.warn("===== 当前Netty连接断开 channel:{} =====", inactiveChannel.id().asShortText());
+            channel = null;
+            scheduleReconnect();
+        } else {
+            logger.warn("===== 旧Netty连接断开，不处理 channel:{} =====", inactiveChannel.id().asShortText());
+        }
+    }
+
+
+    /**
+     * 原方法保持
+     */
+    public void sendMsg(String requestId, String msg, boolean retry) {
+        logger.info("===== netty发送消息 requestId:{} retry:{} =====", requestId, retry);
+        Channel currentChannel = channel;
+        if (currentChannel != null && currentChannel.isActive()) {
+            currentChannel.writeAndFlush(msg);
+        } else {
+            logger.warn("===== netty连接已断开 requestId:{} =====", requestId);
         }
     }
 
@@ -107,30 +139,6 @@ public class NettyClient implements CommandLineRunner {
             channel.close();
         }
         workGroup.shutdownGracefully();
-        logger.warn("netty 服务关闭");
-    }
-
-    /**
-     * netty向服务端发送消息
-     * @param requestId 消息id
-     * @param msg 消息
-     * @param retry 是否重发
-     */
-    public void sendMsg(String requestId, String msg, boolean retry) {
-        logger.info("===== netty 发送消息 ===== requestId: {} msg: {} retry: {}", requestId, msg, retry);
-        if (channel != null && channel.isActive()) {
-            channel.writeAndFlush(msg);
-        } else {
-            logger.warn("===== netty 连接已断开 ===== requestId: {} msg: {} retry: {}", requestId, msg, retry);
-        }
-//        if (retry) {
-//            NettyReplayMessage replayMessage = NettyReplayMessage.buildNettyReplayMessageLimitCount(10, msg);
-//            redisService.setHash(NettyRedisConstant.NETTY_SEND_QUEUE, requestId, JSONObject.toJSONString(replayMessage));
-//        }
-    }
-
-    public boolean getChannelActive() {
-        return channel.isActive();
+        logger.warn("===== netty服务关闭 =====");
     }
 }
-

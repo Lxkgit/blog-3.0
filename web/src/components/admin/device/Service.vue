@@ -32,7 +32,6 @@
         </el-card>
 
         <!-- 资源监控 -->
-
         <div class="monitor-grid">
           <!-- CPU -->
           <el-card class="monitor-card" shadow="hover">
@@ -74,30 +73,6 @@
             </div>
           </el-card>
         </div>
-
-        <!-- 服务状态 -->
-        <!-- <el-card class="service-card" shadow="hover">
-          <template #header> 服务状态 </template>
-
-          <div class="service-list">
-            <div>
-              Docker
-              <el-tag type="success"> 正常 </el-tag>
-            </div>
-            <div>
-              Nginx
-              <el-tag type="success"> 正常 </el-tag>
-            </div>
-            <div>
-              Java服务
-              <el-tag type="success"> 正常 </el-tag>
-            </div>
-            <div>
-              MediaMTX
-              <el-tag type="success"> 正常 </el-tag>
-            </div>
-          </div>
-        </el-card> -->
       </div>
     </el-tab-pane>
 
@@ -121,23 +96,18 @@ const cpuChart = ref(null)
 
 const server = reactive({
   name: '腾讯云服务器',
-
   ip: '49.xxx.xxx.xxx',
-
   os: 'Ubuntu 24.04',
-
   uptime: '30天12小时',
 })
 
 const disk = reactive({
   used: 65,
-
   total: '100G',
 })
 
 const network = reactive({
   upload: '2.3MB/s',
-
   download: '8.5MB/s',
 })
 

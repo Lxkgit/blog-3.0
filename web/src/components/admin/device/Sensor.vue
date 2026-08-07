@@ -1,6 +1,5 @@
 <template>
   <!-- 单片机信息 -->
-
   <div class="chip-wrapper">
     <el-card class="chip-detail-card">
       <div class="card-header">
@@ -25,11 +24,9 @@
 
         <div class="info-item">
           <label> 单片机状态 </label>
-
           <el-tag v-if="chip.chipStatus === 1" type="success">
             {{ deviceStatus(chip.chipStatus) }}
           </el-tag>
-
           <el-tag v-else type="warning">
             {{ deviceStatus(chip.chipStatus) }}
           </el-tag>
@@ -105,7 +102,6 @@
           </div>
           <div class="info-time">
             修改时间：
-
             {{ sensor.updateTime }}
           </div>
         </div>
@@ -116,13 +112,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import {
-  selectChipByIdApi,
-  selectSensorListApi,
-  selectSensorTypeListApi,
-  saveSensorApi,
-} from '@/api/file'
+import { selectChipByIdApi, selectSensorListApi, selectSensorTypeListApi } from '@/api/file'
 let { chip, sensorList, openChipInfo, selectChipByIdFun, selectSensorListFun, openSensor } =
   sensorFun()
 import mixin from '@/mixins/device'
@@ -140,59 +130,12 @@ onMounted(() => {
 })
 
 function sensorFun() {
-  // 新增设备表单对象
-  const sensorRef: any = ref(null)
-  // 新增设备dialog
-  const dialogFormVisible = ref(false)
-  const formLabelWidth = '100px'
-  // 新增设备信息
-  const sensor = reactive({
-    sensorName: '',
-    sensorCode: '',
-    sensorTypeId: '',
-    memo: '',
-  })
-
-  // 新增设备表单验证规则
-  const sensorRules = {
-    sensorName: [
-      {
-        required: true,
-        message: '请输入设备名称',
-        trigger: 'blur',
-      },
-    ],
-    sensorCode: [
-      {
-        required: true,
-        message: '请输入设备编码',
-        trigger: 'blur',
-      },
-    ],
-    sensorTypeId: [
-      {
-        required: true,
-        message: '请输入设备位置',
-        trigger: 'blur',
-      },
-    ],
-    memo: [
-      {
-        required: true,
-        message: '请输入设备备注信息',
-        trigger: 'blur',
-      },
-    ],
-  }
   // 单片机信息
   let chip: any = ref({})
-
   // 传感器列表
   let sensorList: any = reactive({ data: [] })
-
   // 传感器列表
   let sensorTypeList: any = reactive({ data: [] })
-
   // 获取单片机信息
   const selectChipByIdFun = (id: any) => {
     selectChipByIdApi({ id: id }).then((res: any) => {
@@ -214,7 +157,6 @@ function sensorFun() {
       chipId: props.chipId,
     }).then((res: any) => {
       if (res.code === 200) {
-        console.log(res.result.list)
         sensorList.data = res.result.list
       }
     })
@@ -233,14 +175,8 @@ function sensorFun() {
   }
 
   return {
-    sensorRef,
-    dialogFormVisible,
-    formLabelWidth,
-    sensor,
-    sensorRules,
     chip,
     sensorList,
-    sensorTypeList,
     openChipInfo,
     selectChipByIdFun,
     selectSensorListFun,
@@ -347,13 +283,12 @@ function sensorFun() {
 }
 
 /* 传感器 */
-
 .sensor-container {
   margin: 20px 2%;
 
-  display: grid;
+  display: flex;
 
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  flex-wrap: wrap;
 
   gap: 20px;
 }

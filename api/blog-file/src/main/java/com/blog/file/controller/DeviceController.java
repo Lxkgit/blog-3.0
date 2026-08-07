@@ -99,7 +99,7 @@ public class DeviceController {
     @GetMapping("/info")
     @PreAuthorize("hasAnyAuthority('sys:device:select')")
     public Result selectDeviceInfoByDeviceCode(DeviceVo deviceVo) {
-        return ResultFactory.buildSuccessResult(deviceService.selectDeviceInfoByDeviceCode(deviceVo.getDeviceCode(), deviceVo.getDataCount()));
+        return ResultFactory.buildSuccessResult(deviceService.selectDeviceInfoByDevice(deviceVo));
     }
 
 

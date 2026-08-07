@@ -1,13 +1,7 @@
 <template>
-  <div class="device-page" @contextmenu.prevent="openMenu($event, null)">
+  <div class="device-page">
     <!-- 设备列表 -->
-
-    <el-card
-      v-for="device in deviceList.data"
-      :key="device.id"
-      class="device-card"
-      @contextmenu.prevent.stop="openMenu($event, device)"
-    >
+    <el-card v-for="device in deviceList.data" :key="device.id" class="device-card">
       <div class="card-header">
         <div class="device-title">
           <el-tag type="primary"> 设备 </el-tag>
@@ -15,55 +9,43 @@
             {{ device.deviceName }}
           </span>
         </div>
-
         <el-button type="primary" text @click="openDevice(device)"> 打开设备 </el-button>
       </div>
-
       <div class="device-content">
         <div class="info-item">
           <label> 设备编码 </label>
-
           <span>
             {{ showText(device.deviceCode, 15) }}
           </span>
         </div>
-
         <div class="info-item">
           <label> 设备位置 </label>
-
           <span>
             {{ device.devicePosition }}
           </span>
         </div>
-
         <div class="info-item">
           <label> 设备状态 </label>
-
           <el-tag v-if="device.deviceStatus === 1" type="success">
             {{ deviceStatus(device.deviceStatus) }}
           </el-tag>
-
           <el-tag v-else type="warning">
             {{ deviceStatus(device.deviceStatus) }}
           </el-tag>
         </div>
-
         <!-- 备注信息 独占一行 -->
         <div class="info-item full-row">
           <label> 备注信息 </label>
-
           <span>
             {{ device.memo }}
           </span>
         </div>
-
         <!-- 时间 同一行 -->
         <div class="time-row">
           <div class="info-time">
             创建时间：
             {{ device.createTime }}
           </div>
-
           <div class="info-time">
             修改时间：
             {{ device.updateTime }}
@@ -71,93 +53,18 @@
         </div>
       </div>
     </el-card>
-
-    <!-- 新增设备 -->
-
-    <el-dialog
-      v-model="dialogFormVisible"
-      title="新增服务器设备"
-      width="500px"
-      :close-on-click-modal="false"
-    >
-      <el-form ref="deviceRef" :model="device" :rules="deviceRules">
-        <el-form-item label="设备名称" :label-width="formLabelWidth" prop="deviceName">
-          <el-input v-model="device.deviceName" />
-        </el-form-item>
-
-        <el-form-item label="设备编码" :label-width="formLabelWidth" prop="deviceCode">
-          <el-input v-model="device.deviceCode" />
-        </el-form-item>
-
-        <el-form-item label="设备位置" :label-width="formLabelWidth" prop="devicePosition">
-          <el-input v-model="device.devicePosition" />
-        </el-form-item>
-
-        <el-form-item label="备注信息" :label-width="formLabelWidth" prop="memo">
-          <el-input v-model="device.memo" />
-        </el-form-item>
-
-        <el-form-item label="时间模板" :label-width="formLabelWidth" prop="timeTemplate">
-          <el-select v-model="device.timeTemplate" placeholder="选择时间模板">
-            <el-option label="时间模板1" :value="1" />
-
-            <el-option label="时间模板2" :value="2" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <el-button @click="dialogFormVisible = false"> 取消 </el-button>
-
-        <el-button type="primary" @click="addDeviceFun"> 保存 </el-button>
-      </template>
-    </el-dialog>
-
-    <!-- 右键菜单 -->
-
-    <ul
-      v-if="menu.visible"
-      class="contextmenu"
-      :style="{
-        left: menu.left + 'px',
-        top: menu.top + 'px',
-      }"
-    >
-      <li @click="refreshDevice">刷新</li>
-
-      <li v-if="menu.type === 1">修改设备信息</li>
-
-      <li @click="menu.visible = false">关闭菜单</li>
-    </ul>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-
-import { selectDeviceListApi, saveDeviceApi } from '@/api/file'
-
-import { ElMessage } from 'element-plus'
-
+import { selectDeviceListApi } from '@/api/file'
 import mixin from '@/mixins/device'
 
 const { deviceStatus } = mixin()
-
 const emit = defineEmits(['deviceId'])
 
-const {
-  dialogFormVisible,
-  formLabelWidth,
-  device,
-  menu,
-  deviceRules,
-  deviceList,
-  openMenu,
-  refreshDevice,
-  getDeviceListFun,
-  openDevice,
-  addDeviceFun,
-} = deviceFun()
+const { deviceList, getDeviceListFun, openDevice } = deviceFun()
 
 onMounted(() => {
   getDeviceListFun()
@@ -172,101 +79,10 @@ const showText = (text: string, max: number) => {
 }
 
 function deviceFun() {
-  const deviceRef: any = ref(null)
-
-  const dialogFormVisible = ref(false)
-
-  const formLabelWidth = '90px'
-
-  const device = reactive({
-    deviceName: '',
-    deviceCode: '',
-    devicePosition: '',
-    memo: '',
-    timeTemplate: '',
-  })
-
-  const menu: any = reactive({
-    visible: false,
-
-    left: 0,
-
-    top: 0,
-
-    type: 0,
-
-    device: null,
-  })
 
   const deviceList: any = reactive({
     data: [],
   })
-
-  const deviceRules = {
-    deviceName: [
-      {
-        required: true,
-        message: '请输入设备名称',
-        trigger: 'blur',
-      },
-    ],
-
-    deviceCode: [
-      {
-        required: true,
-        message: '请输入设备编码',
-        trigger: 'blur',
-      },
-    ],
-
-    devicePosition: [
-      {
-        required: true,
-        message: '请输入设备位置',
-        trigger: 'blur',
-      },
-    ],
-
-    memo: [
-      {
-        required: true,
-        message: '请输入备注',
-        trigger: 'blur',
-      },
-    ],
-
-    timeTemplate: [
-      {
-        required: true,
-        message: '请选择模板',
-        trigger: 'blur',
-      },
-    ],
-  }
-
-  const openMenu = (e: any, item: any) => {
-    menu.visible = true
-
-    menu.left = e.clientX
-
-    menu.top = e.clientY
-
-    if (item) {
-      menu.device = item
-
-      menu.type = 1
-    } else {
-      menu.device = null
-
-      menu.type = 0
-    }
-  }
-
-  const refreshDevice = () => {
-    menu.visible = false
-
-    getDeviceListFun()
-  }
 
   const getDeviceListFun = () => {
     selectDeviceListApi().then((res: any) => {
@@ -280,45 +96,10 @@ function deviceFun() {
     emit('deviceId', item.id)
   }
 
-  const addDeviceFun = () => {
-    deviceRef.value.validate((valid: any) => {
-      if (valid) {
-        saveDeviceApi({
-          deviceName: device.deviceName,
-
-          deviceCode: device.deviceCode,
-
-          devicePosition: device.devicePosition,
-
-          memo: device.memo,
-
-          timeTemplate: device.timeTemplate,
-        }).then((res: any) => {
-          if (res.code === 200) {
-            ElMessage.success('设备创建成功')
-
-            getDeviceListFun()
-          }
-        })
-
-        dialogFormVisible.value = false
-      }
-    })
-  }
-
   return {
-    deviceRef,
-    dialogFormVisible,
-    formLabelWidth,
-    device,
-    menu,
-    deviceRules,
     deviceList,
-    openMenu,
-    refreshDevice,
     getDeviceListFun,
     openDevice,
-    addDeviceFun,
   }
 }
 </script>

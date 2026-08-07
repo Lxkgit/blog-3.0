@@ -9,7 +9,6 @@ import com.blog.core.constant.ErrorConstant;
 import com.blog.core.domain.file.device.entity.Chip;
 import com.blog.core.domain.file.device.entity.Device;
 import com.blog.core.domain.file.device.entity.DeviceInfo;
-import com.blog.core.domain.file.device.vo.DeviceInfoVo;
 import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.utils.MyStringUtils;
@@ -23,6 +22,7 @@ import com.blog.redis.constant.FileRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -168,39 +168,6 @@ public class DeviceServiceImpl implements DeviceService {
         return deviceVo;
     }
 
-    /**
-     * 查询设备详细信息
-     *
-     * @param id 设备id
-     * @return
-     */
-    @Override
-    public List<DeviceInfoVo> selectDeviceInfoById(Integer id) {
-        Integer userId = SecurityUtil.getLoginUser().getId();
-        int dataCount = 100;
-
-        Device device = deviceMapper.selectById(id);
-
-        LambdaQueryWrapper<DeviceInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(DeviceInfo::getUserId, userId);
-        wrapper.eq(DeviceInfo::getDeviceCode, device.getDeviceCode());
-        wrapper.orderByDesc(DeviceInfo::getId);
-        wrapper.last("LIMIT " + dataCount);
-
-        List<DeviceInfo> list = deviceInfoMapper.selectList(wrapper);
-
-        List<DeviceInfoVo> voList = new ArrayList<>();
-
-        list.forEach(item -> {
-            DeviceInfoVo vo = new DeviceInfoVo();
-            BeanUtils.copyProperties(item, vo);
-            vo.setDeviceJson(null);
-            voList.add(vo);
-        });
-
-        return voList;
-    }
-
     @Override
     public void getDeviceStatus() {
 
@@ -216,12 +183,24 @@ public class DeviceServiceImpl implements DeviceService {
      * {"device":"E:\\","mountpoint":"E:\\","fstype":"NTFS","opts":"rw,fixed","usage":{"total":644245090304,"used":252939661312,"free":391305428992,"percent":39.3}},
      * {"device":"F:\\","mountpoint":"F:\\","fstype":"NTFS","opts":"rw,fixed","usage":{"total":355956944896,"used":157877895168,"free":198079049728,"percent":44.4}}],
      * "timestamp":"2026-03-25 16:12:19"}
-     * @param deviceCode
-     * @param dataCount
+     *
+     * @param deviceVo
      * @return
      */
     @Override
-    public Map<String, Object> selectDeviceInfoByDeviceCode(String deviceCode, Integer dataCount) {
+    public Map<String, Object> selectDeviceInfoByDevice(DeviceVo deviceVo) {
+        if (StringUtils.isNotEmpty(deviceVo.getDeviceCode())) {
+            return getDeviceInfoMap(deviceVo.getDataCount(), deviceVo.getDeviceCode());
+        } else {
+            Device device = deviceMapper.selectById(deviceVo.getId());
+            if (device == null) {
+                return new HashMap<>();
+            }
+            return getDeviceInfoMap(deviceVo.getDataCount(), device.getDeviceCode());
+        }
+    }
+
+    private Map<String, Object> getDeviceInfoMap(Integer dataCount, String deviceCode) {
         Map<String, Object> map = new HashMap<>();
         LambdaQueryWrapper<DeviceInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DeviceInfo::getDeviceCode, deviceCode);
@@ -241,28 +220,27 @@ public class DeviceServiceImpl implements DeviceService {
         map.put("cpuCores", cpuCores);
         map.put("memoryTotal", json.getJSONObject("memory").get("total"));
 
-
-        List<String> memoryUsed = new ArrayList<>();
-        List<List<Double>> cpuUsage = new ArrayList<>();
-        for (int i = 0; i < cpuCores; i++) {
-            cpuUsage.add(new ArrayList<>());
-        }
+        List<Map<String, Object>> memoryUsed = new ArrayList<>();
+        List<Map<String, Object>> cpuUsage = new ArrayList<>();
 
         list.forEach(item -> {
             JSONObject jsonObject = JSONObject.parseObject(item.getDeviceJson());
-            memoryUsed.add(jsonObject.getJSONObject("memory").getString("used"));
-            List<Double> usagePerCore = jsonObject.getJSONObject("cpu").getList("usage_per_core", Double.class);
-            for (int i=0 ; i<cpuCores; i++) {
-                cpuUsage.get(i).add(usagePerCore.get(i));
-            }
+            Map<String, Object> memory = new HashMap<>();
+            memory.put("value", jsonObject.getJSONObject("memory").getString("used"));
+            memory.put("time", item.getCreateTime());
+            memoryUsed.add(memory);
+
+            Map<String, Object> cpu = new HashMap<>();
+            cpu.put("per", jsonObject.getJSONObject("cpu").getList("usage_per_core", Double.class));
+            cpu.put("total", jsonObject.getJSONObject("cpu").getString("total_usage"));
+            cpu.put("time", item.getCreateTime());
+            cpuUsage.add(cpu);
         });
 
         map.put("memoryUsed", memoryUsed);
         map.put("cpuUsage", cpuUsage);
-
         return map;
     }
-
 
 
 }

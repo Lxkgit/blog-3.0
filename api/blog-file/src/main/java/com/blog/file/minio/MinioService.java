@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,6 +35,9 @@ import java.util.concurrent.TimeUnit;
 public class MinioService {
 
     private static final Logger logger = LoggerFactory.getLogger(MinioService.class);
+
+    // 防止同一个 MinIO 对象并发上传
+    private final ConcurrentHashMap<String, Object> uploadLocks = new ConcurrentHashMap<>();
 
     @Value("${minio.ip}")
     private String ip;
@@ -197,7 +201,7 @@ public class MinioService {
      * 移动单个文件
      *
      * @param sourcePath 文件原存储路径(带文件名称)
-     * @param targetDir 文件移动目标路径
+     * @param targetDir  文件移动目标路径
      * @throws Exception
      */
     public String moveFile(String sourcePath, String targetDir) throws ServiceException {
@@ -293,32 +297,67 @@ public class MinioService {
      * 将服务器本地文件写入minio
      *
      * @param localFilePath 服务器中文件位置
-     * @param minioPath     minio中文件位置
+     * @param minioPath     minio中文件目录
      */
     public boolean importFile(String localFilePath, String minioPath) {
         logger.info("===== minio 导入文件 ===== localFilePath:{} minioPath:{}", localFilePath, minioPath);
         File file = new File(localFilePath);
         if (!file.exists() || !file.isFile()) {
             logger.error("minio 文件导入异常: 文件{}不存在", localFilePath);
-        }
-        try {
-
-            InputStream inputStream = Files.newInputStream(file.toPath());
-            String contentType = Files.probeContentType(Paths.get(localFilePath));
-            ObjectWriteResponse response = minioClient.putObject(PutObjectArgs.builder()
-                    .bucket(bucket)
-                    .object(minioPath + "/" + getFileName(localFilePath))
-                    .stream(inputStream, file.length(), -1)
-                    .contentType(contentType)
-                    .build());
-
-            logger.info("MinIO 文件导入成功: {}", getFileName(localFilePath));
-            return true;
-
-        } catch (Exception e) {
-            logger.error("MinIO 导入文件异常: {}", e.getMessage(), e);
             return false;
         }
+        String objectName = minioPath + "/" + getFileName(localFilePath);
+        // 同一个文件路径加锁，避免重复上传同一个对象
+        Object lock = uploadLocks.computeIfAbsent(objectName, k -> new Object());
+        synchronized (lock) {
+            try {
+                int maxRetry = 5;
+                for (int retry = 1; retry <= maxRetry; retry++) {
+                    try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+                        String contentType = Files.probeContentType(Paths.get(localFilePath));
+                        minioClient.putObject(
+                                PutObjectArgs.builder()
+                                        .bucket(bucket)
+                                        .object(objectName)
+                                        .stream(inputStream, file.length(), -1)
+                                        .contentType(contentType)
+                                        .build()
+                        );
+                        logger.info("MinIO 文件导入成功: {}", objectName);
+                        return true;
+                    } catch (Exception e) {
+                        logger.warn("MinIO 上传失败，第{}次重试，文件:{}，原因:{}", retry, objectName, e.getMessage());
+                        if (retry == maxRetry) {
+                            logger.error("MinIO 文件导入失败，已达到最大重试次数:{} 文件:{}", maxRetry, objectName, e);
+                            return false;
+                        }
+
+                        /*
+                         * 递增等待：
+                         * 第1次失败 1秒
+                         * 第2次失败 2秒
+                         * 第3次失败 4秒
+                         * 第4次失败 8秒
+                         */
+                        long waitTime = (long) Math.pow(2, retry - 1) * 1000;
+                        logger.info("等待{}ms后重新上传:{}", waitTime, objectName);
+                        try {
+                            Thread.sleep(waitTime);
+                        } catch (InterruptedException interruptedException) {
+                            Thread.currentThread().interrupt();
+                            logger.error("MinIO 上传等待被中断:{}", objectName, interruptedException);
+                            return false;
+                        }
+                    }
+                }
+            } finally {
+                /*
+                 * 删除锁对象，避免map无限增长
+                 */
+                uploadLocks.remove(objectName);
+            }
+        }
+        return false;
     }
 
     /**

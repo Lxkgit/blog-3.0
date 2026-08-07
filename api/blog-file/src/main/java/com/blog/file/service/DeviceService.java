@@ -1,7 +1,6 @@
 package com.blog.file.service;
 
 import com.blog.core.domain.file.device.entity.Device;
-import com.blog.core.domain.file.device.vo.DeviceInfoVo;
 import com.blog.core.domain.file.device.vo.DeviceVo;
 import com.blog.core.exception.ServiceException;
 
@@ -26,9 +25,7 @@ public interface DeviceService {
 
     DeviceVo selectDeviceById(Integer id) throws ServiceException;
 
-    List<DeviceInfoVo> selectDeviceInfoById(Integer id);
-
     void getDeviceStatus();
 
-    Map<String, Object> selectDeviceInfoByDeviceCode(String deviceCode, Integer dataCount);
+    Map<String, Object> selectDeviceInfoByDevice(DeviceVo deviceVo);
 }

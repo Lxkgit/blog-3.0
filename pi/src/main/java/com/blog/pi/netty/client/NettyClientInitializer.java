@@ -15,32 +15,55 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @description:
- * @Author: lxk
- * @date 2024/1/6 15:52
+ * Netty客户端初始化
+ * @author 27992
  */
 @Component
 @RequiredArgsConstructor
 public class NettyClientInitializer extends ChannelInitializer<Channel> {
 
+
     private final NettyClientHandler nettyClientHandler;
 
-    /**
-     * 初始化channel
-     */
     @Override
     protected void initChannel(Channel channel) {
+
         channel.pipeline()
-                // 解码器，对接收到的数据进行长度字段解码，也会对数据进行粘包和拆包处理
+
+                /*
+                 * 解码器
+                 * 2字节长度字段
+                 */
                 .addLast(new LengthFieldBasedFrameDecoder(65535, 0, 2, 0, 2))
-                // 编码器，主要是在响应字节数据前面添加字节长度字段
+
+                /*
+                 * 编码器
+                 * 自动添加消息长度
+                 */
                 .addLast(new LengthFieldPrepender(2))
+
+                /*
+                 * 字符串编解码
+                 */
                 .addLast(new StringDecoder(CharsetUtil.UTF_8))
                 .addLast(new StringEncoder(CharsetUtil.UTF_8))
-                // 心跳检测  多长时间没有触发读事件 多长时间没有触发写事件 多长时间没有触发读写事件 时间单位
+
+                /*
+                 * 心跳检测
+                 * readerIdleTime: 0 不检测
+                 * writerIdleTime:  30秒没有发送数据触发WRITER_IDLE
+                 * allIdleTime: 0
+                 */
                 .addLast(new IdleStateHandler(0, 30, 0, TimeUnit.SECONDS))
-                // 自定义的处理入站出站的 handler
+
+                /*
+                 * 业务handler
+                 */
                 .addLast(nettyClientHandler);
+
+
     }
+
+
 }
 

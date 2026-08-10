@@ -86,7 +86,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import * as echarts from 'echarts'
 
-const activeTab = ref('monitor')
+const activeTab = ref<string | number>('monitor')
 
 onMounted(() => {
   initCpuChart()

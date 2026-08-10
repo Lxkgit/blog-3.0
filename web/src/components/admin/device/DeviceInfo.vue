@@ -57,7 +57,7 @@ let { memoryData, memoryTotal, cpuData, cpuCores, getDeviceInfoListFun } = devic
 /**
  * tab
  */
-const activeTab = ref('deviceInfo')
+const activeTab = ref<string | number>('deviceInfo')
 
 const activeTabHandleClick = (tab: TabsPaneContext, event: Event) => {
   console.log(tab, event)

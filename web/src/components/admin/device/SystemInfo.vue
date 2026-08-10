@@ -10,8 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import CpuChart from '@/components/admin/device/CpuChart.vue'
-import MemoryChart from '@/components/admin/device/MemoryChart.vue'
+
 </script>
 
 <style scoped lang="css"></style>

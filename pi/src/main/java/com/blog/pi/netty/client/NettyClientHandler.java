@@ -14,11 +14,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -32,14 +34,16 @@ import java.util.Date;
 
 @Component
 @ChannelHandler.Sharable
-@RequiredArgsConstructor
 public class NettyClientHandler extends ChannelDuplexHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
 
-    private final ApplicationEventPublisher applicationEventPublisher;
+    @Resource
+    private ApplicationEventPublisher applicationEventPublisher;
 
-    private final NettyClient nettyClient;
+    @Lazy
+    @Resource
+    private NettyClient nettyClient;
 
     /**
      * TCP连接成功

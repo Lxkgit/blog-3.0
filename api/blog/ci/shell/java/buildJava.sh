@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-source /opt/docker/deploy/config.sh
+source /opt/docker/ci/shell/config.sh
 PROFILE=$1
 MODULES=$2
 
@@ -22,7 +22,7 @@ check_param()
 # 更新代码
 update_code()
 {
-  /opt/docker/deploy/deploy.sh
+  /opt/docker/ci/shell/updateCode.sh
 }
 
 # 构建镜像打包
@@ -47,6 +47,7 @@ build_backend()
 
 show_result()
 {
+  echo "后端构建结果："
   for module in $(echo ${MODULES} | tr "," " ")
   do
       find ${SOURCE_DIR}/api/${module}/target \

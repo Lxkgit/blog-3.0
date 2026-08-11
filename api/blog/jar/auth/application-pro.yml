@@ -9,7 +9,7 @@ jasypt:
     password: gszero
 
 auth:
-  issuer: http://172.18.0.13:60002/auth
+  issuer: http://172.18.0.22:60002/auth
 
 #logging:
 #  level:

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-source /opt/docker/deploy/config.sh
+source /opt/docker/ci/shell/config.sh
 
 # 更新代码
 update_code()

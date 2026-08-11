@@ -10,7 +10,7 @@ VENV_PATH="/opt/python"
 PYTHON_BIN="$VENV_PATH/bin/python"
 
 # 启动参数
-SCRIPT_ARGS="--ip 172.18.0.13 --port 60001 --path /file/socket/python/localhost"
+SCRIPT_ARGS="--ip 172.18.0.21 --port 60001 --path /file/socket/python/localhost"
 
 # 启动Python脚本的函数
 start_script() {

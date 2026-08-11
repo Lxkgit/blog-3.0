@@ -1,5 +1,7 @@
 #!/bin/sh
 
+
+
 # 参数部分
 # 下载失败重新尝试次数
 reload=10
@@ -123,10 +125,10 @@ startDocker() {
 
 # 安装docker
 installDocker() {
-  mv /opt/package/docker/docker-27.1.1.tgz /root
+  cp /opt/docker/ci/code/blog-3.0/api/blog/docker/docker-27.1.1.tgz /root
   tar -zxvf /root/docker-27.1.1.tgz -C /root
   sudo cp /root/docker/* /usr/bin/
-  mv /opt/package/docker/docker.service /etc/systemd/system/
+  cp /opt/docker/ci/code/blog-3.0/api/blog/docker/docker.service /etc/systemd/system/
 
   chmod +x /etc/systemd/system/docker.service
   systemctl daemon-reload
@@ -141,14 +143,14 @@ installDocker() {
 
 # 如果有镜像文件可以直接导入
 checkAndImportImages() {
-    IMAGE_FILE="/opt/package/docker/blog_docker_images_x86.tar.gz"
-    [ ! -f "$IMAGE_FILE" ] && {
-        echo "${YELLOW}镜像文件不存在: $IMAGE_FILE${NC}"
-        return  1
-    }
-    echo "${YELLOW}开始导入镜像包...${NC}"
-    docker load -i "$IMAGE_FILE"
-    echo "${GREEN}导入完成${NC}"
+  IMAGE_FILE="/opt/package/docker/blog_docker_images_x86.tar.gz"
+  [ ! -f "$IMAGE_FILE" ] && {
+      echo "${YELLOW}镜像文件不存在: $IMAGE_FILE${NC}"
+      return  1
+  }
+  echo "${YELLOW}开始导入镜像包...${NC}"
+  docker load -i "$IMAGE_FILE"
+  echo "${GREEN}导入完成${NC}"
 }
 
 # 镜像文件重新下载
@@ -173,22 +175,50 @@ reLoad() {
 # docker 镜像下载
 dockerLoad() {
 
-    for image in \
-        openjdk:17 \
-        mysql:8.0.20 \
-        fauria/vsftpd \
-        nginx:1.20.2 \
-        redis:6.2.5 \
-        nacos/nacos-server:v2.4.3 \
-        apache/rocketmq:5.1.4 \
-        elasticsearch:7.14.1 \
-        minio/minio:RELEASE.2025-05-24T17-08-30Z \
-        bluenviron/mediamtx:1
-    do
-        echo "${YELLOW}开始下载 ${image} 镜像文件...${NC}"
-        command="docker pull ${image}"
-        reLoad
-    done
+  for image in \
+      openjdk:17 \
+      mysql:8.0.20 \
+      fauria/vsftpd \
+      nginx:1.20.2 \
+      redis:6.2.5 \
+      nacos/nacos-server:v2.4.3 \
+      apache/rocketmq:5.1.4 \
+      elasticsearch:7.14.1 \
+      minio/minio:RELEASE.2025-05-24T17-08-30Z \
+      bluenviron/mediamtx:1 \
+      maven:3.9.9-eclipse-temurin-17 \
+      node:22
+  do
+      echo "${YELLOW}开始下载 ${image} 镜像文件...${NC}"
+      command="docker pull ${image}"
+      reLoad
+  done
+}
+
+# 自动化构建启动项目
+ciBuild() {
+  # 脚本文件移动
+  mv /opt/package/ci /opt/docker/
+
+  # ssh 密钥授权文件
+  sshConfig
+
+  # 脚本文件去掉 Windows 换行符 \r
+  find /opt/docker/ci/shell -type f -name "*.sh" -exec sed -i 's/\r$//' {} \;
+  # 授权可执行
+  find /opt/docker/ci/shell -type f -name "*.sh" -exec chmod +x {} \;
+
+  # 拉取代码
+  /opt/docker/ci/shell/updateCode.sh
+}
+
+sshConfig(){
+
+  mkdir -p /root/.ssh
+  chmod 700 /root/.ssh
+  chmod 600 /root/.ssh/id_ed25519
+  chmod 644 /root/.ssh/id_ed25519.pub
+  chmod 644 /root/.ssh/known_hosts
 }
 
 # Java相关服务全部启动
@@ -232,7 +262,7 @@ startJava() {
 updateMysqlConf() {
 	echo "${YELLOW}开始修改MySQL配置文件...${NC}"
 	# mysql 配置
-	mv /opt/package/conf/my.cnf /opt/docker/mysql/conf
+	cp /opt/docker/ci/code/blog-3.0/api/blog/docker/mysql/my.cnf /opt/docker/mysql/conf
 	sed -i "s/password=/password=${mysqlPassword}/" /opt/docker/mysql/conf/my.cnf
 }
 
@@ -255,7 +285,7 @@ updateSqlData() {
 insertSqlData() {
 	echo "${YELLOW}开始导入MySQL数据...${NC}"
 	mkdir -p /opt/docker/files/sql
-	mv /opt/package/conf/mysql.sh /opt/docker/files/sql
+	cp /opt/docker/ci/code/blog-3.0/api/blog/docker/mysql/mysql.sh /opt/docker/files/sql
 	mv /opt/package/sql/* /opt/docker/files/sql
 	chmod +x /opt/docker/files/sql/mysql.sh
 	sed -i 's/\r$//' /opt/docker/files/sql/mysql.sh
@@ -303,25 +333,34 @@ startNginx() {
 	# nginx 目录创建
 	mkdir -p /opt/docker/nginx/conf.d
 	mkdir -p /opt/docker/nginx/html
-	mkdir -p /opt/docker/nginx/html/assets
 	mkdir -p /opt/docker/nginx/logs
 	mkdir -p /opt/docker/nginx/conf
 
 	# nginx 配置文件
-  mv /opt/package/conf/nginx.conf /opt/docker/nginx/conf
+  cp /opt/docker/ci/code/blog-3.0/api/blog/docker/nginx/nginx.conf /opt/docker/nginx/conf
 
-  # web页面相关
-  mv /opt/package/web/dist/* /opt/docker/nginx/html
+  # 创建web服务管理目录
+  mv /opt/package/web /opt/docker
 
-	echo "${YELLOW}正在启动nginx...${NC}"
-	docker run -d --name nginx --privileged=true --restart=always --network blog_network --ip 172.18.0.5 -p 80:80 -v /opt/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v /opt/docker/nginx/html/:/opt/docker/nginx/html/ -v /opt/docker/nginx/logs/:/var/log/nginx/  -v /opt/docker/files/:/opt/docker/files/ nginx:1.20.2
+  # 脚本文件去掉 Windows 换行符 \r
+  sed -i 's/\r$//' /opt/docker/web/*.sh
+  # 授权可执行
+  chmod +x /opt/docker/web/*.sh
+
+  echo "${YELLOW}正在启动nginx...${NC}"
+  /opt/docker/web/updateWeb.sh
+#  # web页面相关
+#  mv /opt/package/web/dist/* /opt/docker/nginx/html
+#
+#	echo "${YELLOW}正在启动nginx...${NC}"
+#	docker run -d --name nginx --privileged=true --restart=always --network blog_network --ip 172.18.0.5 -p 80:80 -v /opt/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v /opt/docker/nginx/html/:/opt/docker/nginx/html/ -v /opt/docker/nginx/logs/:/var/log/nginx/  -v /opt/docker/files/:/opt/docker/files/ nginx:1.20.2
 }
 
 # redis 配置文件修改
 updateRedisConf() {
 	echo "${YELLOW}开始修改Redis配置文件...${NC}"
 	# redis 配置
-	mv /opt/package/conf/redis.conf /opt/docker/redis/conf
+	cp /opt/docker/ci/code/blog-3.0/api/blog/docker/redis/redis.conf /opt/docker/redis/conf
 	sed -i "s/requirepass/requirepass ${redisPassword}/g" /opt/docker/redis/conf/redis.conf
 }
 
@@ -354,7 +393,7 @@ updateRocketMq() {
 	mkdir -p /opt/docker/rocketmq/broker/conf
 	
 	# rocketmq broker配置文件
-	mv /opt/package/conf/broker.conf /opt/docker/rocketmq/broker/conf/
+	cp /opt/docker/ci/code/blog-3.0/api/blog/docker/mq/broker.conf /opt/docker/rocketmq/broker/conf/
 }
 
 # 启动 rocketmq
@@ -369,8 +408,8 @@ startRocketMq() {
 
 # 修改 elasticsearch 配置文件
 updateElasticsearchConf() {
-	mv /opt/package/conf/elasticsearch.yml /opt/docker/elasticsearch/config/
-	mv /opt/package/conf/elasticsearch.sh /opt/docker/files/
+	cp /opt/docker/ci/code/blog-3.0/api/blog/docker/es/elasticsearch.yml /opt/docker/elasticsearch/config/
+	cp /opt/docker/ci/code/blog-3.0/api/blog/docker/es/elasticsearch.sh /opt/docker/files/
 	chmod +x /opt/docker/files/elasticsearch.sh
 	sed -i 's/\r$//' /opt/docker/files/elasticsearch.sh
 	sed -i "s/elasticPassword=/elasticPassword=${elasticsearchPassword}/g" /opt/docker/files/elasticsearch.sh
@@ -399,7 +438,7 @@ importMinio() {
 	unzip /opt/docker/minio/files.zip -d /opt/docker/minio/blog
 
 	# minio 数据导入
-	mv /opt/package/files/mc /opt/docker/minio/
+	cp /opt/docker/ci/code/blog-3.0/api/blog/docker/minio/mc /opt/docker/minio/
 	cd /opt/docker/minio || exit
 	chmod +x mc
 	./mc alias set local http://172.18.0.11:9000 minio "${minioPassword}"
@@ -408,7 +447,7 @@ importMinio() {
 	./mc anonymous set download local/blog
 
 	# minio 权限配置
-	mv /opt/package/conf/public-policy.json /opt/docker/minio/
+	cp /opt/docker/ci/code/blog-3.0/api/blog/docker/minio/public-policy.json /opt/docker/minio/
 	./mc anonymous set-json public-policy.json local/blog
 
 	# 导入文件后删除数据
@@ -451,8 +490,6 @@ updateJarConfig() {
   sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/gateway/application-${profile}.yml
   sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/file/application-${profile}.yml
 
-
-
 }
 
 # 启动Java服务
@@ -461,9 +498,7 @@ startJar() {
   # 等待nacos启动
   echo "${YELLOW}3分钟后启动博客服务...${NC}"
   sleep 3m
-  cd /opt/docker/files/jar || exit
-  docker build -t blog:3.0 .
-  docker run -d --name blog --privileged=true --restart=always --network blog_network --ip 172.18.0.13 -p 60001:60001 -p 60002:60002 -p 59994:59994 -p 60032:60032 -v /opt/docker/files/logs:/opt/logs -v /opt/docker/files/:/opt/docker/files/ blog:3.0
+  /opt/docker/files/jar/updateJar.sh
 }
 
 # python 脚本执行环境配置
@@ -529,7 +564,7 @@ startPyDaemon() {
 # 安装 MediaMTX
 startMediaMTX() {
   mkdir -p /opt/docker/mediamtx/config
-  mv /opt/package/conf/mediamtx.yml /opt/docker/mediamtx/config
+  cp /opt/docker/ci/code/blog-3.0/api/blog/docker/mediamtx/mediamtx.yml /opt/docker/mediamtx/config
   docker run --name mediamtx --restart=always --privileged=true --network blog_network --ip 172.18.0.14 -p 8554:8554 -p 8889:8889 -p 8189:8189/udp -e TZ=Asia/Shanghai -v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro -v /opt/docker/mediamtx/config/mediamtx.yml:/mediamtx.yml -v /opt/docker/mediamtx/recordings:/opt/docker/mediamtx/recordings -d bluenviron/mediamtx:1
   startFrps
 }
@@ -562,6 +597,9 @@ main() {
 
 	# 安装docker
   startDocker
+
+  # 构建启动项目
+  ciBuild
 
   # Java相关服务全部启动
   startJava

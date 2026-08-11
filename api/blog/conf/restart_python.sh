@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PYTHON_SCRIPT="/opt/docker/files/python/code/web_socket.py"
-SCRIPT_ARGS="--ip 172.18.0.13"
+SCRIPT_ARGS="--ip 172.18.0.21"
 RESTART_LOG="/opt/docker/files/python/restart.log"
 
 # venv Python 绝对路径（必须指定）

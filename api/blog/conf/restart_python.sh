@@ -1,25 +1,17 @@
 #!/bin/bash
 
-PYTHON_SCRIPT="/opt/docker/files/python/code/web_socket.py"
+PYTHON_SCRIPT="/opt/docker/files/socket/code/web_socket.py"
 SCRIPT_ARGS="--ip 172.18.0.21"
-RESTART_LOG="/opt/docker/files/python/restart.log"
+RESTART_LOG="/opt/docker/files/socket/restart.log"
 
 # venv Python 绝对路径（必须指定）
 PYTHON_BIN="/opt/python/bin/python"
 
-# 删除 code 目录下除 python.zip 之外的全部文件
-find /opt/docker/files/python/code -mindepth 1 ! -name 'python.zip' -exec rm -rf {} +
-
-# 解压新版本代码压缩包
-unzip /opt/docker/files/python/code/python.zip -d /opt/docker/files/python/code
-
 # 格式化执行脚本异常字符并授权
-chmod +x /opt/docker/files/python/code/web_socket.py
-sed -i 's/\r$//' /opt/docker/files/python/code/web_socket.py
-chmod +x /opt/docker/files/python/code/shell/*.sh
-sed -i 's/\r$//' /opt/docker/files/python/code/shell/*.sh
-
-rm -rf /opt/docker/files/python/code/python.zip
+chmod +x /opt/docker/files/socket/code/web_socket.py
+sed -i 's/\r$//' /opt/docker/files/socket/code/web_socket.py
+chmod +x /opt/docker/files/socket/code/shell/*.sh
+sed -i 's/\r$//' /opt/docker/files/socket/code/shell/*.sh
 
 echo "==============================" >> "$RESTART_LOG"
 echo "$(date): 请求重启 Python 服务" >> "$RESTART_LOG"

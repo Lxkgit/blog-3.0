@@ -42,6 +42,7 @@ NC='\033[0m'
 # 服务器相关依赖下载
 util(){
 	echo "${YELLOW}下载服务器环境所需依赖...${NC}"
+	apt-get update
 	# 压缩解压工具
 	apt install -y unzip zip lrzsz
 }
@@ -198,7 +199,7 @@ dockerLoad() {
 # 自动化构建启动项目
 ciBuild() {
   # 脚本文件移动
-  mv /opt/package/ci /opt/docker/
+  cp /opt/docker/ci/code/blog-3.0/api/blog/ci /opt/docker/
 
   # ssh 密钥授权文件
   sshConfig
@@ -340,7 +341,7 @@ startNginx() {
   cp /opt/docker/ci/code/blog-3.0/api/blog/docker/nginx/nginx.conf /opt/docker/nginx/conf
 
   # 创建web服务管理目录
-  mv /opt/package/web /opt/docker
+  cp /opt/docker/ci/code/blog-3.0/api/blog/web /opt/docker
 
   # 脚本文件去掉 Windows 换行符 \r
   sed -i 's/\r$//' /opt/docker/web/*.sh
@@ -349,11 +350,7 @@ startNginx() {
 
   echo "${YELLOW}正在启动nginx...${NC}"
   /opt/docker/web/updateWeb.sh
-#  # web页面相关
-#  mv /opt/package/web/dist/* /opt/docker/nginx/html
-#
-#	echo "${YELLOW}正在启动nginx...${NC}"
-#	docker run -d --name nginx --privileged=true --restart=always --network blog_network --ip 172.18.0.5 -p 80:80 -v /opt/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v /opt/docker/nginx/html/:/opt/docker/nginx/html/ -v /opt/docker/nginx/logs/:/var/log/nginx/  -v /opt/docker/files/:/opt/docker/files/ nginx:1.20.2
+
 }
 
 # redis 配置文件修改
@@ -465,7 +462,7 @@ startMinio() {
 updateJarConfig() {
   # jar包打包文件移动
   mkdir -p /opt/docker/files/jar
-  mv /opt/package/jar/* /opt/docker/files/jar
+  cp /opt/docker/ci/code/blog-3.0/api/blog/jar/* /opt/docker/files/jar
   sed -i 's/\r$//' /opt/docker/files/jar/run.sh
   chmod +x /opt/docker/files/jar/run.sh
   sed -i 's/\r$//' /opt/docker/files/jar/restart.sh
@@ -509,7 +506,6 @@ buildPyEnv() {
   echo "exit 0" > /usr/sbin/needrestart
   chmod +x /usr/sbin/needrestart
 
-  apt-get update
   apt-get install -y python3 python3-pip python3-venv
 
   python3 -m venv /opt/python || exit 1
@@ -525,13 +521,12 @@ startPy() {
   # Java服务启动较慢，等待Java服务完全启动后进行连接
   echo "${YELLOW}8分钟后启动socket脚本...${NC}"
   sleep 8m
-  mkdir -p /opt/docker/files/python/code
-  mv /opt/package/python/* /opt/docker/files/python/code
-  unzip /opt/docker/files/python/code/socket.zip -d /opt/docker/files/python/code
-  chmod +x /opt/docker/files/python/code/web_socket.py
-  sed -i 's/\r$//' /opt/docker/files/python/code/web_socket.py
-  chmod +x /opt/docker/files/python/code/shell/*.sh
-  sed -i 's/\r$//' /opt/docker/files/python/code/shell/*.sh
+  mkdir -p /opt/docker/files/socket/code
+  cp /opt/docker/ci/code/blog-3.0/socket/* /opt/docker/files/socket/code
+  chmod +x /opt/docker/files/socket/code/web_socket.py
+  sed -i 's/\r$//' /opt/docker/files/socket/code/web_socket.py
+  chmod +x /opt/docker/files/socket/code/shell/*.sh
+  sed -i 's/\r$//' /opt/docker/files/socket/code/shell/*.sh
 
   startPyDaemon
 }
@@ -540,16 +535,16 @@ startPy() {
 startPyDaemon() {
 
   # 开机唤醒守护线程配置
-  mv /opt/package/conf/websocket-watchdog.service /etc/systemd/system/
+  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/websocket-watchdog.service /etc/systemd/system/
   sed -i 's/\r$//' /etc/systemd/system/websocket-watchdog.service
 
   # 守护线程
-  mv /opt/package/conf/websocket_watchdog.sh /opt/docker/files/python
+  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/websocket_watchdog.sh /opt/docker/files/python
   sed -i 's/\r$//' /opt/docker/files/python/websocket_watchdog.sh
   chmod +x /opt/docker/files/python/websocket_watchdog.sh
 
   # 重启脚本
-  mv /opt/package/conf/restart_python.sh /opt/docker/files/python
+  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/restart_python.sh /opt/docker/files/python
   sed -i 's/\r$//' /opt/docker/files/python/restart_python.sh
   chmod +x /opt/docker/files/python/restart_python.sh
 
@@ -573,9 +568,9 @@ startMediaMTX() {
 # wget https://github.com/fatedier/frp/releases/download/v0.68.0/frp_0.68.0_linux_amd64.tar.gz
 startFrps() {
   mkdir -p /opt/frps
-  mv /opt/package/soft/frp_0.68.0_linux_amd64.tar.gz /opt/frps
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frp_0.68.0_linux_amd64.tar.gz /opt/frps
   tar -zxvf /opt/frps/frp_0.68.0_linux_amd64.tar.gz -C /opt/frps
-  mv /opt/package/conf/frps.ini /opt/frps/frp_0.68.0_linux_amd64
+  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/frps.ini /opt/frps/frp_0.68.0_linux_amd64
   nohup /opt/frps/frp_0.68.0_linux_amd64/frps -c /opt/frps/frp_0.68.0_linux_amd64/frps.ini > /opt/frps/frp_0.68.0_linux_amd64/frps.log 2>&1 &
 }
 

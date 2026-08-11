@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # 守护进程日志文件
-WATCHDOG_LOG="/opt/docker/files/python/watchdog.log"
+WATCHDOG_LOG="/opt/docker/files/socket/watchdog.log"
 # Python脚本路径
-PYTHON_SCRIPT="/opt/docker/files/python/code/web_socket.py"
+PYTHON_SCRIPT="/opt/docker/files/socket/code/web_socket.py"
 
 # venv路径
 VENV_PATH="/opt/python"

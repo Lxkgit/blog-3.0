@@ -92,10 +92,7 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(Integer id) {
         taskParamMapper.deleteById(id);
 
-        String uuid = taskUuidMapper.selectUUidByTaskId(id);
-        if (StringUtils.isNotEmpty(uuid)) {
-            timerManager.cancel(uuid);
-        }
+        cancelTask(id);
     }
 
     @Override
@@ -118,10 +115,10 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public void createTask(TaskParamVo taskParamVo) {
+        cancelTask(taskParamVo.getId());
         if (!"1".equals(taskParamVo.getTaskStatus())) {
             return;
         }
-        cancelTask(taskParamVo.getId());
         // 任务触发方式：1：指定时间 2：延时 3： cron表达式
         Trigger trigger;
         if ("1".equals(taskParamVo.getTaskTrigger())) {

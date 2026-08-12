@@ -148,15 +148,15 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
 
                     // 构建netty消息请求
                     NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
-                    List<String> fileNameList = new ArrayList<>();
+                    List<String> fileCodeList = new ArrayList<>();
                     for (FileCategoryData file : sendList) {
                         String fileUrl = file.getFileUrl();
                         // 设置文件上传下载名称 （文件实际名称不一定与fileName字段一致，取url中文件为准）
-                        fileNameList.add(fileUrl.substring(fileUrl.lastIndexOf("/") + 1));
+                        fileCodeList.add(file.getId() + ":" +fileUrl.substring(fileUrl.lastIndexOf("/") + 1));
                     }
                     nettySyncFileDto.setCheckFile(1);
                     nettySyncFileDto.setSyncCount(2);
-                    nettySyncFileDto.setFileNameList(fileNameList);
+                    nettySyncFileDto.setFileCodeList(fileCodeList);
 
                     // 任务扫描次数
                     int waitCount = 300 * 12;

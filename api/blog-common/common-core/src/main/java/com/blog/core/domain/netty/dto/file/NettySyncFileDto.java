@@ -100,8 +100,8 @@ public class NettySyncFileDto {
 
     /**
      * 文件来源
-     * 1 系统内文件
-     * 2 系统外文件
+     * 1 系统内文件 使用 fileCodeList
+     * 2 系统外文件 使用 fileNameList
      */
     private Integer fileSource;
 
@@ -114,6 +114,7 @@ public class NettySyncFileDto {
 
     public static NettySyncFileDto buildSyncToDevice(String serviceFilePath, String deviceFilePath) {
         NettySyncFileDto nettySyncFileDto = new NettySyncFileDto();
+        nettySyncFileDto.setFileSource(1);
         nettySyncFileDto.setSyncType(1);
         nettySyncFileDto.setServiceFilePath(serviceFilePath);
         nettySyncFileDto.setDeviceFilePath(deviceFilePath);

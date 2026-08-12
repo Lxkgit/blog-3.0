@@ -265,7 +265,7 @@ public class MinioService {
      * 导出minio文件到服务器指定位置
      *
      * @param minioFileName MinIO中的文件名（带路径）
-     * @param path          本地保存的文件名
+     * @param path          本地保存的文件路径
      * @throws ServiceException
      */
     public void exportFile(String minioFileName, String path) throws ServiceException {
@@ -281,6 +281,7 @@ public class MinioService {
             if (!Files.exists(exportPath)) {
                 Files.createDirectories(exportPath);
             }
+            // 设置文件名称为 minioFileName 路径中名称
             String fileName = extractFileName(minioFileName);
 
             // 3. 保存到本地文件

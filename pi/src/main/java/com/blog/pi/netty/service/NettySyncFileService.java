@@ -140,10 +140,12 @@ public class NettySyncFileService {
         String serviceFilePath = nettySyncFileDto.getServiceFilePath();
         List<String> successFileNameList = new ArrayList<>();
 
-        List<String> fileNameList = nettySyncFileDto.getFileNameList();
-        for (int i = 0; i < fileNameList.size(); i++) {
+        // 下载服务器文件一定是系统内部文件 使用 fileCodeList 字段
+        List<String> fileCodeList = nettySyncFileDto.getFileCodeList();
+        for (int i = 0; i < fileCodeList.size(); i++) {
 
-            String serviceFileName = fileNameList.get(i);
+            String fileCode = fileCodeList.get(i);
+            String serviceFileName = fileCode.split(":")[1];
             boolean syncResult = false;
             try {
                 syncResult = ftpUtil.downloadFtpFile(serviceFilePath, serviceFileName, basePath, serviceFileName);
@@ -156,8 +158,8 @@ public class NettySyncFileService {
                 successFileNameList.add(serviceFileName);
             }
 
-            logger.info("文件下载完成: {}", fileNameList);
-            responseNettyMsg(nettySyncFileDto, msgHead, syncResult, fileNameList, i);
+            logger.info("文件下载完成: {}", fileCodeList);
+            responseNettyMsg(nettySyncFileDto, msgHead, syncResult, fileCodeList, i);
         }
         return successFileNameList;
     }

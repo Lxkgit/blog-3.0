@@ -1,37 +1,30 @@
 #! /bin/bash
 
-source /opt/docker/files/jar/jar.conf
 
-profile="${JAR_PROFILE}"
-hostIp="${JAR_HOST_IP}"
 
 # 更新配置文件
 updateJarConfig() {
   # jar包打包文件移动
   cp -r /opt/docker/ci/code/blog-3.0/api/blog/jar/* /opt/docker/files/jar
+  source /opt/docker/files/jar/jar.conf
 
   # 脚本文件去掉 Windows 换行符 \r
   find /opt/docker/files/jar -type f -name "*.sh" -exec sed -i 's/\r$//' {} \;
   # 授权可执行
   find /opt/docker/files/jar -type f -name "*.sh" -exec chmod +x {} \;
 
-  # 指定配置文件
-  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/auth/bootstrap.yml
-  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/content/bootstrap.yml
-  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/gateway/bootstrap.yml
-  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/file/bootstrap.yml
-
-  # 配置文件中ip替换 （bootstrap 文件中 ${devServiceIp} 字段只设置nacos连接地址，由于云服务器禁用了nacos公网访问端口，导致无法通过公网IP连接，所以此处设置为nacos在docker容器中的ip）
-  sed -i "s/\${devServiceIp}/172.18.0.7/g" /opt/docker/files/jar/auth/bootstrap.yml
-  sed -i "s/\${devServiceIp}/172.18.0.7/g" /opt/docker/files/jar/content/bootstrap.yml
-  sed -i "s/\${devServiceIp}/172.18.0.7/g" /opt/docker/files/jar/gateway/bootstrap.yml
-  sed -i "s/\${devServiceIp}/172.18.0.7/g" /opt/docker/files/jar/file/bootstrap.yml
-
-  # 配置文件中ip替换
-  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/auth/application-${profile}.yml
-  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/content/application-${profile}.yml
-  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/gateway/application-${profile}.yml
-  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/file/application-${profile}.yml
+  # Nacos Docker 容器 IP
+  NACOS_IP="172.18.0.7"
+  # 服务目录
+  SERVICES=("auth" "content" "gateway" "file")
+  for service in "${SERVICES[@]}"; do
+      # 指定配置文件
+      sed -i "s/@env@/${JAR_PROFILE}/g" "/opt/docker/files/jar/${service}/bootstrap.yml"
+      # bootstrap.yml 中 Nacos 地址替换
+      sed -i "s/${devServiceIp}/${NACOS_IP}/g" "/opt/docker/files/jar/${service}/bootstrap.yml"
+      # application-${JAR_PROFILE}.yml 中 IP 替换
+      sed -i "s/${devServiceIp}/${JAR_HOST_IP}/g" "/opt/docker/files/jar/${service}/application-${JAR_PROFILE}.yml"
+  done
 }
 
 # 编译打包jar包服务
@@ -58,6 +51,7 @@ restartJar() {
 }
 
 main(){
+
 
   updateJarConfig
   buildJar

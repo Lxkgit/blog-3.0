@@ -93,13 +93,6 @@ public class NettySyncFileDto {
      */
     private List<String> fileNameList;
 
-//    /**
-//     * 文件编码
-//     * 上传/下载-修改指定文件状态
-//     * 格式: id:fileName
-//     */
-//    private List<String> fileCodeList;
-
     /**
      * 文件来源
      * 1 系统内文件 fileNameList 格式: id:fileName

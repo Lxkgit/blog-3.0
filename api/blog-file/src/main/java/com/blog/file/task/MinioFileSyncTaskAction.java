@@ -137,14 +137,15 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
                 for (int i = 0; i < fileCategoryDataList.size(); i += batchSize) {
                     int end = Math.min(i + batchSize, fileCategoryDataList.size());
                     // 获取本次同步文件名称
-                    List<FileCategoryData> sendList = fileCategoryDataList.subList(i, end);
+                    List<FileCategoryData> sendList = new ArrayList<>(fileCategoryDataList.subList(i, end));
 
                     // 生成随机目录 文件由minio导出至ftp中此目录中
                     String serviceFilePath = "/temp/" + MyStringUtils.getRandomString(6);
                     exportMinioFileList(sendList, fileCategory.getDirPath(), Constant.FTP_PATH_SYSTEM + serviceFilePath);
 
                     // 指定树莓派存放文件目录 除前缀地址外 其余地址与服务器一致
-                    String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + fileCategory.getDirPath();
+//                    String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + fileCategory.getDirPath();
+                    String deviceFilePath = "/opt/test" + fileCategory.getDirPath();
 
                     // 构建netty消息请求
                     NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
@@ -190,9 +191,9 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
                             }
                         }
                     }
-                    logger.info("===== 定时任务-文件同步完成 ===== 消息监听任务结束");
                 }
             }
+            logger.info("===== 定时任务-文件同步完成 ===== 消息监听任务结束");
             // 文件同步完成后，清除指定目录下文件
             if (CollectionUtils.isNotEmpty(bo.getClearPath()) && bo.getClearPath().contains(fileCategory.getDirPath())) {
                 logger.info("===== 定时任务-文件同步完成 ===== 清理 服务器与minio 目录: {} 下文件: ", bo.getClearPath());

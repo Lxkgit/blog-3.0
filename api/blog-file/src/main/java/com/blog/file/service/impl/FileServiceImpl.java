@@ -431,8 +431,7 @@ public class FileServiceImpl implements FileService {
 
             // 发送netty消息
             NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToService(minioPath, servicePath, devicePath);
-            nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" + fileCategoryData.getFileName()));
+            nettySyncFileDto.setFileNameList(List.of(fileCategoryData.getId() + ":" + fileCategoryData.getFileName()));
             // 异步导出文件并发送请求
             baseThread.execute(() -> nettySyncFileSendService.sendSyncFileMsg(null, nettySyncFileDto, userId));
             // 文件状态修改为正在同步远程服务器
@@ -457,8 +456,7 @@ public class FileServiceImpl implements FileService {
                 nettySyncFileDto.setMinioDeleteFlag(0);
             }
             nettySyncFileDto.setMinioPath(category.getDirPath());
-            nettySyncFileDto.setFileNameList(List.of(fileName));
-            nettySyncFileDto.setFileCodeList(List.of(fileCategoryData.getId() + ":" + fileCategoryData.getFileName()));
+            nettySyncFileDto.setFileNameList(List.of(fileCategoryData.getId() + ":" + fileCategoryData.getFileName()));
             // 异步发送上传文件命令
             baseThread.execute(() -> nettySyncFileSendService.sendSyncFileMsg(null, nettySyncFileDto, userId));
             // 文件状态修改为正在同步本地服务器

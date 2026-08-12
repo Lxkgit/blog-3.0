@@ -119,15 +119,16 @@ public class NettySyncFileReceiveService {
      * @param msgHead
      */
     private void fileDownloadDevice(NettySyncFileDto nettyUploadBlogFileDto, MsgHead msgHead) {
-        logger.info("树莓派下载完成 {} 文件", nettyUploadBlogFileDto.getFileCodeList());
+        logger.info("树莓派下载完成 {} 文件", nettyUploadBlogFileDto.getFileNameList());
         String minioPath = nettyUploadBlogFileDto.getMinioPath();
         if (StringUtils.isEmpty(minioPath)) {
             return;
         }
 
         // 修改文件同步状态为远程服务器
-        if (CollectionUtils.isNotEmpty(nettyUploadBlogFileDto.getFileCodeList())) {
-            for (String fileCode : nettyUploadBlogFileDto.getFileCodeList()) {
+        if (CollectionUtils.isNotEmpty(nettyUploadBlogFileDto.getFileNameList())) {
+            for (String fileCode : nettyUploadBlogFileDto.getFileNameList()) {
+                // 下载到远程服务器的文件一定是系统内文件 名称格式中有id
                 Integer id = Integer.valueOf(fileCode.split(":")[0]);
                 FileCategoryData fileCategoryData = fileCategoryDataMapper.selectById(id);
                 FileCategory fileCategory = fileCategoryMapper.selectById(fileCategoryData.getFileCategoryId());
@@ -171,7 +172,7 @@ public class NettySyncFileReceiveService {
                 nettySyncFileDto.setFileNameList(newFileNameList);
             } else if (nettySyncFileDto.getFileSource() == 1) {
                 // 系统内部部来源的文件修改文件状态
-                for (String fileCode : nettySyncFileDto.getFileCodeList()) {
+                for (String fileCode : nettySyncFileDto.getFileNameList()) {
                     // 修改目录下文件状态为本地服务器
                     LambdaQueryWrapper<FileCategoryData> dataWrapper = new LambdaQueryWrapper<>();
                     dataWrapper.eq(FileCategoryData::getFileCategoryId, fileCode.split(":")[0]);
@@ -336,13 +337,7 @@ public class NettySyncFileReceiveService {
             } else if (nettySyncFileDto.getResultType() == 2) {
 
                 // 获取下载/上传文件名称
-                String fileNameList;
-                if (CollectionUtils.isNotEmpty(nettySyncFileDto.getFileCodeList())) {
-                    fileNameList = nettySyncFileDto.getFileCodeList().toString();
-                } else {
-                    fileNameList = nettySyncFileDto.getFileNameList().toString();
-                }
-
+                String fileNameList = nettySyncFileDto.getFileNameList().toString();
                 Integer syncResult = nettySyncFileDto.getSyncResult();
                 Integer syncType = nettySyncFileDto.getSyncType();
 

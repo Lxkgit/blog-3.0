@@ -87,21 +87,23 @@ public class NettySyncFileDto {
     private Integer minioDeleteFlag;
 
     /**
-     * 上传/下载-指定文件名称
-     */
-    private List<String> fileNameList;
-
-    /**
      * 文件编码
      * 上传/下载-修改指定文件状态
      * 格式: id:fileName
      */
-    private List<String> fileCodeList;
+    private List<String> fileNameList;
+
+//    /**
+//     * 文件编码
+//     * 上传/下载-修改指定文件状态
+//     * 格式: id:fileName
+//     */
+//    private List<String> fileCodeList;
 
     /**
      * 文件来源
-     * 1 系统内文件 使用 fileCodeList
-     * 2 系统外文件 使用 fileNameList
+     * 1 系统内文件 fileNameList 格式: id:fileName
+     * 2 系统外文件 fileNameList 格式: fileName
      */
     private Integer fileSource;
 

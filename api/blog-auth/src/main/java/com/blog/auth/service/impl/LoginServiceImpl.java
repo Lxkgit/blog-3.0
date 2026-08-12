@@ -73,34 +73,42 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public JSONObject getToken(Oauth2Vo vo) throws ServiceException {
-        logger.info("获取 token");
-        //拼接获取token的路径
-        String url = "http://127.0.0.1:60001/auth/oauth2/token";
-        Map<String, String> map = new HashMap<>();
+        logger.info("获取 OAuth2 token，grantType={}", vo.getGrantType());
 
-        String rzId = "";
-        if ("authorization_code".equals(vo.getGrantType())) {
-            map.put("code", vo.getCode());
-            map.put("client_id", vo.getClientId());
-            map.put("redirect_uri", vo.getRedirectUri());
-            map.put("grant_type", vo.getGrantType());
-        } else if ("refresh_token".equals(vo.getGrantType())) {
-            map.put("client_id", vo.getClientId());
-            map.put("grant_type", vo.getGrantType());
-            map.put("refresh_token", vo.getRefreshToken());
-            map.put("client_secret", vo.getClientSecret());
-            rzId = getRzId(vo.getUsername(), vo.getPassword());
+        if (vo.getGrantType() == null) {
+            throw new ServiceException("grantType不能为空");
         }
-        JSONObject jsonObject = HttpUtils.doPost(url, map, vo);
-        if (jsonObject != null) {
-            jsonObject.put("rz_id", rzId);
-            LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(User::getUsername, vo.getUsername());
-            User user = userMapper.selectOne(wrapper);
-            if (user != null) {
-                jsonObject.put("user_id", user.getId());
-            }
+
+        // 目前只实现 authorization_code
+        if (!"authorization_code".equals(vo.getGrantType())) {
+            throw new ServiceException("暂不支持的授权类型：" + vo.getGrantType());
         }
+
+        Map<String, String> params = new HashMap<>();
+        params.put("grant_type", vo.getGrantType());
+        params.put("code", vo.getCode());
+        params.put("client_id", vo.getClientId());
+        params.put("redirect_uri", vo.getRedirectUri());
+
+        // 直接调用 auth 服务，不再经过 gateway
+        String url = "http://auth:60002/auth/oauth2/token";
+
+        JSONObject jsonObject = HttpUtils.doPost(url, params, vo);
+
+        if (jsonObject == null) {
+            throw new ServiceException("获取 token 失败");
+        }
+
+        // 查询用户信息
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getUsername, vo.getUsername());
+
+        User user = userMapper.selectOne(wrapper);
+
+        if (user != null) {
+            jsonObject.put("user_id", user.getId());
+        }
+
         return jsonObject;
     }
 

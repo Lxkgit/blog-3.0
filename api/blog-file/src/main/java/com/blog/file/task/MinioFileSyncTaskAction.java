@@ -138,58 +138,62 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
                     int end = Math.min(i + batchSize, fileCategoryDataList.size());
                     // 获取本次同步文件名称
                     List<FileCategoryData> sendList = new ArrayList<>(fileCategoryDataList.subList(i, end));
+                    try {
+                        // 生成随机目录 文件由minio导出至ftp中此目录中
+                        String serviceFilePath = "/temp/" + MyStringUtils.getRandomString(6);
+                        exportMinioFileList(sendList, fileCategory.getDirPath(), Constant.FTP_PATH_SYSTEM + serviceFilePath);
 
-                    // 生成随机目录 文件由minio导出至ftp中此目录中
-                    String serviceFilePath = "/temp/" + MyStringUtils.getRandomString(6);
-                    exportMinioFileList(sendList, fileCategory.getDirPath(), Constant.FTP_PATH_SYSTEM + serviceFilePath);
+                        // 指定树莓派存放文件目录 除前缀地址外 其余地址与服务器一致
+                        // String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + fileCategory.getDirPath();
+                        String deviceFilePath = "/opt/test" + fileCategory.getDirPath();
 
-                    // 指定树莓派存放文件目录 除前缀地址外 其余地址与服务器一致
-//                    String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + fileCategory.getDirPath();
-                    String deviceFilePath = "/opt/test" + fileCategory.getDirPath();
-
-                    // 构建netty消息请求
-                    NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
-                    List<String> fileNameList = new ArrayList<>();
-                    for (FileCategoryData file : sendList) {
-                        String fileUrl = file.getFileUrl();
-                        // 设置文件上传下载名称 （文件实际名称不一定与fileName字段一致，取url中文件为准）
-                        fileNameList.add(file.getId() + ":" +fileUrl.substring(fileUrl.lastIndexOf("/") + 1));
-                    }
-                    nettySyncFileDto.setCheckFile(1);
-                    nettySyncFileDto.setSyncCount(2);
-                    nettySyncFileDto.setFileNameList(fileNameList);
-
-                    // 任务扫描次数
-                    int waitCount = 300 * 12;
-                    // 任务扫描时间（秒）
-                    int scanTime = 5;
-                    int localCount = 0;
-                    while (true) {
-                        if (localCount > waitCount) {
-                            logger.info("===== 定时任务-云盘文件同步-超出最大等待时间: {} 秒 ===== taskUUID: {}", waitCount * scanTime, msgHead.getTaskMsgHead().getTaskUuid());
-                            return;
+                        // 构建netty消息请求
+                        NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);
+                        List<String> fileNameList = new ArrayList<>();
+                        for (FileCategoryData file : sendList) {
+                            String fileUrl = file.getFileUrl();
+                            // 设置文件上传下载名称 （文件实际名称不一定与fileName字段一致，取url中文件为准）
+                            fileNameList.add(file.getId() + ":" + fileUrl.substring(fileUrl.lastIndexOf("/") + 1));
                         }
-                        // 文件同步状态标识存放redis中 当树莓派设备下载完成之后 会将此状态设置为 1，然后开始下一轮循环
-                        String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid()).toString();
-                        if (StringUtils.isNotEmpty(status) && "1".equals(status)) {
-                            MsgHead head = new MsgHead();
-                            msgHead.getTaskMsgHead().setSubTaskUuid(msgHead.getTaskMsgHead().getTaskUuid() + "-" + "clear");
-                            BeanUtils.copyProperties(msgHead, head);
-                            // 发送文件同步命令
-                            nettySyncFileSendService.sendSyncFileMsg(head, nettySyncFileDto, 1);
-                            // 发送后文件同步状态设为0等待树莓派下载数据
-                            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "0", waitCount * scanTime);
-                            break;
-                        } else {
-                            try {
-                                // 最大等待时间为 300 分钟
-                                localCount++;
-                                Thread.sleep(scanTime * 1000);
-                            } catch (Exception e) {
-                                // 等待树莓派响应超时
-                                logger.error(e.getMessage(), e);
+                        nettySyncFileDto.setCheckFile(1);
+                        nettySyncFileDto.setSyncCount(2);
+                        nettySyncFileDto.setFileNameList(fileNameList);
+
+                        // 任务扫描次数
+                        int waitCount = 300 * 12;
+                        // 任务扫描时间（秒）
+                        int scanTime = 5;
+                        int localCount = 0;
+                        while (true) {
+                            if (localCount > waitCount) {
+                                logger.info("===== 定时任务-云盘文件同步-超出最大等待时间: {} 秒 ===== taskUUID: {}", waitCount * scanTime, msgHead.getTaskMsgHead().getTaskUuid());
+                                return;
+                            }
+                            // 文件同步状态标识存放redis中 当树莓派设备下载完成之后 会将此状态设置为 1，然后开始下一轮循环
+                            String status = redisService.getString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid()).toString();
+                            if (StringUtils.isNotEmpty(status) && "1".equals(status)) {
+                                MsgHead head = new MsgHead();
+                                msgHead.getTaskMsgHead().setSubTaskUuid(msgHead.getTaskMsgHead().getTaskUuid() + "-" + "clear");
+                                BeanUtils.copyProperties(msgHead, head);
+                                // 发送文件同步命令
+                                nettySyncFileSendService.sendSyncFileMsg(head, nettySyncFileDto, 1);
+                                // 发送后文件同步状态设为0等待树莓派下载数据
+                                redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "0", waitCount * scanTime);
+                                break;
+                            } else {
+                                try {
+                                    // 最大等待时间为 300 分钟
+                                    localCount++;
+                                    Thread.sleep(scanTime * 1000);
+                                } catch (Exception e) {
+                                    // 等待树莓派响应超时
+                                    logger.error(e.getMessage(), e);
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        // 出现异常同步批次，捕获异常，开始下一批同步
+                        logger.error("===== 定时任务-文件同步异常 ===== dirPath:{} fileList:{}", fileCategory.getDirPath(), sendList, e);
                     }
                 }
             }

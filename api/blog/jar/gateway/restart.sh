@@ -2,10 +2,28 @@
 
 blogGateway="blog-gateway"
 
-echo '----restart container----'
-cd /opt/docker/files/jar/gateway || exit
-docker stop ${blogGateway}
-docker rm ${blogGateway}
-docker rmi ${blogGateway}:3.0
+echo "---- restart container ----"
+cd /opt/docker/files/jar/gateway || exit 1
+docker rm -f ${blogGateway} 2>/dev/null || true
 docker build -t ${blogGateway}:3.0 .
-docker run -d --name ${blogGateway} --privileged=true --restart=always --network blog_network --ip 172.18.0.21 -p 60001:60001 -v /opt/docker/files/logs:/opt/logs -v /opt/docker/files/:/opt/docker/files/ blog:3.0
+if [ $? -ne 0 ]; then
+    echo "Docker 镜像构建失败"
+    exit 1
+fi
+
+docker run -d \
+  --name ${blogGateway} \
+  --restart=always \
+  --network blog_network \
+  --ip 172.18.0.21 \
+  -p 60001:60001 \
+  -v /opt/docker/files/logs:/opt/logs \
+  -v /opt/docker/files/:/opt/docker/files/ \
+  ${blogGateway}:3.0
+
+if [ $? -ne 0 ]; then
+    echo "Docker 容器启动失败"
+    exit 1
+fi
+
+echo "网关服务启动成功"

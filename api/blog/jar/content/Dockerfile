@@ -7,14 +7,13 @@ MAINTAINER gszero
 WORKDIR /opt
 
 # 文件与目录复制到docker容器中
-ADD run.sh /opt/run.sh
-
-ADD content /opt/content
+COPY run.sh /opt/run.sh
+COPY auth /opt/content
 
 # 容器暴露的端口
 EXPOSE 60003
 
 # 赋予启动脚本可执行权限
-RUN chmod +x run.sh
+RUN chmod +x /opt/run.sh
 
 CMD ["/opt/run.sh"]

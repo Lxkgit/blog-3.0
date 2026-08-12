@@ -7,14 +7,13 @@ MAINTAINER gszero
 WORKDIR /opt
 
 # 文件与目录复制到docker容器中
-ADD run.sh /opt/run.sh
+COPY run.sh /opt/run.sh
+COPY auth /opt/gateway
 
-ADD gateway /opt/gateway
-
-#  expose  该容器暴露的端口是多少，就是jar在容器中以多少端口运行
+# 容器暴露的端口
 EXPOSE 60001
 
 # 赋予启动脚本可执行权限
-RUN chmod +x run.sh
+RUN chmod +x /opt/run.sh
 
 CMD ["/opt/run.sh"]

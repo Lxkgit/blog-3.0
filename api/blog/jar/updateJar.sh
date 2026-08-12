@@ -13,17 +13,15 @@ updateJarConfig() {
   # 授权可执行
   find /opt/docker/files/jar -type f -name "*.sh" -exec chmod +x {} \;
 
-  # Nacos Docker 容器 IP
-  NACOS_IP="172.18.0.7"
   # 服务目录
   SERVICES=("auth" "content" "gateway" "file")
   for service in "${SERVICES[@]}"; do
-      # 指定配置文件
-      sed -i "s/@env@/${JAR_PROFILE}/g" "/opt/docker/files/jar/${service}/bootstrap.yml"
-      # bootstrap.yml 中 Nacos 地址替换
-      sed -i "s/${devServiceIp}/${NACOS_IP}/g" "/opt/docker/files/jar/${service}/bootstrap.yml"
-      # application-${JAR_PROFILE}.yml 中 IP 替换
-      sed -i "s/${devServiceIp}/${JAR_HOST_IP}/g" "/opt/docker/files/jar/${service}/application-${JAR_PROFILE}.yml"
+    # 替换环境
+    sed -i "s/@env@/${JAR_PROFILE}/g" "/opt/docker/files/jar/${service}/bootstrap.yml"
+    # bootstrap.yml：Nacos 使用 Docker 内网 IP
+    sed -i "s/\${devServiceIp}/${NACOS_IP}/g" "/opt/docker/files/jar/${service}/bootstrap.yml"
+    # application-${JAR_PROFILE}.yml：替换成云服务器 IP
+    sed -i "s/\${devServiceIp}/${JAR_HOST_IP}/g" "/opt/docker/files/jar/${service}/application-${JAR_PROFILE}.yml"
   done
 }
 

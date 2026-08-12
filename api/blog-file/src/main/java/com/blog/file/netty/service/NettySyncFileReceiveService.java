@@ -298,7 +298,7 @@ public class NettySyncFileReceiveService {
 
         // 文件同步任务收到消息后重置发送标识
         if (msgHead != null && msgHead.getTaskMsgHead() != null && nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
-            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "1", 60);
+            redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "1", 5 * 60 * 60);
         }
     }
 
@@ -316,7 +316,7 @@ public class NettySyncFileReceiveService {
                 .action(timerActionManager.get(Constant.TASK_DELETE_TEMP_FILE))
                 .context(context)
                 .policy(new Policy(1))
-                .trigger(new DelayTrigger(Duration.ofHours(1)))
+                .trigger(new DelayTrigger(Duration.ofMillis(1)))
                 .build();
         timerManager.schedule(definition).getTaskId();
     }

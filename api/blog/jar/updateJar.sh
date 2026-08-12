@@ -10,6 +10,11 @@ updateJarConfig() {
   # jar包打包文件移动
   cp -r /opt/docker/ci/code/blog-3.0/api/blog/jar/* /opt/docker/files/jar
 
+  # 脚本文件去掉 Windows 换行符 \r
+  find /opt/docker/files/jar -type f -name "*.sh" -exec sed -i 's/\r$//' {} \;
+  # 授权可执行
+  find /opt/docker/files/jar -type f -name "*.sh" -exec chmod +x {} \;
+
   # 指定配置文件
   sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/auth/bootstrap.yml
   sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/content/bootstrap.yml

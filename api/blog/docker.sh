@@ -473,6 +473,8 @@ startJar() {
   # 等待nacos启动
   echo "${YELLOW}3分钟后启动博客服务...${NC}"
   sleep 3m
+  chmod +x /opt/docker/files/jar/updateJar.sh
+  sed -i 's/\r$//' /opt/docker/files/jar/updateJar.sh
   /opt/docker/files/jar/updateJar.sh
 }
 

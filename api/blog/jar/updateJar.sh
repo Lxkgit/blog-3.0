@@ -8,7 +8,7 @@ hostIp="${JAR_HOST_IP}"
 # 更新配置文件
 updateJarConfig() {
   # jar包打包文件移动
-  cp /opt/docker/ci/code/blog-3.0/api/blog/jar/* /opt/docker/files/jar
+  cp -r /opt/docker/ci/code/blog-3.0/api/blog/jar/* /opt/docker/files/jar
 
   # 指定配置文件
   sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/auth/bootstrap.yml

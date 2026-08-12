@@ -468,7 +468,7 @@ startJar() {
   mkdir -p /opt/docker/files/jar
 
   # 复制全部配置文件
-  cp /opt/docker/ci/code/blog-3.0/api/blog/jar/* /opt/docker/files/jar
+  cp /opt/docker/ci/code/blog-3.0/api/blog/jar/updateJar.sh /opt/docker/files/jar
 
   # 等待nacos启动
   echo "${YELLOW}3分钟后启动博客服务...${NC}"

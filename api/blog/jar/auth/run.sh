@@ -2,7 +2,7 @@
 
 blogAuth="blog-auth"
 
-JAVA_AUTH_OPTS="-Duser.timezone=GMT+8 -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:59991"
+JAVA_AUTH_OPTS="-Duser.timezone=GMT+8 -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:59992"
 
 echo "启动鉴权服务..."
 

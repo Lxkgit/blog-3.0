@@ -8,11 +8,11 @@ WORKDIR /opt
 
 # 文件与目录复制到docker容器中
 COPY run.sh /opt/run.sh
-COPY blog-file.jar /opt/auth/blog-file.jar
-COPY application-dev.yml /opt/auth/application-dev.yml
-COPY application-pro.yml /opt/auth/application-pro.yml
-COPY application-test.yml /opt/auth/application-test.yml
-COPY bootstrap.yml /opt/auth/bootstrap.yml
+COPY blog-file.jar /opt/file/blog-file.jar
+COPY application-dev.yml /opt/file/application-dev.yml
+COPY application-pro.yml /opt/file/application-pro.yml
+COPY application-test.yml /opt/file/application-test.yml
+COPY bootstrap.yml /opt/file/bootstrap.yml
 
 # 容器暴露的端口
 EXPOSE 60004

@@ -91,7 +91,7 @@ public class LoginServiceImpl implements LoginService {
         params.put("redirect_uri", vo.getRedirectUri());
 
         // 直接调用 auth 服务，不再经过 gateway
-        String url = "http://auth:60002/auth/oauth2/token";
+        String url = "http://blog-auth:60002/auth/oauth2/token";
 
         JSONObject jsonObject = HttpUtils.doPost(url, params, vo);
 

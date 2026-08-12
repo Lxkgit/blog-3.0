@@ -459,39 +459,17 @@ startMinio() {
 	importMinio
 }
 
-updateJarConfig() {
-  # jar包打包文件移动
-  mkdir -p /opt/docker/files/jar
-  cp /opt/docker/ci/code/blog-3.0/api/blog/jar/* /opt/docker/files/jar
-  sed -i 's/\r$//' /opt/docker/files/jar/run.sh
-  chmod +x /opt/docker/files/jar/run.sh
-  sed -i 's/\r$//' /opt/docker/files/jar/restart.sh
-  chmod +x /opt/docker/files/jar/restart.sh
-  mkdir -p /opt/docker/files/logs
 
-  # 指定配置文件
-  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/auth/bootstrap.yml
-  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/content/bootstrap.yml
-  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/gateway/bootstrap.yml
-  sed -i "s/@env@/${profile}/g" /opt/docker/files/jar/file/bootstrap.yml
-
-  # 配置文件中ip替换 （bootstrap 文件中 ${devServiceIp} 字段只设置nacos连接地址，由于云服务器禁用了nacos公网访问端口，导致无法通过公网IP连接，所以此处设置为nacos在docker容器中的ip）
-  sed -i "s/\${devServiceIp}/172.18.0.7/g" /opt/docker/files/jar/auth/bootstrap.yml
-  sed -i "s/\${devServiceIp}/172.18.0.7/g" /opt/docker/files/jar/content/bootstrap.yml
-  sed -i "s/\${devServiceIp}/172.18.0.7/g" /opt/docker/files/jar/gateway/bootstrap.yml
-  sed -i "s/\${devServiceIp}/172.18.0.7/g" /opt/docker/files/jar/file/bootstrap.yml
-
-  # 配置文件中ip替换
-  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/auth/application-${profile}.yml
-  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/content/application-${profile}.yml
-  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/gateway/application-${profile}.yml
-  sed -i "s/\${devServiceIp}/${hostIp}/g" /opt/docker/files/jar/file/application-${profile}.yml
-
-}
 
 # 启动Java服务
 startJar() {
-  updateJarConfig
+  # 创建目录日志与服务
+  mkdir -p /opt/docker/files/logs
+  mkdir -p /opt/docker/files/jar
+
+  # 复制全部配置文件
+  cp /opt/docker/ci/code/blog-3.0/api/blog/jar/* /opt/docker/files/jar
+
   # 等待nacos启动
   echo "${YELLOW}3分钟后启动博客服务...${NC}"
   sleep 3m

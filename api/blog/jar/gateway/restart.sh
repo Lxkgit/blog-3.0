@@ -3,6 +3,7 @@
 blogGateway="blog-gateway"
 
 echo '----restart container----'
+cd /opt/docker/files/jar/gateway || exit
 docker stop ${blogGateway}
 docker rm ${blogGateway}
 docker rmi ${blogGateway}:3.0

@@ -3,6 +3,7 @@
 blogFile="blog-file"
 
 echo '----restart container----'
+cd /opt/docker/files/jar/file || exit
 docker stop ${blogFile}
 docker rm ${blogFile}
 docker rmi ${blogFile}:3.0

@@ -3,6 +3,7 @@
 blogContent="blog-content"
 
 echo '----restart container----'
+cd /opt/docker/files/jar/content || exit
 docker stop ${blogContent}
 docker rm ${blogContent}
 docker rmi ${blogContent}:3.0

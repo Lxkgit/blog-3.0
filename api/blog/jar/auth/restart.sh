@@ -3,6 +3,7 @@
 blogAuth="blog-auth"
 
 echo '----restart container----'
+cd /opt/docker/files/jar/auth || exit
 docker stop ${blogAuth}
 docker rm ${blogAuth}
 docker rmi ${blogAuth}:3.0

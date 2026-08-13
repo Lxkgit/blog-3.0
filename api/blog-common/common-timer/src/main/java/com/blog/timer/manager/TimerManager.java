@@ -23,6 +23,14 @@ public interface TimerManager {
     TimerHandle schedule(TimerTaskDefinition definition);
 
     /**
+     * 创建指定任务编码的任务
+     * @param definition 任务定义
+     * @param taskUuid 任务编码
+     * @return
+     */
+    TimerHandle schedule(TimerTaskDefinition definition, String taskUuid);
+
+    /**
      * 立即执行指定任务
      * 立即执行后，将根据任务策略重新创建下一次任务
      * 或结束任务生命周期。

@@ -144,7 +144,7 @@ installDocker() {
 
 # 如果有镜像文件可以直接导入
 checkAndImportImages() {
-  IMAGE_FILE="/opt/package/docker/blog_docker_images_x86.tar.gz"
+  IMAGE_FILE="/opt/docker/ci/code/blog-3.0/api/blog/docker/blog_docker_images_x86.tar.gz"
   [ ! -f "$IMAGE_FILE" ] && {
       echo "${YELLOW}镜像文件不存在: $IMAGE_FILE${NC}"
       return  1
@@ -508,32 +508,10 @@ startPy() {
   chmod +x /opt/docker/files/socket/code/shell/*.sh
   sed -i 's/\r$//' /opt/docker/files/socket/code/shell/*.sh
 
-  startPyDaemon
-}
-
-# python 脚本守护线程
-startPyDaemon() {
-
-  # 开机唤醒守护线程配置
-  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/websocket-watchdog.service /etc/systemd/system/
-  sed -i 's/\r$//' /etc/systemd/system/websocket-watchdog.service
-
-  # 守护线程
-  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/websocket_watchdog.sh /opt/docker/files/python
-  sed -i 's/\r$//' /opt/docker/files/python/websocket_watchdog.sh
-  chmod +x /opt/docker/files/python/websocket_watchdog.sh
-
   # 重启脚本
   cp /opt/docker/ci/code/blog-3.0/api/blog/conf/restart_python.sh /opt/docker/files/python
   sed -i 's/\r$//' /opt/docker/files/python/restart_python.sh
   chmod +x /opt/docker/files/python/restart_python.sh
-
-  # 重新加载systemd配置
-  sudo systemctl daemon-reload
-  # 开机自启
-  sudo systemctl enable websocket-watchdog.service
-  # 立即启动
-  sudo systemctl start websocket-watchdog.service
 }
 
 # 安装 MediaMTX
@@ -546,12 +524,39 @@ startMediaMTX() {
 
 # 安装 Frp 服务端
 # wget https://github.com/fatedier/frp/releases/download/v0.68.0/frp_0.68.0_linux_amd64.tar.gz
+# frps服务由守护线程启动
 startFrps() {
   mkdir -p /opt/frps
-  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frp_0.68.0_linux_amd64.tar.gz /opt/frps
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/frp_0.68.0_linux_amd64.tar.gz /opt/frps
   tar -zxvf /opt/frps/frp_0.68.0_linux_amd64.tar.gz -C /opt/frps
-  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/frps.ini /opt/frps/frp_0.68.0_linux_amd64
-  nohup /opt/frps/frp_0.68.0_linux_amd64/frps -c /opt/frps/frp_0.68.0_linux_amd64/frps.ini > /opt/frps/frp_0.68.0_linux_amd64/frps.log 2>&1 &
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/frps.ini /opt/frps/frp_0.68.0_linux_amd64
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/restartFrps.sh /opt/frps/frp_0.68.0_linux_amd64
+
+  sed -i 's/\r$//' /opt/frps/frp_0.68.0_linux_amd64/restartFrps.sh
+  chmod +x /opt/frps/frp_0.68.0_linux_amd64/restartFrps.sh
+}
+
+# 守护除 docker 之外的基本启动
+startWatchDog() {
+
+  # 守护线程目录
+  mkdir -p /opt/watchdog
+
+  # 开机唤醒守护线程配置
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/watchdog.service /etc/systemd/system/
+  sed -i 's/\r$//' /etc/systemd/system/watchdog.service
+
+  # 守护线程
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/watchdog.sh /opt/watchdog
+  sed -i 's/\r$//' /opt/watchdog/watchdog.sh
+  chmod +x /opt/watchdog/watchdog.sh
+
+  # 重新加载systemd配置
+  sudo systemctl daemon-reload
+  # 开机自启
+  sudo systemctl enable watchdog.service
+  # 立即启动
+  sudo systemctl start watchdog.service
 }
 
 # 主函数
@@ -578,6 +583,9 @@ main() {
 
   # Java相关服务全部启动
   startJava
+
+  # 守护线程
+  startWatchDog
 
   timer_end=$(date "+%Y-%m-%d %H:%M:%S")
   diff=$(( $(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}") ))

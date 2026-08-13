@@ -11,6 +11,7 @@ import com.blog.timer.entity.trigger.DelayTrigger;
 import com.blog.timer.entity.trigger.Trigger;
 import com.blog.timer.handle.DefaultTimerHandle;
 import com.blog.timer.handle.TimerHandle;
+import io.micrometer.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.support.CronExpression;
@@ -52,7 +53,15 @@ public class DefaultTimerManager implements TimerManager {
      */
     @Override
     public TimerHandle schedule(TimerTaskDefinition definition) {
-        return schedule(definition, 1);
+        return schedule(definition, 1, null);
+    }
+
+    /**
+     * 手动调用启动任务入口
+     */
+    @Override
+    public TimerHandle schedule(TimerTaskDefinition definition, String taskUuid) {
+        return schedule(definition, 1, StringUtils.isNotEmpty(taskUuid) ? taskUuid : null);
     }
 
     /**
@@ -62,8 +71,8 @@ public class DefaultTimerManager implements TimerManager {
      * @param executeCount 当前执行次数
      * @return TimerHandle 任务实例
      */
-    private TimerHandle schedule(TimerTaskDefinition definition, int executeCount) {
-        String uuid = UUID.randomUUID().toString();
+    private TimerHandle schedule(TimerTaskDefinition definition, int executeCount, String taskUuid) {
+        String uuid = StringUtils.isNotEmpty(taskUuid) ? taskUuid : UUID.randomUUID().toString();
         Duration delay = calculateDelay(definition.getTrigger());
         if (delay.isNegative()) {
             throw new IllegalArgumentException("触发时间已过");
@@ -142,7 +151,7 @@ public class DefaultTimerManager implements TimerManager {
         Policy policy = task.getDefinition().getPolicy();
         if (!isCancel && policy.shouldContinue(task.getExecuteCount())) {
             // 任务开始下一次循环
-            schedule(task.getDefinition(), task.getExecuteCount() + 1);
+            schedule(task.getDefinition(), task.getExecuteCount() + 1, null);
         } else {
             // 任务结束
             action.finalExecute(task);

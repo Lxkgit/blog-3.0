@@ -341,12 +341,10 @@ startNginx() {
   # 授权可执行
   chmod +x /opt/docker/nginx/web/*.sh
 
-  /opt/docker/nginx/web/updateWeb.sh
-
   echo "${YELLOW}正在启动nginx...${NC}"
-  docker run -d --name nginx-router --restart=always --network blog_network -p 80:80 -v /opt/docker/nginx/router/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
-  docker run -d --name nginx-other --restart=always --network blog_network -v /opt/docker/nginx/other/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
   /opt/docker/nginx/web/updateWeb.sh
+  docker run -d --name nginx-other --restart=always --network blog_network -v /opt/docker/nginx/other/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
+  docker run -d --name nginx-router --restart=always --network blog_network -p 80:80 -v /opt/docker/nginx/router/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
 }
 
 # redis 配置文件修改

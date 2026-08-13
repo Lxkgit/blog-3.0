@@ -199,7 +199,8 @@ dockerLoad() {
 # 自动化构建启动项目
 ciBuild() {
   # 脚本文件移动
-  cp /opt/docker/ci/code/blog-3.0/api/blog/ci /opt/docker/
+  mkdir -p /opt/docker
+  cp -r /opt/package/ci /opt/docker/
 
   # ssh 密钥授权文件
   sshConfig
@@ -216,6 +217,7 @@ ciBuild() {
 sshConfig(){
 
   mkdir -p /root/.ssh
+  tar xzvf /opt/docker/ci/ssh/ssh-gitee-backup.tar.gz -C /
   chmod 700 /root/.ssh
   chmod 600 /root/.ssh/id_ed25519
   chmod 644 /root/.ssh/id_ed25519.pub
@@ -331,26 +333,21 @@ startFtp() {
 
 # 安装 nginx
 startNginx() {
-	# nginx 目录创建
-	mkdir -p /opt/docker/nginx/conf.d
-	mkdir -p /opt/docker/nginx/html
-	mkdir -p /opt/docker/nginx/logs
-	mkdir -p /opt/docker/nginx/conf
 
-	# nginx 配置文件
-  cp /opt/docker/ci/code/blog-3.0/api/blog/docker/nginx/nginx.conf /opt/docker/nginx/conf
-
-  # 创建web服务管理目录
-  cp /opt/docker/ci/code/blog-3.0/api/blog/web /opt/docker
+  # nginx 配置文件
+  cp -r /opt/docker/ci/code/blog-3.0/api/blog/docker/nginx /opt/docker/nginx
 
   # 脚本文件去掉 Windows 换行符 \r
-  sed -i 's/\r$//' /opt/docker/web/*.sh
+  sed -i 's/\r$//' /opt/docker/nginx/web/*.sh
   # 授权可执行
-  chmod +x /opt/docker/web/*.sh
+  chmod +x /opt/docker/nginx/web/*.sh
 
-  echo "${YELLOW}正在启动nginx...${NC}"
   /opt/docker/web/updateWeb.sh
 
+  echo "${YELLOW}正在启动nginx...${NC}"
+  docker run -d --name nginx-router --restart=always --network blog_network -p 80:80 -v /opt/docker/nginx/router/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
+  docker run -d --name nginx-web --restart=always --network blog_network -v /opt/docker/nginx/web/conf/nginx.conf:/etc/nginx/nginx.conf:ro -v /opt/docker/nginx/web/html:/usr/share/nginx/html:ro -v /opt/docker/nginx/web/logs:/var/log/nginx nginx:1.20.2
+  docker run -d --name nginx-other --restart=always --network blog_network -v /opt/docker/nginx/other/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
 }
 
 # redis 配置文件修改
@@ -502,16 +499,16 @@ startPy() {
   echo "${YELLOW}8分钟后启动socket脚本...${NC}"
   sleep 8m
   mkdir -p /opt/docker/files/socket/code
-  cp /opt/docker/ci/code/blog-3.0/socket/* /opt/docker/files/socket/code
+  cp -r /opt/docker/ci/code/blog-3.0/socket/* /opt/docker/files/socket/code
   chmod +x /opt/docker/files/socket/code/web_socket.py
   sed -i 's/\r$//' /opt/docker/files/socket/code/web_socket.py
   chmod +x /opt/docker/files/socket/code/shell/*.sh
   sed -i 's/\r$//' /opt/docker/files/socket/code/shell/*.sh
 
   # 重启脚本
-  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/restart_python.sh /opt/docker/files/python
-  sed -i 's/\r$//' /opt/docker/files/python/restart_python.sh
-  chmod +x /opt/docker/files/python/restart_python.sh
+  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/restart_python.sh /opt/docker/files/socket
+  sed -i 's/\r$//' /opt/docker/files/socket/restart_python.sh
+  chmod +x /opt/docker/files/socket/restart_python.sh
 }
 
 # 安装 MediaMTX
@@ -575,11 +572,11 @@ main() {
   # 添加虚拟内存
   addVirtualMemory
 
-	# 安装docker
-  startDocker
-
   # 构建启动项目
   ciBuild
+
+	# 安装docker
+  startDocker
 
   # Java相关服务全部启动
   startJava

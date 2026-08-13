@@ -30,9 +30,9 @@ PYTHON_BIN="$VENV_PATH/bin/python"
 
 # ---------- Python Socket ----------
 SOCKET_NAME="web_socket"
-SOCKET_MATCH="/opt/docker/files/socket/code/web_socket.py"
-SOCKET_CMD="$PYTHON_BIN /opt/docker/files/socket/code/web_socket.py --ip 172.18.0.21 --port 60001 --path /file/socket/python/localhost"
-SOCKET_LOG="/opt/watchdog/web_socket.log"
+SOCKET_MATCH="/opt/socket/code/web_socket.py"
+SOCKET_CMD="$PYTHON_BIN /opt/socket/code/web_socket.py --ip 172.18.0.21 --port 60001 --path /file/socket/python/localhost"
+SOCKET_LOG="/opt/socket/blog_socket.log"
 
 # ---------- frps ----------
 FRPS_NAME="frps"

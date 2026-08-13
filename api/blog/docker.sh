@@ -343,8 +343,8 @@ startNginx() {
 
   echo "${YELLOW}正在启动nginx...${NC}"
   /opt/docker/nginx/web/updateWeb.sh
-  docker run -d --name nginx-other --restart=always --network blog_network -v /opt/docker/nginx/other/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
-  docker run -d --name nginx-router --restart=always --network blog_network -p 80:80 -v /opt/docker/nginx/router/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
+  docker run -d --name nginx-other --restart=always --network blog_network --ip 172.18.0.33 -v /opt/docker/nginx/other/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
+  docker run -d --name nginx-router --restart=always --network blog_network --ip 172.18.0.31 -p 80:80 -v /opt/docker/nginx/router/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
 }
 
 # redis 配置文件修改
@@ -493,19 +493,15 @@ buildPyEnv() {
 startPy() {
   buildPyEnv
   # Java服务启动较慢，等待Java服务完全启动后进行连接
-  echo "${YELLOW}8分钟后启动socket脚本...${NC}"
-  sleep 8m
-  mkdir -p /opt/docker/files/socket/code
-  cp -r /opt/docker/ci/code/blog-3.0/socket/* /opt/docker/files/socket/code
-  chmod +x /opt/docker/files/socket/code/web_socket.py
-  sed -i 's/\r$//' /opt/docker/files/socket/code/web_socket.py
-  chmod +x /opt/docker/files/socket/code/shell/*.sh
-  sed -i 's/\r$//' /opt/docker/files/socket/code/shell/*.sh
+  echo "${YELLOW}3分钟后启动socket脚本...${NC}"
+  sleep 3m
 
   # 重启脚本
-  cp /opt/docker/ci/code/blog-3.0/api/blog/conf/restart_python.sh /opt/docker/files/socket
-  sed -i 's/\r$//' /opt/docker/files/socket/restart_python.sh
-  chmod +x /opt/docker/files/socket/restart_python.sh
+  cp -r /opt/docker/ci/code/blog-3.0/api/blog/soft/socket /opt
+  sed -i 's/\r$//' /opt/socket/restartSocket.sh
+  chmod +x /opt/socket/restartSocket.sh
+
+  /opt/socket/updateSocket.sh
 }
 
 # 安装 MediaMTX

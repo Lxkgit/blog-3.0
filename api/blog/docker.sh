@@ -333,21 +333,20 @@ startFtp() {
 
 # 安装 nginx
 startNginx() {
-
   # nginx 配置文件
-  cp -r /opt/docker/ci/code/blog-3.0/api/blog/docker/nginx /opt/docker/nginx
+  cp -r /opt/docker/ci/code/blog-3.0/api/blog/docker/nginx /opt/docker
 
   # 脚本文件去掉 Windows 换行符 \r
   sed -i 's/\r$//' /opt/docker/nginx/web/*.sh
   # 授权可执行
   chmod +x /opt/docker/nginx/web/*.sh
 
-  /opt/docker/web/updateWeb.sh
+  /opt/docker/nginx/web/updateWeb.sh
 
   echo "${YELLOW}正在启动nginx...${NC}"
   docker run -d --name nginx-router --restart=always --network blog_network -p 80:80 -v /opt/docker/nginx/router/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
-  docker run -d --name nginx-web --restart=always --network blog_network -v /opt/docker/nginx/web/conf/nginx.conf:/etc/nginx/nginx.conf:ro -v /opt/docker/nginx/web/html:/usr/share/nginx/html:ro -v /opt/docker/nginx/web/logs:/var/log/nginx nginx:1.20.2
   docker run -d --name nginx-other --restart=always --network blog_network -v /opt/docker/nginx/other/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx:1.20.2
+  /opt/docker/nginx/web/updateWeb.sh
 }
 
 # redis 配置文件修改

@@ -1,10 +1,9 @@
 package com.blog.auth.mq;
 
-import com.blog.mq.entity.RocketMQMessage;
-import com.blog.mq.listener.RocketMQMessageHandler;
+import com.blog.mq.entity.MqMessage;
+import com.blog.mq.listener.MqMessageHandler;
 import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,13 +13,13 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
-public class RocketMQMessageHandlerService implements RocketMQMessageHandler {
+public class MqMessageHandlerService implements MqMessageHandler {
 
     @Resource
     private MQProducerService mqProducerService;
 
     @Override
-    public boolean handleMessage(String topic, String tag, RocketMQMessage rocketMQMessage) {
+    public boolean handleMessage(MqMessage rocketMqMessage) {
 
         return false;
     }

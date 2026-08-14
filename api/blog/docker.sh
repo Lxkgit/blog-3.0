@@ -501,6 +501,9 @@ startPy() {
   sed -i 's/\r$//' /opt/socket/restartSocket.sh
   chmod +x /opt/socket/restartSocket.sh
 
+  sed -i 's/\r$//' /opt/socket/updateSocket.sh
+  chmod +x /opt/socket/updateSocket.sh
+
   /opt/socket/updateSocket.sh
 }
 

@@ -57,12 +57,12 @@ public class AuthService implements UserDetailsService {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
         User user = userMapper.selectOne(queryWrapper);
-        LoginUserBo loginUserBo = new LoginUserBo();
-        BeanUtil.copyProperties(user, loginUserBo);
         if (user == null) {
             logger.info("用户不存在");
             throw new UsernameNotFoundException("用户不存在");
         }
+        LoginUserBo loginUserBo = new LoginUserBo();
+        BeanUtil.copyProperties(user, loginUserBo);
         //根据用户id获取权限信息
         List<Menu> auths = getAuthList(user.getId());
         //组装权限信息 放入 SimpleGrantedAuthority

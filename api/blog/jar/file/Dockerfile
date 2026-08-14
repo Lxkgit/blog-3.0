@@ -9,7 +9,6 @@ WORKDIR /opt
 # 文件与目录复制到docker容器中
 COPY run.sh /opt/run.sh
 COPY blog-file.jar /opt/file/blog-file.jar
-COPY application-dev.yml /opt/file/application-dev.yml
 COPY application-pro.yml /opt/file/application-pro.yml
 COPY application-test.yml /opt/file/application-test.yml
 COPY bootstrap.yml /opt/file/bootstrap.yml

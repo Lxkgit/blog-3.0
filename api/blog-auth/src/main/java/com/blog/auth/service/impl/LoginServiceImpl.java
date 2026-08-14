@@ -1,6 +1,7 @@
 package com.blog.auth.service.impl;
 
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.auth.mapper.UserMapper;
@@ -14,31 +15,41 @@ import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
 import com.blog.core.utils.HttpUtils;
 import com.blog.core.utils.RSAUtil;
+import com.blog.mq.entity.MqMessage;
+import com.blog.mq.enums.MqMsgEnum;
+import com.blog.mq.enums.MqTopicEnum;
+import com.blog.mq.service.MQProducerService;
 import com.blog.redis.constant.AuthRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
+/**
+ * @Author: lxk
+ * @date 2026年8月14日
+ * @description: 登录服务类
+ */
 
 @Service
 public class LoginServiceImpl implements LoginService {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginServiceImpl.class);
 
-    //认证管理器
     @Resource
-    private AuthenticationManager authenticationManager;
+    private PasswordEncoder passwordEncoder;
 
     @Resource
     private RedisService redisService;
@@ -46,15 +57,45 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private UserMapper userMapper;
 
-    /**
-     * 登陆
-     *
-     * @param vo
-     * @return
-     */
+
+    @Resource
+    private MQProducerService mqProducerService;
+
+    @Value("${auth.issuer}")
+    private String issuer;
+
     @Override
-    public Result login(LoginVo vo) throws ServiceException {
-        return ResultFactory.buildSuccessResult(getRzId(vo.getUsername(), vo.getPassword()));
+    public String register(LoginVo vo) throws ServiceException {
+
+        if (StringUtils.isBlank(vo.getUsername())) {
+            throw new ServiceException("用户名不能为空");
+        }
+
+        if (StringUtils.isBlank(vo.getPassword())) {
+            throw new ServiceException("密码不能为空");
+        }
+
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getUsername, vo.getUsername());
+
+        User existUser = userMapper.selectOne(wrapper);
+
+        if (existUser != null) {
+            return "redirect:/register?error=user_exist";
+        }
+
+        User user = new User();
+        user.setUsername(vo.getUsername());
+        user.setPassword(passwordEncoder.encode(vo.getPassword()));
+
+        userMapper.insert(user);
+        userMapper.insertUserRoles(user.getId(), List.of(2));
+
+        MqMessage mqMessage = new MqMessage(MqTopicEnum.BLOG_SYSTEM_DATA_REGISTER, MqMsgEnum.ADD.getType(),
+                JSON.toJSONString(user), User.class);
+        mqProducerService.sendSyncOrderly(mqMessage);
+
+        return "redirect:/login?success=register";
     }
 
     /**
@@ -91,7 +132,7 @@ public class LoginServiceImpl implements LoginService {
         params.put("redirect_uri", vo.getRedirectUri());
 
         // 直接调用 auth 服务，不再经过 gateway
-        String url = "http://blog-auth:60002/auth/oauth2/token";
+        String url = issuer + "/oauth2/token";
 
         JSONObject jsonObject = HttpUtils.doPost(url, params, vo);
 
@@ -110,33 +151,5 @@ public class LoginServiceImpl implements LoginService {
         }
 
         return jsonObject;
-    }
-
-    private String getRzId(String username, String encryptedPassword) throws ServiceException {
-        logger.info("开始登录");
-        String privateKey = redisService.getString(AuthRedisConstant.PRIVATE_KEY).toString();
-        String password = RSAUtil.decrypt(encryptedPassword, privateKey);
-
-        //根据账号和密码 创建 认证令牌对象
-        UsernamePasswordAuthenticationToken upt = new UsernamePasswordAuthenticationToken(username, password);
-        //进行登录 获取认证信息
-        Authentication authenticate = authenticationManager.authenticate(upt);
-        if (authenticate == null) {
-            throw new ServiceException("登录失败");
-        }
-        //认证Id
-        String rzId = UUID.randomUUID().toString();
-        logger.info("获取认证id： {}", rzId);
-        String key = AuthRedisConstant.RZ_ID + ":" + rzId;
-        //创建安全上下文
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        //把用户认证信息放到 安全上下文中
-        securityContext.setAuthentication(authenticate);
-        //把上下文放到 持有人手中
-        SecurityContextHolder.setContext(securityContext);
-
-        // 保存认证信息 过期时间1个小时 保持和access_token的过期时间一致
-        redisService.setString(key, securityContext, Constant.AUTH_EFFECTIVE_TIME);
-        return rzId;
     }
 }

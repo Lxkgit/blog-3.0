@@ -64,7 +64,7 @@ public class DiaryServiceImpl implements DiaryService {
         diaryMapper.insertDiary(diaryVo);
 
         // 发送博客用户新增日记mq消息
-        sendUserData.sendUserData(SendUserData.diary, userId, 1);
+        sendUserData.sendUserData(SendUserData.DIARY, userId, 1);
 
         // 发送博客系统新增日记mq消息
         sendSystemData.sendSystemData(SendSystemData.diary, 1);
@@ -94,7 +94,7 @@ public class DiaryServiceImpl implements DiaryService {
         diaryMapper.updateDiaryStatusByIds(idSet, userId, Constant.DELETE);
 
         // 发送博客用户删除日记mq消息
-        sendUserData.sendUserData(SendUserData.diary, userId, -idSet.size());
+        sendUserData.sendUserData(SendUserData.DIARY, userId, -idSet.size());
         // 发送博客系统删除日记mq消息
         sendSystemData.sendSystemData(SendSystemData.diary, -idSet.size());
 

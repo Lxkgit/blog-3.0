@@ -8,6 +8,7 @@
       },
       "Action": ["s3:GetObject"],
       "Resource": [
+        "arn:aws:s3:::blog/system",
         "arn:aws:s3:::blog/*/article/*",
         "arn:aws:s3:::blog/*/doc/*",
         "arn:aws:s3:::blog/*/system/*"

@@ -37,7 +37,7 @@ public class SocketMessageListener {
     @Resource
     private BlogDateSyncTaskAction blogDateSyncTaskAction;
 
-    @Async
+    @Async("baseThread")
     @EventListener
     public void handleSocketReceiveMsgEvent(SocketPacketEvent event) {
         String type = event.getType();

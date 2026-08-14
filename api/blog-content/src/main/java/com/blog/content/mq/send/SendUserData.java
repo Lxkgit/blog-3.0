@@ -2,12 +2,11 @@ package com.blog.content.mq.send;
 
 import com.alibaba.fastjson.JSON;
 import com.blog.core.domain.file.system.vo.ContentCountVo;
-import com.blog.core.enums.mq.RocketMQTopicEnum;
-import com.blog.mq.constant.MQConstant;
-import com.blog.mq.entity.RocketMQMessage;
+import com.blog.mq.enums.MqMsgEnum;
+import com.blog.mq.enums.MqTopicEnum;
+import com.blog.mq.entity.MqMessage;
 import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 
@@ -21,11 +20,11 @@ import org.springframework.stereotype.Component;
 public class SendUserData {
 
     // 发送文章
-    public static final Integer article = 1;
+    public static final Integer ARTICLE = 1;
     // 发送日记
-    public static final Integer diary = 2;
+    public static final Integer DIARY = 2;
     // 发送文档
-    public static final Integer doc = 3;
+    public static final Integer DOC = 3;
 
     @Resource
     private MQProducerService mqProducerService;
@@ -40,17 +39,16 @@ public class SendUserData {
     public void sendUserData(Integer type, Integer userId, Integer count) {
         ContentCountVo contentCountVo = new ContentCountVo();
         contentCountVo.setUserId(userId);
-        if (type.equals(article)) {
+        if (type.equals(ARTICLE)) {
             contentCountVo.setArticleCount(count);
-        } else if (type.equals(diary)) {
+        } else if (type.equals(DIARY)) {
             contentCountVo.setDiaryCount(count);
-        } else if (type.equals(doc)) {
+        } else if (type.equals(DOC)) {
             contentCountVo.setDocCount(count);
         } else {
             return;
         }
-        RocketMQMessage rocketMQMessage = new RocketMQMessage(RocketMQTopicEnum.BLOG_USER_DATA.getTopic(),
-                RocketMQTopicEnum.BLOG_USER_DATA.getTag(), MQConstant.ADD_MSG, JSON.toJSONString("contentCountVo"));
-        mqProducerService.sendSyncOrderly(rocketMQMessage);
+        MqMessage mqMessage = new MqMessage(MqTopicEnum.BLOG_USER_DATA, MqMsgEnum.ADD.getType(), JSON.toJSONString("contentCountVo"));
+        mqProducerService.sendSyncOrderly(mqMessage);
     }
 }

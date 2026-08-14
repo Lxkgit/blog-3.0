@@ -1,4 +1,4 @@
-com.blog.mq.config.RocketMQConfig
+com.blog.mq.config.MqConfig
 com.blog.mq.service.MQProducerService
-com.blog.mq.listener.RocketMQConsumerMsgListenerProcessor
+com.blog.mq.listener.MqConsumerMsgListenerProcessor
 

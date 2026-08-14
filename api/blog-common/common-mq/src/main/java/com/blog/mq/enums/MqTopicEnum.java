@@ -1,4 +1,6 @@
-package com.blog.core.enums.mq;
+package com.blog.mq.enums;
+
+import com.blog.mq.constant.MqTopicConstant;
 
 /**
  * @description: mq topic基础类
@@ -6,11 +8,12 @@ package com.blog.core.enums.mq;
  * @date 2023/6/28 16:50
  */
 
-public enum RocketMQTopicEnum {
+public enum MqTopicEnum {
 
     // 博客数据类数据统计
-    BLOG_USER_DATA("BLOG_USER_DATA", "CONTENT" , "博客用户内容统计数据"),
-    BLOG_SYSTEM_DATA("BLOG_SYSTEM_DATA", "CONTENT", "博客系统内容消息"),
+    BLOG_USER_DATA(MqTopicConstant.BLOG_USER_DATA, MqTopicConstant.CONTENT , "博客用户内容统计数据"),
+    BLOG_SYSTEM_DATA(MqTopicConstant.BLOG_SYSTEM_DATA, MqTopicConstant.CONTENT, "博客系统内容消息"),
+    BLOG_SYSTEM_DATA_REGISTER(MqTopicConstant.BLOG_SYSTEM_DATA, MqTopicConstant.REGISTER, "用户注册消息"),
 
     ;
 
@@ -29,7 +32,7 @@ public enum RocketMQTopicEnum {
      */
     private String memo;
 
-    RocketMQTopicEnum(String topic, String tag, String memo) {
+    MqTopicEnum(String topic, String tag, String memo) {
         this.topic = topic;
         this.tag = tag;
         this.memo = memo;

@@ -1,6 +1,6 @@
-package com.blog.core.enums.mq;
+package com.blog.mq.enums;
 
-public enum RocketMQMsgEnum {
+public enum MqMsgEnum {
 
     ALL(0, "MQ消息全量更新"),
     ADD(1, "MQ消息增量更新"),
@@ -17,7 +17,7 @@ public enum RocketMQMsgEnum {
      */
     private String memo;
 
-    RocketMQMsgEnum(Integer type, String memo) {
+    MqMsgEnum(Integer type, String memo) {
         this.type = type;
         this.memo = memo;
     }

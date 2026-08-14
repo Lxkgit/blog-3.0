@@ -14,12 +14,14 @@ public class PermitUrl {
 
     private static final String[] basePermitUrl = {};
 
-    private static final String[] authPermitUrl = {
+    private static final String[] AUTH_PERMIT_URL = {
             "/publicKey",
             "/redirect",
             "/user/select/id",
             "/login",
-            "/login.html"
+            "/login.html",
+            "/register",
+            "/register.html",
     };
 
     private static final String[] filePermitUrl = {
@@ -58,7 +60,7 @@ public class PermitUrl {
         Set<String> set = new HashSet<>();
         Collections.addAll(set, basePermitUrl);
         switch (model) {
-            case "auth" -> Collections.addAll(set, authPermitUrl);
+            case "auth" -> Collections.addAll(set, AUTH_PERMIT_URL);
             case "file" -> Collections.addAll(set, filePermitUrl);
             case "content" -> Collections.addAll(set, contentPermitUrl);
         }

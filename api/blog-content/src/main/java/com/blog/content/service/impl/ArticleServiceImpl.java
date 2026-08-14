@@ -21,7 +21,6 @@ import com.blog.core.result.ResultPage;
 import com.blog.core.result.ResultPageUtils;
 import com.blog.core.utils.MyStringUtils;
 import com.blog.core.utils.SecurityUtil;
-import com.blog.mq.service.MQProducerService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
@@ -91,7 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         try {
             // 发送博客用户新增文章mq消息
-            sendUserData.sendUserData(SendUserData.article, userId, 1);
+            sendUserData.sendUserData(SendUserData.ARTICLE, userId, 1);
             // 发送博客系统新增文章mq消息
             sendSystemData.sendSystemData(SendSystemData.article, 1);
         } catch (Exception e) {
@@ -127,7 +126,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         // 发送博客用户删除文章mq消息
-        sendUserData.sendUserData(SendUserData.article, userId, -deleteArticleNum);
+        sendUserData.sendUserData(SendUserData.ARTICLE, userId, -deleteArticleNum);
         // 发送博客系统删除文章mq消息
         sendSystemData.sendSystemData(SendSystemData.article, -deleteArticleNum);
 

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>用户登录</title>
+    <title>用户注册</title>
 
     <style>
 
@@ -24,7 +24,7 @@
             font-family: Arial, sans-serif;
         }
 
-        .login {
+        .register {
             width: 380px;
             background: #fff;
             padding: 40px;
@@ -68,18 +68,19 @@
             background: #4096ff;
         }
 
-        .register {
+        .login {
             text-align: center;
             margin-top: 20px;
             font-size: 14px;
+            color: #666;
         }
 
-        .register a {
+        .login a {
             color: #1677ff;
             text-decoration: none;
         }
 
-        .register a:hover {
+        .login a:hover {
             color: #4096ff;
         }
 
@@ -92,7 +93,7 @@
             left: 50%;
             transform: translateX(-50%) translateY(-20px);
             padding: 12px 24px;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(255, 77, 79, 0.9);
             color: #fff;
             border-radius: 6px;
             font-size: 14px;
@@ -110,12 +111,11 @@
         }
     </style>
 </head>
-
 <body>
 
-<div class="login">
-    <h2>登录</h2>
-    <form method="post" action="/auth/login">
+<div class="register">
+    <h2>注册</h2>
+    <form method="post" action="/auth/register">
         <input
                 type="text"
                 name="username"
@@ -127,21 +127,20 @@
                 type="password"
                 name="password"
                 placeholder="密码"
-                autocomplete="current-password"
+                autocomplete="new-password"
                 required
         >
         <button type="submit">
-            登录
+            注册
         </button>
     </form>
-    <div class="register">
-        还没有账号？
-        <a href="/auth/register">
-            立即注册
+    <div class="login">
+        已有账号？
+        <a href="/auth/login">
+            返回登录
         </a>
     </div>
 </div>
-
 <!-- Toast -->
 <div id="toast" class="toast"></div>
 
@@ -152,7 +151,7 @@
      * 获取 URL 参数
      */
     const params = new URLSearchParams(window.location.search);
-    const success = params.get("success");
+    const error = params.get("error");
 
     /*
      * 显示 Toast
@@ -163,15 +162,16 @@
         toast.classList.add("show");
         setTimeout(function () {
             toast.classList.remove("show");
-        }, 2500);
+        }, 3000);
     }
 
-
     /*
-     * 注册成功
+     * 注册失败
      */
-    if (success === "register") {
-        showToast("注册成功，请登录");
+    if (error === "register_failed") {
+        showToast("注册失败，请检查用户名和密码");
+    } else if (error === "user_exist") {
+        showToast("用户名已存在");
     }
 
 </script>

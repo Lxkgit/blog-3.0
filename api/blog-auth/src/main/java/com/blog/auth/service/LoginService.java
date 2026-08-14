@@ -10,7 +10,7 @@ import com.blog.core.result.Result;
 
 public interface LoginService {
 
-    Result login(LoginVo vo) throws ServiceException;
+    String register(LoginVo vo);
 
     void tuiChu(String rzId);
 

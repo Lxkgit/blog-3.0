@@ -1,10 +1,8 @@
 package com.blog.mq.service;
 
 import com.alibaba.fastjson.JSON;
-import com.blog.mq.entity.RocketMQMessage;
-import com.blog.mq.listener.RocketMQConsumerMsgListenerProcessor;
+import com.blog.mq.entity.MqMessage;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
@@ -93,7 +91,7 @@ public class MQProducerService {
      * 发送有序消息
      * @param rocketMQMessage
      */
-    public SendResult sendSyncOrderly(RocketMQMessage rocketMQMessage) {
+    public SendResult sendSyncOrderly(MqMessage rocketMQMessage) {
         return rocketMQTemplate.syncSendOrderly(rocketMQMessage.getTopic() + ":" + rocketMQMessage.getTag(),
                 MessageBuilder.withPayload(rocketMQMessage).build(), rocketMQMessage.getTopic() + ":" + rocketMQMessage.getTag());
     }

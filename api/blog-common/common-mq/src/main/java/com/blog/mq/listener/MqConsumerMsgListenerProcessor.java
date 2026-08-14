@@ -1,10 +1,8 @@
 package com.blog.mq.listener;
 
 import com.alibaba.fastjson.JSON;
-import com.blog.mq.config.RocketMQConfig;
-import com.blog.mq.entity.RocketMQMessage;
+import com.blog.mq.entity.MqMessage;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
@@ -19,16 +17,18 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 /**
- * RocketMQConsumeMsgListenerProcessor
+ * @Description mq消息处理
+ * @Author lxk
+ * @CreateTime 2026-06-25
  */
 
 @Component
-public class RocketMQConsumerMsgListenerProcessor implements MessageListenerConcurrently {
+public class MqConsumerMsgListenerProcessor implements MessageListenerConcurrently {
 
-    private static final Logger logger = LoggerFactory.getLogger(RocketMQConsumerMsgListenerProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(MqConsumerMsgListenerProcessor.class);
 
     @Resource
-    RocketMQMessageHandler rockerMQMessageHandler;
+    private MqMessageHandler mqMessageHandler;
 
     @Override
     public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgList, ConsumeConcurrentlyContext context) {
@@ -38,16 +38,16 @@ public class RocketMQConsumerMsgListenerProcessor implements MessageListenerConc
         }
         MessageExt messageExt = msgList.get(0);
         int reconsume = messageExt.getReconsumeTimes();
-        if (reconsume == 3) {//消息已经重试了3次，如果不需要再次消费，则返回成功
+        if (reconsume == 3) {
+            //消息已经重试了3次，如果不需要再次消费，则返回成功
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
         String msgBody = new String(messageExt.getBody(), Charset.forName(RemotingHelper.DEFAULT_CHARSET));
-        RocketMQMessage rocketMQMessage = JSON.parseObject(msgBody, RocketMQMessage.class);
-        String topic = rocketMQMessage.getTopic();
-        String tag = rocketMQMessage.getTag();
-        logger.info("RocketMQ receive message: {}", rocketMQMessage);
+        MqMessage mqMessage = JSON.parseObject(msgBody, MqMessage.class);
 
-        rockerMQMessageHandler.handleMessage(topic, tag, rocketMQMessage);
+        logger.info("RocketMQ receive message: {}", mqMessage);
+
+        mqMessageHandler.handleMessage(mqMessage);
 
         // 如果没有return success ，consumer会重新消费该消息，直到return success
         return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;

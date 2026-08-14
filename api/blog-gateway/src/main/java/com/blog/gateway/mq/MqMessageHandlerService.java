@@ -1,10 +1,9 @@
 package com.blog.gateway.mq;
 
-import com.blog.mq.entity.RocketMQMessage;
-import com.blog.mq.listener.RocketMQMessageHandler;
+import com.blog.mq.entity.MqMessage;
+import com.blog.mq.listener.MqMessageHandler;
 import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,15 +15,15 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
-public class RocketMQMessageHandlerService implements RocketMQMessageHandler {
+public class MqMessageHandlerService implements MqMessageHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(RocketMQMessageHandlerService.class);
+    private static final Logger logger = LoggerFactory.getLogger(MqMessageHandlerService.class);
 
     @Resource
     private MQProducerService mqProducerService;
 
     @Override
-    public boolean handleMessage(String topic, String tag, RocketMQMessage rocketMQMessage) {
+    public boolean handleMessage(MqMessage rocketMqMessage) {
 
         return false;
     }

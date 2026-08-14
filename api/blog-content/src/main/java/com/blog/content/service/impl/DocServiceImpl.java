@@ -16,7 +16,6 @@ import com.blog.core.domain.content.doc.enums.DocType;
 import com.blog.core.domain.content.doc.vo.DocCatalogVo;
 import com.blog.core.utils.SecurityUtil;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -69,7 +68,7 @@ public class DocServiceImpl implements DocService {
             docContentMapper.insert(docContent);
 
             // 发送博客用户新增文档mq消息
-            sendUserData.sendUserData(SendUserData.doc, userId, 1);
+            sendUserData.sendUserData(SendUserData.DOC, userId, 1);
             // 发送博客系统新增文档mq消息
             sendSystemData.sendSystemData(SendSystemData.doc, 1);
         }
@@ -109,7 +108,7 @@ public class DocServiceImpl implements DocService {
             docContentMapper.update(docContent, updateWrapper);
 
             // 发送博客用户删除文档mq消息
-            sendUserData.sendUserData(SendUserData.doc, userId, -1);
+            sendUserData.sendUserData(SendUserData.DOC, userId, -1);
             // 发送博客系统删除文档mq消息
             sendSystemData.sendSystemData(SendSystemData.doc, -1);
         }

@@ -7,13 +7,12 @@ import com.blog.content.mapper.mybatis.DiaryMapper;
 import com.blog.content.mapper.mybatis.DocContentMapper;
 import com.blog.core.domain.file.system.entity.BlogData;
 import com.blog.core.domain.file.system.entity.ContentCount;
-import com.blog.core.enums.mq.RocketMQMsgEnum;
-import com.blog.core.enums.mq.RocketMQTopicEnum;
-import com.blog.mq.entity.RocketMQMessage;
+import com.blog.mq.enums.MqMsgEnum;
+import com.blog.mq.enums.MqTopicEnum;
+import com.blog.mq.entity.MqMessage;
 import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -82,12 +81,12 @@ public class ContentCountInit {
         blogData.setArticleTypeCount(0);
         blogData.setDocTypeCount(0);
         blogData.setDiaryCount(diaryMapper.selectDiaryCount());
-        RocketMQMessage rocketMQMessage = new RocketMQMessage();
-        rocketMQMessage.setTopic(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTopic());
-        rocketMQMessage.setTag(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTag());
-        rocketMQMessage.setMessage(JSON.toJSONString(blogData));
-        rocketMQMessage.setMqMsgType(RocketMQMsgEnum.ALL.getType());
-        mqProducerService.sendSyncOrderly(rocketMQMessage);
+        MqMessage mqMessage = new MqMessage();
+        mqMessage.setTopic(MqTopicEnum.BLOG_SYSTEM_DATA.getTopic());
+        mqMessage.setTag(MqTopicEnum.BLOG_SYSTEM_DATA.getTag());
+        mqMessage.setMessage(JSON.toJSONString(blogData));
+        mqMessage.setMqMsgType(MqMsgEnum.ALL.getType());
+        mqProducerService.sendSyncOrderly(mqMessage);
     }
 
     /**
@@ -103,11 +102,11 @@ public class ContentCountInit {
 //        List<Map<String,Integer>> docList = docContentMapper.selectDocCountGroupByUserId();
 //        setContentCountList(contentCountList, docList, doc);
 
-        RocketMQMessage rocketMQMessage = new RocketMQMessage();
-        rocketMQMessage.setTopic(RocketMQTopicEnum.BLOG_USER_DATA.getTopic());
-        rocketMQMessage.setTag(RocketMQTopicEnum.BLOG_USER_DATA.getTag());
+        MqMessage rocketMQMessage = new MqMessage();
+        rocketMQMessage.setTopic(MqTopicEnum.BLOG_USER_DATA.getTopic());
+        rocketMQMessage.setTag(MqTopicEnum.BLOG_USER_DATA.getTag());
         rocketMQMessage.setMessage(JSON.toJSONString(contentCountList));
-        rocketMQMessage.setMqMsgType(RocketMQMsgEnum.ALL.getType());
+        rocketMQMessage.setMqMsgType(MqMsgEnum.ALL.getType());
         mqProducerService.sendSyncOrderly(rocketMQMessage);
     }
 

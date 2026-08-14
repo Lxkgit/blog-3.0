@@ -12,7 +12,7 @@ const socketAll = () => {
     //判断当前浏览器是否支持WebSocket, 主要此处要更换为自己的地址
     let url: any
     if (store.isLogin) {
-      url = 'ws://localhost:60001/file/socket/user/' + store.userMessage.userId
+      url = 'ws://localhost:60001/file/socket/user/' + store.userInfo.name
     } else {
       url = 'ws://localhost:60001/file/socket/user/' + randomString(6)
     }

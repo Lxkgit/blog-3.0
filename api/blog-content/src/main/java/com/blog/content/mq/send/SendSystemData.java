@@ -3,12 +3,11 @@ package com.blog.content.mq.send;
 import com.alibaba.fastjson.JSON;
 
 import com.blog.core.domain.file.system.vo.BlogDataVo;
-import com.blog.core.enums.mq.RocketMQTopicEnum;
-import com.blog.mq.constant.MQConstant;
-import com.blog.mq.entity.RocketMQMessage;
+import com.blog.mq.enums.MqMsgEnum;
+import com.blog.mq.enums.MqTopicEnum;
+import com.blog.mq.entity.MqMessage;
 import com.blog.mq.service.MQProducerService;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 
@@ -62,8 +61,8 @@ public class SendSystemData {
             return;
         }
 
-        RocketMQMessage blogDataVoRocketMQMessage = new RocketMQMessage(RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTopic(),
-                RocketMQTopicEnum.BLOG_SYSTEM_DATA.getTag(), MQConstant.ADD_MSG, JSON.toJSONString("blogDataVo"));
-        mqProducerService.sendSyncOrderly(blogDataVoRocketMQMessage);
+        MqMessage mqMessage = new MqMessage(MqTopicEnum.BLOG_SYSTEM_DATA,
+                MqMsgEnum.ADD.getType(), JSON.toJSONString("blogDataVo"));
+        mqProducerService.sendSyncOrderly(mqMessage);
     }
 }

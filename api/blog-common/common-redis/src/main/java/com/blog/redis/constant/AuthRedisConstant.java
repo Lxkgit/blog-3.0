@@ -22,4 +22,6 @@ public class AuthRedisConstant {
      * 私钥
      */
     public static final String PRIVATE_KEY = "AUTH:PRIVATE_KEY";
+
+    public static final String LOGOUT_TOKEN = "AUTH:LOGOUT";
 }

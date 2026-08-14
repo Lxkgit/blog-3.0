@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 /**
- * @description: Netty服务端自定义数据包处理监听器
+ * @description Netty服务端自定义数据包处理监听器
  * @Author: lxk
  * @date 2024/1/6 15:17
  */
@@ -59,7 +59,7 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
     @Resource
     private RedisService redisService;
 
-    @Async
+    @Async("baseThread")
     @Override
     public void onApplicationEvent(NettyPacketEvent event) {
         ChannelHandlerContext ctx = (ChannelHandlerContext) event.getSource();

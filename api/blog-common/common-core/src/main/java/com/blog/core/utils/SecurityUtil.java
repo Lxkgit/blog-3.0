@@ -32,4 +32,14 @@ public class SecurityUtil {
         loginUserBo.setUsername("system");
         SecurityUtil.loginUser = loginUserBo;
     }
+
+    /**
+     * 假登陆，用户
+     */
+    public static void setUser(Integer id, String username) {
+        LoginUserBo loginUserBo = new LoginUserBo();
+        loginUserBo.setId(id);
+        loginUserBo.setUsername(username);
+        SecurityUtil.loginUser = loginUserBo;
+    }
 }

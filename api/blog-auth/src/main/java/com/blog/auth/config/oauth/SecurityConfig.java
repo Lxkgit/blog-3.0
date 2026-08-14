@@ -3,8 +3,6 @@ package com.blog.auth.config.oauth;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.auth.config.filter.MyAuthenticationFilter;
 import com.blog.auth.config.oauth.point.MyLoginUrlAuthenticationEntryPoint;
-import com.blog.auth.config.oauth.repository.RedisSecurityContextRepository;
-import com.blog.auth.config.oauth.service.AuthService;
 import com.blog.auth.mapper.UserMapper;
 import com.blog.auth.entity.MyUserDetails;
 import com.blog.core.constant.PermitUrl;
@@ -81,9 +79,6 @@ public class SecurityConfig {
     private UserMapper userMapper;
 
     @Resource
-    private RedisSecurityContextRepository redisSecurityContextRepository;
-
-    @Resource
     private MyAuthenticationFilter myAuthenticationFilter;
 
     @Resource
@@ -97,9 +92,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    @Resource
-    private AuthService authService;
 
     /**
      * 授权服务安全过滤器链
@@ -167,7 +159,7 @@ public class SecurityConfig {
         http.addFilterBefore(myAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests((authorize) -> authorize
                 //放行资源
-                .requestMatchers("/auth/doLogin", "/auth/login", "/auth/getToken", "/login").permitAll()
+                .requestMatchers("/auth/doLogin", "/auth/login", "/auth/getToken").permitAll()
                 .requestMatchers(PermitUrl.permitAllUrl("auth")).permitAll()
                 .anyRequest().authenticated()
         );

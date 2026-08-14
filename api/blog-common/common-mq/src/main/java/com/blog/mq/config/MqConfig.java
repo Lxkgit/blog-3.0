@@ -1,8 +1,7 @@
 package com.blog.mq.config;
 
-import com.blog.mq.listener.RocketMQConsumerMsgListenerProcessor;
+import com.blog.mq.listener.MqConsumerMsgListenerProcessor;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.exception.MQClientException;
@@ -19,9 +18,9 @@ import org.springframework.context.annotation.Configuration;
  */
 
 @Configuration
-public class RocketMQConfig {
+public class MqConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(RocketMQConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(MqConfig.class);
 
     @Value("${rocketmq.consumer.groupName}")
     protected String groupName;
@@ -42,15 +41,15 @@ public class RocketMQConfig {
     protected int messageMaxSize;
 
     @Resource
-    private RocketMQConsumerMsgListenerProcessor rocketMQConsumeMsgListenerProcessor;
+    private MqConsumerMsgListenerProcessor mqConsumerMsgListenerProcessor;
 
     /**
      * 消费者
      *
      * @return
      */
-    @Bean("myGetRocketMQConsumer")
-    public DefaultMQPushConsumer getRocketMQConsumer() {
+    @Bean("myGetRocketMqConsumer")
+    public DefaultMQPushConsumer getRocketMqConsumer() {
 
         logger.info("groupName {} nameSrvAddr {} topic {}", groupName, nameSrvAddr, topic);
 
@@ -69,7 +68,7 @@ public class RocketMQConfig {
         consumer.setConsumeThreadMax(max);
 
         // 消息消费处理类
-        consumer.registerMessageListener(rocketMQConsumeMsgListenerProcessor);
+        consumer.registerMessageListener(mqConsumerMsgListenerProcessor);
 
         // 设置Consumer第一次启动是从队列头部开始消费还是队列尾部开始消费
         // 如果非第一次启动，那么按照上次消费的位置继续消费

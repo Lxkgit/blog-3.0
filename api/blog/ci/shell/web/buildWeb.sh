@@ -15,6 +15,9 @@ update_npm()
   echo "更新 npm 依赖"
 
   docker run --rm \
+    --cpus=2 \
+    --memory=2g \
+    --memory-swap=2g \
     -v ${SOURCE_DIR}/web:/workspace \
     -v ${NPM_DIR}:/root/.npm \
     -w /workspace \
@@ -35,6 +38,9 @@ build_web()
   echo "环境: ${PROFILE}"
 
   docker run --rm \
+    --cpus=2 \
+    --memory=2g \
+    --memory-swap=2g \
     -v ${SOURCE_DIR}/web:/workspace \
     -v ${NPM_DIR}:/root/.npm \
     -w /workspace \

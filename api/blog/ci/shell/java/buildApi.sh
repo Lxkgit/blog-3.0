@@ -13,6 +13,9 @@ build_backend()
   echo "模块: ${MODULES}"
 
   docker run --rm \
+    --cpus=2 \
+    --memory=2g \
+    --memory-swap=2g \
     -v ${SOURCE_DIR}:/workspace \
     -v ${MAVEN_DIR}:/root/.m2 \
     -w /workspace/api \

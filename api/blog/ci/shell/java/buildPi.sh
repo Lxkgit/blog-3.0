@@ -12,6 +12,9 @@ build_backend()
     echo "INSTALL=install，开始安装 api 公共依赖..."
 
     docker run --rm \
+      --cpus=2 \
+      --memory=2g \
+      --memory-swap=2g \
       -v ${SOURCE_DIR}:/workspace \
       -v ${MAVEN_DIR}:/root/.m2 \
       -w /workspace/api \
@@ -31,6 +34,9 @@ build_backend()
   echo "开始构建 pi..."
 
   docker run --rm \
+    --cpus=2 \
+    --memory=2g \
+    --memory-swap=2g \
     -v ${SOURCE_DIR}:/workspace \
     -v ${MAVEN_DIR}:/root/.m2 \
     -w /workspace/pi \
@@ -67,7 +73,7 @@ main()
   # 参数校验统一由 args.sh 完成
   check_common_args
   check_pi_args
-  
+
   # 更新代码
   update_code
 

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # 更新并打包Java服务
-/opt/docker/ci/shell/buildController.sh web pro
+/opt/docker/ci/shell/buildController.sh -s web -e pro
 
 rm -rf /opt/docker/nginx/web/html
 mkdir -p /opt/docker/nginx/web/html

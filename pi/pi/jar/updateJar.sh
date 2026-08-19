@@ -16,14 +16,14 @@ updateJarConfig() {
   SERVICES=("pi")
   for service in "${SERVICES[@]}"; do
     # 替换环境
-    sed -i "s/@env@/${JAR_PROFILE}/g" "/opt/docker/files/jar/${service}/bootstrap.yml"
+    sed -i "s/@env@/${JAR_PROFILE}/g" "/opt/docker/files/jar/${service}/application.yml"
   done
 }
 
 # 编译打包jar包服务
 buildJar() {
   # 更新并打包Java服务
-  /opt/docker/ci/shell/buildController.sh pi pro install
+  /opt/docker/ci/shell/buildController.sh -s pi -e pro -i install
 
   rm -rf /opt/docker/files/jar/pi/blog-pi.jar
   mv /opt/docker/ci/code/blog-3.0/pi/target/blog-pi.jar /opt/docker/files/jar/pi

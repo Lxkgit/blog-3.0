@@ -31,14 +31,20 @@ PYTHON_BIN="$VENV_PATH/bin/python"
 # ---------- Python Socket ----------
 SOCKET_NAME="web_socket"
 SOCKET_MATCH="/opt/soft/socket/code/web_socket.py"
-SOCKET_CMD="$PYTHON_BIN /opt/soft/socket/code/web_socket.py --ip 172.18.0.21 --port 60001 --path /file/socket/python/localhost"
+SOCKET_CMD="$PYTHON_BIN /opt/soft/socket/code/web_socket.py --ip 172.18.0.5 --port 10201 --path /socket/python/localhost"
 SOCKET_LOG="/opt/soft/socket/blog_socket.log"
 
-# ---------- frps ----------
-FRPS_NAME="frps"
-FRPS_MATCH="/opt/soft/frps/frp_0.68.0_linux_amd64/frps -c /opt/soft/frps/frp_0.68.0_linux_amd64/frps.ini"
-FRPS_CMD="/opt/soft/frps/frp_0.68.0_linux_amd64/frps -c /opt/soft/frps/frp_0.68.0_linux_amd64/frps.ini"
-FRPS_LOG="/opt/soft/frps/frp_0.68.0_linux_amd64/frps.log"
+# ---------- frpc ----------
+FRPS_NAME="frpc"
+FRPS_MATCH="/opt/soft/frpc/frp_0.68.0_linux_amd64/frpc -c /opt/soft/frpc/frp_0.68.0_linux_amd64/frpc.ini"
+FRPS_CMD="/opt/soft/frpc/frp_0.68.0_linux_amd64/frpc -c /opt/soft/frpc/frp_0.68.0_linux_amd64/frpc.ini"
+FRPS_LOG="/opt/soft/frpc/frp_0.68.0_linux_amd64/frpc.log"
+
+# ---------- camera ----------
+CAMERA_NAME="startCSI"
+CAMERA_MATCH="/opt/soft/camera/startCSI.sh"
+CAMERA_CMD="/opt/soft/camera/startCSI.sh"
+CAMERA_LOG="/opt/soft/camera/camera.log"
 
 # =========================
 # 通用函数
@@ -106,6 +112,9 @@ check_frps() {
     check_service "$FRPS_NAME" "$FRPS_MATCH" "$FRPS_CMD" "$FRPS_LOG"
 }
 
+check_camera() {
+    check_service "$CAMERA_NAME" "$CAMERA_MATCH" "$CAMERA_CMD" "$CAMERA_LOG"
+}
 
 # =========================
 # 主循环
@@ -116,6 +125,7 @@ main() {
   while true; do
       check_socket
       check_frps
+      check_camera
       sleep 10
   done
 }

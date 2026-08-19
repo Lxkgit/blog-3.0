@@ -9,9 +9,16 @@ mysqlPassword="MySql@Admin123*."
 # redis登陆密码
 redisPassword="redis-960@*"
 
+# 系统颜色变量
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
+NC='\033[0m'
+
 # 服务器相关依赖下载
 util(){
-	echo "下载服务器环境所需依赖..."
+	echo "${YELLOW}下载服务器环境所需依赖...${NC}"
 	waitAptLock
 	# 压缩解压工具
 	apt-get install -y unzip zip
@@ -19,39 +26,70 @@ util(){
 
 # 等待解锁方法
 waitAptLock() {
-    echo "等待 apt/dpkg 锁释放..."
+  echo "${YELLOW}等待 apt/dpkg 锁释放...${NC}"
 
-    while \
-        fuser /var/lib/dpkg/lock >/dev/null 2>&1 || \
-        fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
-        fuser /var/lib/apt/lists/lock >/dev/null 2>&1 || \
-        fuser /var/cache/apt/archives/lock >/dev/null 2>&1 || \
-        pgrep -x apt >/dev/null || \
-        pgrep -x apt-get >/dev/null || \
-        pgrep -x dpkg >/dev/null || \
-        pgrep -x unattended-upgrade >/dev/null
-    do
-        echo "apt-get 正在运行，等待 3 秒..."
-        sleep 3
-    done
+  while \
+      fuser /var/lib/dpkg/lock >/dev/null 2>&1 || \
+      fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+      fuser /var/lib/apt/lists/lock >/dev/null 2>&1 || \
+      fuser /var/cache/apt/archives/lock >/dev/null 2>&1 || \
+      pgrep -x apt >/dev/null || \
+      pgrep -x apt-get >/dev/null || \
+      pgrep -x dpkg >/dev/null || \
+      pgrep -x unattended-upgrade >/dev/null
+  do
+      echo "${YELLOW}apt-get 正在运行，等待 3 秒...${NC}"
+      sleep 3
+  done
 
-    echo "apt-get 已空闲"
+  echo "${GREEN}apt-get 已空闲${NC}"
 }
 
 # 依赖文件解压
 unzipPi() {
+  echo "${YELLOW}开始解压树莓派文件...${NC}"
   mkdir -p /opt/package
-  unzip pi.zip -d /opt/package
+  mv ./pi.zip /opt/package/
+  unzip /opt/package/pi.zip -d /opt/package
+}
+
+# 自动化构建启动项目
+ciBuild() {
+  # 脚本文件移动
+  mkdir -p /opt/docker
+  cp -r /opt/package/ci /opt/docker/
+
+  # ssh 密钥授权文件
+  sshConfig
+
+  # 脚本文件去掉 Windows 换行符 \r
+  find /opt/docker/ci/shell -type f -name "*.sh" -exec sed -i 's/\r$//' {} \;
+  # 授权可执行
+  find /opt/docker/ci/shell -type f -name "*.sh" -exec chmod +x {} \;
+
+  # 拉取代码
+  /opt/docker/ci/shell/updateCode.sh
+}
+
+sshConfig(){
+
+  mkdir -p /root/.ssh
+  tar xzvf /opt/docker/ci/ssh/ssh-gitee-backup.tar.gz -C /
+  chmod 700 /root/.ssh
+  chmod 600 /root/.ssh/id_ed25519
+  chmod 644 /root/.ssh/id_ed25519.pub
+  chmod 644 /root/.ssh/known_hosts
 }
 
 # 安装并配置docker
 startDocker() {
-  echo "启动docker ... "
 
-  mv /opt/package/docker/docker-27.1.1.tgz /root
+  echo "${YELLOW}开始安装docker...${NC}"
+
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/docker/docker-27.1.1.tgz /root
   tar -zxvf /root/docker-27.1.1.tgz -C /root
   sudo cp /root/docker/* /usr/bin/
-  mv /opt/package/docker/docker.service /etc/systemd/system/
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/docker/docker.service /etc/systemd/system/
 
   chmod +x /etc/systemd/system/docker.service
   systemctl daemon-reload
@@ -96,9 +134,35 @@ startJava() {
   createSamba
 }
 
+# 修改 MySQL 配置文件
+updateMysqlConf() {
+	echo "开始修改MySQL配置文件..."
+	# mysql 配置
+	cp /opt/docker/ci/code/blog-3.0/pi/pi/docker/mysql/my.cnf /opt/docker/mysql/conf
+	sed -i "s/password=/password=${mysqlPassword}/" /opt/docker/mysql/conf/my.cnf
+}
+
+# MySQL 数据修改与导入
+insertSqlData() {
+  echo "开始修改MySQL数据恢复脚本文件..."
+  # MySQL数据文件
+  mkdir -p /opt/docker/files/sql
+  mv /opt/package/sql/* /opt/docker/files/sql
+  # MySQL容器执行脚本
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/docker/mysql/mysql.sh /opt/docker/files
+
+  chmod +x /opt/docker/files/mysql.sh
+  sed -i 's/\r$//' /opt/docker/files/mysql.sh
+  sed -i 's/\r$//' /opt/docker/files/sql/*.sql
+  sed -i "s/mysqlPassword=/mysqlPassword=\"${mysqlPassword}\"/" /opt/docker/files/mysql.sh
+
+  # 导入sql数据
+  nohup sudo docker exec mysql bash /opt/docker/files/mysql.sh >/opt/docker/mysql/logs/sql.log 2>&1
+}
+
 # 安装MySQL
 startMySQL() {
-  echo "启动mysql ... "
+  echo "${YELLOW}正在启动mysql...${NC}"
 
   # docker 导入MySQL镜像
   docker load -i /opt/package/images/mysql.tar
@@ -113,35 +177,9 @@ startMySQL() {
   insertSqlData
 }
 
-# 修改 MySQL 配置文件
-updateMysqlConf() {
-	echo "开始修改MySQL配置文件..."
-	# mysql 配置
-	mv /opt/package/conf/my.cnf /opt/docker/mysql/conf
-	sed -i "s/password=/password=${mysqlPassword}/" /opt/docker/mysql/conf/my.cnf
-}
-
-# MySQL 数据修改与导入
-insertSqlData() {
-    echo "开始修改MySQL数据恢复脚本文件..."
-	  # MySQL数据文件
-	  mkdir -p /opt/docker/files/sql
-    mv /opt/package/sql/* /opt/docker/files/sql
-    # MySQL容器执行脚本
-    mv /opt/package/conf/mysql.sh /opt/docker/files
-
-    chmod +x /opt/docker/files/mysql.sh
-    sed -i 's/\r$//' /opt/docker/files/mysql.sh
-    sed -i 's/\r$//' /opt/docker/files/sql/*.sql
-    sed -i "s/mysqlPassword=/mysqlPassword=\"${mysqlPassword}\"/" /opt/docker/files/mysql.sh
-
-    # 导入sql数据
-    nohup sudo docker exec mysql bash /opt/docker/files/mysql.sh >/opt/docker/mysql/logs/sql.log 2>&1
-}
-
 # 安装MQTT
 startMQTT() {
-  echo "启动mqtt ... "
+  echo "${YELLOW}正在启动mqtt ... ${NC}"
   # docker 导入 MQTT 镜像
   docker load -i /opt/package/images/emqx.tar
   docker run -d --name emqx --privileged=true --restart=always --network blog_network --ip 172.18.0.4 -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083 emqx/emqx:5.4.1
@@ -149,15 +187,15 @@ startMQTT() {
 
 # redis 配置文件修改
 updateRedisConf() {
-	echo "开始修改Redis配置文件..."
+	echo "${YELLOW}开始修改Redis配置文件...${NC}"
 	# redis 配置
-	mv /opt/package/conf/redis.conf /opt/docker/redis/conf
+	cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/redis/redis.conf /opt/docker/redis/conf
 	sed -i "s/requirepass/requirepass ${redisPassword}/g" /opt/docker/redis/conf/redis.conf
 }
 
 # 安装 redis
 startRedis() {
-  echo "启动redis ... "
+  echo "${YELLOW}正在启动redis...${NC}"
 	# redis 目录创建
 	mkdir -p /opt/docker/redis/conf /opt/docker/redis/data
 
@@ -167,28 +205,26 @@ startRedis() {
 	docker run -d --name redis --privileged=true --restart=always --network blog_network --ip 172.18.0.6 -p 6379:6379 -v /opt/docker/redis/conf/redis.conf:/etc/redis/redis.conf -v /opt/docker/redis/data/:/data/  -v /opt/docker/files/:/opt/docker/files/ redis:6.2.5 redis-server /etc/redis/redis.conf
 }
 
-# 启动树莓派服务
+# 启动Java服务
 startJar() {
-  echo "3分钟后启动pi项目 ... "
+  # 创建目录日志与服务
+  mkdir -p /opt/docker/files/logs
+  mkdir -p /opt/docker/files/jar
+
+  # 复制全部配置文件
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/jar/updateJar.sh /opt/docker/files/jar
+
+  # 等待nacos启动
+  echo "${YELLOW}3分钟后启动pi项目 ... ${NC}"
   sleep 3m
-  mkdir -p /opt/docker/files/jar /opt/docker/files/logs
-  # 项目相关文件
-  mv /opt/package/jar/* /opt/docker/files/jar
-  # win和linux字符引起的错误
-  sed -i 's/\r$//' /opt/docker/files/jar/run.sh
-  chmod +x /opt/docker/files/jar/run.sh
-  sed -i 's/\r$//' /opt/docker/files/jar/restart.sh
-  chmod +x /opt/docker/files/jar/restart.sh
-  # shellcheck disable=SC2164
-  cd /opt/docker/files/jar
-  docker load -i /opt/package/images/jdk17.tar
-  docker build -t pi:1 .
-  docker run -d --name pi --privileged=true --cap-add=SYS_ADMIN --restart=always --network blog_network --ip 172.18.0.5 -p 10201:10201 -p 9092:9092 -p 5005:5005 -v /opt/docker/files:/opt/docker/files pi:1
+  chmod +x /opt/docker/files/jar/updateJar.sh
+  sed -i 's/\r$//' /opt/docker/files/jar/updateJar.sh
+  /opt/docker/files/jar/updateJar.sh
 }
 
 # python 脚本执行环境配置
 buildPyEnv() {
-	echo "安装python3.9 ... "
+	echo "${YELLOW}安装python环境 ...${NC}"
 
   waitAptLock
   sudo apt-get install -y python3 python3-pip python3-venv
@@ -196,8 +232,8 @@ buildPyEnv() {
   python3 -m venv /opt/python
   source /opt/python/bin/activate
 
-	/opt/python/bin/pip install websockets
-	/opt/python/bin/pip install psutil
+  /opt/python/bin/python -m pip install --upgrade pip
+  /opt/python/bin/python -m pip install websockets psutil
 
 	# 退出python虚拟环境
 	deactivate
@@ -207,42 +243,15 @@ buildPyEnv() {
 startPy() {
   buildPyEnv
   # Java服务启动较慢，等待Java服务完全启动后进行连接
-  echo "4分钟后启动python脚本 ... "
-  sleep 4m
-  mkdir -p /opt/docker/files/python/code
-  mv /opt/package/python/* /opt/docker/files/python/code
-  unzip /opt/docker/files/python/code/socket.zip -d /opt/docker/files/python/code
-  chmod +x /opt/docker/files/python/code/web_socket.py
-  sed -i 's/\r$//' /opt/docker/files/python/code/web_socket.py
-  chmod +x /opt/docker/files/python/code/shell/*.sh
-  sed -i 's/\r$//' /opt/docker/files/python/code/shell/*.sh
-
-  startPyDaemon
-}
-
-# python 脚本守护线程
-startPyDaemon() {
-
-  # 开机唤醒守护线程配置
-  mv /opt/package/conf/websocket-watchdog.service /etc/systemd/system/
-  sed -i 's/\r$//' /etc/systemd/system/websocket-watchdog.service
-
-  # 守护线程
-  mv /opt/package/conf/websocket_watchdog.sh /opt/docker/files/python
-  sed -i 's/\r$//' /opt/docker/files/python/websocket_watchdog.sh
-  chmod +x /opt/docker/files/python/websocket_watchdog.sh
+  echo "${YELLOW}3分钟后启动socket脚本...${NC}"
+  sleep 3m
 
   # 重启脚本
-  mv /opt/package/conf/restart_python.sh /opt/docker/files/python
-  sed -i 's/\r$//' /opt/docker/files/python/restart_python.sh
-  chmod +x /opt/docker/files/python/restart_python.sh
+  cp -r /opt/docker/ci/code/blog-3.0/pi/pi/soft/socket /opt/soft
+  sed -i 's/\r$//' /opt/soft/socket/*.sh
+  chmod +x /opt/soft/socket/*.sh
 
-  # 重新加载systemd配置
-  sudo systemctl daemon-reload
-  # 开机自启
-  sudo systemctl enable websocket-watchdog.service
-  # 立即启动
-  sudo systemctl start websocket-watchdog.service
+  /opt/soft/socket/updateSocket.sh
 }
 
 # 挂载硬盘
@@ -253,8 +262,8 @@ mountDisk() {
   sudo apt install -y ntfs-3g
 
   # 处理硬盘挂载配置文件
-  mv /opt/package/conf/automount@.service /etc/systemd/system/
-  mv /opt/package/conf/99-automount.rules /etc/udev/rules.d/
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/conf/automount@.service /etc/systemd/system/
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/conf/99-automount.rules /etc/udev/rules.d/
   sudo sed -i 's/\r$//' /etc/systemd/system/automount@.service
   sudo sed -i 's/\r$//' /etc/udev/rules.d/99-automount.rules
 
@@ -282,11 +291,11 @@ createSamba() {
   smbpasswd -e nas
 
   # 添加 Samba 配置
-  cp /opt/package/conf/samba.conf /etc/samba/smb.conf
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/samba/samba.conf /etc/samba/smb.conf
 
   # 添加 nas 用户目录权限
   chown -R nas:nas /mnt
-  chmod -R 777 /mnt
+#  chmod -R 777 /mnt
 
   # 检查 Samba 配置
   testparm -s
@@ -322,7 +331,6 @@ startPISci() {
   unzip /opt/package/csi/libpisp-1.3.0.zip -d /root/libcamera
   cp /opt/package/csi/googletest-release-1.11.0.zip /root/libcamera/subprojects/packagefiles/gtest-1.11.0.zip
   cp /opt/package/csi/gtest_1.11.0-1_patch.zip /root/libcamera/subprojects/packagefiles/gtest_1.11.0-1_patch.zip
-#  mv /root/libcamera/subprojects/googletest-release-1.11.0 /root/libcamera/subprojects/googletest
   cd /root/libcamera || exit 1
   git checkout v0.7.0
   pip3 install --upgrade meson
@@ -384,7 +392,7 @@ startMediaMTX() {
   startPISci
 
   mkdir -p /opt/docker/mediamtx/config
-  mv /opt/package/conf/mediamtx.yml /opt/docker/mediamtx/config
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/docker/mediamtx/mediamtx.yml /opt/docker/mediamtx/config
   docker load -i /opt/package/images/mediamtx_1_arm64.tar
   docker run --name mediamtx --network host -v /opt/docker/mediamtx/config/mediamtx.yml:/mediamtx.yml -v /opt/docker/mediamtx/recordings:/opt/docker/mediamtx/recordings -d bluenviron/mediamtx:1
 
@@ -395,24 +403,45 @@ startMediaMTX() {
 # 安装 Frp 客户端
 # wget https://github.com/fatedier/frp/releases/download/v0.68.0/frp_0.68.0_linux_arm64.tar.gz
 startFrpc() {
-  mkdir -p /opt/frpc
-  mv /opt/package/soft/frp_0.68.0_linux_arm64.tar.gz /opt/frpc
-  tar -zxvf /opt/frpc/frp_0.68.0_linux_arm64.tar.gz -C /opt/frpc
-  mv /opt/package/conf/frpc.ini /opt/frpc/frp_0.68.0_linux_arm64
-  nohup /opt/frpc/frp_0.68.0_linux_arm64/frpc -c /opt/frpc/frp_0.68.0_linux_arm64/frpc.ini > /opt/frpc/frp_0.68.0_linux_arm64/frpc.log 2>&1 &
+  mkdir -p /opt/soft/frpc
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/frpc/frp_0.68.0_linux_arm64.tar.gz /opt/soft/frpc
+  tar -zxvf /opt/soft/frpc/frp_0.68.0_linux_arm64.tar.gz -C /opt/soft/frpc
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/frpc/frpc.ini /opt/soft/frpc/frp_0.68.0_linux_arm64
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/frpc/restartFrpc.sh /opt/soft/frpc/frp_0.68.0_linux_arm64
+
+  sed -i 's/\r$//' /opt/soft/frpc/frp_0.68.0_linux_arm64/restartFrpc.sh
+  chmod +x /opt/soft/frpc/frp_0.68.0_linux_arm64/restartFrpc.sh
 }
 
 # 启动摄像头脚本文件位置，脚本由守护线程管理
 startCamera() {
-  mkdir -p /opt/docker/camera
-  mv /opt/package/conf/startCSI.sh /opt/docker/camera
-  sed -i 's/\r$//' /opt/docker/camera/startCSI.sh
-  chmod +x /opt/docker/camera/startCSI.sh
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/camera /opt/soft
 
-  mv /opt/package/conf/stopCSI.sh /opt/docker/camera
-  sed -i 's/\r$//' /opt/docker/camera/stopCSI.sh
-  chmod +x /opt/docker/camera/stopCSI.sh
+  sed -i 's/\r$//' /opt/soft/camera/*.sh
+  chmod +x /opt/soft/camera/*.sh
+}
 
+# 守护除 docker 之外的基本启动
+startWatchdog() {
+
+  # 守护线程目录
+  mkdir -p /opt/soft/watchdog
+
+  # 开机唤醒守护线程配置
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/watchdog/watchdog.service /etc/systemd/system/
+  sed -i 's/\r$//' /etc/systemd/system/watchdog.service
+
+  # 守护线程
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/watchdog/watchdog.sh /opt/soft/watchdog
+  sed -i 's/\r$//' /opt/soft/watchdog/watchdog.sh
+  chmod +x /opt/soft/watchdog/watchdog.sh
+
+  # 重新加载systemd配置
+  sudo systemctl daemon-reload
+  # 开机自启
+  sudo systemctl enable watchdog.service
+  # 立即启动
+  sudo systemctl start watchdog.service
 }
 
 main() {
@@ -432,6 +461,9 @@ main() {
 
   # 启动树莓派SCI摄像头服务
   startMediaMTX
+
+  # 守护线程
+  startWatchdog
 
   timer_end=$(date "+%Y-%m-%d %H:%M:%S")
   diff=$(( $(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}") ))

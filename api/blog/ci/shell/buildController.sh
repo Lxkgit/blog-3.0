@@ -21,25 +21,6 @@ check_args() {
   shift
 
   case ${type} in
-  blog)
-    if [ $# -ne 1 ]; then
-      echo "错误：整体构建参数数量错误"
-      echo "使用方式:"
-      echo "  ./buildController.sh blog pro"
-      echo "  ./buildController.sh blog test"
-      exit 1
-    fi
-
-    case "$1" in
-    pro|test)
-      ;;
-    *)
-      echo "错误：环境参数只能是 pro 或 test"
-      exit 1
-      ;;
-    esac
-    ;;
-
   java)
     if [ $# -lt 2 ]; then
       echo "错误：后端构建参数不足"
@@ -93,7 +74,7 @@ build_blog() {
   echo ""
   echo "========== 开始后端构建 =========="
 
-  /opt/docker/ci/shell/java/buildJava.sh java "$@" blog-auth,blog-gateway,blog-content,blog-file
+  /opt/docker/ci/shell/java/buildJava.sh "$@" blog-auth,blog-gateway,blog-content,blog-file
   if [ $? -ne 0 ]; then
     echo "后端构建失败，停止整体构建"
     exit 1
@@ -103,7 +84,7 @@ build_blog() {
   echo "========== 后端构建成功 =========="
   echo "========== 开始前端构建 =========="
 
-  /opt/docker/ci/shell/web/buildWeb.sh web "$@"
+  /opt/docker/ci/shell/web/buildWeb.sh "$@"
   if [ $? -ne 0 ]; then
     echo "前端构建失败"
     exit 1

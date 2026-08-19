@@ -18,9 +18,9 @@ pathDefaults:
   recordFormat: fmp4
   recordPartDuration: 1s
   recordMaxPartSize: 50M
-  recordSegmentDuration: 300s
+  recordSegmentDuration: 600s
   # 保留时间
-  recordDeleteAfter: 1d
+  recordDeleteAfter: 3d
   overridePublisher: true
 
 paths:

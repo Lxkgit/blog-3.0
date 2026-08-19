@@ -93,6 +93,34 @@ addVirtualMemory() {
 	echo "/usr/swap/swapfile swap swap defaults 0 0"  >> /etc/fstab
 }
 
+# 自动化构建启动项目
+ciBuild() {
+  # 脚本文件移动
+  mkdir -p /opt/docker
+  cp -r /opt/package/ci /opt/docker/
+
+  # ssh 密钥授权文件
+  sshConfig
+
+  # 脚本文件去掉 Windows 换行符 \r
+  find /opt/docker/ci/shell -type f -name "*.sh" -exec sed -i 's/\r$//' {} \;
+  # 授权可执行
+  find /opt/docker/ci/shell -type f -name "*.sh" -exec chmod +x {} \;
+
+  # 拉取代码
+  /opt/docker/ci/shell/updateCode.sh
+}
+
+sshConfig(){
+
+  mkdir -p /root/.ssh
+  tar xzvf /opt/docker/ci/ssh/ssh-gitee-backup.tar.gz -C /
+  chmod 700 /root/.ssh
+  chmod 600 /root/.ssh/id_ed25519
+  chmod 644 /root/.ssh/id_ed25519.pub
+  chmod 644 /root/.ssh/known_hosts
+}
+
 # 安装docker
 startDocker() {
 
@@ -194,34 +222,6 @@ dockerLoad() {
       command="docker pull ${image}"
       reLoad
   done
-}
-
-# 自动化构建启动项目
-ciBuild() {
-  # 脚本文件移动
-  mkdir -p /opt/docker
-  cp -r /opt/package/ci /opt/docker/
-
-  # ssh 密钥授权文件
-  sshConfig
-
-  # 脚本文件去掉 Windows 换行符 \r
-  find /opt/docker/ci/shell -type f -name "*.sh" -exec sed -i 's/\r$//' {} \;
-  # 授权可执行
-  find /opt/docker/ci/shell -type f -name "*.sh" -exec chmod +x {} \;
-
-  # 拉取代码
-  /opt/docker/ci/shell/updateCode.sh
-}
-
-sshConfig(){
-
-  mkdir -p /root/.ssh
-  tar xzvf /opt/docker/ci/ssh/ssh-gitee-backup.tar.gz -C /
-  chmod 700 /root/.ssh
-  chmod 600 /root/.ssh/id_ed25519
-  chmod 644 /root/.ssh/id_ed25519.pub
-  chmod 644 /root/.ssh/known_hosts
 }
 
 # Java相关服务全部启动
@@ -497,14 +497,11 @@ startPy() {
   sleep 3m
 
   # 重启脚本
-  cp -r /opt/docker/ci/code/blog-3.0/api/blog/soft/socket /opt
-  sed -i 's/\r$//' /opt/socket/restartSocket.sh
-  chmod +x /opt/socket/restartSocket.sh
+  cp -r /opt/docker/ci/code/blog-3.0/api/blog/soft/socket /opt/soft
+  sed -i 's/\r$//' /opt/soft/socket/*.sh
+  chmod +x /opt/soft/socket/*.sh
 
-  sed -i 's/\r$//' /opt/socket/updateSocket.sh
-  chmod +x /opt/socket/updateSocket.sh
-
-  /opt/socket/updateSocket.sh
+  /opt/soft/socket/updateSocket.sh
 }
 
 # 安装 MediaMTX
@@ -520,17 +517,17 @@ startMediaMTX() {
 # frps服务由守护线程启动
 startFrps() {
   mkdir -p /opt/frps
-  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/frp_0.68.0_linux_amd64.tar.gz /opt/frps
-  tar -zxvf /opt/frps/frp_0.68.0_linux_amd64.tar.gz -C /opt/frps
-  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/frps.ini /opt/frps/frp_0.68.0_linux_amd64
-  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/restartFrps.sh /opt/frps/frp_0.68.0_linux_amd64
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/frp_0.68.0_linux_amd64.tar.gz /opt/soft/frps
+  tar -zxvf /opt/frps/frp_0.68.0_linux_amd64.tar.gz -C /opt/soft/frps
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/frps.ini /opt/soft/frps/frp_0.68.0_linux_amd64
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/restartFrps.sh /opt/soft/frps/frp_0.68.0_linux_amd64
 
-  sed -i 's/\r$//' /opt/frps/frp_0.68.0_linux_amd64/restartFrps.sh
-  chmod +x /opt/frps/frp_0.68.0_linux_amd64/restartFrps.sh
+  sed -i 's/\r$//' /opt/soft/frps/frp_0.68.0_linux_amd64/restartFrps.sh
+  chmod +x /opt/soft/frps/frp_0.68.0_linux_amd64/restartFrps.sh
 }
 
 # 守护除 docker 之外的基本启动
-startWatchDog() {
+startWatchdog() {
 
   # 守护线程目录
   mkdir -p /opt/watchdog
@@ -540,9 +537,9 @@ startWatchDog() {
   sed -i 's/\r$//' /etc/systemd/system/watchdog.service
 
   # 守护线程
-  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/watchdog.sh /opt/watchdog
-  sed -i 's/\r$//' /opt/watchdog/watchdog.sh
-  chmod +x /opt/watchdog/watchdog.sh
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/watchdog.sh /opt/soft/watchdog
+  sed -i 's/\r$//' /opt/soft/watchdog/watchdog.sh
+  chmod +x /opt/soft/watchdog/watchdog.sh
 
   # 重新加载systemd配置
   sudo systemctl daemon-reload
@@ -578,7 +575,7 @@ main() {
   startJava
 
   # 守护线程
-  startWatchDog
+  startWatchdog
 
   timer_end=$(date "+%Y-%m-%d %H:%M:%S")
   diff=$(( $(date +%s -d "${timer_end}") - $(date +%s -d "${timer_start}") ))

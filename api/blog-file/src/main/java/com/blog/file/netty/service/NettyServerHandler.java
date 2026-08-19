@@ -70,7 +70,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         if (deviceCode != null) {
             NettyServer.CHANNEL_MAP.remove(deviceCode);
         } else {
-            logger.warn("客户端断开，但是没有绑定设备ID channelId={}", ctx.channel().id());
+            logger.warn("客户端断开 channelId={}", ctx.channel().id());
         }
         ctx.fireChannelInactive();
     }

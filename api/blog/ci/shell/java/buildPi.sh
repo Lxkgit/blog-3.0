@@ -31,11 +31,17 @@ build_backend()
   docker run --rm \
     -v ${SOURCE_DIR}:/workspace \
     -v ${MAVEN_DIR}:/root/.m2 \
+    -w /workspace/api \
+    ${MAVEN_IMAGE} \
+    mvn clean install \
+    -DskipTests
+
+  docker run --rm \
+    -v ${SOURCE_DIR}:/workspace \
+    -v ${MAVEN_DIR}:/root/.m2 \
     -w /workspace/pi \
     ${MAVEN_IMAGE} \
     mvn clean package \
-    -pl ${MODULES} \
-    -am \
     -P${PROFILE} \
     -DskipTests
 

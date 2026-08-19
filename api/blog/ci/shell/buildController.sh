@@ -101,7 +101,7 @@ build_api() {
 build_pi() {
   echo "进入后端构建"
 
-  /opt/docker/ci/shell/java/buildApi.sh "$@"
+  /opt/docker/ci/shell/java/buildPi.sh "$@"
   if [ $? -ne 0 ]; then
     echo "后端构建失败"
     exit 1
@@ -138,6 +138,9 @@ main() {
     ;;
   api)
     build_api "$@"
+    ;;
+  pi)
+    build_pi "$@"
     ;;
   web)
     build_web "$@"

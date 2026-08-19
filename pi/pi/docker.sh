@@ -207,6 +207,9 @@ startRedis() {
 
 # 启动Java服务
 startJar() {
+
+  docker load -i /opt/package/images/maven.tar
+
   # 创建目录日志与服务
   mkdir -p /opt/docker/files/logs
   mkdir -p /opt/docker/files/jar

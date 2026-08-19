@@ -10,7 +10,7 @@ WORKDIR /opt
 COPY run.sh /opt/run.sh
 COPY blog-pi.jar /opt/pi/blog-pi.jar
 COPY application-pro.yml /opt/pi/application-pro.yml
-COPY bootstrap.yml /opt/pi/bootstrap.yml
+COPY application.yml /opt/pi/application.yml
 
 # 容器暴露的端口
 EXPOSE 10201

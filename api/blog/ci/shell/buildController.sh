@@ -46,7 +46,7 @@ echo_help() {
   echo "  博客整体构建: ./buildController.sh blog pro(test)"
   echo "  接口服务构建: ./buildController.sh api pro(test) blog-auth,blog-gateway,blog-content,blog-file"
   echo "  前端页面构建: ./buildController.sh web pro(test)"
-  echo "  树莓派构建: ./buildController.sh pi pro(test) blog-pi"
+  echo "  树莓派构建: ./buildController.sh pi pro(test) -i install"
   exit 1
 }
 

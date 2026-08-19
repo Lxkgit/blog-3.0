@@ -3,20 +3,28 @@
 
 source /opt/docker/ci/shell/config.sh
 PROFILE=$1
-MODULES=$2
+INSTALL=""
 
 # 参数校验
 check_param()
 {
+
   if [ -z "${PROFILE}" ]; then
     echo "缺少环境"
     exit 1
   fi
 
-  if [ -z "${MODULES}" ]; then
-    echo "缺少模块"
-    exit 1
-  fi
+  while getopts "i:" opt; do
+    case ${opt} in
+      i)
+        INSTALL="${OPTARG}"
+        ;;
+      *)
+        echo "用法: $0 <module> <profile> [-i install]"
+        exit 1
+        ;;
+    esac
+  done
 }
 
 # 更新代码
@@ -28,13 +36,25 @@ update_code()
 # 构建镜像打包
 build_backend()
 {
-  docker run --rm \
-    -v ${SOURCE_DIR}:/workspace \
-    -v ${MAVEN_DIR}:/root/.m2 \
-    -w /workspace/api \
-    ${MAVEN_IMAGE} \
-    mvn clean install \
-    -DskipTests
+
+  if [ "${INSTALL}" = "install" ]; then
+    echo "INSTALL=install，开始安装 api 公共依赖..."
+
+    docker run --rm \
+      -v ${SOURCE_DIR}:/workspace \
+      -v ${MAVEN_DIR}:/root/.m2 \
+      -w /workspace/api \
+      ${MAVEN_IMAGE} \
+      mvn clean install \
+      -DskipTests
+
+    if [ $? -ne 0 ]; then
+      echo "api 公共依赖安装失败"
+      exit 1
+    fi
+  fi
+
+
 
   docker run --rm \
     -v ${SOURCE_DIR}:/workspace \
@@ -54,12 +74,7 @@ build_backend()
 show_result()
 {
   echo "后端构建结果："
-  for module in $(echo ${MODULES} | tr "," " ")
-  do
-      find ${SOURCE_DIR}/pi/${module}/target \
-      -name "*.jar" \
-      ! -name "*sources.jar"
-  done
+  find ${SOURCE_DIR}/pi/target -name "*.jar" ! -name "*sources.jar"
 }
 
 main()

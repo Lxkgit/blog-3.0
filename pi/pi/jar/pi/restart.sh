@@ -13,7 +13,7 @@ fi
 
 #--cap-add=SYS_ADMIN \
 docker run -d \
-  --name pi \
+  --name ${blogPi} \
   --privileged=true \
   --restart=always \
   --network blog_network \

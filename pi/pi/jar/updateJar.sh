@@ -23,7 +23,7 @@ updateJarConfig() {
 # 编译打包jar包服务
 buildJar() {
   # 更新并打包Java服务
-  /opt/docker/ci/shell/buildController.sh pi pro blog-pi
+  /opt/docker/ci/shell/buildController.sh pi pro install
 
   rm -rf /opt/docker/files/jar/pi/blog-pi.jar
   mv /opt/docker/ci/code/blog-3.0/pi/target/blog-pi.jar /opt/docker/files/jar/pi

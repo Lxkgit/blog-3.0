@@ -65,8 +65,9 @@ main()
   parse_args "$@"
 
   # 参数校验统一由 args.sh 完成
-  check_args
-
+  check_common_args
+  check_pi_args
+  
   # 更新代码
   update_code
 

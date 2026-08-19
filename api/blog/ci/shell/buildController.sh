@@ -120,7 +120,7 @@ main() {
   parse_args "$@"
 
   # 参数校验
-  check_args
+  check_controller_args
 
   # 根据构建类型执行
   case "${TYPE}" in

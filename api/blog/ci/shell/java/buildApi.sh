@@ -55,7 +55,8 @@ main()
   parse_args "$@"
 
   # 参数校验
-  check_args
+  check_common_args
+  check_api_args
 
   # 更新代码
   update_code

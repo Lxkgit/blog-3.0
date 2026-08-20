@@ -22,9 +22,5 @@ else
     echo "FRPC 当前未运行"
 fi
 
-echo "启动 FRPC..."
-
-nohup "$FRPC" -c "$CONFIG" > "$LOG" 2>&1 &
-
-echo "FRPC 重启完成"
+echo "$(date '+%Y-%m-%d %H:%M:%S'): FRPC 服务已停止，等待 watchdog 自动拉起"
 

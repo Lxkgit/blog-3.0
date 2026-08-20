@@ -8,11 +8,11 @@ PYTHON_BIN="$VENV_PATH/bin/python"
 # 服务列表
 SERVICES=("socket" "frps")
 
-# 服务参数
-declare -A SERVICE_NAME
-declare -A SERVICE_MATCH
-declare -A SERVICE_CMD
-declare -A SERVICE_LOG
+# 声明数组参数
+declare -gA SERVICE_NAME
+declare -gA SERVICE_MATCH
+declare -gA SERVICE_CMD
+declare -gA SERVICE_LOG
 
 # Python Socket
 SERVICE_NAME[socket]="web_socket"

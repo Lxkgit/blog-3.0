@@ -144,7 +144,12 @@ public class NettySyncFileService {
         List<String> fileNameList = nettySyncFileDto.getFileNameList();
         for (int i = 0; i < fileNameList.size(); i++) {
             String fileCode = fileNameList.get(i);
-            String serviceFileName = fileCode.split(":")[1];
+            String serviceFileName;
+            if (fileCode.contains(":")) {
+                serviceFileName = fileCode.split(":")[1];
+            } else {
+                serviceFileName = fileCode;
+            }
             logger.info("开始下载文件: {}", serviceFileName);
             boolean syncResult = false;
             try {

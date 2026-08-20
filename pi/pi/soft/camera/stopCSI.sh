@@ -4,4 +4,4 @@
 pkill -f rpicam-vid
 pkill -f ffmpeg
 
-echo "RTSP 推流已停止"
+echo "$(date '+%Y-%m-%d %H:%M:%S'): RTSP 推流已停止，等待 watchdog 自动拉起"

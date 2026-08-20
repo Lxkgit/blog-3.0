@@ -493,8 +493,8 @@ buildPyEnv() {
 startPy() {
   buildPyEnv
   # Java服务启动较慢，等待Java服务完全启动后进行连接
-  echo "${YELLOW}3分钟后启动socket脚本...${NC}"
-  sleep 3m
+  echo "${YELLOW}1分钟后启动socket脚本...${NC}"
+  sleep 1m
 
   # 重启脚本
   cp -r /opt/docker/ci/code/blog-3.0/api/blog/soft/socket /opt/soft
@@ -516,9 +516,9 @@ startMediaMTX() {
 # wget https://github.com/fatedier/frp/releases/download/v0.68.0/frp_0.68.0_linux_amd64.tar.gz
 # frps服务由守护线程启动
 startFrps() {
-  mkdir -p /opt/frps
+  mkdir -p /opt/soft/frps
   cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/frp_0.68.0_linux_amd64.tar.gz /opt/soft/frps
-  tar -zxvf /opt/frps/frp_0.68.0_linux_amd64.tar.gz -C /opt/soft/frps
+  tar -zxvf /opt/soft/frps/frp_0.68.0_linux_amd64.tar.gz -C /opt/soft/frps
   cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/frps.ini /opt/soft/frps/frp_0.68.0_linux_amd64
   cp /opt/docker/ci/code/blog-3.0/api/blog/soft/frps/restartFrps.sh /opt/soft/frps/frp_0.68.0_linux_amd64
 

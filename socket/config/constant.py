@@ -9,6 +9,6 @@ CONFIG = {
 
 # shell 脚本绝对路径
 SHELL_PATH = {
-    "EXPORT_BLOG_FILE": "/opt/docker/files/python/code/shell/exportBlogFile.sh",
-    "EXPORT_PI_FILE": "/opt/docker/files/python/code/shell/exportBlogFile.sh",
+    "EXPORT_BLOG_FILE": "/opt/soft/socket/code/shell/exportBlogFile.sh",
+    "EXPORT_PI_FILE": "/opt/soft/socket/code/shell/exportPiFile.sh",
 }

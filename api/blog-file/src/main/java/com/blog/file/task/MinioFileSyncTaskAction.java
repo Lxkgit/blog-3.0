@@ -144,8 +144,7 @@ public class MinioFileSyncTaskAction extends SystemTimerAction {
                         exportMinioFileList(sendList, fileCategory.getDirPath(), Constant.FTP_PATH_SYSTEM + serviceFilePath);
 
                         // 指定树莓派存放文件目录 除前缀地址外 其余地址与服务器一致
-                        // String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + fileCategory.getDirPath();
-                        String deviceFilePath = "/opt/test" + fileCategory.getDirPath();
+                        String deviceFilePath = Constant.DISK_PATH_BLOG_MINIO + fileCategory.getDirPath();
 
                         // 构建netty消息请求
                         NettySyncFileDto nettySyncFileDto = NettySyncFileDto.buildSyncToDevice(serviceFilePath, deviceFilePath);

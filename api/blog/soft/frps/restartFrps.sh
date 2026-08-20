@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FRPS_DIR="/opt/frps/frp_0.68.0_linux_amd64"
+FRPS_DIR="/opt/soft/frps/frp_0.68.0_linux_amd64"
 FRPS="${FRPS_DIR}/frps"
 CONFIG="${FRPS_DIR}/frps.ini"
 LOG="${FRPS_DIR}/frps.log"

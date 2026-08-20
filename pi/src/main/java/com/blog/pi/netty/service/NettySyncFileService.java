@@ -143,9 +143,9 @@ public class NettySyncFileService {
         // 下载服务器文件一定是系统内部文件 使用 fileCodeList 字段
         List<String> fileNameList = nettySyncFileDto.getFileNameList();
         for (int i = 0; i < fileNameList.size(); i++) {
-
             String fileCode = fileNameList.get(i);
             String serviceFileName = fileCode.split(":")[1];
+            logger.info("开始下载文件: {}", serviceFileName);
             boolean syncResult = false;
             try {
                 syncResult = ftpUtil.downloadFtpFile(serviceFilePath, serviceFileName, basePath, serviceFileName);
@@ -158,9 +158,10 @@ public class NettySyncFileService {
                 successFileNameList.add(serviceFileName);
             }
 
-            logger.info("文件下载完成: {}", fileNameList);
+            logger.info("文件下载完成: {}", serviceFileName);
             responseNettyMsg(nettySyncFileDto, msgHead, syncResult, fileNameList, i);
         }
+        logger.info("文件批次下载完成: {}", fileNameList);
         return successFileNameList;
     }
 

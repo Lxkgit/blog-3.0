@@ -12,7 +12,7 @@ echo "mkdir return code: $?"
 
 # 导出mysql
 echo "开始导出 MySQL"
-sudo docker exec mysql bash /opt/docker/files/python/code/shell/exportBlogSql.sh
+sudo docker exec mysql bash /opt/soft/socket/code/shell/exportBlogSql.sh
 echo "docker exec exportSql.sh return code: $?"
 
 # 导出博客文件数据

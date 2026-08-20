@@ -4,8 +4,7 @@
 source /opt/docker/ci/shell/config.sh
 
 # 更新代码
-update_code()
-{
+update_code() {
   echo "======================"
   echo "检查代码目录"
   echo "目录: ${SOURCE_DIR}"
@@ -40,8 +39,7 @@ update_code()
 
 
 # 主流程
-main()
-{
+main() {
   update_code
 }
 

@@ -5,8 +5,7 @@ source /opt/docker/ci/shell/args.sh
 source /opt/docker/ci/shell/utils.sh
 
 # 更新 npm 依赖
-update_npm()
-{
+update_npm() {
   if [ ! -d "${NPM_DIR}" ]; then
     echo "创建 npm 依赖缓存目录"
     mkdir -p "${NPM_DIR}"
@@ -32,8 +31,7 @@ update_npm()
 
 
 # 前端打包
-build_web()
-{
+build_web() {
   echo "开始前端构建"
   echo "环境: ${PROFILE}"
 
@@ -57,8 +55,7 @@ build_web()
 
 
 # 展示打包结果
-show_result()
-{
+show_result() {
   echo "========================================"
   echo "前端构建结果："
   if [ -d "${SOURCE_DIR}/web/dist" ]; then
@@ -73,8 +70,7 @@ show_result()
 
 
 # 主流程
-main()
-{
+main() {
   # 参数解析
   parse_args "$@"
 

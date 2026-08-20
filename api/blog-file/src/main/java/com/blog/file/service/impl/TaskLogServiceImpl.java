@@ -12,6 +12,7 @@ import com.blog.timer.entity.TimerTask;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,11 @@ public class TaskLogServiceImpl implements TaskLogService {
      */
     @Override
     public void registerTaskLog(TimerTask timerTask) {
+        LambdaQueryWrapper<TaskLog> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(TaskLog::getTaskUuid, timerTask.getUuid());
+        wrapper.eq(TaskLog::getTaskLogType, 1);
+        List<TaskLog> logList = taskLogMapper.selectList(wrapper);
+
         // 任务注册日志
         TaskLog taskLog = TaskLog.builder()
                 .userId(timerTask.getDefinition().getUserId())
@@ -64,7 +70,7 @@ public class TaskLogServiceImpl implements TaskLogService {
                 .taskCode(timerTask.getDefinition().getTaskCode())
                 .taskUuid(timerTask.getUuid())
                 .taskParam(timerTask.getDefinition().getContext().snapshot().getData().toString())
-                .taskLogType(1)
+                .taskLogType(CollectionUtils.isEmpty(logList) ? 1 : 2)
                 .indexCount(timerTask.getExecuteCount())
                 .taskCount(timerTask.getDefinition().getPolicy().getExecuteCount())
                 .build();

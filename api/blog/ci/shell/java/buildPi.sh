@@ -5,8 +5,7 @@ source /opt/docker/ci/shell/args.sh
 
 
 # 构建后端
-build_backend()
-{
+build_backend() {
   # 安装 api 公共依赖
   if [ "${INSTALL}" = "install" ]; then
     echo "INSTALL=install，开始安装 api 公共依赖..."
@@ -55,8 +54,7 @@ build_backend()
 
 
 # 展示打包结果
-show_result()
-{
+show_result() {
   echo "========================================"
   echo "pi 后端构建结果："
   find ${SOURCE_DIR}/pi/target -name "*.jar" ! -name "*sources.jar"
@@ -65,8 +63,7 @@ show_result()
 
 
 # 主流程
-main()
-{
+main() {
   # 参数解析
   parse_args "$@"
 

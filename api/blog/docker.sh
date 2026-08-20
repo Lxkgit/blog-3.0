@@ -85,7 +85,7 @@ addVirtualMemory() {
 	cd /usr || exit
 	mkdir swap
 	cd swap/ || exit
-	dd if=/dev/zero of=/usr/swap/swapfile bs=1M count=4096
+	dd if=/dev/zero of=/usr/swap/swapfile bs=1M count=6144
 	du -sh /usr/swap/swapfile
 	mkswap /usr/swap/swapfile
 	swapon /usr/swap/swapfile
@@ -313,7 +313,7 @@ startMySQL() {
 	
 	updateMysqlConf
 	echo "${YELLOW}正在启动mysql...${NC}"
-	docker run -d --name mysql --privileged=true --restart=always --network blog_network --ip 172.18.0.3 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=${mysqlPassword} -v /opt/docker/mysql/data/:/var/lib/mysql -v /opt/docker/mysql/conf/my.cnf:/etc/mysql/my.cnf -v /opt/docker/mysql/logs/:/var/log/mysql/ -v /opt/docker/files/:/opt/docker/files/ mysql:8.0.20
+	docker run -d --name mysql --privileged=true --restart=always --network blog_network --ip 172.18.0.3 -p 3306:3306  -e MYSQL_ROOT_PASSWORD=${mysqlPassword} -v /opt/docker/mysql/data/:/var/lib/mysql -v /opt/docker/mysql/conf/my.cnf:/etc/mysql/my.cnf -v /opt/docker/mysql/logs/:/var/log/mysql/ -v /opt/docker/files/:/opt/docker/files/ -v /opt/soft/socket/:/opt/soft/socket/  mysql:8.0.20
 	
 	insertSqlData
 }
@@ -530,16 +530,17 @@ startFrps() {
 startWatchdog() {
 
   # 守护线程目录
-  mkdir -p /opt/watchdog
+  mkdir -p /opt/soft/watchdog
 
   # 开机唤醒守护线程配置
   cp /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/watchdog.service /etc/systemd/system/
   sed -i 's/\r$//' /etc/systemd/system/watchdog.service
 
-  # 守护线程
-  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/watchdog.sh /opt/soft/watchdog
-  sed -i 's/\r$//' /opt/soft/watchdog/watchdog.sh
-  chmod +x /opt/soft/watchdog/watchdog.sh
+  # 守护线程 与 参数配置文件
+  cp -r /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/watchdog.sh /opt/soft/watchdog
+  cp -r /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/param.sh /opt/soft/watchdog
+  sed -i 's/\r$//' /opt/soft/watchdog/*.sh
+  chmod +x /opt/soft/watchdog/*.sh
 
   # 重新加载systemd配置
   sudo systemctl daemon-reload

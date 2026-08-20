@@ -1,122 +1,115 @@
 #!/bin/bash
 
-# =========================
-# Watchdog 锁
-# =========================
 
+# 加载参数配置
+CONFIG_FILE="/opt/soft/watchdog/param.sh"
+
+# Watchdog 参数配置
+WATCHDOG_LOG="/opt/soft/watchdog/watchdog.log"
+CHECK_INTERVAL=30
 LOCK_FILE="/var/run/blog-watchdog.lock"
 
-exec 200>"$LOCK_FILE"
-
-if ! flock -n 200; then
-    echo "$(date '+%Y-%m-%d %H:%M:%S'): Watchdog 已经在运行，退出"
-    exit 1
-fi
-
-
-# =========================
-# 全局配置
-# =========================
-
-WATCHDOG_LOG="/opt/soft/watchdog/watchdog.log"
-
-VENV_PATH="/opt/python"
-PYTHON_BIN="$VENV_PATH/bin/python"
-
-
-# =========================
-# 服务配置
-# =========================
-
-# ---------- Python Socket ----------
-SOCKET_NAME="web_socket"
-SOCKET_MATCH="/opt/soft/socket/code/web_socket.py"
-SOCKET_CMD="$PYTHON_BIN /opt/soft/socket/code/web_socket.py --ip 172.18.0.21 --port 60001 --path /file/socket/python/localhost"
-SOCKET_LOG="/opt/soft/socket/blog_socket.log"
-
-# ---------- frps ----------
-FRPS_NAME="frps"
-FRPS_MATCH="/opt/soft/frps/frp_0.68.0_linux_amd64/frps -c /opt/soft/frps/frp_0.68.0_linux_amd64/frps.ini"
-FRPS_CMD="/opt/soft/frps/frp_0.68.0_linux_amd64/frps -c /opt/soft/frps/frp_0.68.0_linux_amd64/frps.ini"
-FRPS_LOG="/opt/soft/frps/frp_0.68.0_linux_amd64/frps.log"
-
-# =========================
-# 通用函数
-# =========================
-
-# 写 Watchdog 日志
-log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S'): $1" >> "$WATCHDOG_LOG"
+# 加载配置
+load_config() {
+  if [ ! -f "$CONFIG_FILE" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S'): 配置文件不存在: $CONFIG_FILE"
+      exit 1
+  fi
+  source "$CONFIG_FILE"
 }
 
+# Watchdog 锁
+init_lock() {
+  exec 200>"$LOCK_FILE"
+  if ! flock -n 200; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S'): Watchdog 已经在运行，退出"
+      exit 1
+  fi
+}
+
+# 日志
+log() {
+  local log_dir
+  log_dir="$(dirname "$WATCHDOG_LOG")"
+  if [ ! -d "$log_dir" ]; then
+      mkdir -p "$log_dir"
+  fi
+  echo "$(date '+%Y-%m-%d %H:%M:%S'): $1" >> "$WATCHDOG_LOG"
+}
 
 # 检查服务是否运行
 is_running() {
-    local match="$1"
-
-    pgrep -f "$match" > /dev/null 2>&1
+  local match="$1"
+  pgrep -f "$match" > /dev/null 2>&1
 }
-
 
 # 启动服务
 start_service() {
-    local name="$1"
-    local match="$2"
-    local cmd="$3"
-    local log_file="$4"
-
-    log "$name 未运行，正在启动..."
-
-    nohup bash -c "$cmd" > "$log_file" 2>&1 &
-
-    local pid=$!
-
-    sleep 1
-
-    if is_running "$match"; then
-        log "$name 启动成功 (PID: $pid)"
-    else
-        log "$name 启动失败，请检查日志: $log_file"
-    fi
+  local key="$1"
+  local name="${SERVICE_NAME[$key]}"
+  local match="${SERVICE_MATCH[$key]}"
+  local cmd="${SERVICE_CMD[$key]}"
+  local log_file="${SERVICE_LOG[$key]}"
+  log "$name 未运行，正在启动..."
+  # 创建日志目录
+  local log_dir
+  log_dir="$(dirname "$log_file")"
+  if [ ! -d "$log_dir" ]; then
+      mkdir -p "$log_dir"
+  fi
+  # 启动服务
+  nohup bash -c "$cmd" > "$log_file" 2>&1 &
+  # 等待启动
+  sleep 1
+  # 检查启动结果
+  if is_running "$match"; then
+      local pid
+      pid="$(pgrep -f "$match" | head -n 1)"
+      log "$name 启动成功 (PID: $pid)"
+  else
+      log "$name 启动失败，请检查日志: $log_file"
+  fi
 }
 
-
-# 检查服务并自动启动
+# 检查单个服务
 check_service() {
-    local name="$1"
-    local match="$2"
-    local cmd="$3"
-    local log_file="$4"
+  local key="$1"
+  local name="${SERVICE_NAME[$key]}"
+  local match="${SERVICE_MATCH[$key]}"
+  local cmd="${SERVICE_CMD[$key]}"
+  local log_file="${SERVICE_LOG[$key]}"
+  if [ -z "$name" ] || [ -z "$match" ] || [ -z "$cmd" ] || [ -z "$log_file" ]; then
+      log "服务配置不完整: $key"
+      return
+  fi
 
-    if ! is_running "$match"; then
-        start_service "$name" "$match" "$cmd" "$log_file"
-    fi
+  if ! is_running "$match"; then
+      start_service "$key"
+  fi
 }
 
-
-# =========================
-# 服务检查函数
-# =========================
-
-check_socket() {
-    check_service "$SOCKET_NAME" "$SOCKET_MATCH" "$SOCKET_CMD" "$SOCKET_LOG"
+# 检查所有服务
+check_services() {
+  local key
+  for key in "${SERVICES[@]}"; do
+      check_service "$key"
+  done
 }
 
-check_frps() {
-    check_service "$FRPS_NAME" "$FRPS_MATCH" "$FRPS_CMD" "$FRPS_LOG"
-}
-
-
-# =========================
 # 主循环
-# =========================
+
 main() {
+  load_config
+  init_lock
+  log "========================================"
   log "Watchdog 启动"
+  log "监控服务数量: ${#SERVICES[@]}"
+  log "检查间隔: ${CHECK_INTERVAL}s"
+  log "========================================"
 
   while true; do
-      check_socket
-      check_frps
-      sleep 10
+      check_services
+      sleep "$CHECK_INTERVAL"
   done
 }
 

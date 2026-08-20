@@ -300,7 +300,7 @@ public class NettySyncFileReceiveService {
             if (nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
                 redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "1", 5 * 60 * 60);
             }
-            taskUuid = msgHead.getTaskMsgHead().getTaskUuid() + "clear";
+            taskUuid = msgHead.getTaskMsgHead().getTaskUuid() + "-clear";
         }
 
         // 上传文件时，最后一个上传的文件上传完成不一定全部文件都正确导入minio，等待1h文件导入完成

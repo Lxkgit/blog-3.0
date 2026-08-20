@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # 更新代码
-update_code()
-{
+update_code() {
   /opt/docker/ci/shell/updateCode.sh
 
   if [ $? -ne 0 ]; then

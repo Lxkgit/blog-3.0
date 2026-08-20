@@ -431,13 +431,14 @@ startWatchdog() {
   mkdir -p /opt/soft/watchdog
 
   # 开机唤醒守护线程配置
-  cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/watchdog/watchdog.service /etc/systemd/system/
+  cp /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/watchdog.service /etc/systemd/system/
   sed -i 's/\r$//' /etc/systemd/system/watchdog.service
 
-  # 守护线程
-  cp /opt/docker/ci/code/blog-3.0/pi/pi/soft/watchdog/watchdog.sh /opt/soft/watchdog
-  sed -i 's/\r$//' /opt/soft/watchdog/watchdog.sh
-  chmod +x /opt/soft/watchdog/watchdog.sh
+  # 守护线程 与 参数配置文件
+  cp -r /opt/docker/ci/code/blog-3.0/api/blog/soft/watchdog/watchdog.sh /opt/soft/watchdog
+  cp -r /opt/docker/ci/code/blog-3.0/pi/pi/soft/watchdog/param.sh /opt/soft/watchdog
+  sed -i 's/\r$//' /opt/soft/watchdog/*.sh
+  chmod +x /opt/soft/watchdog/*.sh
 
   # 重新加载systemd配置
   sudo systemctl daemon-reload

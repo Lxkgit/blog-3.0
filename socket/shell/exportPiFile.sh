@@ -12,7 +12,7 @@ echo "mkdir return code: $?"
 
 # 导出mysql
 echo "开始导出 MySQL"
-sudo docker exec mysql bash /opt/docker/files/python/code/shell/exportPiSql.sh
+sudo docker exec mysql bash /opt/soft/socket/code/shell/exportPiSql.sh
 echo "docker exec exportSql.sh return code: $?"
 
 # 压缩文件

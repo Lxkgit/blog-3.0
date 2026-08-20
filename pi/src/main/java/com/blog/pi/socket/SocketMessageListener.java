@@ -46,11 +46,10 @@ public class SocketMessageListener {
         } else if (SocketPacketType.HEARTBEAT.equals(socketPacketType)) {
 
         } else if (SocketPacketType.REQUEST.equals(socketPacketType)) {
-            logger.info(data);
+
         } else if (SocketPacketType.RESPONSE.equals(socketPacketType)) {
             if (SocketTopic.SOCKET_MOVE_FILE.equals(topic)) {
                 SocketMoveFileDto dto = JSON.parseObject(data, SocketMoveFileDto.class);
-                logger.info("文件或目录: {} 已移动到: {} 目录下", dto.getSourceDirectory(), dto.getTargetDirectory());
                 if (dto.getType().equals(2)) {
                     nettyFileSyncService.receiveSocketMoveFileMsg(dto, msgHead);
                 }

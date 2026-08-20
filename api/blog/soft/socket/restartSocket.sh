@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PYTHON_BIN="/opt/python/bin/python"
-PYTHON_SCRIPT="/opt/socket/code/web_socket.py"
+PYTHON_SCRIPT="/opt/soft/socket/code/web_socket.py"
 
 echo "=============================="
 echo "$(date '+%Y-%m-%d %H:%M:%S'): 请求停止 Python 服务"

@@ -6,8 +6,7 @@ source /opt/docker/ci/shell/utils.sh
 
 
 # 构建后端
-build_backend()
-{
+build_backend() {
   echo "开始构建 API"
   echo "环境: ${PROFILE}"
   echo "模块: ${MODULES}"
@@ -36,8 +35,7 @@ build_backend()
 
 
 # 展示打包结果
-show_result()
-{
+show_result() {
   echo "========================================"
   echo "后端构建结果："
   for module in $(echo "${MODULES}" | tr "," " ")
@@ -52,8 +50,7 @@ show_result()
 
 
 # 主流程
-main()
-{
+main() {
   # 参数解析
   parse_args "$@"
 

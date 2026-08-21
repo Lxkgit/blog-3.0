@@ -826,7 +826,6 @@
 </template>
 
 <script setup lang="ts">
-import FileToolbar from '@/components/admin/file/FileToolbar.vue'
 import VideoPlayer from '@/components/common/VideoPlayer.vue'
 import {
   selectFileDirApi,

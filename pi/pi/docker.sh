@@ -457,6 +457,9 @@ main() {
   # 解压依赖文件
   unzipPi
 
+  # 构建启动项目
+  ciBuild
+
   # 安装docker
   startDocker
 

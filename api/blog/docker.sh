@@ -465,8 +465,8 @@ startJar() {
   cp /opt/docker/ci/code/blog-3.0/api/blog/jar/updateJar.sh /opt/docker/files/jar
 
   # 等待nacos启动
-  echo "${YELLOW}3分钟后启动博客服务...${NC}"
-  sleep 3m
+  echo "${YELLOW}1分钟后启动博客服务...${NC}"
+  sleep 1m
   chmod +x /opt/docker/files/jar/updateJar.sh
   sed -i 's/\r$//' /opt/docker/files/jar/updateJar.sh
   /opt/docker/files/jar/updateJar.sh

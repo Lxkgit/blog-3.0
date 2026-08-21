@@ -2,7 +2,7 @@
 
 source /opt/docker/ci/shell/config.sh
 source /opt/docker/ci/shell/args.sh
-
+source /opt/docker/ci/shell/utils.sh
 
 # 构建后端
 build_backend() {

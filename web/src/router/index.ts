@@ -236,7 +236,8 @@ const router = createRouter({
         {
           path: 'file',
           name: 'File',
-          component: () => import('@/views/admin/file/UserFile.vue'),
+          // component: () => import('@/views/admin/file/UserFile.vue'),
+          component: () => import('@/views/admin/file/FileManager.vue'),
           meta: {
             title: '个人云盘',
             keepAlive: false,

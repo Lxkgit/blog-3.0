@@ -1,16 +1,17 @@
 import os
-from fileinput import filename
-import shutil
-import cv2
-import numpy as np
 import re
+import cv2
+import shutil
 import random
 import string
+import numpy as np
 from PIL import Image
-from tensorflow.keras.applications import EfficientNetB0
-from tensorflow.keras.applications.efficientnet import preprocess_input
-from tensorflow.keras.preprocessing.image import img_to_array
+from fileinput import filename
 from tensorflow.keras.models import Model
+from tensorflow.keras.applications import EfficientNetB0
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.applications.efficientnet import preprocess_input
+
 
 # 路径设置
 # BASE_DIR = r"D:\project\image"
@@ -59,6 +60,7 @@ def load_and_preprocess(path):
 # EfficientNet 提取特征
 def extract_feature(path):
     img = load_and_preprocess(path)
+    feature_model = load_feature_model()
     feature = feature_model.predict(img, verbose=0)[0]
     # L2 归一化
     norm = np.linalg.norm(feature)
@@ -96,15 +98,9 @@ def load_template_paths():
 def match_template(target_path, template_path):
     """
     在目标大图中寻找完整模板。
-
-    target：
-        保持原始尺寸，不进行缩放
-
-    template：
-        尝试不同缩放比例
-
-    返回：
-        最高匹配结果
+    target：保持原始尺寸，不进行缩放
+    template：尝试不同缩放比例
+    返回： 最高匹配结果
     """
 
     # 读取目标图片
@@ -186,16 +182,17 @@ def draw_match_result(image_path, result):
     # 绘制矩形
     cv2.rectangle(image, (x, y), (x + width, y + height), (0, 0, 255), 3)
     # 显示文字
-    text = (f"{cls} " f"{score:.3f}")
+    text = (f"{cls} {score:.3f}")
     text_x = x
     text_y = max(y - 10, 30)
     cv2.putText(image, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
     # 保存结果
     draw_name = os.path.splitext(os.path.basename(image_path))[0]
-    output_name = (f"{draw_name}_{cls}.jpg")
+    extension = os.path.splitext(os.path.basename(image_path))[1]
+    output_name = (f"{draw_name}_{cls}{extension}")
     output_path = os.path.join(RESULT_DRAW_DIR, output_name)
     cv2.imwrite(output_path, image)
-    print(f"结果图片: {output_path}")
+    print(f"识别图片: {output_path}")
 
 
 # 原图复制并删除
@@ -203,6 +200,7 @@ def rename_source_file(image_path, results):
     if not results:
         return
     filename = ""
+    results.sort(key=lambda x: x["class"].lower())
     for result in results:
         filename += f"{result['class']}_{result['score']:.3f}_"
     # 原图名称
@@ -220,7 +218,7 @@ def rename_source_file(image_path, results):
     output_path = os.path.join(RESULT_SOURCE_DIR, filename)
     # 先复制
     shutil.copy2(image_path, output_path)
-
+    print(f"移动原图: {output_path}")
     # 确认复制成功后再删除原图
     # if os.path.exists(output_path):
     #     os.remove(image_path)
@@ -232,13 +230,8 @@ def recognize(image_path):
     if not os.path.exists(image_path):
         print(f"[ERROR] 目标图片不存在: {image_path}")
         return
-
-    print()
-    print("=" * 80)
     print(f"开始匹配: {image_path}")
-    print("=" * 80)
     results = []
-
     # 遍历所有类别
     for cls, template_paths in template_paths_db.items():
         class_best = None
@@ -270,42 +263,26 @@ def recognize(image_path):
     # 按匹配度排序
     results.sort(key=lambda x: x["score"], reverse=True)
     # 输出结果
-    print()
-    print("-" * 80)
     if not results:
         print("没有找到任何模板。")
-        print("-" * 80)
         return
     print("匹配结果：")
     for result in results:
         template_name = os.path.basename(result["template"])
         print(
-            f"{result['class']}: "
-            f"{result['score']:.3f}    "
-            f"位置=("
-            f"{result['x']}, "
-            f"{result['y']}"
-            f")    "
-            f"大小="
-            f"{result['width']}x"
-            f"{result['height']}    "
-            f"缩放="
-            f"{result['scale']:.2f}    "
-            f"模板="
-            f"{template_name}"
+            f"{result['class']}: {result['score']:.3f}    "
+            f"位置=({result['x']}, {result['y']})    "
+            f"大小={result['width']}x{result['height']}    "
+            f"缩放={result['scale']:.2f}    "
+            f"模板={template_name}"
         )
-    print("-" * 80)
     # 为每个类别生成结果图片
-    print()
     print("正在生成匹配结果图片...")
     for result in results:
         draw_match_result(image_path, result)
     rename_source_file(image_path, results)
-    print()
-    print("匹配完成。")
 
 
-feature_model = load_feature_model()
 # 程序入口
 if __name__ == "__main__":
 
@@ -321,6 +298,6 @@ if __name__ == "__main__":
         ext = os.path.splitext(img_name)[1].lower()
         if ext not in [".jpg", ".jpeg", ".png", ".bmp", ".webp"]:
             continue
-        print(f"\n正在识别: {img_name}")
         recognize(img_path)
+        print("-" * 110)
         break

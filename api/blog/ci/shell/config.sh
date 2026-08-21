@@ -14,6 +14,6 @@ MAVEN_DIR="/opt/docker/ci/maven"
 MAVEN_IMAGE="maven:3.9.9-eclipse-temurin-17"
 
 # NPM缓存目录
-NPM_DIR=/opt/docker/ci/npm
+NPM_DIR="/opt/docker/ci/npm"
 # Node 镜像
 NODE_IMAGE="node:22"

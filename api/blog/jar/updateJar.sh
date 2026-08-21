@@ -50,7 +50,6 @@ restartJar() {
 
 main(){
 
-
   updateJarConfig
   buildJar
   restartJar

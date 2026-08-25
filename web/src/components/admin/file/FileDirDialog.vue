@@ -20,7 +20,7 @@
 
       <el-form-item label="目录类型：" prop="dirType">
         <el-radio-group v-model="dirFile.dirType">
-          <el-radio border :label="1">
+          <el-radio border :value="1">
             普通目录
 
             <el-tooltip content="普通目录" placement="top" @click.stop.prevent>
@@ -28,7 +28,7 @@
             </el-tooltip>
           </el-radio>
 
-          <el-radio border :label="2">
+          <el-radio border :value="2">
             评分目录
 
             <el-tooltip content="用于对文件质量分类存放" placement="top" @click.stop.prevent>
@@ -57,7 +57,7 @@ const { MyIcon } = icon()
 
 interface DirFile {
   name: string
-  dirType?: number
+  dirType?: any
 }
 
 interface Props {

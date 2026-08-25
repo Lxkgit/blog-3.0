@@ -54,8 +54,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const localSwitchFlag = ref(props.switchFlag)
-
+const localSwitchFlag:any = ref(props.switchFlag)
 watch(
   () => props.switchFlag,
   (value) => {

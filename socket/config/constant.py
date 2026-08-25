@@ -7,8 +7,11 @@ CONFIG = {
     "CONNECT_TIMEOUT": 15,  # 连接超时(秒)
 }
 
+# socket服务器环境目录
+DIR_PATH = "/opt/soft/socket/code"
+
 # shell 脚本绝对路径
 SHELL_PATH = {
-    "EXPORT_BLOG_FILE": "/opt/soft/socket/code/shell/exportBlogFile.sh",
-    "EXPORT_PI_FILE": "/opt/soft/socket/code/shell/exportPiFile.sh",
+    "EXPORT_BLOG_FILE": DIR_PATH + "/shell/exportBlogFile.sh",
+    "EXPORT_PI_FILE": DIR_PATH + "/shell/exportPiFile.sh",
 }

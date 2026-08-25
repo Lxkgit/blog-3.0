@@ -215,7 +215,7 @@ const handleClose = () => {
 
 // ==================== 深色模式 ====================
 
-const isDarkSwitch = ref(false)
+const isDarkSwitch: any = ref(false)
 
 const setDarkMode = () => {
   setDark(isDarkSwitch.value)
@@ -223,10 +223,10 @@ const setDarkMode = () => {
 
 // ==================== 侧边菜单 ====================
 
-const asideMenuFold = ref(false)
+const asideMenuFold:any = ref(false)
 
-const asideMenuFoldChange = () => {
-  store.setAsideMenuFold(asideMenuFold.value)
+const asideMenuFoldChange = (value: string | number | boolean) => {
+  asideMenuFold.value = value === true
 }
 
 // ==================== 主题色 ====================

@@ -40,6 +40,7 @@ const initPlayer = () => {
   player = videojs(videoRef.value, {
     controls: true,
     preload: 'auto',
+    autoplay: true,
     fluid: false, // 禁用流体布局，使用固定尺寸
     fill: false,  // 禁用填充模式
     responsive: false // 禁用响应式

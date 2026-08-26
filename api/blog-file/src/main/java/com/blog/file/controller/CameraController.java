@@ -30,7 +30,7 @@ public class CameraController {
      * @return Token 信息
      */
     @PostMapping("/token")
-    public Result createToken(@RequestParam String stream) {
+    public Result createToken(@RequestParam("stream") String stream) {
         return ResultFactory.buildSuccessResult(cameraService.createToken(stream));
     }
 

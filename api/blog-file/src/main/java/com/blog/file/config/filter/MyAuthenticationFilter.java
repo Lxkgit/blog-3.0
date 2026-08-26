@@ -21,6 +21,7 @@ import java.io.IOException;
 
 /**
  * 认证过滤器 校验通过 就不需要再登陆
+ *
  * @author 27992
  */
 
@@ -42,12 +43,12 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
      * @throws IOException
      */
     @Override
-    protected void doFilterInternal(@Nonnull HttpServletRequest request,@Nonnull HttpServletResponse response,@Nonnull FilterChain filterChain)
+    protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain)
             throws ServletException, IOException {
 
         try {
             String token = request.getHeader("Authorization");
-            if(StringUtils.isNotEmpty(token)) {
+            if (StringUtils.isNotEmpty(token)) {
                 JSONObject jwt = JwtUtil.decodeJwt(token.substring(7));
                 SecurityUtil.setLoginUser(jwt);
             }

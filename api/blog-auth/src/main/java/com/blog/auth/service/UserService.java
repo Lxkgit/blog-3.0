@@ -12,8 +12,12 @@ import com.blog.core.result.ResultPage;
 public interface UserService {
 
     UserVo selectUserById(Integer userId);
+
     UserVo selectUserByUsername(String username);
+
     void updateUser(UserVo userVo, Integer perFlag);
+
     ResultPage<UserVo> selectUserByPage(UserVo userVo);
+
     void updateUserPermission(UserVo userVo);
 }

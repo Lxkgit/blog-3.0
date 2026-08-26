@@ -47,7 +47,7 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token = request.getHeader("Authorization");
-            if(StringUtils.isNotEmpty(token)) {
+            if (StringUtils.isNotEmpty(token)) {
                 JSONObject jwt = JwtUtil.decodeJwt(token.substring(7));
                 SecurityUtil.setLoginUser(jwt);
             }

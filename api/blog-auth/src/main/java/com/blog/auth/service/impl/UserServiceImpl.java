@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
                 item.setRoleList(roleMapper.selectUserRoles(item.getId()));
             });
             myPage = ResultPageUtils.pageUtil(userVoList, userVo.getPageNum(), userVo.getPageSize(), (int) articlePage.getTotal());
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("用户列表接口查询异常：{}", e.getMessage(), e);
         }
         return myPage;

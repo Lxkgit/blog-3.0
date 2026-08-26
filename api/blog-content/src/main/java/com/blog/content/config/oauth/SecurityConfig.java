@@ -12,8 +12,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- *
  * 安全配置类
+ *
  * @param
  * @return
  * @throws Exception
@@ -29,8 +29,8 @@ public class SecurityConfig {
     private String issuerUri;
 
     /**
-     *
      * 安全过滤器链
+     *
      * @param
      * @return
      * @throws Exception
@@ -40,30 +40,31 @@ public class SecurityConfig {
         //禁止csrf
         http.csrf(AbstractHttpConfigurer::disable);
         //拦截所有请求
-        http.authorizeHttpRequests(x->x
+        http.authorizeHttpRequests(x -> x
                         .requestMatchers(PermitUrl.permitAllUrl("content")).permitAll()
                         .anyRequest().authenticated())
-                    //oauth2资源服务器 使用jwt 带着jwt的token访问资源服务器
-                    //使用JWT解码器来验证JWT令牌的签名和内容
-                    .oauth2ResourceServer(x->x.jwt(jwt->jwt.decoder(JwtDecoders.fromIssuerLocation(issuerUri))));
-            return http.build();
+                //oauth2资源服务器 使用jwt 带着jwt的token访问资源服务器
+                //使用JWT解码器来验证JWT令牌的签名和内容
+                .oauth2ResourceServer(x -> x.jwt(jwt -> jwt.decoder(JwtDecoders.fromIssuerLocation(issuerUri))));
+        return http.build();
     }
 
     /**
      * JWT 认证转换器 将令牌转换成身份认证对象
+     *
      * @return
      */
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
         //从jwt令牌中提取授权信息
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter=new JwtGrantedAuthoritiesConverter();
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         //jwt的授权信息在auths 参数中
         grantedAuthoritiesConverter.setAuthoritiesClaimName("auths");
         //授权信息不包含前缀
         grantedAuthoritiesConverter.setAuthorityPrefix("");
 
         //认证转换器
-        JwtAuthenticationConverter converter=new JwtAuthenticationConverter();
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         //权限转换对象放入
         converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return converter;

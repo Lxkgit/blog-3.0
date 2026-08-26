@@ -93,6 +93,7 @@ public class LoginController {
 
     /**
      * 获取重定向地址
+     *
      * @return
      */
     @GetMapping("/redirect")

@@ -33,8 +33,6 @@ public class FeignHeaderInterceptor implements RequestInterceptor {
             if (StringUtils.isNotEmpty(rzId)) {
                 template.header("rzId", rzId);
             }
-            // 添加其他需要传递的请求头
-            // template.header("X-Custom-Header", attributes.getRequest().getHeader("X-Custom-Header"));
         }
     }
 }

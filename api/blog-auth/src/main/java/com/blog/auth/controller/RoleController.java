@@ -68,6 +68,7 @@ public class RoleController {
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('sys:role:delete')")
     public Result deleteRoleByIds(RoleVo roleVo) {
+        roleService.deleteRole(roleVo.getIds());
         return ResultFactory.buildSuccessResult();
     }
 

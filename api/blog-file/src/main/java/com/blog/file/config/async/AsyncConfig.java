@@ -20,9 +20,9 @@ public class AsyncConfig {
     /**
      * 基础线程池
      * 使用：
-     *     @Resource
-     *     private Executor baseThread;
+     *
      * @return
+     * @Resource private Executor baseThread;
      */
     @Bean(name = "baseThread")
     public ThreadPoolTaskExecutor baseImportThread() {

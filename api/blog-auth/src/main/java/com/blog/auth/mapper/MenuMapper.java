@@ -14,7 +14,8 @@ public interface MenuMapper extends BaseMapper<Menu> {
 
     /**
      * 查看查看角色下的菜单
-     * @param roleIds 角色id列表
+     *
+     * @param roleIds  角色id列表
      * @param menuType 查找菜单最深层级 1目录 2菜单 3按钮
      * @return
      */
@@ -22,6 +23,7 @@ public interface MenuMapper extends BaseMapper<Menu> {
 
     /**
      * 查看查看角色下的菜单
+     *
      * @param roleId 角色id
      * @return
      */

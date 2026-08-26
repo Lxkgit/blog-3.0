@@ -26,10 +26,10 @@ function user() {
         ElMessage({ message: '登录成功！', type: 'success' })
         store.userLocal.username = param.username
         store.userLocal.password = param.password
-        store.userSession.rz_id = res.result
+        // store.userSession.rz_id = res.result
         //从路由拿到参数
-        const target = router.currentRoute.value.query.target
-        window.location.href = target + '&rzId=' + res.result
+        // const target = router.currentRoute.value.query.target
+        // window.location.href = target + '&rzId=' + res.result
       })
       .catch((res) => {
         //发生错误时执行的代码
@@ -86,7 +86,7 @@ function user() {
 
       if (res.code === 200) {
         store.userSession.access_token = res.result.access_token
-        store.userSession.rz_id = res.result.rz_id
+        // store.userSession.rz_id = res.result.rz_id
         store.userSession.user_id = res.result.user_id
         store.userLocal.refresh_token = res.result.refresh_token
         store.isLogin = true

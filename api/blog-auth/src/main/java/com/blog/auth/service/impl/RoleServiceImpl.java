@@ -16,10 +16,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Description 角色服务实现类
@@ -66,10 +63,15 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public int deleteRole(Integer roleId) {
-        roleMapper.deleteRoleMenu(roleId);
-        roleMapper.deleteRoleUser(roleId);
-        return roleMapper.deleteById(roleId);
+    public void deleteRole(String roleIds) {
+        List<Integer> roleIdList = Arrays.stream(roleIds.split(",")).map(Integer::parseInt).toList();
+        if (CollectionUtils.isNotEmpty(roleIdList)) {
+            for (Integer id : roleIdList) {
+                roleMapper.deleteRoleMenu(id);
+                roleMapper.deleteRoleUser(id);
+                roleMapper.deleteById(id);
+            }
+        }
     }
 
     @Override
@@ -86,5 +88,8 @@ public class RoleServiceImpl implements RoleService {
         if (CollectionUtils.isNotEmpty(roleVo.getMenuIds())) {
             roleMapper.insertRoleMenus(roleVo.getId(), roleVo.getMenuIds());
         }
+        roleVo.setUpdateBy(SecurityUtil.getLoginUser().getUsername());
+        roleVo.setUpdateTime(new Date());
+        roleMapper.updateById(roleVo);
     }
 }

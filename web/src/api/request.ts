@@ -4,12 +4,11 @@ import { systemStore } from '@/store/system'
 import user from '@/utils/user'
 import { useRouter } from 'vue-router'
 
-export function  request(config: any) {
+export function request(config: any) {
   let { refreshTokenFun } = user()
   const router = useRouter()
   const store = systemStore()
   const token = store.userSession.access_token
-  const rz_id = store.userSession.rz_id
   // 创建axios的实例
   const instance = axios.create({
     baseURL: '/api',
@@ -20,7 +19,6 @@ export function  request(config: any) {
     (config) => {
       if (token) {
         config.headers.Authorization = 'Bearer ' + token
-        // config.headers.rzId = rz_id
       }
       return config
     },
@@ -58,9 +56,10 @@ export function  request(config: any) {
             localStorage.clear()
             sessionStorage.clear()
             ElMessage.error('对不起，您暂无权限访问此接口，请登录重试！')
+            router.push('/')
             break
           case 403:
-            let resultFlag = false;
+            let resultFlag = false
             const checkToken = async () => {
               const flag = await refreshTokenFun() // 等待异步完成
               resultFlag = flag
@@ -68,17 +67,19 @@ export function  request(config: any) {
                 localStorage.clear()
                 sessionStorage.clear()
                 ElMessage.error('对不起，您暂无权限访问此接口！')
-                router.push('/')
               }
             }
             checkToken()
+            router.push('/')
             break
           case 404:
             console.log('404啦')
+            router.push('/')
             break
           case 500:
             console.log('500啦')
             ElMessage.error('后端接口异常，请稍候重试！')
+            router.push('/')
             break
           default:
             return Promise.reject(error)

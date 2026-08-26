@@ -1,9 +1,6 @@
 package com.blog.auth.service;
 
 
-//import com.blog.core.entity.auth.vo.SysPermissionVo;
-
-
 import com.blog.core.domain.auth.vo.MenuVo;
 import com.blog.core.exception.ServiceException;
 

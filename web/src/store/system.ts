@@ -33,18 +33,17 @@ export const systemStore = defineStore(
     // 登陆用户信息
     let userMessage = ref({
       userId: '',
-      username: ''
+      username: '',
     })
 
     let userInfo = ref({
-      name: ''
+      name: '',
     })
 
     let callback = ref({
       serviceIp: '',
-      callbackUrl: ''
+      callbackUrl: '',
     })
-
 
     // 个人中心导航栏是否折叠
     let asideMenuFold = ref(false)
@@ -80,81 +79,81 @@ export const systemStore = defineStore(
 
     // 设置markdown目录内容
     function setOutline(value: any) {
-      this.outline = value
+      outline.value = value
     }
 
     // 设置markdown是否显示
     function setOutlineShow() {
-      this.outlineShow = !this.outlineShow
+      outlineShow.value = !outlineShow.value
     }
 
     // 设置登录后跳转的地址
     function setNextPath(path: any) {
-      this.nextPath = path
+      nextPath.value = path
     }
 
     // 是否保持登录
     function setKeepLogin(value: any) {
-      this.keepLogin = value
+      keepLogin.value = value
     }
 
     // 用户信息（保持登录）
     function setUserLocal(value: any) {
-      this.userLocal = value
+      userLocal.value = value
     }
 
     // 用户信息（临时存储）
     function setUserSession(value: any) {
-      this.userSession = value
+      userSession.value = value
     }
 
-        // 用户信息（临时存储）
+    // 用户信息（临时存储）
     function setUserMessage(value: any) {
-      this.userMessage = value
+      userMessage.value = value
     }
 
     // 个人中心导航栏是否折叠
     function setAsideMenuFold(value: any) {
-      this.asideMenuFold = value
+      asideMenuFold.value = value
     }
 
     // 设置主题色
     function setTheme(value: any) {
-      this.theme = value
+      theme.value = value
     }
 
     // 设置导航栏模式
     function setNavigation(value: any) {
-      this.navigation = value
+      navigation.value = value
     }
 
     // 设置导航栏当前激活的菜单id
     function setMenuIndex(value: any) {
-      this.menuIndex = value
+      menuIndex.value = value
     }
 
     // 设置深色模式
     function setDark(value: any) {
-      this.isDark = value
+      isDark.value = value
     }
 
     function setSocketFlag(value: any) {
-      this.socketFlag = value
+      socketFlag.value = value
     }
 
     // 设置全局socket是否开启
     function setGlobalSocket(value: any) {
-      this.globalSocket = value
+      globalSocket.value = value
     }
 
     // 设置用户socket是否开启
     function setUserSocket(value: any) {
-      this.userSocket = value
+      userSocket.value = value
     }
 
     // 设置服务器IP
     function setServiceIP(value: any) {
-      this.serviceIP = value
+      serviceIP.value = value
     }
 
     return {

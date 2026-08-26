@@ -16,6 +16,8 @@ import java.util.List;
 @Setter
 public class RoleVo extends Role {
 
+    private String ids;
+
     private List<Integer> menuIds;
 
     private Integer pageNum;

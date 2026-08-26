@@ -31,8 +31,6 @@ public class MinioConfig {
 
     @Bean
     public MinioClient minioClient() {
-        // curl -I http://123.207.202.131:9000/minio/health/live
-        // curl -I http://123.207.202.131/files/minio/health/live
         return MinioClient.builder().endpoint(ip + ":" + port).credentials(username, password).build();
     }
 }

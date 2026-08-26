@@ -45,10 +45,10 @@ public interface RoleService {
 
     /**
      * 删除角色
-     * @param roleId
+     * @param roleIds
      * @return
      */
-    int deleteRole(Integer roleId);
+    void deleteRole(String roleIds);
 
     /**
      * 查询当前角色所有权限菜单id

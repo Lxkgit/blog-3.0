@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Nginx Web 服务
-mkdir -p /opt/docker/nginx/web/conf
-mkdir -p /opt/docker/nginx/web/html
-mkdir -p /opt/docker/nginx/web/logs
-
 if docker ps -a --format '{{.Names}}' | grep -q '^nginx-web$'; then
     echo "nginx-web 容器已存在，重启容器..."
     docker restart nginx-web

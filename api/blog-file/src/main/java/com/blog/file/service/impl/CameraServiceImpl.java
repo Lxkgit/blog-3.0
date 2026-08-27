@@ -2,10 +2,13 @@ package com.blog.file.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.utils.SecurityUtil;
+import com.blog.file.netty.service.NettySyncFileReceiveService;
 import com.blog.file.service.CameraService;
 import com.blog.redis.constant.AuthRedisConstant;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -21,6 +24,8 @@ import java.util.Map;
 
 @Service
 public class CameraServiceImpl implements CameraService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CameraServiceImpl.class);
 
     /**
      * Redis Key 前缀
@@ -80,12 +85,12 @@ public class CameraServiceImpl implements CameraService {
     /**
      * 验证视频 Token
      *
-     * @param token  Token
+     * @param token Token
      * @return Token 信息，验证失败返回 null
      */
     @Override
     public JSONObject validateToken(String token) {
-
+        logger.info("收到token： {}", token);
         if (token == null || token.isBlank()) {
             return null;
         }
@@ -104,15 +109,13 @@ public class CameraServiceImpl implements CameraService {
             return null;
         }
 
-        JSONObject tokenInfo;
-
         try {
-            tokenInfo = JSONObject.parseObject(json);
+            return JSONObject.parseObject(json);
         } catch (Exception e) {
             return null;
         }
 
-        return tokenInfo;
+
     }
 
 

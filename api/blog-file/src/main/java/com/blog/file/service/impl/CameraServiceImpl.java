@@ -114,8 +114,6 @@ public class CameraServiceImpl implements CameraService {
         } catch (Exception e) {
             return null;
         }
-
-
     }
 
 

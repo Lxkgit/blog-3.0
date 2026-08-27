@@ -35,7 +35,8 @@ public class PermitUrl {
             "/setting/id",
             "/upload/images/**",
             "/socket/**",
-            "/test/**"
+            "/test/**",
+            "/camera/token/validate"
     };
 
     private static final String[] contentPermitUrl = {

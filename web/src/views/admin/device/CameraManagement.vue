@@ -26,7 +26,10 @@
               <span
                 v-if="data.type === 'camera'"
                 class="camera-status"
-                :class="{ online: data.online }"
+                :class="{
+                  online: data.online,
+                  loading: loadingCameras.has(data.id),
+                }"
               ></span>
             </div>
           </template>
@@ -77,11 +80,7 @@
         <div v-for="index in screenCount" :key="index" class="video-item">
           <!-- 有摄像头 -->
           <template v-if="playingCameras[index - 1]">
-            <VideoPlayer
-              :video-src="playingCameras[index - 1].url"
-              :video-token="playingCameras[index - 1].token"
-              height="100%"
-            />
+            <VideoPlayer :video-src="playingCameras[index - 1].url" height="100%" />
 
             <!-- 摄像头名称 -->
             <div class="camera-name">
@@ -107,8 +106,19 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import VideoPlayer from '@/components/common/VideoPlayer.vue'
+
+import { getCameraTokenApi } from '@/api/file'
+
+/**
+ * 视频流服务器地址
+ *
+ * 最终视频地址：
+ *
+ * http://124.221.195.130/rtsp/cam1/?token=xxxx
+ */
+const cameraStreamHost = 'http://124.221.195.130'
 
 /**
  * 分屏数量
@@ -128,10 +138,9 @@ const treeProps = {
 /**
  * 摄像头组织树
  *
- * 这里先使用测试数据。
+ * stream 为 MediaMTX / RTSP 转发名称
  *
- * 后面接你的摄像头接口时，
- * 只需要把 cameraTree 替换成接口返回的数据。
+ * 不再保存完整 url
  */
 const cameraTree = ref([
   {
@@ -142,75 +151,117 @@ const cameraTree = ref([
       {
         id: 'camera-1',
         name: '大厅摄像头',
+        stream: 'cam1',
         type: 'camera',
         online: true,
-        url: 'http://124.221.195.130:8889/cam1/',
-        token: '',
-      }
-
+      },
     ],
-  }
+  },
 ])
 
 /**
  * 当前播放中的摄像头
- *
- * 最大数量由 screenCount 决定。
  */
 const playingCameras = ref([])
 
 /**
+ * 正在获取 token 的摄像头
+ *
+ * 防止用户连续点击同一个摄像头
+ * 导致重复请求 token
+ */
+const loadingCameras = ref(new Set())
+
+/**
+ * 根据 stream 生成基础视频地址
+ *
+ * 例如：
+ *
+ * cam1
+ *
+ * =>
+ *
+ * http://124.221.195.130/rtsp/cam1/
+ */
+const getCameraUrl = (stream) => {
+  return `${cameraStreamHost}/rtsp/${stream}/`
+}
+
+/**
+ * 根据视频地址和 token
+ * 生成最终访问地址
+ *
+ * 例如：
+ *
+ * http://124.221.195.130/rtsp/cam1/
+ *
+ * =>
+ *
+ * http://124.221.195.130/rtsp/cam1/?token=xxxx
+ */
+const getCameraUrlWithToken = (stream, token) => {
+  const url = getCameraUrl(stream)
+
+  return `${url}?token=${encodeURIComponent(token)}`
+}
+
+/**
  * 点击摄像头
  */
-const handleCameraClick = (data) => {
-  /**
-   * 点击组织节点不处理
-   */
+const handleCameraClick = async (data) => {
+  // 组织节点不处理
   if (data.type !== 'camera') {
     return
   }
 
-  /**
-   * 摄像头离线
-   */
+  // 摄像头离线
   if (!data.online) {
     return
   }
 
-  /**
-   * 已经打开的不重复添加
-   */
+  // 已经播放的不重复添加
   const exists = playingCameras.value.some((item) => item.id === data.id)
 
   if (exists) {
     return
   }
 
-  /**
-   * 达到当前分屏数量
-   */
-  if (playingCameras.value.length >= screenCount.value) {
-    /**
-     * 这里采用替换第一个画面的方式。
-     *
-     * 后面如果你想改成提示“分屏已满”，
-     * 可以再调整。
-     */
-    playingCameras.value.shift()
+  // 正在获取 token，不重复请求
+  if (loadingCameras.value.has(data.id)) {
+    return
   }
 
-  /**
-   * 添加摄像头
-   *
-   * token 暂时为空。
-   *
-   * 后续由这个页面获取 token 后
-   * 填入 data.token。
-   */
-  playingCameras.value.push({
-    ...data,
-    token: data.token || '',
-  })
+  loadingCameras.value.add(data.id)
+
+  try {
+    // 根据当前摄像头 stream 获取 token
+    const res = await getCameraTokenApi(data.stream)
+
+    const token = res.result.token
+
+    if (!token) {
+      throw new Error('获取摄像头授权 token 失败')
+    }
+
+    // 分屏已满，移除第一个
+    if (playingCameras.value.length >= screenCount.value) {
+      playingCameras.value.shift()
+    }
+
+    // 生成最终视频地址
+    const url = getCameraUrlWithToken(data.stream, token)
+
+    // 加入播放列表
+    playingCameras.value.push({
+      ...data,
+      url,
+      token,
+    })
+  } catch (error) {
+    console.error('获取摄像头 token 失败：', error)
+  } finally {
+    loadingCameras.value.delete(data.id)
+  }
 }
 
 /**
@@ -221,7 +272,7 @@ const changeScreen = (count) => {
 
   /**
    * 如果当前播放数量超过新的分屏数量，
-   * 删除多余的摄像头。
+   * 删除多余的摄像头
    */
   if (playingCameras.value.length > count) {
     playingCameras.value = playingCameras.value.slice(0, count)
@@ -309,7 +360,9 @@ const clearAll = () => {
   white-space: nowrap;
 }
 
-/* 摄像头状态 */
+/* =========================
+   摄像头状态
+   ========================= */
 
 .camera-status {
   width: 7px;
@@ -323,6 +376,21 @@ const clearAll = () => {
 
 .camera-status.online {
   background: #67c23a;
+}
+
+/* 获取 token 时旋转 */
+
+.camera-status.loading {
+  border: 2px solid var(--el-color-primary);
+  border-top-color: transparent;
+  background: transparent;
+  animation: camera-loading 0.8s linear infinite;
+}
+
+@keyframes camera-loading {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* =========================
@@ -410,7 +478,9 @@ const clearAll = () => {
   grid-template-rows: repeat(3, 1fr);
 }
 
-/* 视频窗口 */
+/* =========================
+   视频窗口
+   ========================= */
 
 .video-item {
   position: relative;
@@ -420,7 +490,9 @@ const clearAll = () => {
   background: #000;
 }
 
-/* 空窗口 */
+/* =========================
+   空窗口
+   ========================= */
 
 .empty-video {
   width: 100%;
@@ -439,7 +511,9 @@ const clearAll = () => {
   opacity: 0.5;
 }
 
-/* 摄像头名称 */
+/* =========================
+   摄像头名称
+   ========================= */
 
 .camera-name {
   position: absolute;
@@ -453,7 +527,9 @@ const clearAll = () => {
   z-index: 10;
 }
 
-/* 关闭按钮 */
+/* =========================
+   关闭按钮
+   ========================= */
 
 .close-video {
   position: absolute;

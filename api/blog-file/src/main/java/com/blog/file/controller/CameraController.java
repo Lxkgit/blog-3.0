@@ -44,7 +44,7 @@ public class CameraController {
      * @param token Token
      */
     @GetMapping("/token/validate")
-    public ResponseEntity<Void> validateToken(@RequestHeader(value = "X-Video-Token", required = false) String token) {
+    public ResponseEntity<Void> validateToken(@RequestParam("stream") String token) {
         JSONObject tokenInfo = cameraService.validateToken(token);
         if (tokenInfo == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

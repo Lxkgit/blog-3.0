@@ -4,14 +4,13 @@
          普通视频
          Video.js 独占这个 video
          ===================================================== -->
-    <video ref="normalVideoRef" class="video-js vjs-default-skin vjs-big-play-centered normal-video" playsinline
-      muted></video>
+    <video ref="normalVideoRef" class="video-js vjs-default-skin vjs-big-play-centered normal-video" playsinline></video>
 
     <!-- =====================================================
          摄像头
          MediaMTX WebRTC 独占这个 video
          ===================================================== -->
-    <video ref="cameraVideoRef" class="camera-video" autoplay muted playsinline></video>
+    <video ref="cameraVideoRef" class="camera-video" autoplay playsinline></video>
 
     <!-- =====================================================
          播放错误
@@ -374,8 +373,6 @@ const initVideoJs = async () => {
         preload: 'auto',
 
         autoplay: true,
-
-        muted: true,
 
         playsinline: true,
 

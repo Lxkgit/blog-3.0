@@ -1,9 +1,6 @@
 <template>
   <div class="video-container" :style="{ height: height }">
-
     <!--
-      这里仍然使用原来的 video 元素。
-
       普通视频：
         Video.js 接管这个 video
 
@@ -24,9 +21,8 @@
 import {
   ref,
   onMounted,
-  watch,
   onBeforeUnmount,
-  defineProps,
+  watch,
   nextTick,
   defineExpose,
 } from 'vue'
@@ -34,10 +30,15 @@ import {
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css'
 
-// MediaMTX 官方 reader.js
+// MediaMTX 官方 Reader
 import '@/js/reader.js'
 
 
+/**
+ * ============================================================
+ * Props
+ * ============================================================
+ */
 const props = defineProps({
   /**
    * 视频地址
@@ -79,57 +80,120 @@ const props = defineProps({
 })
 
 
+/**
+ * ============================================================
+ * 状态
+ * ============================================================
+ */
+
+/**
+ * 原生 video
+ */
 const videoRef = ref(null)
 
 /**
- * Video.js Player
- *
- * 只有普通视频使用。
- */
-let player = null
-
-/**
- * MediaMTX Reader
- *
- * 只有摄像头使用。
- */
-let reader = null
-
-/**
- * 组件是否已经销毁
- */
-let destroyed = false
-
-/**
- * MediaMTX 是否正在连接
- */
-let connecting = false
-
-/**
- * 当前播放模式
- *
- * normal = 普通视频
- * camera = 摄像头
- */
-let currentMode = null
-
-/**
- * 错误信息
+ * 播放错误
  */
 const errorMessage = ref('')
 
 
 /**
  * ============================================================
- * 判断是否为摄像头视频
+ * Video.js
  * ============================================================
  *
- * 现在你的摄像头统一通过：
+ * 普通视频使用
+ */
+let player = null
+
+
+/**
+ * ============================================================
+ * MediaMTX Reader
+ * ============================================================
+ *
+ * 摄像头使用
+ */
+let reader = null
+
+
+/**
+ * ============================================================
+ * 当前播放模式
+ * ============================================================
+ *
+ * normal
+ * camera
+ */
+let currentMode = null
+
+
+/**
+ * ============================================================
+ * 组件销毁状态
+ * ============================================================
+ */
+let destroyed = false
+
+
+/**
+ * ============================================================
+ * 播放代次
+ * ============================================================
+ *
+ * 这是整个组件切换视频最关键的变量。
+ *
+ * 每一次视频切换：
+ *
+ *   playGeneration++
+ *
+ * 旧 Reader 保存自己的 generation。
+ *
+ * 当旧 Reader 后面异步触发 onTrack / onError 等回调时，
+ * 如果发现：
+ *
+ *   generation !== playGeneration
+ *
+ * 就说明自己已经过期。
+ *
+ * 直接忽略。
+ *
+ * 防止：
+ *
+ *   cam1 Reader
+ *       ↓
+ *   切换 cam2
+ *       ↓
+ *   cam1 延迟 onTrack
+ *       ↓
+ *   抢走 video.srcObject
+ */
+let playGeneration = 0
+
+
+/**
+ * ============================================================
+ * 判断视频是否仍然有效
+ * ============================================================
+ */
+const isGenerationValid = (generation) => {
+  return (
+    !destroyed &&
+    generation === playGeneration
+  )
+}
+
+
+/**
+ * ============================================================
+ * 判断是否为摄像头
+ * ============================================================
+ *
+ * 摄像头统一：
  *
  * /rtsp/cam1/
  *
- * 所以只要 pathname 以 /rtsp/ 开头，
- * 就使用 MediaMTX WebRTC。
+ * 所以只判断 pathname。
  */
 const isCameraStream = (src) => {
   if (!src) {
@@ -159,21 +223,30 @@ const isCameraStream = (src) => {
  * 获取 WHEP 地址
  * ============================================================
  *
- * 例如：
+ * 输入：
  *
  * /rtsp/cam1/?token=xxxx
  *
- * ↓
+ * 输出：
  *
  * /rtsp/cam1/whep?token=xxxx
  */
 const getWhepUrl = (src) => {
-  const url = new URL(src)
+  const url = new URL(
+    src,
+    window.location.origin,
+  )
 
+  /**
+   * 确保最后存在 /
+   */
   if (!url.pathname.endsWith('/')) {
     url.pathname += '/'
   }
 
+  /**
+   * 添加 whep
+   */
   url.pathname += 'whep'
 
   return url.toString()
@@ -182,46 +255,246 @@ const getWhepUrl = (src) => {
 
 /**
  * ============================================================
- * 初始化 Video.js
+ * 清理原生 video
  * ============================================================
  *
- * 这里基本保持你最开始的配置。
+ * 注意：
+ *
+ * 这里不调用 video.load()
+ *
+ * WebRTC 切换过程中频繁 load() 没有必要，
+ * 还容易让浏览器媒体状态产生额外变化。
  */
-const initVideoJs = () => {
-  if (!videoRef.value) {
+const clearVideoElement = () => {
+  const video = videoRef.value
+
+  if (!video) {
     return
   }
 
+  try {
+    /**
+     * 停止播放
+     */
+    video.pause()
+  } catch (error) {
+    console.error(
+      '暂停 video 失败:',
+      error,
+    )
+  }
+
+  try {
+    /**
+     * 清除 MediaStream
+     */
+    video.srcObject = null
+  } catch (error) {
+    console.error(
+      '清理 video.srcObject 失败:',
+      error,
+    )
+  }
+
+  try {
+    /**
+     * 清理普通 video src
+     */
+    video.removeAttribute('src')
+  } catch (error) {
+    console.error(
+      '清理 video.src 失败:',
+      error,
+    )
+  }
+}
+
+
+/**
+ * ============================================================
+ * 关闭 MediaMTX Reader
+ * ============================================================
+ */
+const closeCamera = () => {
   /**
-   * 如果已经存在旧播放器
-   * 先销毁
+   * 保存旧 Reader
+   *
+   * 不直接操作全局变量，
+   * 避免旧回调和新 Reader 产生引用混乱。
    */
-  if (player) {
+  const oldReader = reader
+
+  /**
+   * 立即清空当前 Reader
+   */
+  reader = null
+
+  if (oldReader) {
+    console.log(
+      '关闭 MediaMTX Reader',
+    )
+
     try {
-      player.dispose()
+      oldReader.close()
     } catch (error) {
       console.error(
-        '销毁旧 Video.js 失败:',
+        '关闭 MediaMTX Reader 失败:',
         error,
       )
     }
-
-    player = null
   }
 
   /**
-   * 初始化 Video.js
-   *
-   * 保留你原来的配置：
-   *
-   * controls: true
-   * preload: auto
-   * autoplay: true
-   * fluid: false
-   * fill: false
-   * responsive: false
+   * 清理 video
    */
-  player = videojs(
+  clearVideoElement()
+}
+
+
+/**
+ * ============================================================
+ * 关闭 Video.js
+ * ============================================================
+ */
+const closeVideoJs = () => {
+  const oldPlayer = player
+
+  /**
+   * 先清空引用
+   */
+  player = null
+
+  if (!oldPlayer) {
+    return
+  }
+
+  console.log(
+    '关闭 Video.js',
+  )
+
+  try {
+    /**
+     * 暂停
+     */
+    oldPlayer.pause()
+  } catch (error) {
+    console.error(
+      '暂停 Video.js 失败:',
+      error,
+    )
+  }
+
+  try {
+    /**
+     * 清空 source
+     */
+    oldPlayer.src({
+      type: 'video/mp4',
+      src: '',
+    })
+  } catch (error) {
+    console.error(
+      '清空 Video.js source 失败:',
+      error,
+    )
+  }
+
+  try {
+    /**
+     * 销毁
+     */
+    oldPlayer.dispose()
+  } catch (error) {
+    console.error(
+      '销毁 Video.js 失败:',
+      error,
+    )
+  }
+}
+
+
+/**
+ * ============================================================
+ * 关闭当前播放器
+ * ============================================================
+ *
+ * 这个函数用于：
+ *
+ * 1. 切换视频
+ * 2. 主动销毁
+ * 3. 组件销毁
+ *
+ * 关键：
+ *
+ * 每次关闭当前播放器，
+ * 都让旧异步连接全部失效。
+ */
+const closePlayer = () => {
+  console.log(
+    '关闭当前 VideoPlayer',
+  )
+
+  /**
+   * 让当前所有旧 Reader 失效
+   */
+  playGeneration++
+
+  /**
+   * 清除错误
+   */
+  errorMessage.value = ''
+
+  /**
+   * 关闭 WebRTC
+   */
+  closeCamera()
+
+  /**
+   * 关闭 Video.js
+   */
+  closeVideoJs()
+
+  /**
+   * 清除模式
+   */
+  currentMode = null
+}
+
+
+/**
+ * ============================================================
+ * 初始化 Video.js
+ * ============================================================
+ */
+const initVideoJs = (generation) => {
+  /**
+   * 初始化前检查
+   */
+  if (
+    destroyed ||
+    !videoRef.value ||
+    !props.videoSrc ||
+    !isGenerationValid(generation)
+  ) {
+    return
+  }
+
+  console.log(
+    '初始化 Video.js',
+  )
+
+  /**
+   * 如果存在旧播放器，
+   * 保险关闭。
+   */
+  if (player) {
+    closeVideoJs()
+  }
+
+  /**
+   * 创建 Video.js
+   */
+  const newPlayer = videojs(
     videoRef.value,
     {
       controls: true,
@@ -229,6 +502,8 @@ const initVideoJs = () => {
       preload: 'auto',
 
       autoplay: true,
+
+      muted: true,
 
       fluid: false,
 
@@ -239,235 +514,316 @@ const initVideoJs = () => {
   )
 
   /**
-   * 普通视频设置视频源
+   * 创建过程中如果发生了切换，
+   * 当前播放器立即作废。
    */
-  if (props.videoSrc) {
-    player.src({
-      type: 'video/mp4',
-      src: props.videoSrc,
-    })
-  }
-}
+  if (
+    !isGenerationValid(generation)
+  ) {
+    try {
+      newPlayer.dispose()
+    } catch (error) {
+      console.error(
+        '销毁过期 Video.js 失败:',
+        error,
+      )
+    }
 
-
-/**
- * ============================================================
- * 关闭 Video.js
- * ============================================================
- */
-const closeVideoJs = () => {
-  if (!player) {
     return
   }
 
-  console.log(
-    '关闭 Video.js 播放器',
-  )
+  /**
+   * 保存播放器
+   */
+  player = newPlayer
 
-  try {
-    player.pause()
+  /**
+   * 设置 source
+   */
+  player.src({
+    type: 'video/mp4',
+    src: props.videoSrc,
+  })
 
-    player.src({
-      type: 'video/mp4',
-      src: '',
-    })
-
-    player.dispose()
-  } catch (error) {
-    console.error(
-      '关闭 Video.js 失败:',
-      error,
-    )
-  }
-
-  player = null
+  /**
+   * 调整尺寸
+   */
+  resizePlayer()
 }
 
 
 /**
  * ============================================================
- * 初始化 MediaMTX 摄像头
+ * 初始化 MediaMTX
  * ============================================================
  */
-const initCamera = async () => {
+const initCamera = (generation) => {
+  /**
+   * 初始化前检查
+   */
   if (
     destroyed ||
-    connecting ||
     !videoRef.value ||
-    !props.videoSrc
+    !props.videoSrc ||
+    !isGenerationValid(generation)
   ) {
     return
   }
 
-  connecting = true
+  /**
+   * 保存当前地址
+   *
+   * 后续回调全部使用这个地址。
+   *
+   * 防止 props.videoSrc 后续变化后，
+   * 日志显示错误。
+   */
+  const source = props.videoSrc
 
-  errorMessage.value = ''
+  /**
+   * 获取 WHEP
+   */
+  const whepUrl =
+    getWhepUrl(source)
+
+  console.log('================================')
+  console.log(
+    '开始连接 MediaMTX',
+  )
+  console.log(
+    '连接版本:',
+    generation,
+  )
+  console.log(
+    '视频地址:',
+    source,
+  )
+  console.log(
+    'WHEP 地址:',
+    whepUrl,
+  )
+  console.log('================================')
+
+  /**
+   * 当前 Reader
+   *
+   * 注意：
+   *
+   * 这里必须单独保存。
+   *
+   * 因为 Reader 的异步回调里面，
+   * 需要判断：
+   *
+   * reader === currentReader
+   *
+   * 防止旧 Reader 操作新视频。
+   */
+  let currentReader = null
 
   try {
-
-    /**
-     * 确保 Video.js 已经关闭
-     */
-    closeVideoJs()
-
-    /**
-     * 如果存在旧 Reader
-     */
-    if (reader) {
-      console.log(
-        '关闭旧 MediaMTX Reader',
-      )
-
-      try {
-        reader.close()
-      } catch (error) {
-        console.error(
-          '关闭旧 Reader 失败:',
-          error,
-        )
-      }
-
-      reader = null
-    }
-
-    /**
-     * 清理旧 video
-     */
-    if (videoRef.value) {
-      try {
-        videoRef.value.pause()
-
-        videoRef.value.srcObject = null
-
-        videoRef.value.removeAttribute(
-          'src',
-        )
-
-        videoRef.value.load()
-      } catch (error) {
-        console.error(
-          '清理旧视频失败:',
-          error,
-        )
-      }
-    }
-
-    /**
-     * 获取 WHEP 地址
-     */
-    const whepUrl = getWhepUrl(
-      props.videoSrc,
-    )
-
-    console.log('================================')
-    console.log(
-      '开始连接 MediaMTX',
-    )
-    console.log(
-      '视频地址:',
-      props.videoSrc,
-    )
-    console.log(
-      'WHEP 地址:',
-      whepUrl,
-    )
-    console.log('================================')
-
-    /**
-     * MediaMTX 官方 Reader
-     */
-    reader =
+    currentReader =
       new window.MediaMTXWebRTCReader({
         url: whepUrl,
 
         /**
-         * 播放错误
+         * ======================================================
+         * Reader 错误
+         * ======================================================
          */
         onError: (error) => {
+          /**
+           * 旧 Reader：
+           *
+           * 直接忽略。
+           */
+          if (
+            !isGenerationValid(
+              generation,
+            ) ||
+            reader !== currentReader
+          ) {
+            console.log(
+              '忽略旧 MediaMTX Reader 错误:',
+              generation,
+            )
+
+            return
+          }
+
           console.error(
             'MediaMTX WebRTC 播放错误:',
             error,
           )
 
-          if (!destroyed) {
-            errorMessage.value =
-              error instanceof Error
-                ? error.message
-                : String(error)
-          }
+          errorMessage.value =
+            error instanceof Error
+              ? error.message
+              : String(error)
         },
 
         /**
-         * 收到 Track
+         * ======================================================
+         * 收到 WebRTC Track
+         * ======================================================
          */
         onTrack: (event) => {
-          console.log(
-            '收到 MediaMTX WebRTC Track',
-          )
-
+          /**
+           * 重点：
+           *
+           * 必须同时满足：
+           *
+           * 1. 组件没有销毁
+           * 2. generation 是当前版本
+           * 3. reader 还是当前 Reader
+           */
           if (
-            destroyed ||
-            !videoRef.value ||
-            !event.streams ||
-            event.streams.length === 0
+            !isGenerationValid(
+              generation,
+            ) ||
+            reader !== currentReader
           ) {
+            console.log(
+              '忽略旧 MediaMTX Track:',
+              generation,
+            )
+
             return
           }
 
           /**
-           * MediaStream
-           * ↓
-           * video
+           * 检查 video
            */
-          videoRef.value.srcObject =
+          const video =
+            videoRef.value
+
+          if (!video) {
+            return
+          }
+
+          /**
+           * 检查 MediaStream
+           */
+          if (
+            !event.streams ||
+            event.streams.length === 0
+          ) {
+            console.warn(
+              'MediaMTX Track 没有 MediaStream',
+            )
+
+            return
+          }
+
+          /**
+           * 当前 MediaStream
+           */
+          const stream =
             event.streams[0]
+
+          /**
+           * 设置之前再检查一次。
+           */
+          if (
+            !isGenerationValid(
+              generation,
+            ) ||
+            reader !== currentReader
+          ) {
+            return
+          }
+
+          console.log(
+            '收到当前 MediaMTX WebRTC Track',
+          )
+
+          /**
+           * 设置 MediaStream
+           */
+          video.srcObject =
+            stream
 
           /**
            * 自动播放
            */
-          videoRef.value
+          video
             .play()
             .then(() => {
-              console.log(
-                '================================',
-              )
+              /**
+               * play() 是异步的。
+               *
+               * 所以这里还必须检查一次。
+               */
+              if (
+                !isGenerationValid(
+                  generation,
+                ) ||
+                reader !== currentReader
+              ) {
+                return
+              }
 
+              console.log('================================')
               console.log(
                 '摄像头视频播放成功',
               )
-
+              console.log(
+                '连接版本:',
+                generation,
+              )
               console.log(
                 '视频地址:',
-                props.videoSrc,
+                source,
               )
+              console.log('================================')
 
-              console.log(
-                '================================',
-              )
-
+              /**
+               * 清除旧错误
+               */
               errorMessage.value = ''
+
+              /**
+               * 调整尺寸
+               */
+              resizePlayer()
             })
             .catch((error) => {
-              console.log(
+              /**
+               * 已经切换视频，
+               * 不处理旧播放错误。
+               */
+              if (
+                !isGenerationValid(
+                  generation,
+                )
+              ) {
+                return
+              }
+
+              console.warn(
                 '浏览器自动播放失败:',
                 error,
               )
-
-              console.log(
-                '可以点击播放器播放按钮',
-              )
             })
-
-          /**
-           * 调整尺寸
-           */
-          resizePlayer()
         },
 
         /**
+         * ======================================================
          * DataChannel
+         * ======================================================
          */
         onDataChannel: (event) => {
+          /**
+           * 旧 Reader 直接忽略
+           */
+          if (
+            !isGenerationValid(
+              generation,
+            ) ||
+            reader !== currentReader
+          ) {
+            return
+          }
+
           console.log(
             '收到 MediaMTX DataChannel',
           )
@@ -476,12 +832,28 @@ const initCamera = async () => {
             return
           }
 
-          event.channel.binaryType =
+          const channel =
+            event.channel
+
+          channel.binaryType =
             'arraybuffer'
 
-          event.channel.onmessage = (
+          /**
+           * 防止旧 DataChannel
+           * 后续继续工作。
+           */
+          channel.onmessage = (
             message,
           ) => {
+            if (
+              !isGenerationValid(
+                generation,
+              ) ||
+              reader !== currentReader
+            ) {
+              return
+            }
+
             console.log(
               'MediaMTX DataChannel:',
               message.data,
@@ -489,75 +861,98 @@ const initCamera = async () => {
           }
         },
       })
+
+    /**
+     * ========================================================
+     * Reader 创建之后再次检查
+     * ========================================================
+     *
+     * 防止：
+     *
+     * 创建 cam1 Reader
+     * ↓
+     * 用户马上切换 cam2
+     * ↓
+     * cam1 已经失效
+     * ↓
+     * Reader 创建完成
+     */
+    if (
+      !isGenerationValid(
+        generation,
+      )
+    ) {
+      console.log(
+        'Reader 创建完成但已经过期:',
+        generation,
+      )
+
+      try {
+        currentReader.close()
+      } catch (error) {
+        console.error(
+          '关闭过期 Reader 失败:',
+          error,
+        )
+      }
+
+      return
+    }
+
+    /**
+     * 当前 Reader
+     */
+    reader = currentReader
+
   } catch (error) {
     console.error(
       '初始化 MediaMTX 播放器失败:',
       error,
     )
 
-    if (!destroyed) {
+    /**
+     * 只有当前连接才能显示错误。
+     */
+    if (
+      isGenerationValid(
+        generation,
+      )
+    ) {
       errorMessage.value =
         error instanceof Error
           ? error.message
           : String(error)
     }
 
-    closeCamera()
-  } finally {
-    connecting = false
-  }
-}
-
-
-/**
- * ============================================================
- * 关闭摄像头
- * ============================================================
- */
-const closeCamera = () => {
-  console.log(
-    '关闭 MediaMTX 摄像头',
-  )
-
-  /**
-   * 关闭 Reader
-   */
-  if (reader) {
-    try {
-      reader.close()
-    } catch (error) {
-      console.error(
-        '关闭 MediaMTX Reader 失败:',
-        error,
-      )
+    /**
+     * 清理当前 Reader
+     */
+    if (currentReader) {
+      try {
+        currentReader.close()
+      } catch (closeError) {
+        console.error(
+          '关闭 MediaMTX Reader 失败:',
+          closeError,
+        )
+      }
     }
 
-    reader = null
-  }
-
-  /**
-   * 清理 video
-   */
-  if (videoRef.value) {
-    try {
-      videoRef.value.pause()
-
-      videoRef.value.srcObject = null
-
-      videoRef.value.removeAttribute(
-        'src',
-      )
-
-      videoRef.value.load()
-    } catch (error) {
-      console.error(
-        '停止摄像头视频失败:',
-        error,
-      )
+    /**
+     * 只有当前 Reader
+     * 才允许清空全局 reader。
+     */
+    if (
+      reader === currentReader
+    ) {
+      reader = null
     }
-  }
 
-  connecting = false
+    /**
+     * 清理 video
+     */
+    clearVideoElement()
+  }
 }
 
 
@@ -565,14 +960,6 @@ const closeCamera = () => {
  * ============================================================
  * 初始化播放器
  * ============================================================
- *
- * 这里是整个组件最核心的地方。
- *
- * 普通视频：
- *     Video.js
- *
- * 摄像头：
- *     MediaMTX WebRTC
  */
 const initPlayer = async () => {
   if (
@@ -584,7 +971,19 @@ const initPlayer = async () => {
   }
 
   /**
-   * 判断当前视频类型
+   * ========================================================
+   * 创建新的播放版本
+   * ========================================================
+   *
+   * 注意：
+   *
+   * 这里不能复用旧 generation。
+   */
+  const generation =
+    ++playGeneration
+
+  /**
+   * 当前是否摄像头
    */
   const camera =
     isCameraStream(
@@ -592,16 +991,29 @@ const initPlayer = async () => {
     )
 
   /**
-   * 防止重复初始化相同模式
+   * 保存当前模式
    */
   currentMode = camera
     ? 'camera'
     : 'normal'
 
+  console.log('================================')
   console.log(
-    '当前播放模式:',
+    '初始化播放器',
+  )
+  console.log(
+    '播放版本:',
+    generation,
+  )
+  console.log(
+    '播放模式:',
     currentMode,
   )
+  console.log(
+    '视频地址:',
+    props.videoSrc,
+  )
+  console.log('================================')
 
   /**
    * ========================================================
@@ -609,7 +1021,33 @@ const initPlayer = async () => {
    * ========================================================
    */
   if (camera) {
-    await initCamera()
+    /**
+     * 普通视频关闭
+     */
+    closeVideoJs()
+
+    /**
+     * 关闭旧 Reader
+     */
+    closeCamera()
+
+    /**
+     * 再检查一次。
+     */
+    if (
+      !isGenerationValid(
+        generation,
+      )
+    ) {
+      return
+    }
+
+    /**
+     * 创建 WebRTC
+     */
+    initCamera(
+      generation,
+    )
 
     return
   }
@@ -621,39 +1059,33 @@ const initPlayer = async () => {
    */
 
   /**
-   * 如果之前是摄像头
-   * 关闭 Reader
+   * 关闭 WebRTC
    */
   closeCamera()
+
+  /**
+   * 等待 DOM
+   */
+  await nextTick()
+
+  /**
+   * 如果等待期间切换了视频，
+   * 当前初始化取消。
+   */
+  if (
+    !isGenerationValid(
+      generation,
+    )
+  ) {
+    return
+  }
 
   /**
    * 初始化 Video.js
    */
-  initVideoJs()
-}
-
-
-/**
- * ============================================================
- * 关闭当前播放器
- * ============================================================
- */
-const closePlayer = () => {
-  console.log(
-    '关闭当前 VideoPlayer',
+  initVideoJs(
+    generation,
   )
-
-  /**
-   * 关闭 MediaMTX
-   */
-  closeCamera()
-
-  /**
-   * 关闭 Video.js
-   */
-  closeVideoJs()
-
-  currentMode = null
 }
 
 
@@ -672,7 +1104,7 @@ const resetPlayer = () => {
    * 摄像头
    * ========================================================
    *
-   * WebRTC 没有普通视频那样的时间轴。
+   * WebRTC 没有普通视频时间轴。
    */
   if (
     isCameraStream(
@@ -697,24 +1129,34 @@ const resetPlayer = () => {
    * ========================================================
    * 普通视频
    * ========================================================
-   *
-   * 保留你原来的 Video.js 重置逻辑。
    */
   if (player) {
     console.log(
-      '重置播放器-1',
+      '重置普通视频播放器',
     )
 
+    /**
+     * 回到开头
+     */
     player.currentTime(0)
 
+    /**
+     * 暂停
+     */
     player.pause()
 
+    /**
+     * 重置开始状态
+     */
     player.hasStarted(false)
 
+    /**
+     * 触发 reset
+     */
     player.trigger('reset')
 
     /**
-     * 重置控制条
+     * 控制栏
      */
     const controlBar =
       player.getChild(
@@ -722,11 +1164,17 @@ const resetPlayer = () => {
       )
 
     if (controlBar) {
+      /**
+       * 播放按钮
+       */
       const playToggle =
         controlBar.getChild(
           'PlayToggle',
         )
 
+      /**
+       * 进度条
+       */
       const progressControl =
         controlBar.getChild(
           'ProgressControl',
@@ -785,7 +1233,7 @@ const playPlayer = () => {
     player
       .play()
       .catch((error) => {
-        console.log(
+        console.warn(
           'Video.js 播放失败:',
           error,
         )
@@ -801,7 +1249,7 @@ const playPlayer = () => {
     videoRef.value
       .play()
       .catch((error) => {
-        console.log(
+        console.warn(
           'WebRTC 播放失败:',
           error,
         )
@@ -827,7 +1275,7 @@ const resizePlayer = () => {
 
     /**
      * ======================================================
-     * 普通视频
+     * Video.js
      * ======================================================
      */
     if (player) {
@@ -844,16 +1292,12 @@ const resizePlayer = () => {
       const height =
         container.clientHeight
 
-      /**
-       * 保留原来的 Video.js
-       * 尺寸设置
-       */
       player.width(width)
 
       player.height(height)
 
       console.log(
-        `调整播放器尺寸: ${width} x ${height}`,
+        `调整 Video.js 尺寸: ${width} x ${height}`,
       )
 
       return
@@ -861,10 +1305,10 @@ const resizePlayer = () => {
 
     /**
      * ======================================================
-     * 摄像头
+     * MediaMTX
      * ======================================================
      *
-     * video 使用 CSS width/height。
+     * 原生 video 通过 CSS 控制。
      */
     const container =
       videoRef.value.parentElement
@@ -880,7 +1324,7 @@ const resizePlayer = () => {
       container.clientHeight
 
     console.log(
-      `调整摄像头尺寸: ${width} x ${height}`,
+      `调整 WebRTC 尺寸: ${width} x ${height}`,
     )
   })
 }
@@ -888,7 +1332,7 @@ const resizePlayer = () => {
 
 /**
  * ============================================================
- * 组件挂载
+ * mounted
  * ============================================================
  */
 onMounted(() => {
@@ -899,11 +1343,7 @@ onMounted(() => {
   destroyed = false
 
   /**
-   * 默认打开播放器
-   *
-   * 普通视频 → Video.js
-   *
-   * 摄像头 → MediaMTX
+   * 初始化
    */
   initPlayer()
 
@@ -924,8 +1364,8 @@ onMounted(() => {
  */
 watch(
   () => props.resetOnLoad,
-  (newVal) => {
-    if (newVal) {
+  (newValue) => {
+    if (newValue) {
       resetPlayer()
     }
   },
@@ -939,13 +1379,13 @@ watch(
  */
 watch(
   () => props.destroyPlayer,
-  (newVal) => {
+  (newValue) => {
     console.log(
       'destroyPlayer:',
-      newVal,
+      newValue,
     )
 
-    if (newVal) {
+    if (newValue) {
       closePlayer()
     }
   },
@@ -956,65 +1396,82 @@ watch(
  * ============================================================
  * 视频地址变化
  * ============================================================
- *
- * 普通视频：
- *
- * video1.mp4
- *     ↓
- * video2.mp4
- *
- *
- * 摄像头：
- *
- * cam1
- *     ↓
- * cam2
- *
- *
- * 普通视频 ↔ 摄像头
- * 也可以正常切换。
  */
 watch(
   () => props.videoSrc,
-  async (newSrc, oldSrc) => {
+  async (
+    newSrc,
+    oldSrc,
+  ) => {
+    console.log('================================')
     console.log(
       '视频地址发生变化',
     )
-
     console.log(
       '旧地址:',
       oldSrc,
     )
-
     console.log(
       '新地址:',
       newSrc,
     )
+    console.log('================================')
 
+    /**
+     * 没有地址
+     */
     if (
-      !newSrc ||
       destroyed ||
+      !newSrc
+    ) {
+      return
+    }
+
+    /**
+     * 地址没有变化
+     */
+    if (
       newSrc === oldSrc
     ) {
       return
     }
 
     /**
-     * 先关闭当前播放器
+     * ========================================================
+     * 关闭旧播放器
+     * ========================================================
+     *
+     * closePlayer() 会：
+     *
+     * 1. playGeneration++
+     * 2. Reader.close()
+     * 3. video.srcObject = null
+     * 4. Video.js.dispose()
+     *
+     * 最重要的是：
+     *
+     * 旧 Reader 的 generation
+     * 从这一刻开始失效。
      */
     closePlayer()
 
     /**
-     * 等待 DOM 更新
+     * 等待 Vue 更新
      */
     await nextTick()
 
     /**
-     * 再初始化
+     * 如果等待过程中组件销毁，
+     * 不再初始化。
      */
-    if (!destroyed) {
-      await initPlayer()
+    if (destroyed) {
+      return
     }
+
+    /**
+     * 初始化新视频
+     */
+    await initPlayer()
   },
 )
 
@@ -1025,16 +1482,28 @@ watch(
  * ============================================================
  */
 defineExpose({
+  /**
+   * 调整尺寸
+   */
   resizePlayer,
 
+  /**
+   * 重置
+   */
   resetPlayer,
 
+  /**
+   * 暂停
+   */
   pausePlayer,
 
+  /**
+   * 播放
+   */
   playPlayer,
 
   /**
-   * 主动销毁播放器
+   * 主动销毁
    */
   destroyVideoPlayer:
     closePlayer,
@@ -1043,7 +1512,7 @@ defineExpose({
 
 /**
  * ============================================================
- * 组件销毁
+ * beforeUnmount
  * ============================================================
  */
 onBeforeUnmount(() => {
@@ -1057,6 +1526,11 @@ onBeforeUnmount(() => {
   destroyed = true
 
   /**
+   * 让所有异步 Reader 回调失效
+   */
+  playGeneration++
+
+  /**
    * 移除 resize
    */
   window.removeEventListener(
@@ -1065,31 +1539,19 @@ onBeforeUnmount(() => {
   )
 
   /**
-   * 关闭播放器
+   * 关闭 MediaMTX
    */
-  closePlayer()
+  closeCamera()
 
   /**
-   * 最后保险清理 video
+   * 关闭 Video.js
    */
-  if (videoRef.value) {
-    try {
-      videoRef.value.pause()
+  closeVideoJs()
 
-      videoRef.value.srcObject = null
-
-      videoRef.value.removeAttribute(
-        'src',
-      )
-
-      videoRef.value.load()
-    } catch (error) {
-      console.error(
-        '清理原生 video 失败:',
-        error,
-      )
-    }
-  }
+  /**
+   * 最后清理 video
+   */
+  clearVideoElement()
 })
 </script>
 
@@ -1110,8 +1572,11 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
+
 /**
- * Video.js 和摄像头共用 video。
+ * ============================================================
+ * Video.js
+ * ============================================================
  */
 .video-container> :deep(.video-js) {
   width: 100% !important;
@@ -1121,10 +1586,24 @@ onBeforeUnmount(() => {
   max-height: 100%;
 }
 
+
 /**
- * 摄像头 / 普通 video
+ * ============================================================
+ * 原生 video
+ * ============================================================
+ *
+ * MediaMTX WebRTC 使用。
+ *
+ * 注意：
+ *
+ * 原来的：
+ *
+ * .video
+ *
+ * 是匹配不到的，
+ * 因为模板中的 video 没有 class="video"。
  */
-.video {
+.video-container>video {
   width: 100%;
   height: 100%;
 
@@ -1135,8 +1614,11 @@ onBeforeUnmount(() => {
   object-fit: contain;
 }
 
+
 /**
+ * ============================================================
  * 错误提示
+ * ============================================================
  */
 .video-error {
   position: absolute;
@@ -1165,5 +1647,7 @@ onBeforeUnmount(() => {
   border-radius: 4px;
 
   word-break: break-word;
+
+  z-index: 10;
 }
 </style>

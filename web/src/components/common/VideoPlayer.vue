@@ -5,7 +5,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, onBeforeUnmount, defineProps, nextTick, defineExpose } from 'vue';
+import {
+  ref,
+  onMounted,
+  watch,
+  onBeforeUnmount,
+  defineProps,
+  nextTick,
+  defineExpose
+} from 'vue';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 
@@ -18,7 +26,7 @@ const props = defineProps({
     type: String,
     default: '100%'
   },
-  resetOnLoad: { // 新增重置标志
+  resetOnLoad: {
     type: Boolean,
     default: false
   },
@@ -31,57 +39,142 @@ const props = defineProps({
 const videoRef = ref(null);
 let player = null;
 
+
+/**
+ * 根据视频地址判断 Video.js 播放类型
+ *
+ * 摄像头：
+ *   /rtsp/cam1/?token=xxx
+ *   没有 mp4 后缀，因此使用 video/mp4
+ *
+ * 普通视频：
+ *   xxx.mp4
+ *   xxx.m3u8
+ *   xxx.webm
+ *   xxx.ogg
+ *   根据后缀使用对应类型
+ */
+const getVideoType = (src) => {
+  if (!src) {
+    return 'video/mp4';
+  }
+
+  // 去掉 query 参数和 hash
+  const cleanSrc = src.split('?')[0].split('#')[0].toLowerCase();
+
+  // m3u8 / HLS
+  if (cleanSrc.endsWith('.m3u8')) {
+    return 'application/x-mpegURL';
+  }
+
+  // WebM
+  if (cleanSrc.endsWith('.webm')) {
+    return 'video/webm';
+  }
+
+  // Ogg
+  if (cleanSrc.endsWith('.ogv') || cleanSrc.endsWith('.ogg')) {
+    return 'video/ogg';
+  }
+
+  // MP4
+  if (cleanSrc.endsWith('.mp4')) {
+    return 'video/mp4';
+  }
+
+  /**
+   * 摄像头视频流：
+   *
+   * 例如：
+   * /rtsp/cam1/?token=xxxx
+   *
+   * 没有明确的文件后缀。
+   *
+   * 保持你现在摄像头能够正常播放的行为。
+   */
+  return 'video/mp4';
+};
+
+
+/**
+ * 设置视频源
+ */
+const setVideoSource = (src) => {
+  if (!player || !src) {
+    return;
+  }
+
+  const type = getVideoType(src);
+
+  console.log('设置视频源:', src);
+  console.log('视频类型:', type);
+
+  player.src({
+    type,
+    src
+  });
+};
+
+
 // 初始化播放器
 const initPlayer = () => {
   if (player) {
-    player.dispose(); // 销毁旧播放器
+    player.dispose();
   }
 
   player = videojs(videoRef.value, {
     controls: true,
     preload: 'auto',
     autoplay: true,
-    fluid: false, // 禁用流体布局，使用固定尺寸
-    fill: false,  // 禁用填充模式
-    responsive: false // 禁用响应式
+    fluid: false,
+    fill: false,
+    responsive: false
   });
 
-  player.src({
-    type: 'video/mp4',
-    src: props.videoSrc
-  });
-
+  setVideoSource(props.videoSrc);
 };
+
 
 // 重置播放器状态
 const resetPlayer = () => {
   if (player) {
-    console.log("重置播放器-1")
-    player.currentTime(0); // 重置进度到开始
-    player.pause();        // 暂停播放
-    player.hasStarted(false); // 重置播放状态
-    player.trigger('reset'); // 触发自定义重置事件
+    console.log('重置播放器-1');
 
-    // 重置控制条状态
+    player.currentTime(0);
+    player.pause();
+    player.hasStarted(false);
+    player.trigger('reset');
+
     const controlBar = player.getChild('ControlBar');
+
     if (controlBar) {
-      controlBar.getChild('PlayToggle').trigger('reset');
-      controlBar.getChild('ProgressControl').trigger('reset');
+      const playToggle = controlBar.getChild('PlayToggle');
+      const progressControl = controlBar.getChild('ProgressControl');
+
+      if (playToggle) {
+        playToggle.trigger('reset');
+      }
+
+      if (progressControl) {
+        progressControl.trigger('reset');
+      }
     }
   }
 };
+
 
 const pausePlayer = () => {
   if (player) {
     player.pause();
   }
-}
+};
+
 
 const playPlayer = () => {
   if (player) {
     player.play();
   }
-}
+};
 
 
 // 调整播放器尺寸
@@ -89,12 +182,15 @@ const resizePlayer = () => {
   if (!player) return;
 
   nextTick(() => {
-    // 获取容器实际尺寸
+    if (!videoRef.value || !videoRef.value.parentElement) {
+      return;
+    }
+
     const container = videoRef.value.parentElement;
+
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    // 设置播放器尺寸
     player.width(width);
     player.height(height);
 
@@ -102,12 +198,16 @@ const resizePlayer = () => {
   });
 };
 
+
 onMounted(() => {
   initPlayer();
 
-  // 添加窗口和容器尺寸变化的监听
   window.addEventListener('resize', resizePlayer);
+
+  // 初始化完成后调整一次尺寸
+  resizePlayer();
 });
+
 
 // 监听重置标志变化
 watch(() => props.resetOnLoad, (newVal) => {
@@ -116,41 +216,58 @@ watch(() => props.resetOnLoad, (newVal) => {
   }
 });
 
-// 监听重置标志变化
+
+// 监听销毁标志
 watch(() => props.destroyPlayer, (newVal) => {
-  console.log("销毁播放器-watch")
+  console.log('销毁播放器-watch');
+
   if (newVal) {
     destroyPlayer();
   }
 });
 
+
 // 监听视频源变化
 watch(() => props.videoSrc, (newSrc) => {
-  console.log("监听视频源变化-watch")
-  console.log("视频源:" + newSrc)
+  console.log('监听视频源变化-watch');
+  console.log('视频源:', newSrc);
+
   if (player && newSrc) {
-    player.src({
-      type: 'video/mp4',
-      src: newSrc
-    });
+    setVideoSource(newSrc);
 
     // 尺寸可能需要重新调整
     resizePlayer();
   }
 });
 
+
+// 销毁播放器
+const destroyPlayer = () => {
+  if (player) {
+    console.log('销毁播放器');
+
+    player.dispose();
+    player = null;
+  }
+};
+
+
 // 暴露方法给父组件
 defineExpose({
   resizePlayer,
-  resetPlayer, // 暴露重置方法
+  resetPlayer,
   pausePlayer,
-  playPlayer
+  playPlayer,
+  destroyPlayer
 });
+
 
 onBeforeUnmount(() => {
   if (player) {
     player.dispose();
+    player = null;
   }
+
   window.removeEventListener('resize', resizePlayer);
 });
 </script>
@@ -163,7 +280,6 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
   background: #000;
-  /* 添加背景色避免空白 */
 }
 
 /* 确保 video 元素占满容器 */

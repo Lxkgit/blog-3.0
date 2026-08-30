@@ -1,28 +1,14 @@
 <template>
-  <el-dialog
-    v-model="video.showVideoDialog"
-    class="video-dialog"
-    :close-on-click-modal="false"
-    title="视频播放"
-    width="80vw"
-    top="0"
-    :fullscreen="video.fullscreen"
-    @opened="handleDialogOpened"
-    @open="handleDialogOpen"
-    @close="handleDialogClose"
-  >
+  <el-dialog v-model="video.showVideoDialog" class="video-dialog" :close-on-click-modal="false" title="视频播放"
+    width="80vw" top="0" :fullscreen="video.fullscreen" @opened="handleDialogOpened" @open="handleDialogOpen"
+    @close="handleDialogClose">
     <div class="video-container">
       <!-- =====================================================
            左侧播放器
            ===================================================== -->
       <div class="video-player">
-        <VideoPlayer
-          ref="videoPlayerRef"
-          class="video-player-component"
-          :video-src="video.videoUrl"
-          :reset-on-load="video.resetFlag"
-          :destroy-player="video.destroy"
-        />
+        <VideoPlayer ref="videoPlayerRef" class="video-player-component" :video-src="video.videoUrl"
+          :reset-on-load="video.resetFlag" :destroy-player="video.destroy" />
       </div>
 
       <!-- =====================================================
@@ -31,11 +17,7 @@
       <div class="video-list-container">
         <!-- ==================== 控制按钮 ==================== -->
         <div class="list-controls">
-          <el-button
-            type="primary"
-            :disabled="video.videoList.length === 0"
-            @click="handlePrevious"
-          >
+          <el-button type="primary" :disabled="video.videoList.length === 0" @click="handlePrevious">
             上一个
           </el-button>
 
@@ -53,17 +35,12 @@
         <!-- ==================== 视频列表 ==================== -->
         <el-scrollbar class="scroll-container">
           <ul class="video-list">
-            <li
-              v-for="(item, index) in video.videoList"
-              :key="index"
-              :class="[
-                'video-item',
-                {
-                  active: video.currentIndex === index,
-                },
-              ]"
-              @click="handlePlayVideo(item)"
-            >
+            <li v-for="(item, index) in video.videoList" :key="index" :class="[
+              'video-item',
+              {
+                active: video.currentIndex === index,
+              },
+            ]" @click="handlePlayVideo(item)">
               <!-- =================================================
                    当前正在播放的视频
                    ================================================= -->
@@ -78,19 +55,21 @@
                   <!-- 文件操作 -->
                   <div class="video-action">
                     <el-dropdown>
-                      <el-button type="primary" size="small"> 移动 </el-button>
+                      <el-button type="primary" size="small">
+                        移动
+                      </el-button>
 
                       <template #dropdown>
                         <el-dropdown-menu>
-                          <el-dropdown-item
-                            v-for="(dir, rowIndex) in dirList.data"
-                            :key="rowIndex"
-                            @click.stop="handleMoveFile(dir, item)"
-                          >
+                          <el-dropdown-item v-for="(dir, rowIndex) in dirList.data" :key="rowIndex" @click.stop="
+                            handleMoveFile(dir, item)
+                            ">
                             {{ dir.dirName }}
                           </el-dropdown-item>
 
-                          <el-dropdown-item @click.stop="handleMoveFile(null, item)">
+                          <el-dropdown-item @click.stop="
+                            handleMoveFile(null, item)
+                            ">
                             删除
                           </el-dropdown-item>
                         </el-dropdown-menu>
@@ -131,18 +110,54 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import VideoPlayer from '@/components/common/VideoPlayer.vue'
 import icon from '@/utils/icon'
 
-let { MyIcon } = icon()
+const { MyIcon } = icon()
+
 interface Props {
   video: any
   dirList: any
-  videoPlayerRef?: any
   timeToMinOrHour: (time: any) => any
 }
 
 defineProps<Props>()
+
+/**
+ * ============================================================
+ * VideoPlayer 实例
+ * ============================================================
+ *
+ * 注意：
+ *
+ * 这里必须使用 ref。
+ *
+ * 不要把 videoPlayerRef 放进 Props。
+ * ============================================================
+ */
+const videoPlayerRef = ref<{
+  resizePlayer?: () => void
+  resetPlayer?: () => void
+  pausePlayer?: () => void
+  playPlayer?: () => void
+
+  /**
+   * Dialog 关闭
+   */
+  closeVideoPlayer?: () => void
+
+  /**
+   * Dialog 打开
+   */
+  openVideoPlayer?: () => void
+
+  /**
+   * 完全销毁
+   */
+  destroyVideoPlayer?: () => void
+} | null>(null)
 
 const emit = defineEmits<{
   previous: []
@@ -156,58 +171,119 @@ const emit = defineEmits<{
 }>()
 
 /**
+ * ============================================================
  * 上一个视频
+ * ============================================================
  */
 const handlePrevious = () => {
   emit('previous')
 }
 
 /**
+ * ============================================================
  * 下一个视频
+ * ============================================================
  */
 const handleNext = () => {
   emit('next')
 }
 
 /**
+ * ============================================================
  * 全屏切换
+ * ============================================================
  */
 const handleFullscreen = () => {
   emit('fullscreen')
 }
 
 /**
+ * ============================================================
  * 播放视频
+ * ============================================================
  */
 const handlePlayVideo = (item: any) => {
   emit('playVideo', item)
 }
 
 /**
+ * ============================================================
  * 移动 / 删除文件
+ * ============================================================
  */
-const handleMoveFile = (dir: any, item: any) => {
+const handleMoveFile = (
+  dir: any,
+  item: any,
+) => {
   emit('moveFile', dir, item)
 }
 
 /**
+ * ============================================================
  * Dialog 打开完成
+ * ============================================================
+ *
+ * Element Plus：
+ *
+ * opened
+ *
+ * 此时 Dialog DOM 已经完成显示。
+ *
+ * 重新启动播放器。
+ * ============================================================
  */
 const handleDialogOpened = () => {
+  console.log(
+    '视频 Dialog opened',
+  )
+
+  /**
+   * 重新打开播放器
+   */
+  videoPlayerRef.value?.openVideoPlayer?.()
+
   emit('dialogOpened')
 }
 
 /**
+ * ============================================================
  * Dialog 打开
+ * ============================================================
  */
 const handleDialogOpen = () => {
   emit('dialogOpen')
 }
 
 /**
+ * ============================================================
  * Dialog 关闭
+ * ============================================================
+ *
+ * 这里是本次最重要的修改。
+ *
+ * Dialog 关闭时：
+ *
+ * 普通视频：
+ *     pause
+ *
+ * 摄像头：
+ *     close Reader
+ *     清理 srcObject
+ *
+ * 但是：
+ *
+ * 不 dispose Video.js
+ *
+ * 因为 Dialog 后面还可能再次打开。
+ * ============================================================
  */
 const handleDialogClose = () => {
+  console.log(
+    '视频 Dialog close，关闭播放器',
+  )
+
+  videoPlayerRef.value?.closeVideoPlayer?.()
+
   emit('dialogClose')
 }
 </script>
@@ -215,44 +291,19 @@ const handleDialogClose = () => {
 <style scoped>
 /* =========================================================
  * Element Plus Dialog
- *
- * 这里是最关键的部分
  * ========================================================= */
 
-/*
- * Element Plus 真正的 Dialog 面板。
- *
- * 不再使用：
- *
- *     top="5vh"
- *     margin-top: 5vh
- *
- * 而是统一由这里控制。
- */
 :global(.el-dialog.video-dialog) {
   width: 80vw !important;
 
   max-width: 95vw !important;
 
-  /*
-   * 页面顶部 5vh
-   */
   margin: 5vh auto 0 !important;
 
-  /*
-   * Dialog 总高度
-   */
   height: 90vh !important;
 
-  /*
-   * 防止 Element Plus 默认限制干扰
-   */
   max-height: 90vh !important;
 
-  /*
-   * 非常重要：
-   * 让 header + body 按 flex 分配高度
-   */
   display: flex !important;
 
   flex-direction: column !important;
@@ -279,31 +330,16 @@ const handleDialogClose = () => {
  * ========================================================= */
 
 :global(.el-dialog.video-dialog .el-dialog__body) {
-  /*
-   * 让 body 占据 header 剩余空间
-   */
   flex: 1 1 auto;
 
-  /*
-   * flex 子元素必须允许缩小
-   */
   min-height: 0;
 
-  /*
-   * 不要使用 height: 100%
-   */
   height: auto;
 
   box-sizing: border-box;
 
-  /*
-   * 你原来的内边距
-   */
   padding: 10px 20px 20px;
 
-  /*
-   * 防止视频把 Dialog 撑开
-   */
   overflow: hidden;
 }
 
@@ -386,7 +422,7 @@ const handleDialogClose = () => {
 }
 
 /* =========================================================
- * 上一个 / 下一个 / 全屏
+ * 控制按钮
  * ========================================================= */
 
 .list-controls {
@@ -410,7 +446,7 @@ const handleDialogClose = () => {
 }
 
 /* =========================================================
- * 视频列表滚动区域
+ * 视频滚动区域
  * ========================================================= */
 
 .scroll-container {
@@ -418,10 +454,6 @@ const handleDialogClose = () => {
 
   width: 100%;
 
-  /*
-   * 关键：
-   * 不让 el-scrollbar 自己撑高父容器
-   */
   height: 0;
 
   min-height: 0;

@@ -7,14 +7,8 @@
       </div>
 
       <div class="camera-tree">
-        <el-tree
-          :data="cameraTree"
-          node-key="id"
-          :props="treeProps"
-          default-expand-all
-          highlight-current
-          @node-click="handleCameraClick"
-        >
+        <el-tree :data="cameraTree" node-key="id" :props="treeProps" default-expand-all highlight-current
+          @node-click="handleCameraClick">
           <template #default="{ data }">
             <div class="tree-node">
               <MyIcon :type="data.type === 'group' ? 'folder' : 'video'" class="tree-icon" />
@@ -23,14 +17,10 @@
                 {{ data.name }}
               </span>
 
-              <span
-                v-if="data.type === 'camera'"
-                class="camera-status"
-                :class="{
-                  online: data.online,
-                  loading: loadingCameras.has(data.id),
-                }"
-              ></span>
+              <span v-if="data.type === 'camera'" class="camera-status" :class="{
+                online: data.online,
+                loading: loadingCameras.has(data.id),
+              }"></span>
             </div>
           </template>
         </el-tree>
@@ -44,7 +34,9 @@
         <div class="header-left">
           <span class="title">监控视频</span>
 
-          <span class="playing-count"> {{ playingCameras.length }} / {{ screenCount }} </span>
+          <span class="playing-count">
+            {{ playingCameras.length }} / {{ screenCount }}
+          </span>
         </div>
 
         <div class="header-right">
@@ -64,33 +56,39 @@
           </el-button-group>
 
           <!-- 清空 -->
-          <el-button class="clear-btn" @click="clearAll"> 清空 </el-button>
+          <el-button class="clear-btn" @click="clearAll">
+            清空
+          </el-button>
         </div>
       </div>
 
       <!-- 视频分屏 -->
-      <div
-        class="video-grid"
-        :class="{
-          'grid-1': screenCount === 1,
-          'grid-4': screenCount === 4,
-          'grid-9': screenCount === 9,
-        }"
-      >
+      <div class="video-grid" :class="{
+        'grid-1': screenCount === 1,
+        'grid-4': screenCount === 4,
+        'grid-9': screenCount === 9,
+      }">
         <div v-for="index in screenCount" :key="index" class="video-item">
           <!-- 有摄像头 -->
           <template v-if="playingCameras[index - 1]">
+            <!-- 视频 -->
             <VideoPlayer :video-src="playingCameras[index - 1].url" height="100%" />
 
-            <!-- 摄像头名称 -->
+            <!--
+              摄像头名称
+              左上角
+            -->
             <div class="camera-name">
               {{ playingCameras[index - 1].name }}
             </div>
 
-            <!-- 关闭当前窗口 -->
-            <div class="close-video" @click.stop="removeCamera(index - 1)">
+            <!--
+              关闭按钮
+              右上角
+            -->
+            <button type="button" class="close-video" @click.stop="removeCamera(index - 1)">
               <MyIcon type="close" />
-            </div>
+            </button>
           </template>
 
           <!-- 空窗口 -->
@@ -110,6 +108,10 @@ import { ref } from 'vue'
 import VideoPlayer from '@/components/common/VideoPlayer.vue'
 
 import { getCameraTokenApi } from '@/api/file'
+
+import icon from '@/utils/icon'
+
+let { MyIcon } = icon()
 
 /**
  * 视频流服务器地址
@@ -139,8 +141,6 @@ const treeProps = {
  * 摄像头组织树
  *
  * stream 为 MediaMTX / RTSP 转发名称
- *
- * 不再保存完整 url
  */
 const cameraTree = ref([
   {
@@ -220,7 +220,9 @@ const handleCameraClick = async (data) => {
   }
 
   // 已经播放的不重复添加
-  const exists = playingCameras.value.some((item) => item.id === data.id)
+  const exists = playingCameras.value.some(
+    (item) => item.id === data.id,
+  )
 
   if (exists) {
     return
@@ -240,16 +242,24 @@ const handleCameraClick = async (data) => {
     const token = res.result.token
 
     if (!token) {
-      throw new Error('获取摄像头授权 token 失败')
+      throw new Error(
+        '获取摄像头授权 token 失败',
+      )
     }
 
     // 分屏已满，移除第一个
-    if (playingCameras.value.length >= screenCount.value) {
+    if (
+      playingCameras.value.length >=
+      screenCount.value
+    ) {
       playingCameras.value.shift()
     }
 
     // 生成最终视频地址
-    const url = getCameraUrlWithToken(data.stream, token)
+    const url = getCameraUrlWithToken(
+      data.stream,
+      token,
+    )
 
     // 加入播放列表
     playingCameras.value.push({
@@ -258,7 +268,10 @@ const handleCameraClick = async (data) => {
       token,
     })
   } catch (error) {
-    console.error('获取摄像头 token 失败：', error)
+    console.error(
+      '获取摄像头 token 失败：',
+      error,
+    )
   } finally {
     loadingCameras.value.delete(data.id)
   }
@@ -274,8 +287,11 @@ const changeScreen = (count) => {
    * 如果当前播放数量超过新的分屏数量，
    * 删除多余的摄像头
    */
-  if (playingCameras.value.length > count) {
-    playingCameras.value = playingCameras.value.slice(0, count)
+  if (
+    playingCameras.value.length > count
+  ) {
+    playingCameras.value =
+      playingCameras.value.slice(0, count)
   }
 }
 
@@ -283,7 +299,10 @@ const changeScreen = (count) => {
  * 删除某一个视频
  */
 const removeCamera = (index) => {
-  if (index < 0 || index >= playingCameras.value.length) {
+  if (
+    index < 0 ||
+    index >= playingCameras.value.length
+  ) {
     return
   }
 
@@ -455,6 +474,13 @@ const clearAll = () => {
   display: grid;
   gap: 4px;
   background: #111;
+
+  /*
+   * 很重要：
+   * 限制 grid 自身尺寸，
+   * 防止子元素撑开网格。
+   */
+  overflow: hidden;
 }
 
 /* 1 分屏 */
@@ -467,15 +493,15 @@ const clearAll = () => {
 /* 4 分屏 */
 
 .video-grid.grid-4 {
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 
 /* 9 分屏 */
 
 .video-grid.grid-9 {
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 
 /* =========================
@@ -483,11 +509,57 @@ const clearAll = () => {
    ========================= */
 
 .video-item {
+  /*
+   * 必须有 position: relative
+   *
+   * 摄像头名称和关闭按钮
+   * 都以这个元素为定位父级。
+   */
   position: relative;
+
+  /*
+   * 防止 Grid 子元素撑开窗口。
+   */
   min-width: 0;
   min-height: 0;
+
+  width: 100%;
+  height: 100%;
+
+  /*
+   * 所有内容限制在视频窗口里面。
+   */
   overflow: hidden;
+
   background: #000;
+
+  /*
+   * 建立独立层叠上下文，
+   * 防止 Video.js / video 的层级
+   * 把关闭按钮覆盖掉。
+   */
+  isolation: isolate;
+}
+
+/*
+ * VideoPlayer 组件本身必须限制在窗口内。
+ */
+.video-item :deep(.video-container) {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+/*
+ * 防止 Video.js video 元素撑开父容器。
+ */
+.video-item :deep(.video-js) {
+  width: 100% !important;
+  height: 100% !important;
+
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* =========================
@@ -497,12 +569,19 @@ const clearAll = () => {
 .empty-video {
   width: 100%;
   height: 100%;
+
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   justify-content: center;
+
   gap: 8px;
+
   color: #666;
+
   font-size: 13px;
 }
 
@@ -515,45 +594,158 @@ const clearAll = () => {
    摄像头名称
    ========================= */
 
+/*
+ * 改成左上角
+ */
 .camera-name {
   position: absolute;
+
+  /*
+   * 固定在视频窗口内部
+   */
+  top: 8px;
   left: 8px;
-  bottom: 8px;
+
+  /*
+   * 不允许名称影响布局
+   */
+  max-width: calc(100% - 50px);
+
   padding: 4px 8px;
+
+  box-sizing: border-box;
+
   border-radius: 3px;
+
   background: rgb(0 0 0 / 55%);
+
   color: #fff;
+
   font-size: 12px;
-  z-index: 10;
+
+  line-height: 1.4;
+
+  /*
+   * 保证显示在视频上面
+   */
+  z-index: 20;
+
+  /*
+   * 名称本身不阻挡视频操作
+   */
+  pointer-events: none;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
 /* =========================
    关闭按钮
    ========================= */
 
+/*
+ * 使用 button 而不是普通 div，
+ * 同时彻底固定在视频窗口右上角。
+ */
 .close-video {
   position: absolute;
-  right: 8px;
+
+  /*
+   * 明确使用 top/right，
+   * 不参与正常布局。
+   */
   top: 8px;
+  right: 8px;
+
+  /*
+   * 固定尺寸
+   */
   width: 26px;
   height: 26px;
+
+  min-width: 26px;
+  min-height: 26px;
+
+  padding: 0;
+
+  margin: 0;
+
+  box-sizing: border-box;
+
+  /*
+   * 防止浏览器 button 默认样式
+   * 影响位置。
+   */
+  border: 0;
+
+  outline: none;
+
+  appearance: none;
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
+
   border-radius: 4px;
+
   background: rgb(0 0 0 / 55%);
+
   color: #fff;
+
   cursor: pointer;
-  z-index: 10;
+
+  /*
+   * 一定在视频和名称上面
+   */
+  z-index: 30;
+
+  /*
+   * 默认隐藏
+   */
   opacity: 0;
-  transition: opacity 0.2s;
+
+  transition:
+    opacity 0.2s,
+    background 0.2s;
+
+  /*
+   * 防止内部图标撑大按钮
+   */
+  overflow: hidden;
 }
 
+/*
+ * 鼠标移动到视频窗口时显示关闭按钮
+ */
 .video-item:hover .close-video {
   opacity: 1;
 }
 
+/*
+ * 鼠标移动到关闭按钮
+ */
 .close-video:hover {
-  background: rgb(0 0 0 / 75%);
+  background: rgb(0 0 0 / 80%);
+}
+
+/*
+ * 防止 MyIcon 自身尺寸影响按钮大小
+ */
+.close-video :deep(svg) {
+  width: 14px;
+  height: 14px;
+}
+
+/*
+ * 如果 MyIcon 不是 svg，
+ * 也限制字体大小。
+ */
+.close-video :deep(*) {
+  font-size: 14px;
 }
 </style>

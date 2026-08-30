@@ -307,3 +307,16 @@ export const cancelTaskApi = (id: any) => {
     const uri = "/file/task/cancel?id=" + id
     return api.get(uri)
 }
+
+
+// --------------摄像头接口-------------
+
+// 获取摄像头token
+export const getCameraTokenApi = (stream: any) => {
+    const uri = "/file/camera/token?stream=" + stream
+    return api.post(uri)
+}
+
+
+
+

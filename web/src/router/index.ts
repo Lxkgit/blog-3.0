@@ -255,6 +255,16 @@ const router = createRouter({
           },
         },
         {
+          path: 'device/camera',
+          name: 'Camera',
+          component: () => import('@/views/admin/device/CameraManagement.vue'),
+          meta: {
+            title: '摄像头管理',
+            keepAlive: false,
+            isAuth: true,
+          },
+        },
+        {
           path: 'setting/web',
           name: 'WebSetting',
           component: () => import('@/views/admin/setting/WebSetting.vue'),

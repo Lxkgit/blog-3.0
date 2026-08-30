@@ -9,26 +9,41 @@
           <el-button size="small" type="primary" @click="deleteArticle(0)">删除</el-button>
         </div>
         <template #reference>
-          <el-button :disabled="ids.length > 0 ? false : true" type="danger" plain
-            @click="deleteBtnPopoverByIds = true">删除</el-button>
+          <el-button
+            :disabled="ids.length > 0 ? false : true"
+            type="danger"
+            plain
+            @click="deleteBtnPopoverByIds = true"
+            >删除</el-button
+          >
         </template>
       </el-popover>
-      <el-table :data="articleList.data" stripe style="width: 100%; height: calc(100vh - 328px)"
-        @selection-change="selected">
+      <el-table
+        :data="articleList.data"
+        stripe
+        style="width: 100%; height: calc(100vh - 328px)"
+        @selection-change="selected"
+      >
         <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column prop="title" label="标题" fit> </el-table-column>
         <el-table-column label="文章分类" width="300">
           <template #default="scope">
-            <el-tag :style="'color: ' + tagColor(item.id)" style="margin-right: 2px; margin-bottom: 2px"
-              v-for="item in scope.row.articleTypes">
+            <el-tag
+              :style="'color: ' + tagColor(item.id)"
+              style="margin-right: 2px; margin-bottom: 2px"
+              v-for="item in scope.row.articleTypes"
+            >
               {{ item.typeName }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="文章标签" width="180">
           <template #default="scope">
-            <el-tag :style="'color: ' + tagColor(item.id)" style="margin-right: 2px; margin-bottom: 2px"
-              v-for="item in scope.row.articleLabels">
+            <el-tag
+              :style="'color: ' + tagColor(item.id)"
+              style="margin-right: 2px; margin-bottom: 2px"
+              v-for="item in scope.row.articleLabels"
+            >
               {{ item.labelName }}
             </el-tag>
           </template>
@@ -52,12 +67,18 @@
             <el-button @click="editArticle(scope.row)" size="small" text>
               <MyIcon type="icon-edit" />
             </el-button>
-            <el-popover :visible="deleteBtnPopoverById && selectRow === scope.$index" placement="top" :width="160"
-              :ref="`popover-${scope.$index}`">
+            <el-popover
+              :visible="deleteBtnPopoverById && selectRow === scope.$index"
+              placement="top"
+              :width="160"
+              :ref="`popover-${scope.$index}`"
+            >
               <p>删除所选文章？</p>
               <div style="text-align: right; margin: 0">
                 <el-button size="small" text @click="deleteBtnPopoverById = false">取消</el-button>
-                <el-button size="small" type="primary" @click="deleteArticle(scope.row.id)">删除</el-button>
+                <el-button size="small" type="primary" @click="deleteArticle(scope.row.id)"
+                  >删除</el-button
+                >
               </div>
               <template #reference>
                 <el-button style="margin: 0; padding: 8px" size="small" text>
@@ -69,9 +90,17 @@
         </el-table-column>
       </el-table>
       <div style="margin: 20px 0 50px 0">
-        <el-pagination background v-model:current-page="page" v-model:page-size="size" :page-sizes="[10, 20, 50, 100]"
-          style="float: right" layout="total, sizes, prev, pager, next, jumper" @current-change="pageChange"
-          @size-change="sizeChange" :total="total">
+        <el-pagination
+          background
+          v-model:current-page="page"
+          v-model:page-size="size"
+          :page-sizes="[10, 20, 50, 100]"
+          style="float: right"
+          layout="total, sizes, prev, pager, next, jumper"
+          @current-change="pageChange"
+          @size-change="sizeChange"
+          :total="total"
+        >
         </el-pagination>
       </div>
     </el-card>
@@ -82,12 +111,12 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { contentStore } from "@/store/content";
+import { contentStore } from '@/store/content'
 import { getArticleListApi, deleteArticleByIdsApi } from '@/api/content'
 import { tagsStore } from '@/store/tag'
 import icon from '@/utils/icon'
 import color from '@/utils/color'
-import mixin from "@/mixins/article";
+import mixin from '@/mixins/article'
 
 let {
   page,
@@ -135,7 +164,7 @@ function articleFn(): any {
   const articleList: any = reactive({ data: [] })
 
   // 勾选文章id 用于批量删除
-  let ids = reactive([])
+  let ids: any = reactive([])
 
   const pageChange = (page: any) => {
     getArticleListFun(page, size.value)

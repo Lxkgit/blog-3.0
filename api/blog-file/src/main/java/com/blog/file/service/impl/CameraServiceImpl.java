@@ -94,21 +94,15 @@ public class CameraServiceImpl implements CameraService {
         if (token == null || token.isBlank()) {
             return null;
         }
-
         String key = TOKEN_PREFIX + token;
-
         Object value = redisService.getString(key);
-
         if (value == null) {
             return null;
         }
-
         String json = value.toString();
-
         if (json.isBlank()) {
             return null;
         }
-
         try {
             return JSONObject.parseObject(json);
         } catch (Exception e) {

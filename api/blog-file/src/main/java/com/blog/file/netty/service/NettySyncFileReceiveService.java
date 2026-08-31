@@ -294,17 +294,15 @@ public class NettySyncFileReceiveService {
     private void afterSyncFile(MsgHead msgHead, NettySyncFileDto nettySyncFileDto) {
         logger.info("文件同步流程完成: MsgHead: {} NettySyncFileDto: {}", msgHead, nettySyncFileDto);
 
-        String taskUuid = null;
         // 文件同步任务收到消息后重置发送标识
         if (msgHead != null && msgHead.getTaskMsgHead() != null) {
             if (nettySyncFileDto.getSyncCount() != null && nettySyncFileDto.getSyncCount() == 2) {
                 redisService.setString(FileRedisConstant.FILE_SYNC_TASK_STATUS + msgHead.getTaskMsgHead().getTaskUuid(), "1", 5 * 60 * 60);
             }
-            taskUuid = msgHead.getTaskMsgHead().getTaskUuid() + "-clear";
         }
 
         // 上传文件时，最后一个上传的文件上传完成不一定全部文件都正确导入minio，等待1h文件导入完成
-        clearFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath(), taskUuid);
+        clearFile(Constant.FTP_PATH_SYSTEM + nettySyncFileDto.getServiceFilePath());
     }
 
     /**
@@ -312,7 +310,7 @@ public class NettySyncFileReceiveService {
      *
      * @param path 文件或目录全路径
      */
-    private void clearFile(String path, String taskUuid) {
+    private void clearFile(String path) {
         logger.info("创建文件清理任务: {}", path);
         TimerTaskContext context = new TimerTaskContext();
         context.put("deleteFilePath", path);
@@ -323,7 +321,7 @@ public class NettySyncFileReceiveService {
                 .policy(new Policy(1))
                 .trigger(new DelayTrigger(Duration.ofMillis(1)))
                 .build();
-        timerManager.schedule(definition, taskUuid).getTaskId();
+        timerManager.schedule(definition).getTaskId();
     }
 
     /**

@@ -693,7 +693,7 @@ const clearAll = () => {
 
   border-radius: 4px;
 
-  background: rgb(0 0 0 / 55%);
+  background: rgba(255, 255, 255, 0.8);
 
   color: #fff;
 
@@ -730,7 +730,7 @@ const clearAll = () => {
  * 鼠标移动到关闭按钮
  */
 .close-video:hover {
-  background: rgb(0 0 0 / 80%);
+  background: var(--el-text-color-regular)
 }
 
 /*

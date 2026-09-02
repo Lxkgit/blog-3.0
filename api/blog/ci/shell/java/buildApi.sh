@@ -41,7 +41,7 @@ show_result() {
   for module in $(echo "${MODULES}" | tr "," " ")
   do
     echo "模块: ${module}"
-    find "${SOURCE_DIR}/api/${module}/target" \
+    find "${SOURCE_DIR}/${module}/target" \
       -name "*.jar" \
       ! -name "*sources.jar"
   done

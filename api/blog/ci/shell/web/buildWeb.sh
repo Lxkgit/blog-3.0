@@ -17,7 +17,7 @@ update_npm() {
     --cpus=2 \
     --memory=2g \
     --memory-swap=2g \
-    -v ${SOURCE_DIR}/web:/workspace \
+    -v ${SOURCE_DIR}:/workspace \
     -v ${NPM_DIR}:/root/.npm \
     -w /workspace \
     ${NODE_IMAGE} \
@@ -39,7 +39,7 @@ build_web() {
     --cpus=2 \
     --memory=2g \
     --memory-swap=2g \
-    -v ${SOURCE_DIR}/web:/workspace \
+    -v ${SOURCE_DIR}:/workspace \
     -v ${NPM_DIR}:/root/.npm \
     -w /workspace \
     ${NODE_IMAGE} \
@@ -58,9 +58,9 @@ build_web() {
 show_result() {
   echo "========================================"
   echo "前端构建结果："
-  if [ -d "${SOURCE_DIR}/web/dist" ]; then
-    echo "构建目录: ${SOURCE_DIR}/web/dist"
-    ls -lh "${SOURCE_DIR}/web/dist"
+  if [ -d "${SOURCE_DIR}/dist" ]; then
+    echo "构建目录: ${SOURCE_DIR}/dist"
+    ls -lh "${SOURCE_DIR}/dist"
   else
     echo "未找到前端构建目录"
     exit 1

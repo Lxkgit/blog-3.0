@@ -1,12 +1,18 @@
 #!/bin/bash
 
+# =========================
+# blog-3.0
+# =========================
+BLOG_PROJECT_NAME="blog-3.0"
+BLOG_GIT_URL="git@gitee.com:lxkgs/blog-3.0.git"
+BLOG_SOURCE_DIR="/opt/docker/ci/code/${BLOG_PROJECT_NAME}"
 
-# 项目名称
-PROJECT_NAME="blog-3.0"
-# Git仓库地址
-GIT_URL="git@gitee.com:lxkgs/blog-3.0.git"
-# 项目源码目录
-SOURCE_DIR="/opt/docker/ci/code/${PROJECT_NAME}"
+# =========================
+# web-excel
+# =========================
+WEB_EXCEL_PROJECT_NAME="web-excel"
+WEB_EXCEL_GIT_URL="https://github.com/Lxkgit/web_excel.git"
+WEB_EXCEL_SOURCE_DIR="/opt/docker/ci/code/${WEB_EXCEL_PROJECT_NAME}"
 
 # Maven缓存目录
 MAVEN_DIR="/opt/docker/ci/maven"

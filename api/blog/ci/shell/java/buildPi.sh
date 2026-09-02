@@ -4,19 +4,22 @@ source /opt/docker/ci/shell/config.sh
 source /opt/docker/ci/shell/args.sh
 source /opt/docker/ci/shell/utils.sh
 
+
 # 构建后端
 build_backend() {
+
   # 安装 api 公共依赖
   if [ "${INSTALL}" = "install" ]; then
-    echo "INSTALL=install，开始安装 api 公共依赖..."
+    echo "开始安装 api 公共依赖..."
+    echo "依赖项目目录: ${DEPENDENCY_DIR}"
 
     docker run --rm \
       --cpus=2 \
       --memory=2g \
       --memory-swap=2g \
-      -v ${SOURCE_DIR}:/workspace \
+      -v ${DEPENDENCY_DIR}:/workspace \
       -v ${MAVEN_DIR}:/root/.m2 \
-      -w /workspace/api \
+      -w /workspace \
       ${MAVEN_IMAGE} \
       mvn clean install \
       -DskipTests
@@ -29,8 +32,11 @@ build_backend() {
     echo "api 公共依赖安装成功"
   fi
 
+
   # 打包 pi
   echo "开始构建 pi..."
+  echo "源码目录: ${SOURCE_DIR}"
+  echo "构建环境: ${PROFILE}"
 
   docker run --rm \
     --cpus=2 \
@@ -38,7 +44,7 @@ build_backend() {
     --memory-swap=2g \
     -v ${SOURCE_DIR}:/workspace \
     -v ${MAVEN_DIR}:/root/.m2 \
-    -w /workspace/pi \
+    -w /workspace \
     ${MAVEN_IMAGE} \
     mvn clean package \
     -P${PROFILE} \
@@ -57,7 +63,11 @@ build_backend() {
 show_result() {
   echo "========================================"
   echo "pi 后端构建结果："
-  find ${SOURCE_DIR}/pi/target -name "*.jar" ! -name "*sources.jar"
+
+  find "${SOURCE_DIR}/target" \
+    -name "*.jar" \
+    ! -name "*sources.jar"
+
   echo "========================================"
 }
 
@@ -67,7 +77,7 @@ main() {
   # 参数解析
   parse_args "$@"
 
-  # 参数校验统一由 args.sh 完成
+  # 参数校验
   check_common_args
   check_pi_args
 

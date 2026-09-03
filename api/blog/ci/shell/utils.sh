@@ -1,10 +1,7 @@
 #!/bin/bash
 
 
-# =========================
 # 更新代码
-# =========================
-
 update_code() {
 
   if [ -z "${PROJECT_NAME}" ]; then
@@ -15,7 +12,6 @@ update_code() {
   echo "========================================"
   echo "开始更新代码"
   echo "项目: ${PROJECT_NAME}"
-  echo "========================================"
 
   /opt/docker/ci/shell/updateCode.sh \
     -n "${PROJECT_NAME}"

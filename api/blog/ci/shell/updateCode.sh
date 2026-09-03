@@ -11,14 +11,10 @@ RETRY_COUNT=3
 RETRY_WAIT=2
 
 
-# =========================
 # 帮助
-# =========================
-
 show_help() {
 
   echo "使用方式:"
-  echo ""
   echo "  ./updateCode.sh -n blog"
   echo "  ./updateCode.sh -n excel"
   echo ""
@@ -29,55 +25,36 @@ show_help() {
   exit 1
 }
 
-
-# =========================
 # 参数解析
-# =========================
-
 parse_args() {
-
   while getopts ":n:" opt
   do
     case "${opt}" in
-
       n)
         PROJECT_NAME="${OPTARG}"
         ;;
-
       :)
         echo "参数 -${OPTARG} 缺少参数"
         show_help
         ;;
-
       \?)
         echo "未知参数: -${OPTARG}"
         show_help
         ;;
-
     esac
   done
 }
 
-
-# =========================
 # 参数检查
-# =========================
-
 check_args() {
-
   if [ -z "${PROJECT_NAME}" ]; then
     echo "缺少项目名称参数 -n"
     show_help
   fi
 }
 
-
-# =========================
 # 获取项目配置
-# =========================
-
 get_project_config() {
-
   local project_upper
   local git_url_var
   local source_dir_var
@@ -101,11 +78,7 @@ get_project_config() {
   fi
 }
 
-
-# =========================
 # 克隆项目
-# =========================
-
 clone_project() {
 
   echo "项目目录不存在，开始克隆..."
@@ -122,11 +95,7 @@ clone_project() {
   return 0
 }
 
-
-# =========================
 # 拉取项目
-# =========================
-
 pull_project() {
 
   cd "${SOURCE_DIR}" || {
@@ -147,11 +116,7 @@ pull_project() {
   return 0
 }
 
-
-# =========================
 # 更新代码
-# =========================
-
 update_code() {
 
   if [ ! -d "${SOURCE_DIR}" ]; then
@@ -161,11 +126,7 @@ update_code() {
   fi
 }
 
-
-# =========================
 # 重试更新
-# =========================
-
 retry_update() {
 
   local attempt=1
@@ -173,19 +134,13 @@ retry_update() {
   while [ "${attempt}" -le "${RETRY_COUNT}" ]
   do
 
-    echo ""
-    echo "========================================"
     echo "第 ${attempt}/${RETRY_COUNT} 次更新"
     echo "项目: ${PROJECT_NAME}"
-    echo "========================================"
 
     if update_code; then
 
-      echo ""
-      echo "========================================"
       echo "项目更新成功"
       echo "项目: ${PROJECT_NAME}"
-      echo "========================================"
 
       return 0
     fi
@@ -204,21 +159,14 @@ retry_update() {
   done
 
 
-  echo ""
-  echo "========================================"
   echo "项目更新失败"
   echo "项目: ${PROJECT_NAME}"
   echo "重试次数: ${RETRY_COUNT}"
-  echo "========================================"
 
   return 1
 }
 
-
-# =========================
 # 主函数
-# =========================
-
 main() {
 
   parse_args "$@"
@@ -227,7 +175,6 @@ main() {
 
   get_project_config
 
-  echo ""
   echo "========================================"
   echo "开始更新项目"
   echo "项目: ${PROJECT_NAME}"

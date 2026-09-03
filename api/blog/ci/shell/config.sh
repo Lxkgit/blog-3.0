@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# shellcheck disable=SC2034
 
 # 项目列表
 PROJECT_NAMES=(

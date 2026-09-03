@@ -13,8 +13,8 @@ cp /opt/docker/ci/code/blog-3.0/api/blog/docker/nginx/util/conf/nginx.conf /opt/
 /opt/docker/ci/shell/buildController.sh -e pro -p excel
 
 rm -rf /opt/docker/nginx/util/html
-mkdir -p /opt/docker/nginx/util/html
-mv /opt/docker/ci/code/web-excel/dist/* /opt/docker/nginx/util/html
+mkdir -p /opt/docker/nginx/util/html/excel
+mv /opt/docker/ci/code/web-excel/dist/* /opt/docker/nginx/util/html/excel
 
 # 重启 Nginx Util 服务
 /opt/docker/nginx/util/restartUtil.sh

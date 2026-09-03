@@ -9,6 +9,7 @@ source /opt/docker/ci/shell/config.sh
 # =========================
 
 PROFILE=""
+MODULES=""
 SOURCE_DIR=""
 
 
@@ -20,10 +21,11 @@ show_help() {
 
   echo "使用方式:"
   echo ""
-  echo "  ./buildWeb.sh -e pro -d /opt/docker/ci/code/blog-3.0/web"
+  echo "  ./buildMicroservices.sh -e pro -m blog-auth,blog-gateway -d /opt/docker/ci/code/blog-3.0/api"
   echo ""
   echo "参数:"
   echo "  -e    构建环境: pro | test"
+  echo "  -m    Maven 模块"
   echo "  -d    源码目录"
   echo ""
 
@@ -37,12 +39,16 @@ show_help() {
 
 parse_args() {
 
-  while getopts ":e:d:" opt
+  while getopts ":e:m:d:" opt
   do
     case "${opt}" in
 
       e)
         PROFILE="${OPTARG}"
+        ;;
+
+      m)
+        MODULES="${OPTARG}"
         ;;
 
       d)
@@ -70,8 +76,6 @@ parse_args() {
 
 check_args() {
 
-  # 环境
-
   if [ -z "${PROFILE}" ]; then
     echo "缺少环境参数 -e"
     show_help
@@ -88,80 +92,35 @@ check_args() {
   esac
 
 
-  # 源码目录
+  if [ -z "${MODULES}" ]; then
+    echo "缺少 Maven 模块参数 -m"
+    show_help
+  fi
+
 
   if [ -z "${SOURCE_DIR}" ]; then
     echo "缺少源码目录参数 -d"
     show_help
   fi
 
+
   if [ ! -d "${SOURCE_DIR}" ]; then
     echo "源码目录不存在: ${SOURCE_DIR}"
     exit 1
   fi
-
-
-  # package.json
-
-  if [ ! -f "${SOURCE_DIR}/package.json" ]; then
-    echo "未找到 package.json"
-    echo "源码目录: ${SOURCE_DIR}"
-    exit 1
-  fi
 }
 
 
 # =========================
-# 更新 NPM 依赖
+# Maven 构建
 # =========================
 
-update_npm() {
-
-  if [ ! -d "${NPM_DIR}" ]; then
-    echo "创建 npm 依赖缓存目录"
-    mkdir -p "${NPM_DIR}"
-  fi
-
+build_microservices() {
 
   echo "========================================"
-  echo "更新 npm 依赖"
-  echo "源码目录: ${SOURCE_DIR}"
-  echo "npm 缓存: ${NPM_DIR}"
-  echo "========================================"
-
-
-  docker run --rm \
-    --cpus=2 \
-    --memory=2g \
-    --memory-swap=2g \
-    -v "${SOURCE_DIR}:/workspace" \
-    -v "${NPM_DIR}:/root/.npm" \
-    -w /workspace \
-    "${NODE_IMAGE}" \
-    npm install
-
-
-  if [ $? -ne 0 ]; then
-    echo "npm 依赖更新失败"
-    return 1
-  fi
-
-
-  echo "npm 依赖更新成功"
-
-  return 0
-}
-
-
-# =========================
-# 前端构建
-# =========================
-
-build_web() {
-
-  echo "========================================"
-  echo "开始前端构建"
+  echo "开始构建微服务包"
   echo "环境: ${PROFILE}"
+  echo "模块: ${MODULES}"
   echo "源码目录: ${SOURCE_DIR}"
   echo "========================================"
 
@@ -171,19 +130,23 @@ build_web() {
     --memory=2g \
     --memory-swap=2g \
     -v "${SOURCE_DIR}:/workspace" \
-    -v "${NPM_DIR}:/root/.npm" \
+    -v "${MAVEN_DIR}:/root/.m2" \
     -w /workspace \
-    "${NODE_IMAGE}" \
-    npm run build
+    "${MAVEN_IMAGE}" \
+    mvn clean package \
+    -pl "${MODULES}" \
+    -am \
+    -P"${PROFILE}" \
+    -DskipTests
 
 
   if [ $? -ne 0 ]; then
-    echo "前端构建失败"
+    echo "微服务包构建失败"
     return 1
   fi
 
 
-  echo "前端构建成功"
+  echo "微服务包构建成功"
 
   return 0
 }
@@ -196,28 +159,41 @@ build_web() {
 show_result() {
 
   echo "========================================"
-  echo "前端构建结果"
+  echo "微服务构建结果"
   echo "========================================"
 
 
-  local dist_dir="${SOURCE_DIR}/dist"
+  IFS=',' read -ra MODULE_LIST <<< "${MODULES}"
 
 
-  if [ ! -d "${dist_dir}" ]; then
-    echo "未找到前端构建目录"
-    echo "目录: ${dist_dir}"
-    return 1
-  fi
+  for module in "${MODULE_LIST[@]}"
+  do
+
+    local jar_dir="${SOURCE_DIR}/${module}/target"
 
 
-  echo "构建目录: ${dist_dir}"
+    echo ""
+    echo "模块: ${module}"
 
-  ls -lh "${dist_dir}"
+
+    if [ -d "${jar_dir}" ]; then
+
+      ls -lh "${jar_dir}"/*.jar 2>/dev/null
+
+      if [ $? -ne 0 ]; then
+        echo "未找到 Jar 包"
+      fi
+
+    else
+
+      echo "未找到构建目录: ${jar_dir}"
+
+    fi
+
+  done
 
 
   echo "========================================"
-
-  return 0
 }
 
 
@@ -231,12 +207,9 @@ main() {
 
   check_args
 
+  build_microservices || exit 1
 
-  update_npm || exit 1
-
-  build_web || exit 1
-
-  show_result || exit 1
+  show_result
 }
 
 

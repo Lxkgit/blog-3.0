@@ -108,7 +108,7 @@ ciBuild() {
   find /opt/docker/ci/shell -type f -name "*.sh" -exec chmod +x {} \;
 
   # 拉取代码
-  /opt/docker/ci/shell/updateCode.sh
+  /opt/docker/ci/shell/updateCode.sh -n blog
 }
 
 sshConfig(){

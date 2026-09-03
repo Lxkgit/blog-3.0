@@ -9,7 +9,9 @@ source /opt/docker/ci/shell/config.sh
 # =========================
 
 PROFILE=""
+INSTALL=""
 SOURCE_DIR=""
+DEPENDENCY_DIR=""
 
 
 # =========================
@@ -20,11 +22,17 @@ show_help() {
 
   echo "使用方式:"
   echo ""
-  echo "  ./buildWeb.sh -e pro -d /opt/docker/ci/code/blog-3.0/web"
+  echo "  单服务:"
+  echo "    ./buildService.sh -e pro -d /opt/docker/ci/code/blog-3.0/pi"
+  echo ""
+  echo "  单服务 + 安装公共依赖:"
+  echo "    ./buildService.sh -e pro -i install -d /opt/docker/ci/code/blog-3.0/pi -D /opt/docker/ci/code/blog-3.0/api"
   echo ""
   echo "参数:"
   echo "  -e    构建环境: pro | test"
+  echo "  -i    安装依赖: install"
   echo "  -d    源码目录"
+  echo "  -D    公共依赖目录"
   echo ""
 
   exit 1
@@ -37,7 +45,7 @@ show_help() {
 
 parse_args() {
 
-  while getopts ":e:d:" opt
+  while getopts ":e:i:d:D:" opt
   do
     case "${opt}" in
 
@@ -45,8 +53,16 @@ parse_args() {
         PROFILE="${OPTARG}"
         ;;
 
+      i)
+        INSTALL="${OPTARG}"
+        ;;
+
       d)
         SOURCE_DIR="${OPTARG}"
+        ;;
+
+      D)
+        DEPENDENCY_DIR="${OPTARG}"
         ;;
 
       :)
@@ -101,32 +117,48 @@ check_args() {
   fi
 
 
-  # package.json
+  # 安装参数
 
-  if [ ! -f "${SOURCE_DIR}/package.json" ]; then
-    echo "未找到 package.json"
-    echo "源码目录: ${SOURCE_DIR}"
+  if [ -n "${INSTALL}" ] && [ "${INSTALL}" != "install" ]; then
+    echo "-i 参数错误，只支持 install"
     exit 1
+  fi
+
+
+  # 安装依赖时必须指定依赖目录
+
+  if [ "${INSTALL}" = "install" ]; then
+
+    if [ -z "${DEPENDENCY_DIR}" ]; then
+      echo "使用 -i install 时必须指定依赖目录 -D"
+      show_help
+    fi
+
+    if [ ! -d "${DEPENDENCY_DIR}" ]; then
+      echo "依赖目录不存在: ${DEPENDENCY_DIR}"
+      exit 1
+    fi
+
+  else
+
+    if [ -n "${DEPENDENCY_DIR}" ]; then
+      echo "未使用 -i install 时不允许使用 -D"
+      exit 1
+    fi
+
   fi
 }
 
 
 # =========================
-# 更新 NPM 依赖
+# 安装公共依赖
 # =========================
 
-update_npm() {
-
-  if [ ! -d "${NPM_DIR}" ]; then
-    echo "创建 npm 依赖缓存目录"
-    mkdir -p "${NPM_DIR}"
-  fi
-
+install_dependency() {
 
   echo "========================================"
-  echo "更新 npm 依赖"
-  echo "源码目录: ${SOURCE_DIR}"
-  echo "npm 缓存: ${NPM_DIR}"
+  echo "开始安装公共依赖"
+  echo "依赖目录: ${DEPENDENCY_DIR}"
   echo "========================================"
 
 
@@ -134,33 +166,34 @@ update_npm() {
     --cpus=2 \
     --memory=2g \
     --memory-swap=2g \
-    -v "${SOURCE_DIR}:/workspace" \
-    -v "${NPM_DIR}:/root/.npm" \
+    -v "${DEPENDENCY_DIR}:/workspace" \
+    -v "${MAVEN_DIR}:/root/.m2" \
     -w /workspace \
-    "${NODE_IMAGE}" \
-    npm install
+    "${MAVEN_IMAGE}" \
+    mvn clean install \
+    -DskipTests
 
 
   if [ $? -ne 0 ]; then
-    echo "npm 依赖更新失败"
+    echo "公共依赖安装失败"
     return 1
   fi
 
 
-  echo "npm 依赖更新成功"
+  echo "公共依赖安装成功"
 
   return 0
 }
 
 
 # =========================
-# 前端构建
+# 单服务构建
 # =========================
 
-build_web() {
+build_service() {
 
   echo "========================================"
-  echo "开始前端构建"
+  echo "开始构建单服务包"
   echo "环境: ${PROFILE}"
   echo "源码目录: ${SOURCE_DIR}"
   echo "========================================"
@@ -171,19 +204,21 @@ build_web() {
     --memory=2g \
     --memory-swap=2g \
     -v "${SOURCE_DIR}:/workspace" \
-    -v "${NPM_DIR}:/root/.npm" \
+    -v "${MAVEN_DIR}:/root/.m2" \
     -w /workspace \
-    "${NODE_IMAGE}" \
-    npm run build
+    "${MAVEN_IMAGE}" \
+    mvn clean package \
+    -P"${PROFILE}" \
+    -DskipTests
 
 
   if [ $? -ne 0 ]; then
-    echo "前端构建失败"
+    echo "单服务包构建失败"
     return 1
   fi
 
 
-  echo "前端构建成功"
+  echo "单服务包构建成功"
 
   return 0
 }
@@ -196,23 +231,29 @@ build_web() {
 show_result() {
 
   echo "========================================"
-  echo "前端构建结果"
+  echo "单服务构建结果"
   echo "========================================"
 
 
-  local dist_dir="${SOURCE_DIR}/dist"
+  local jar_dir="${SOURCE_DIR}/target"
 
 
-  if [ ! -d "${dist_dir}" ]; then
-    echo "未找到前端构建目录"
-    echo "目录: ${dist_dir}"
+  if [ ! -d "${jar_dir}" ]; then
+    echo "未找到构建目录"
+    echo "目录: ${jar_dir}"
     return 1
   fi
 
 
-  echo "构建目录: ${dist_dir}"
+  echo "构建目录: ${jar_dir}"
 
-  ls -lh "${dist_dir}"
+
+  ls -lh "${jar_dir}"/*.jar 2>/dev/null
+
+  if [ $? -ne 0 ]; then
+    echo "未找到 Jar 包"
+    return 1
+  fi
 
 
   echo "========================================"
@@ -232,9 +273,15 @@ main() {
   check_args
 
 
-  update_npm || exit 1
+  if [ "${INSTALL}" = "install" ]; then
 
-  build_web || exit 1
+    install_dependency || exit 1
+
+  fi
+
+
+  build_service || exit 1
+
 
   show_result || exit 1
 }

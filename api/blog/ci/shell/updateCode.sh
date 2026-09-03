@@ -3,106 +3,244 @@
 source /opt/docker/ci/shell/config.sh
 
 
-# 更新代码
-update_code() {
+PROJECT_NAME=""
+GIT_URL=""
+SOURCE_DIR=""
 
-  echo "======================"
-  echo "检查代码目录"
-  echo "项目: ${PROJECT_NAME}"
-  echo "仓库: ${GIT_URL}"
-  echo "目录: ${SOURCE_DIR}"
-  echo "======================"
+RETRY_COUNT=3
+RETRY_WAIT=2
 
-  # 首次部署，拉取代码
-  if [ ! -d "${SOURCE_DIR}" ]; then
-      echo "代码不存在，开始clone..."
 
-      mkdir -p "$(dirname "${SOURCE_DIR}")"
+# =========================
+# 帮助
+# =========================
 
-      git clone "${GIT_URL}" "${SOURCE_DIR}"
+show_help() {
 
-      if [ $? -ne 0 ]; then
-          echo "git clone失败"
-          exit 1
-      fi
+  echo "使用方式:"
+  echo ""
+  echo "  ./updateCode.sh -n blog"
+  echo "  ./updateCode.sh -n excel"
+  echo ""
+  echo "参数:"
+  echo "  -n    项目名称"
+  echo ""
 
-      echo "代码clone完成"
-      return
-  fi
-
-  # 已存在代码
-  cd "${SOURCE_DIR}" || exit 1
-
-  # 判断是否git仓库
-  if [ ! -d ".git" ]; then
-      echo "目录存在，但是不是git仓库"
-      exit 1
-  fi
-
-  echo "拉取最新代码..."
-
-  git pull
-
-  if [ $? -ne 0 ]; then
-      echo "git pull失败"
-      exit 1
-  fi
-
-  echo "代码更新完成"
+  exit 1
 }
 
 
 # =========================
-# 主流程
+# 参数解析
+# =========================
+
+parse_args() {
+
+  while getopts ":n:" opt
+  do
+    case "${opt}" in
+
+      n)
+        PROJECT_NAME="${OPTARG}"
+        ;;
+
+      :)
+        echo "参数 -${OPTARG} 缺少参数"
+        show_help
+        ;;
+
+      \?)
+        echo "未知参数: -${OPTARG}"
+        show_help
+        ;;
+
+    esac
+  done
+}
+
+
+# =========================
+# 参数检查
+# =========================
+
+check_args() {
+
+  if [ -z "${PROJECT_NAME}" ]; then
+    echo "缺少项目名称参数 -n"
+    show_help
+  fi
+}
+
+
+# =========================
+# 获取项目配置
+# =========================
+
+get_project_config() {
+
+  local project_upper
+  local git_url_var
+  local source_dir_var
+
+  project_upper=$(echo "${PROJECT_NAME}" | tr '[:lower:]' '[:upper:]')
+
+  git_url_var="${project_upper}_GIT_URL"
+  source_dir_var="${project_upper}_SOURCE_DIR"
+
+  GIT_URL="${!git_url_var}"
+  SOURCE_DIR="${!source_dir_var}"
+
+  if [ -z "${GIT_URL}" ]; then
+    echo "不存在项目配置: ${PROJECT_NAME}"
+    exit 1
+  fi
+
+  if [ -z "${SOURCE_DIR}" ]; then
+    echo "项目源码目录未配置: ${PROJECT_NAME}"
+    exit 1
+  fi
+}
+
+
+# =========================
+# 克隆项目
+# =========================
+
+clone_project() {
+
+  echo "项目目录不存在，开始克隆..."
+  echo "Git: ${GIT_URL}"
+  echo "目录: ${SOURCE_DIR}"
+
+  git clone "${GIT_URL}" "${SOURCE_DIR}"
+
+  if [ $? -ne 0 ]; then
+    echo "Git 克隆失败"
+    return 1
+  fi
+
+  return 0
+}
+
+
+# =========================
+# 拉取项目
+# =========================
+
+pull_project() {
+
+  cd "${SOURCE_DIR}" || {
+    echo "无法进入项目目录: ${SOURCE_DIR}"
+    return 1
+  }
+
+  echo "当前分支: $(git branch --show-current)"
+  echo "开始拉取代码..."
+
+  git pull
+
+  if [ $? -ne 0 ]; then
+    echo "Git 更新失败"
+    return 1
+  fi
+
+  return 0
+}
+
+
+# =========================
+# 更新代码
+# =========================
+
+update_code() {
+
+  if [ ! -d "${SOURCE_DIR}" ]; then
+    clone_project
+  else
+    pull_project
+  fi
+}
+
+
+# =========================
+# 重试更新
+# =========================
+
+retry_update() {
+
+  local attempt=1
+
+  while [ "${attempt}" -le "${RETRY_COUNT}" ]
+  do
+
+    echo ""
+    echo "========================================"
+    echo "第 ${attempt}/${RETRY_COUNT} 次更新"
+    echo "项目: ${PROJECT_NAME}"
+    echo "========================================"
+
+    if update_code; then
+
+      echo ""
+      echo "========================================"
+      echo "项目更新成功"
+      echo "项目: ${PROJECT_NAME}"
+      echo "========================================"
+
+      return 0
+    fi
+
+    if [ "${attempt}" -lt "${RETRY_COUNT}" ]; then
+
+      echo ""
+      echo "更新失败，${RETRY_WAIT} 秒后重试..."
+
+      sleep "${RETRY_WAIT}"
+
+    fi
+
+    attempt=$((attempt + 1))
+
+  done
+
+
+  echo ""
+  echo "========================================"
+  echo "项目更新失败"
+  echo "项目: ${PROJECT_NAME}"
+  echo "重试次数: ${RETRY_COUNT}"
+  echo "========================================"
+
+  return 1
+}
+
+
+# =========================
+# 主函数
 # =========================
 
 main() {
 
-  # 参数解析
-  while getopts "n:" opt; do
-    case "${opt}" in
-      n)
-        PROJECT_NAME="${OPTARG}"
-        ;;
-      *)
-        echo "用法: $0 -n 项目名称"
-        exit 1
-        ;;
-    esac
-  done
+  parse_args "$@"
 
-  # 必须指定项目
-  if [ -z "${PROJECT_NAME}" ]; then
-      echo "错误: 必须指定项目名称"
-      echo "用法: $0 -n 项目名称"
-      exit 1
+  check_args
+
+  get_project_config
+
+  echo ""
+  echo "========================================"
+  echo "开始更新项目"
+  echo "项目: ${PROJECT_NAME}"
+  echo "Git: ${GIT_URL}"
+  echo "目录: ${SOURCE_DIR}"
+  echo "最大重试次数: ${RETRY_COUNT}"
+  echo "========================================"
+
+  retry_update
+
+  if [ $? -ne 0 ]; then
+    exit 1
   fi
-
-
-  # 根据项目选择配置
-  case "${PROJECT_NAME}" in
-
-    blog-3.0)
-      GIT_URL="${BLOG_GIT_URL}"
-      SOURCE_DIR="${BLOG_SOURCE_DIR}"
-      ;;
-
-    web-excel)
-      GIT_URL="${WEB_EXCEL_GIT_URL}"
-      SOURCE_DIR="${WEB_EXCEL_SOURCE_DIR}"
-      ;;
-
-    *)
-      echo "错误: 不支持的项目: ${PROJECT_NAME}"
-      echo ""
-      echo "支持的项目:"
-      echo "  blog-3.0"
-      exit 1
-      ;;
-
-  esac
-
-  update_code
 }
 
 

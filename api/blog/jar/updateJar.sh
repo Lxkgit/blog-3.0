@@ -28,7 +28,7 @@ updateJarConfig() {
 # 编译打包jar包服务
 buildJar() {
   # 更新并打包Java服务
-  /opt/docker/ci/shell/buildController.sh -s api -e pro -m blog-auth,blog-gateway,blog-content,blog-file
+  /opt/docker/ci/shell/buildController.sh -e pro -p blog -n api -m blog-auth,blog-gateway,blog-content,blog-file
 
   rm -rf /opt/docker/files/jar/auth/blog-auth.jar
   mv /opt/docker/ci/code/blog-3.0/api/blog-auth/target/blog-auth.jar /opt/docker/files/jar/auth

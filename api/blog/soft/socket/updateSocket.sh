@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 更新代码
-/opt/docker/ci/shell/updateCode.sh
+/opt/docker/ci/shell/updateCode.sh -n blog
 
 # 替换 Socket 代码为最新版本
 rm -rf /opt/soft/socket/code

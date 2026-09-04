@@ -5,6 +5,7 @@ blogContent="blog-content"
 echo "---- restart container ----"
 cd /opt/docker/files/jar/content || exit 1
 docker rm -f ${blogContent} 2>/dev/null || true
+docker rmi ${blogContent}:3.0 2>/dev/null || true
 docker build -t ${blogContent}:3.0 .
 if [ $? -ne 0 ]; then
     echo "Docker 镜像构建失败"

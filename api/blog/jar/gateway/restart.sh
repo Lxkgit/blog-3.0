@@ -5,6 +5,7 @@ blogGateway="blog-gateway"
 echo "---- restart container ----"
 cd /opt/docker/files/jar/gateway || exit 1
 docker rm -f ${blogGateway} 2>/dev/null || true
+docker rmi ${blogGateway}:3.0 2>/dev/null || true
 docker build -t ${blogGateway}:3.0 .
 if [ $? -ne 0 ]; then
     echo "Docker 镜像构建失败"

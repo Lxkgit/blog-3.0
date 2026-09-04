@@ -5,6 +5,7 @@ blogAuth="blog-auth"
 echo "---- restart container ----"
 cd /opt/docker/files/jar/auth || exit 1
 docker rm -f ${blogAuth} 2>/dev/null || true
+docker rmi ${blogAuth}:3.0 2>/dev/null || true
 docker build -t ${blogAuth}:3.0 .
 if [ $? -ne 0 ]; then
     echo "Docker 镜像构建失败"

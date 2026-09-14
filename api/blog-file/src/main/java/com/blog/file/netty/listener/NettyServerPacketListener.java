@@ -145,12 +145,13 @@ public class NettyServerPacketListener implements ApplicationListener<NettyPacke
         } else {
             // netty 设备通道绑定 后续发送消息获取通道
             NettyRegisterDto nettyRegisterDto = JSONObject.parseObject(data, NettyRegisterDto.class);
-            if (!NettyServer.CHANNEL_MAP.containsKey(deviceCode)) {
-                // 通道绑定注册码
-                channel.attr(NettyServer.DEVICE_CODE).set(deviceCode);
-                NettyServer.CHANNEL_MAP.put(deviceCode, ctx);
-                logger.info("netty 通道注册 register: deviceCode:{} channel:{}", deviceCode, ctx);
+            channel.attr(NettyServer.DEVICE_CODE).set(deviceCode);
+            ChannelHandlerContext oldCtx = NettyServer.CHANNEL_MAP.put(deviceCode, ctx);
+            if (oldCtx != null && oldCtx.channel() != channel) {
+                logger.warn("netty 通道替换 register: deviceCode={}, oldChannel={}, newChannel={}", deviceCode, oldCtx.channel().id(), channel.id());
+                oldCtx.close();
             }
+            logger.info("netty 通道注册 register: deviceCode={}, channel={}", deviceCode, channel.id());
 
             insertOrUpdateDeviceInfo(data, nettyRegisterDto, deviceCode, selectDevice, userId);
         }

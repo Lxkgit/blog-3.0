@@ -68,7 +68,14 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         String deviceCode = ctx.channel().attr(NettyServer.DEVICE_CODE).get();
         logger.info("Netty 客户端断开连接 deviceCode={}, channelId={}", deviceCode, ctx.channel().id());
         if (deviceCode != null) {
-            NettyServer.CHANNEL_MAP.remove(deviceCode);
+            ChannelHandlerContext currentCtx = NettyServer.CHANNEL_MAP.get(deviceCode);
+            if (currentCtx == ctx) {
+                NettyServer.CHANNEL_MAP.remove(deviceCode);
+                logger.info("Netty 移除当前客户端连接 deviceCode={}, channelId={}", deviceCode, ctx.channel().id());
+            } else {
+                logger.info("Netty 旧客户端连接断开，不移除当前连接 deviceCode={}, oldChannel={}, currentChannel={}",
+                        deviceCode, ctx.channel().id(), currentCtx == null ? null : currentCtx.channel().id());
+            }
         } else {
             logger.warn("客户端断开 channelId={}", ctx.channel().id());
         }

@@ -44,20 +44,18 @@
       >
         <li @click="refresh">刷新</li>
 
-        <li @click="closeMenu">关闭菜单</li>
-
-        <li @click="closeTag()"></li>
+        <li @click="closeTag()">关闭当前</li>
 
         <li @click="closeOther">关闭其他</li>
 
-        <li @click="closeAll">全部关闭</li>
+        <li @click="closeAll">关闭全部</li>
       </ul>
     </header>
   </transition>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 
 import { tagsStore } from '@/store/tag'
 
@@ -100,6 +98,24 @@ watch(
     store.activeTag(route.path)
   },
 )
+
+/* =========================================================
+   点击菜单外部关闭菜单
+   ========================================================= */
+
+const handleDocumentClick = () => {
+  if (visible.value) {
+    visible.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleDocumentClick)
+})
 
 /* =========================================================
    关闭标签
@@ -182,14 +198,6 @@ const openMenu = (path: string, index: number, e: MouseEvent) => {
   left.value = e.clientX
 
   top.value = e.clientY
-}
-
-/* =========================================================
-   关闭右键菜单
-   ========================================================= */
-
-const closeMenu = () => {
-  visible.value = false
 }
 
 /* =========================================================

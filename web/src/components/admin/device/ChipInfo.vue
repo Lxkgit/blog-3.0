@@ -321,8 +321,8 @@ let {
 const { MyIcon } = icon()
 const { tagColor } = color()
 
-const activeTab = ref('sensorControl')
-const sensorControlActiveTab = ref('sensorControl')
+const activeTab = ref<string | number>('sensorControl')
+const sensorControlActiveTab = ref<string | number>('sensorControl')
 
 const dialogTableVisible = ref(false)
 const dialogFormVisible = ref(false)

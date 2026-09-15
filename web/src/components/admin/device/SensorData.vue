@@ -66,24 +66,18 @@ onMounted(() => {
 })
 
 function sensorFun() {
-  // 当前页
   const page = ref<number>(1)
 
-  // 页面展示数据条数
   const size = ref<number>(12)
 
-  // 总数据数
   const total = ref<number>(0)
 
-  // 加载状态
   const loading = ref<boolean>(false)
 
-  // 传感器数据列表
   const sensorDataList = reactive({
     data: [] as any[],
   })
 
-  // 分页获取传感器数据
   const selectSensorDataPageFun = (currentPage: number) => {
     page.value = currentPage
 
@@ -94,7 +88,6 @@ function sensorFun() {
     selectSensorDataByIdFun(props.sensor.id, currentPage)
   }
 
-  // 获取传感器数据列表
   const selectSensorDataByIdFun = (id: any, currentPage: number) => {
     if (!id) {
       return
@@ -132,12 +125,6 @@ function sensorFun() {
   }
 }
 
-/**
- * 格式化监测数据
- *
- * 如果后端返回的是 JSON 字符串，
- * 自动格式化成更容易阅读的 JSON。
- */
 const formatSensorData = (data: any) => {
   if (data === null || data === undefined || data === '') {
     return '-'
@@ -165,15 +152,25 @@ const formatSensorData = (data: any) => {
 .sensor-data-card {
   margin: 10px 2%;
   width: 94%;
-  height: calc(100vh - 308px);
-  overflow-y: auto;
+  height: calc(100vh - 230px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.sensor-data-card :deep(.el-card__body) {
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
 .table-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 8px 0 15px;
+  margin: 0 0 12px;
+  flex-shrink: 0;
 }
 
 .table-title {
@@ -186,7 +183,8 @@ const formatSensorData = (data: any) => {
 
 .sensor-data-table {
   width: 100%;
-  min-height: 450px;
+  flex: 1;
+  min-height: 0;
 }
 
 .sensor-data-text {
@@ -200,7 +198,9 @@ const formatSensorData = (data: any) => {
 .pagination-wrapper {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
-  padding-bottom: 30px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 0;
+  flex-shrink: 0;
 }
 </style>

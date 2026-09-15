@@ -1,212 +1,284 @@
 <template>
-  <el-tabs v-model="activeTab" style="flex: auto" @tab-click="activeTabHandleClick">
-    <el-tab-pane label="单片机数据" name="chipData">单片机数据</el-tab-pane>
-    <el-tab-pane label="传感器数据统计" name="sensorData">传感器数据统计</el-tab-pane>
-    <el-tab-pane label="批量控制传感器" name="sensorControl">
-      <div style="width: 95%">
-        <el-tabs v-model="sensorControlActiveTab">
-          <el-tab-pane label="传感器控制命令" name="sensorControl">
-            <el-button @click="dialogFormVisible = true">创建</el-button>
-            <el-popover :visible="deleteCommandBtnPopoverByIds" placement="top" :width="160">
-              <p>删除所选命令？</p>
-              <div style="text-align: right; margin: 0">
-                <el-button size="small" text @click="deleteCommandBtnPopoverByIds = false"
-                  >取消</el-button
+  <div class="sensor-control-page">
+    <el-tabs v-model="activeTab" class="main-tabs" @tab-click="activeTabHandleClick">
+      <el-tab-pane label="单片机数据" name="chipData"> 单片机数据 </el-tab-pane>
+
+      <el-tab-pane label="传感器数据统计" name="sensorData"> 传感器数据统计 </el-tab-pane>
+
+      <el-tab-pane label="批量控制传感器" name="sensorControl">
+        <div class="sensor-control-container">
+          <el-tabs v-model="sensorControlActiveTab" class="control-tabs">
+            <el-tab-pane label="传感器控制命令" name="sensorControl">
+              <div class="control-content">
+                <div class="table-header">
+                  <div class="table-title">
+                    <span>传感器控制命令</span>
+                    <el-tag size="small" type="info">
+                      {{ sensorControlList.data.length }}
+                    </el-tag>
+                  </div>
+
+                  <div class="table-actions">
+                    <el-button type="primary" @click="openCreateDialog"> 创建命令组 </el-button>
+
+                    <el-popover
+                      :visible="deleteCommandBtnPopoverByIds"
+                      placement="top"
+                      :width="180"
+                    >
+                      <p>删除所选命令？</p>
+
+                      <div class="delete-popover-footer">
+                        <el-button size="small" text @click="deleteCommandBtnPopoverByIds = false">
+                          取消
+                        </el-button>
+
+                        <el-button size="small" type="primary" @click="deleteSensorControlFun(0)">
+                          删除
+                        </el-button>
+                      </div>
+
+                      <template #reference>
+                        <el-button
+                          type="danger"
+                          plain
+                          :disabled="commandIds.length === 0"
+                          @click="deleteCommandBtnPopoverByIds = true"
+                        >
+                          批量删除
+                        </el-button>
+                      </template>
+                    </el-popover>
+                  </div>
+                </div>
+
+                <el-table
+                  :data="sensorControlList.data"
+                  stripe
+                  border
+                  class="sensor-control-table"
+                  empty-text="暂无传感器控制命令"
+                  @selection-change="checkCommandId"
                 >
-                <el-button size="small" type="primary" @click="deleteSensorControlFun(0)"
-                  >删除</el-button
-                >
+                  <el-table-column type="selection" width="55" align="center" />
+
+                  <el-table-column
+                    prop="controlName"
+                    label="名称"
+                    min-width="180"
+                    show-overflow-tooltip
+                  />
+
+                  <el-table-column label="控制传感器" min-width="300">
+                    <template #default="scope">
+                      <el-tag
+                        v-for="item in scope.row.sensorList"
+                        :key="item.id"
+                        :style="'color: ' + tagColor(item.id)"
+                        class="sensor-tag"
+                      >
+                        {{ item.sensorName }}
+                      </el-tag>
+                    </template>
+                  </el-table-column>
+
+                  <el-table-column
+                    prop="controlMessage"
+                    label="消息内容"
+                    min-width="300"
+                    show-overflow-tooltip
+                  />
+
+                  <el-table-column prop="createTime" label="创建时间" width="180" />
+
+                  <el-table-column prop="updateTime" label="最近修改时间" width="180" />
+
+                  <el-table-column fixed="right" label="操作" width="130" align="center">
+                    <template #default="scope">
+                      <div class="row-actions">
+                        <el-button size="small" text @click="sendSensorControlFun(scope.row.id)">
+                          <MyIcon type="icon-send" title="发送命令" />
+                        </el-button>
+
+                        <el-button size="small" text @click="updateSensorControlFun(scope.row.id)">
+                          <MyIcon type="icon-edit" title="修改命令" />
+                        </el-button>
+
+                        <el-button size="small" text @click="deleteSensorControlFun(scope.row.id)">
+                          <MyIcon type="icon-delete" title="删除命令" />
+                        </el-button>
+                      </div>
+                    </template>
+                  </el-table-column>
+                </el-table>
+
+                <div class="pagination-wrapper">
+                  <el-pagination
+                    background
+                    layout="total, prev, pager, next, jumper"
+                    :page-size="10"
+                    :total="100"
+                  />
+                </div>
               </div>
-              <template #reference>
-                <el-button
-                  :disabled="commandIds.length > 0 ? false : true"
-                  type="danger"
-                  plain
-                  @click="deleteCommandBtnPopoverByIds = true"
-                  >删除</el-button
-                >
-              </template>
-            </el-popover>
-            <!-- 传感器控制命令表 -->
-            <el-table :data="sensorControlList.data" @selection-change="checkCommandId">
-              <el-table-column type="selection" width="55"> </el-table-column>
-              <el-table-column prop="controlName" label="名称" width="180" />
-              <el-table-column prop="name" label="控制传感器" width="300">
-                <template #default="scope">
-                  <el-tag
-                    :style="'color: ' + tagColor(item.id)"
-                    style="margin-right: 2px; margin-bottom: 2px"
-                    v-for="item in scope.row.sensorList"
-                  >
-                    {{ item.sensorName }}
-                  </el-tag>
-                </template>
-              </el-table-column>
-              <!-- <el-table-column prop="commandGroup" label="命令组" /> -->
-              <el-table-column prop="controlMessage" label="消息内容" fit />
-              <el-table-column prop="createTime" label="创建时间" width="180" />
-              <el-table-column prop="updateTime" label="最近修改时间" width="180" />
-              <el-table-column fixed="right" label="操作" width="110">
-                <template #default="scope">
-                  <el-button
-                    style="margin: 0; padding: 8px"
-                    @click="sendSensorControlFun(scope.row.id)"
-                    size="small"
-                    text
-                  >
-                    <MyIcon type="icon-send" title="发送命令" />
-                  </el-button>
-
-                  <el-button
-                    style="margin: 0; padding: 8px"
-                    @click="updateSensorControlFun(scope.row.id)"
-                    size="small"
-                    text
-                  >
-                    <MyIcon type="icon-edit" title="修改命令" />
-                  </el-button>
-
-                  <el-button
-                    style="margin: 0; padding: 8px"
-                    @click="deleteSensorControlFun(scope.row.id)"
-                    size="small"
-                    text
-                  >
-                    <MyIcon type="icon-delete" title="删除命令" />
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-            <div style="margin: 20px 0 50px 0">
-              <el-pagination
-                background
-                style="float: right"
-                layout="total, prev, pager, next, jumper"
-                @current-change=""
-                :page-size="10"
-                :total="100"
-              >
-              </el-pagination>
-            </div>
+            </el-tab-pane>
 
             <el-dialog
               v-model="dialogFormVisible"
               title="创建命令组"
-              width="1000"
-              style="height: 700px"
+              width="900px"
+              class="sensor-command-dialog"
             >
-              <el-form :model="sensorControlForm">
-                <div>
-                  <el-form-item prop="controlName" label="指令名称" :label-width="100">
-                    <el-input v-model="sensorControlForm.name" autocomplete="off" />
-                  </el-form-item>
+              <el-form :model="sensorControlForm" class="command-form">
+                <el-form-item label="指令名称" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="sensorControlForm.name"
+                    placeholder="请输入命令组名称"
+                    clearable
+                  />
+                </el-form-item>
 
-                  <div style="height: 400px; overflow: auto">
-                    <div v-for="(id, idx) in length">
-                      <el-divider />
+                <div class="sensor-command-list">
+                  <div v-for="(id, idx) in length" :key="idx" class="sensor-command-item">
+                    <el-divider />
 
-                      <div style="display: flex">
-                        <div style="flex: 1">
-                          <el-form-item :label="'传感器 ' + id" :label-width="formLabelWidth">
-                            <el-select
-                              v-model="sensorControlForm.sensor[idx].sensorData"
-                              placeholder="选择传感器"
-                              @change="selectSensor(idx)"
-                              value-key="id"
-                            >
-                              <el-option
-                                v-for="(item, sidx) in sensorList.data"
-                                :key="idx"
-                                :label="item.sensorName"
-                                :value="item"
-                              />
-                            </el-select>
-                          </el-form-item>
-                        </div>
-                        <div style="flex: 1; margin-left: 20px">
-                          <template v-if="idx !== 0">
-                            <el-form-item label="命令执行前延时(ms)" :label-width="formLabelWidth">
+                    <div class="sensor-command-row">
+                      <div class="sensor-select-wrapper">
+                        <el-form-item :label="'传感器 ' + id" :label-width="formLabelWidth">
+                          <el-select
+                            v-model="sensorControlForm.sensor[idx].sensorData"
+                            placeholder="选择传感器"
+                            value-key="id"
+                            class="sensor-select"
+                            @change="selectSensor(idx)"
+                          >
+                            <el-option
+                              v-for="item in sensorList.data"
+                              :key="item.id"
+                              :label="item.sensorName"
+                              :value="item"
+                            />
+                          </el-select>
+                        </el-form-item>
+                      </div>
+
+                      <div class="sensor-parameter-wrapper">
+                        <el-form-item
+                          v-if="idx !== 0"
+                          label="执行前延时(ms)"
+                          :label-width="formLabelWidth"
+                        >
+                          <el-input-number
+                            v-model="sensorControlForm.sensor[idx].delay"
+                            :min="1"
+                            :max="10000"
+                          />
+                        </el-form-item>
+
+                        <div
+                          v-for="item in sensorControlForm.sensor[idx].from"
+                          :key="item.key || item.label"
+                        >
+                          <template v-if="item.type === 'input-number'">
+                            <el-form-item :label="item.label" :label-width="formLabelWidth">
                               <el-input-number
-                                v-model="sensorControlForm.sensor[idx].delay"
-                                :min="1"
-                                :max="10000"
+                                v-model="item.value"
+                                :min="item.min"
+                                :max="item.max"
                               />
                             </el-form-item>
                           </template>
-
-                          <div v-for="item in sensorControlForm.sensor[idx].from">
-                            <!-- 传感器控制 数字输入模板 -->
-                            <template v-if="item.type === 'input-number'" :key="idx">
-                              <el-form-item :label="item.label" :label-width="formLabelWidth">
-                                <el-input-number
-                                  v-model="item.value"
-                                  :min="item.min"
-                                  :max="item.max"
-                                />
-                              </el-form-item>
-                            </template>
-                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <span style="margin-left: 50px; cursor: pointer" @click="addSensor"
-                    >增加传感器</span
-                  >
-                  <span
-                    style="display: float; float: right; margin-right: 50px; cursor: pointer"
-                    @click="deleteSensor"
-                    >删除传感器</span
-                  >
+                </div>
+
+                <div class="sensor-command-footer">
+                  <el-button type="primary" link @click="addSensor"> + 增加传感器 </el-button>
+
+                  <el-button type="danger" link :disabled="length <= 1" @click="deleteSensor">
+                    - 删除传感器
+                  </el-button>
                 </div>
               </el-form>
+
               <template #footer>
                 <div class="dialog-footer">
-                  <el-button @click="dialogFormVisible = false">取消</el-button>
+                  <el-button @click="dialogFormVisible = false"> 取消 </el-button>
+
                   <el-button type="primary" @click="saveSensorControlFun"> 确认 </el-button>
                 </div>
               </template>
             </el-dialog>
-          </el-tab-pane>
-          <el-tab-pane label="传感器控制历史" name="sensorControlHistory">
-            <el-table :data="tableData">
-              <el-table-column prop="date" label="Date" width="180" />
-              <el-table-column prop="name" label="Name" width="180" />
-              <el-table-column prop="address" label="Address" />
-              <el-table-column fixed="right" label="操作" width="110">
-                <template #default="scope">
-                  <el-button style="margin: 0; padding: 8px" @click="" size="small" text>
-                    <MyIcon type="icon-send" title="发送命令" />
-                  </el-button>
-                  <el-button style="margin: 0; padding: 8px" @click="" size="small" text>
-                    <MyIcon type="icon-delete" title="删除命令" />
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-            <div style="margin: 20px 0 50px 0">
-              <el-pagination
-                background
-                style="float: right"
-                layout="total, prev, pager, next, jumper"
-                @current-change=""
-                :page-size="10"
-                :total="100"
-              >
-              </el-pagination>
-            </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-    </el-tab-pane>
-  </el-tabs>
+
+            <el-tab-pane label="传感器控制历史" name="sensorControlHistory">
+              <div class="control-content">
+                <div class="table-header">
+                  <div class="table-title">
+                    <span>传感器控制历史</span>
+                    <el-tag size="small" type="info">
+                      {{ tableData.length }}
+                    </el-tag>
+                  </div>
+                </div>
+
+                <el-table
+                  :data="tableData"
+                  stripe
+                  border
+                  class="sensor-control-table"
+                  empty-text="暂无控制历史"
+                >
+                  <el-table-column prop="date" label="时间" width="180" />
+
+                  <el-table-column prop="name" label="名称" width="180" />
+
+                  <el-table-column
+                    prop="address"
+                    label="地址"
+                    min-width="300"
+                    show-overflow-tooltip
+                  />
+
+                  <el-table-column fixed="right" label="操作" width="110" align="center">
+                    <template #default>
+                      <div class="row-actions">
+                        <el-button size="small" text>
+                          <MyIcon type="icon-send" title="发送命令" />
+                        </el-button>
+
+                        <el-button size="small" text>
+                          <MyIcon type="icon-delete" title="删除命令" />
+                        </el-button>
+                      </div>
+                    </template>
+                  </el-table-column>
+                </el-table>
+
+                <div class="pagination-wrapper">
+                  <el-pagination
+                    background
+                    layout="total, prev, pager, next, jumper"
+                    :page-size="10"
+                    :total="100"
+                  />
+                </div>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import type { TabsPaneContext } from 'element-plus'
-import icon from '@/utils/icon'
 import { ElMessage } from 'element-plus'
+import icon from '@/utils/icon'
+import color from '@/utils/color'
 
 import {
   selectSensorControlListApi,
@@ -219,7 +291,9 @@ import {
   selectSensorControlByIdApi,
 } from '@/api/file'
 
-import color from '@/utils/color'
+const props = defineProps({
+  chipId: Number,
+})
 
 let {
   length,
@@ -240,256 +314,25 @@ let {
   selectSensorTemplateByChipOrSensorIdFun,
   selectSensorControlByIdFun,
   sendSensorControlFun,
+  resetSensorControlForm,
+  openCreateDialog,
 } = sensorControlFun()
 
-let { MyIcon } = icon()
-let { tagColor } = color()
+const { MyIcon } = icon()
+const { tagColor } = color()
 
-onMounted(() => {
-  selectSensorControlListFun()
-  selectSensorListFun()
-  selectSensorTemplateByChipOrSensorIdFun()
-})
-
-// 传感器控制方法
-function sensorControlFun() {
-  // 传感器命令组中传感器数量
-  let length = ref(1)
-
-  // 勾选命令id 用于批量删除
-  let commandIds = reactive([])
-
-  // 多选删除命令Popover弹窗展示
-  let deleteCommandBtnPopoverByIds = ref(false)
-
-  // 传感器控制表单
-  const sensorControlForm = reactive({
-    id: 0,
-    name: '',
-    sensor: [
-      {
-        id: 0,
-        idx: 0,
-        // 与下拉框联动 保存勾选的传感器信息
-        sensorData: {} as any,
-        sensorType: '',
-        sensorCode: '',
-        delay: 0,
-        from: [] as any,
-      },
-    ],
-  })
-
-  // 传感器控制命令数据
-  let sensorControlList: any = reactive({ data: [] })
-
-  // 传感器列表
-  let sensorList: any = reactive({ data: [] })
-
-  // 查询单片机下全部传感器
-  const selectSensorListFun = () => {
-    selectSensorListApi({
-      pageNum: 1,
-      pageSize: 20,
-      chipId: props.chipId,
-      sensorControlType: 1,
-    }).then((res: any) => {
-      if (res.code === 200) {
-        sensorList.data = res.result.list
-      }
-    })
-  }
-
-  // 传感器表单模板
-  const sensorTemplateFrom: any = reactive({ data: [] })
-
-  // 选择要控制的传感器
-  const selectSensor = (idx: any) => {
-    // 记录选择的传感器 id 型号 编码
-    sensorControlForm.sensor[idx].id = sensorControlForm.sensor[idx].sensorData.id
-    sensorControlForm.sensor[idx].sensorType = sensorControlForm.sensor[idx].sensorData.sensorType
-    sensorControlForm.sensor[idx].sensorCode = sensorControlForm.sensor[idx].sensorData.sensorCode
-    // idx 用于传感器排序
-    sensorControlForm.sensor[idx].idx = idx
-    // 传感器执行前默认延时为 100ms
-    sensorControlForm.sensor[idx].delay = idx === 0 ? 0 : 100
-
-    // 接口获取到模板信息进行匹配
-    for (let i = 0; i < sensorTemplateFrom.data.length; i++) {
-      if (sensorControlForm.sensor[idx].sensorType === sensorTemplateFrom.data[i].sensorType) {
-        sensorControlForm.sensor[idx].from = JSON.parse(sensorTemplateFrom.data[i].template)
-      }
-    }
-  }
-
-  // 表单新增一个传感器
-  const addSensor = () => {
-    if (length.value == 20) {
-      ElMessage.error('传感器数量至少为 20')
-      return
-    }
-    //@ts-ignore 单行忽略
-    sensorControlForm.sensor.push({})
-    length.value++
-  }
-
-  // 表单删除一个传感器
-  const deleteSensor = () => {
-    if (length.value == 1) {
-      ElMessage.error('传感器数量至少为 1')
-    } else {
-      sensorControlForm.sensor.pop()
-      length.value--
-    }
-  }
-
-  // 查询传感器控制命令
-  const selectSensorControlListFun = () => {
-    selectSensorControlListApi({
-      pageNum: 1,
-      pageSize: 10,
-      chipId: props.chipId,
-    }).then((res: any) => {
-      if (res.code === 200) {
-        sensorControlList.data = res.result.list
-      }
-    })
-  }
-
-  // 创建传感器控制命令
-  const saveSensorControlFun = () => {
-    dialogFormVisible.value = false
-
-    // 传感器命令组保存
-    saveSensorControlApi({
-      id: sensorControlForm.id === 0 ? null : sensorControlForm.id,
-      chipId: props.chipId,
-      commandGroup: 1,
-      controlName: sensorControlForm.name,
-      controlMessage: JSON.stringify(sensorControlForm.sensor),
-    }).then((res: any) => {
-      if (res.code === 200) {
-        if (sensorControlForm.id === 0) {
-          ElMessage.success('命令创建成功')
-        } else {
-          ElMessage.success('命令修改成功')
-        }
-        selectSensorControlListFun()
-      }
-    })
-  }
-
-  /**
-   * 获取勾选文章id
-   */
-  const checkCommandId = (val: any[]) => {
-    commandIds.splice(0, commandIds.length)
-    for (let i = 0; i < val.length; i++) {
-      //@ts-ignore 单行忽略
-      commandIds.unshift(val[i].id)
-    }
-  }
-
-  /**
-   * 根据id查询传感器控制命令
-   * @param id
-   */
-  const selectSensorControlByIdFun = (id: any) => {
-    selectSensorControlByIdApi(id).then((res: any) => {
-      sensorControlForm.id = res.result.id
-      sensorControlForm.name = res.result.name
-      sensorControlForm.sensor = JSON.parse(res.result.sensor)
-
-      length.value = sensorControlForm.sensor.length
-    })
-  }
-
-  // 修改传感器控制命令
-  const updateSensorControlFun = (id: any) => {
-    dialogFormVisible.value = true
-    selectSensorControlByIdFun(id)
-  }
-
-  // 删除传感器控制命令
-  const deleteSensorControlFun = (id: any) => {
-    if (id === 0) {
-      deleteCommandBtnPopoverByIds.value = false
-      if (commandIds.length !== 0) {
-        deleteSensorControlApi({ ids: commandIds.join() }).then((res: any) => {
-          if (res.code === 200) {
-            ElMessage.success('命令删除成功')
-            selectSensorControlListFun()
-          }
-        })
-      }
-    } else {
-      deleteSensorControlApi({ ids: id }).then((res: any) => {
-        if (res.code === 200) {
-          ElMessage.success('命令删除成功')
-          selectSensorControlListFun()
-        }
-      })
-    }
-  }
-
-  // 根据单片机id查询传感器模板
-  const selectSensorTemplateByChipOrSensorIdFun = () => {
-    selectSensorTemplateByChipOrSensorIdApi({ chipId: props.chipId }).then((res: any) => {
-      if (res.code === 200) {
-        sensorTemplateFrom.data = res.result
-      }
-    })
-  }
-
-  // 发送传感器控制命令
-  const sendSensorControlFun = (id: any) => {
-    sendSensorControlApi({ id: id }).then((res: any) => {
-      if (res.code === 200) {
-        ElMessage.success('命令发送成功')
-      }
-    })
-  }
-
-  return {
-    length,
-    sensorControlForm,
-    sensorList,
-    sensorControlList,
-    deleteCommandBtnPopoverByIds,
-    commandIds,
-    selectSensorListFun,
-    selectSensor,
-    addSensor,
-    deleteSensor,
-    selectSensorControlListFun,
-    saveSensorControlFun,
-    checkCommandId,
-    updateSensorControlFun,
-    deleteSensorControlFun,
-    selectSensorTemplateByChipOrSensorIdFun,
-    selectSensorControlByIdFun,
-    sendSensorControlFun,
-  }
-}
-
-// 页面第一层tab标签
-const activeTab: any = ref('sensorControl')
-// 传感器控制页面tab标签
-const sensorControlActiveTab: any = ref('sensorControl')
-
-// 页面第一层tab标签点击事件
-const activeTabHandleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log(tab, event)
-}
+const activeTab = ref('sensorControl')
+const sensorControlActiveTab = ref('sensorControl')
 
 const dialogTableVisible = ref(false)
 const dialogFormVisible = ref(false)
+
 const formLabelWidth = '140px'
 
-// 创建传感器命令表单
-let formItems: any = reactive({ data: [] })
+const formItems: any = reactive({
+  data: [],
+})
 
-// 舵机表单参数格式
 const duoFrom: any = [
   {
     sensorType: '',
@@ -502,7 +345,6 @@ const duoFrom: any = [
   },
 ]
 
-// 传感器表单赋值
 const setFromItemsFun = (sensorCode: any) => {
   if (sensorCode === 'DUO-180') {
     formItems.data = duoFrom
@@ -558,9 +400,430 @@ const tableData = [
   },
 ]
 
-const props = defineProps({
-  chipId: Number,
+onMounted(() => {
+  selectSensorControlListFun()
+  selectSensorListFun()
+  selectSensorTemplateByChipOrSensorIdFun()
 })
+
+const activeTabHandleClick = (tab: TabsPaneContext, event: Event) => {
+  console.log(tab, event)
+}
+
+function sensorControlFun() {
+  const length = ref(1)
+
+  const commandIds = reactive<any[]>([])
+  const deleteCommandBtnPopoverByIds = ref(false)
+
+  const sensorControlForm = reactive({
+    id: 0,
+    name: '',
+    sensor: [
+      {
+        id: 0,
+        idx: 0,
+        sensorData: {} as any,
+        sensorType: '',
+        sensorCode: '',
+        delay: 0,
+        from: [] as any,
+      },
+    ],
+  })
+
+  const resetSensorControlForm = () => {
+    sensorControlForm.id = 0
+    sensorControlForm.name = ''
+
+    sensorControlForm.sensor.splice(0, sensorControlForm.sensor.length)
+
+    sensorControlForm.sensor.push({
+      id: 0,
+      idx: 0,
+      sensorData: {} as any,
+      sensorType: '',
+      sensorCode: '',
+      delay: 0,
+      from: [],
+    })
+
+    length.value = 1
+  }
+
+  const openCreateDialog = () => {
+    resetSensorControlForm()
+    dialogFormVisible.value = true
+  }
+
+  const sensorControlList: any = reactive({
+    data: [],
+  })
+
+  const sensorList: any = reactive({
+    data: [],
+  })
+
+  const selectSensorListFun = () => {
+    selectSensorListApi({
+      pageNum: 1,
+      pageSize: 20,
+      chipId: props.chipId,
+      sensorControlType: 1,
+    }).then((res: any) => {
+      if (res.code === 200) {
+        sensorList.data = res.result.list || []
+      }
+    })
+  }
+
+  const sensorTemplateFrom: any = reactive({
+    data: [],
+  })
+
+  const selectSensor = (idx: number) => {
+    const sensor = sensorControlForm.sensor[idx]
+
+    if (!sensor || !sensor.sensorData) {
+      return
+    }
+
+    sensor.id = sensor.sensorData.id
+    sensor.sensorType = sensor.sensorData.sensorType
+    sensor.sensorCode = sensor.sensorData.sensorCode
+    sensor.idx = idx
+    sensor.delay = idx === 0 ? 0 : 100
+    sensor.from = []
+
+    for (let i = 0; i < sensorTemplateFrom.data.length; i++) {
+      if (sensor.sensorType === sensorTemplateFrom.data[i].sensorType) {
+        sensor.from = JSON.parse(sensorTemplateFrom.data[i].template)
+        break
+      }
+    }
+  }
+
+  const addSensor = () => {
+    if (length.value >= 20) {
+      ElMessage.error('最多只能添加 20 个传感器')
+      return
+    }
+
+    sensorControlForm.sensor.push({
+      id: 0,
+      idx: length.value,
+      sensorData: {} as any,
+      sensorType: '',
+      sensorCode: '',
+      delay: 100,
+      from: [],
+    })
+
+    length.value++
+  }
+
+  const deleteSensor = () => {
+    if (length.value <= 1) {
+      ElMessage.error('至少保留 1 个传感器')
+      return
+    }
+
+    sensorControlForm.sensor.pop()
+    length.value--
+  }
+
+  const selectSensorControlListFun = () => {
+    selectSensorControlListApi({
+      pageNum: 1,
+      pageSize: 10,
+      chipId: props.chipId,
+    }).then((res: any) => {
+      if (res.code === 200) {
+        sensorControlList.data = res.result.list || []
+      }
+    })
+  }
+
+  const saveSensorControlFun = () => {
+    const isCreate = sensorControlForm.id === 0
+
+    saveSensorControlApi({
+      id: isCreate ? null : sensorControlForm.id,
+      chipId: props.chipId,
+      commandGroup: 1,
+      controlName: sensorControlForm.name,
+      controlMessage: JSON.stringify(sensorControlForm.sensor),
+    }).then((res: any) => {
+      if (res.code === 200) {
+        if (isCreate) {
+          ElMessage.success('命令创建成功')
+        } else {
+          ElMessage.success('命令修改成功')
+        }
+
+        dialogFormVisible.value = false
+
+        resetSensorControlForm()
+
+        selectSensorControlListFun()
+      }
+    })
+  }
+
+  const checkCommandId = (val: any[]) => {
+    commandIds.splice(0, commandIds.length)
+
+    for (let i = 0; i < val.length; i++) {
+      commandIds.unshift(val[i].id)
+    }
+  }
+
+  const selectSensorControlByIdFun = (id: any) => {
+    selectSensorControlByIdApi(id).then((res: any) => {
+      if (res.code === 200) {
+        sensorControlForm.id = res.result.id
+        sensorControlForm.name = res.result.name
+        sensorControlForm.sensor = JSON.parse(res.result.sensor)
+        length.value = sensorControlForm.sensor.length
+      }
+    })
+  }
+
+  const updateSensorControlFun = (id: any) => {
+    resetSensorControlForm()
+
+    dialogFormVisible.value = true
+
+    selectSensorControlByIdFun(id)
+  }
+
+  const deleteSensorControlFun = (id: any) => {
+    if (id === 0) {
+      deleteCommandBtnPopoverByIds.value = false
+
+      if (commandIds.length !== 0) {
+        deleteSensorControlApi({
+          ids: commandIds.join(),
+        }).then((res: any) => {
+          if (res.code === 200) {
+            ElMessage.success('命令删除成功')
+            selectSensorControlListFun()
+          }
+        })
+      }
+    } else {
+      deleteSensorControlApi({
+        ids: id,
+      }).then((res: any) => {
+        if (res.code === 200) {
+          ElMessage.success('命令删除成功')
+          selectSensorControlListFun()
+        }
+      })
+    }
+  }
+
+  const selectSensorTemplateByChipOrSensorIdFun = () => {
+    selectSensorTemplateByChipOrSensorIdApi({
+      chipId: props.chipId,
+    }).then((res: any) => {
+      if (res.code === 200) {
+        sensorTemplateFrom.data = res.result || []
+      }
+    })
+  }
+
+  const sendSensorControlFun = (id: any) => {
+    sendSensorControlApi({
+      id,
+    }).then((res: any) => {
+      if (res.code === 200) {
+        ElMessage.success('命令发送成功')
+      }
+    })
+  }
+
+  return {
+    length,
+    sensorControlForm,
+    sensorList,
+    sensorControlList,
+    deleteCommandBtnPopoverByIds,
+    commandIds,
+    selectSensorListFun,
+    selectSensor,
+    addSensor,
+    deleteSensor,
+    selectSensorControlListFun,
+    saveSensorControlFun,
+    checkCommandId,
+    updateSensorControlFun,
+    deleteSensorControlFun,
+    selectSensorTemplateByChipOrSensorIdFun,
+    selectSensorControlByIdFun,
+    sendSensorControlFun,
+    resetSensorControlForm,
+    openCreateDialog,
+  }
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.sensor-control-page {
+  width: 100%;
+  height: calc(100vh - 230px);
+  min-height: 400px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.main-tabs {
+  height: 100%;
+}
+
+.sensor-control-container {
+  width: 95%;
+  height: calc(100vh - 290px);
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+}
+
+.control-tabs {
+  height: 100%;
+}
+
+.control-content {
+  height: calc(100vh - 335px);
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 12px;
+  flex-shrink: 0;
+}
+
+.table-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sensor-control-table {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.sensor-tag {
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 8px;
+  padding: 0 0 2px;
+  min-height: 32px;
+  flex-shrink: 0;
+}
+
+.delete-popover-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.sensor-command-dialog :deep(.el-dialog__body) {
+  padding-top: 10px;
+  padding-bottom: 5px;
+}
+
+.command-form {
+  width: 100%;
+}
+
+.sensor-command-list {
+  height: 420px;
+  overflow-y: auto;
+  padding: 0 10px 0 0;
+  box-sizing: border-box;
+}
+
+.sensor-command-item {
+  width: 100%;
+}
+
+.sensor-command-item :deep(.el-divider) {
+  margin: 12px 0 18px;
+}
+
+.sensor-command-row {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.sensor-select-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.sensor-parameter-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.sensor-select {
+  width: 100%;
+}
+
+.sensor-command-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding: 0 20px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media screen and (max-width: 1000px) {
+  .sensor-command-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sensor-select-wrapper,
+  .sensor-parameter-wrapper {
+    width: 100%;
+  }
+}
+</style>

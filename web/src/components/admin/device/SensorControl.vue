@@ -4,8 +4,11 @@
       <div class="sensor-info">
         <div class="sensor-title">
           <span class="title">传感器控制</span>
-          <el-tag type="success" size="small">
-            {{ sensor.sensorStatus || '未知' }}
+          <el-tag v-if="sensor.sensorStatus === 1" type="success">
+            {{ deviceStatus(sensor.sensorStatus) }}
+          </el-tag>
+          <el-tag v-else type="warning">
+            {{ deviceStatus(sensor.sensorStatus) }}
           </el-tag>
         </div>
 
@@ -72,7 +75,7 @@
 
       <el-table-column prop="updateTime" label="最近修改时间" width="180" />
 
-      <el-table-column fixed="right" label="操作" width="150" align="center">
+      <el-table-column fixed="right" label="操作" width="175" align="center">
         <template #default="scope">
           <el-button link type="primary" size="small" @click="sendSensorControlFun(scope.row.id)">
             <MyIcon type="icon-send" title="发送命令" />
@@ -199,7 +202,9 @@ import {
 } from '@/api/file'
 
 import icon from '@/utils/icon'
+import mixin from '@/mixins/device'
 
+const { deviceStatus } = mixin()
 const { MyIcon } = icon()
 
 const props = defineProps({
@@ -453,7 +458,7 @@ const selectSensorTemplateByChipOrSensorIdFun = (id: any) => {
 .sensor-control-card {
   margin: 10px 2%;
   width: 94%;
-  height: calc(100vh - 308px);
+  height: calc(100vh - 230px);
   overflow-y: auto;
 }
 
@@ -529,16 +534,16 @@ const selectSensorTemplateByChipOrSensorIdFun = (id: any) => {
 
 .control-table {
   width: 100%;
-  min-height: 388px;
+  height: calc(100vh - 510px);
+  min-height: 300px;
 }
 
 .pagination-wrapper {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
-  padding-bottom: 30px;
+  margin-top: 10px;
+  padding-bottom: 5px;
 }
-
 .dialog-footer {
   display: flex;
   justify-content: flex-end;

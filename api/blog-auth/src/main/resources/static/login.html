@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>用户登录</title>
-
+    <title>我的博客</title>
     <style>
 
         * {
@@ -23,300 +21,283 @@
 
         body {
             overflow: hidden;
-            font-family:
-                    "Microsoft YaHei",
-                    "PingFang SC",
-                    Arial,
-                    sans-serif;
+            font-family: "Microsoft YaHei",
+            "PingFang SC",
+            Arial,
+            sans-serif;
         }
 
 
         /*
-         * ================================
-         * 登录背景
-         * ================================
+         * ========================================
+         * 页面
+         * ========================================
          */
 
         .login-page {
             position: relative;
-
             width: 100%;
             height: 100vh;
-
             display: flex;
             justify-content: center;
             align-items: center;
-
             background-image: url("https://www.loliapi.com/acg/");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
         }
 
-
         /*
          * 背景遮罩
-         *
-         * 防止背景太亮导致登录框
-         * 和文字看不清
          */
 
         .background-overlay {
             position: absolute;
-
             inset: 0;
-
-            background:
-                    linear-gradient(
-                            135deg,
-                            rgba(255, 255, 255, 0.10),
-                            rgba(255, 255, 255, 0.02)
-                    );
-
+            background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.10),
+                    rgba(255, 255, 255, 0.02)
+            );
             pointer-events: none;
         }
 
-
         /*
+         * ========================================
          * 登录卡片
+         * ========================================
          */
 
         .login {
             position: relative;
             z-index: 2;
-
             width: 370px;
-
             padding: 32px 30px 28px;
-
             border-radius: 18px;
-
-            /*
-             * 毛玻璃
-             */
-
-            background:
-                    linear-gradient(
-                            135deg,
-                            rgba(255, 255, 255, 0.68),
-                            rgba(255, 245, 250, 0.52)
-                    );
-
+            background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.68),
+                    rgba(255, 245, 250, 0.52)
+            );
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-
             border: 1px solid rgba(255, 255, 255, 0.65);
-
-            box-shadow:
-                    0 20px 60px rgba(60, 40, 80, 0.20),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.7);
-
+            box-shadow: 0 20px 60px rgba(60, 40, 80, 0.20),
+            inset 0 1px 0 rgba(255, 255, 255, 0.7);
             animation: login-show 0.6s ease;
         }
 
 
-        /*
-         * 登录卡片出现动画
-         */
-
         @keyframes login-show {
-
             from {
                 opacity: 0;
                 transform: translateY(15px) scale(0.98);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
         }
 
-
         /*
+         * ========================================
          * Logo
+         * ========================================
          */
-
         .logo {
             width: 54px;
             height: 54px;
-
             margin: 0 auto 12px;
-
             display: flex;
             justify-content: center;
             align-items: center;
-
             border-radius: 16px;
-
-            background:
-                    linear-gradient(
-                            135deg,
-                            #8b5cf6,
-                            #6366f1
-                    );
-
+            background: linear-gradient(
+                    135deg,
+                    #8b5cf6,
+                    #6366f1
+            );
             color: white;
-
             font-size: 25px;
             font-weight: 600;
-
-            box-shadow:
-                    0 8px 20px rgba(124, 92, 246, 0.28);
+            box-shadow: 0 8px 20px rgba(124, 92, 246, 0.28);
         }
 
-
         /*
+         * ========================================
          * 标题
+         * ========================================
          */
-
         .title {
             text-align: center;
-
             color: #252525;
-
             font-size: 23px;
             font-weight: 600;
-
             letter-spacing: 1px;
         }
 
-
-        /*
-         * 副标题
-         */
-
         .subtitle {
             margin-top: 7px;
-
             text-align: center;
-
             color: rgba(60, 60, 60, 0.60);
-
             font-size: 14px;
         }
 
-
         /*
-         * 表单
+         * ========================================
+         * 登录 / 注册切换
+         * ========================================
          */
+        .switch-tabs {
+            position: relative;
+            display: flex;
+            margin-top: 24px;
+            height: 42px;
+            padding: 4px;
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.42);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+        }
 
-        .login-form {
-            margin-top: 26px;
+        .switch-tab {
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            color: rgba(70, 70, 70, 0.60);
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.25s ease;
+        }
+
+
+        .switch-tab.active {
+            color: #6d51d9;
+            font-weight: 500;
         }
 
 
         /*
-         * 输入框容器
+         * 滑动背景
          */
+        .switch-slider {
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.72);
+            box-shadow: 0 2px 8px rgba(90, 70, 130, 0.08);
+            transition: transform 0.28s cubic-bezier(.4, 0, .2, 1);
+        }
 
+        .switch-slider.register {
+            transform: translateX(100%);
+        }
+
+        /*
+         * ========================================
+         * 表单
+         * ========================================
+         */
+        .form-container {
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .form-panel {
+            display: none;
+            animation: form-show 0.28s ease;
+        }
+
+        .form-panel.active {
+            display: block;
+        }
+
+        @keyframes form-show {
+            from {
+                opacity: 0;
+                transform: translateX(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /*
+         * ========================================
+         * 输入框
+         * ========================================
+         */
         .input-wrapper {
             position: relative;
-
             margin-top: 14px;
         }
-
-
-        /*
-         * 第一个输入框不需要顶部间距
-         */
 
         .input-wrapper:first-child {
             margin-top: 0;
         }
 
-
-        /*
-         * 输入框
-         */
-
         .input-wrapper input {
             width: 100%;
             height: 52px;
-
-            padding:
-                    18px 44px 5px 14px;
-
+            padding: 18px 44px 5px 14px;
             border-radius: 11px;
-
             border: 1px solid rgba(124, 92, 246, 0.28);
-
             outline: none;
-
             color: #333;
-
             font-size: 14px;
-
-            background:
-                    linear-gradient(
-                            135deg,
-                            rgba(225, 248, 255, 0.68),
-                            rgba(255, 232, 242, 0.60)
-                    );
-
-            transition:
-                    border-color 0.2s ease,
-                    box-shadow 0.2s ease,
-                    background 0.2s ease;
+            background: linear-gradient(
+                    135deg,
+                    rgba(225, 248, 255, 0.68),
+                    rgba(255, 232, 242, 0.60)
+            );
+            transition: border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            background 0.2s ease;
         }
-
-
-        /*
-         * 输入框获得焦点
-         */
 
         .input-wrapper input:focus {
             border-color: rgba(124, 92, 246, 0.65);
-
-            box-shadow:
-                    0 0 0 3px rgba(124, 92, 246, 0.10);
+            box-shadow: 0 0 0 3px rgba(124, 92, 246, 0.10);
         }
-
 
         /*
          * 输入框 Label
          */
-
         .input-label {
             position: absolute;
-
             left: 14px;
             top: 7px;
-
             color: rgba(50, 50, 50, 0.62);
-
             font-size: 11px;
-
             pointer-events: none;
         }
 
-
         /*
+         * ========================================
          * 密码显示按钮
+         * ========================================
          */
-
         .password-toggle {
             position: absolute;
-
             right: 12px;
             top: 50%;
-
             width: 28px;
             height: 28px;
-
             transform: translateY(-30%);
-
             display: flex;
             justify-content: center;
             align-items: center;
-
             border: none;
             background: transparent;
-
             color: rgba(70, 70, 70, 0.58);
-
             cursor: pointer;
-
             font-size: 17px;
         }
 
@@ -324,25 +305,21 @@
             color: #7c5cf6;
         }
 
-
         /*
+         * ========================================
          * 忘记密码
+         * ========================================
          */
-
         .forgot-password {
             display: flex;
             justify-content: flex-end;
-
             margin-top: 10px;
         }
 
         .forgot-password a {
             color: #8067dc;
-
             font-size: 13px;
-
             text-decoration: none;
-
             transition: color 0.2s;
         }
 
@@ -350,49 +327,35 @@
             color: #6848d8;
         }
 
-
         /*
-         * 登录按钮
+         * ========================================
+         * 按钮
+         * ========================================
          */
-
         .login-button {
             width: 100%;
             height: 43px;
-
             margin-top: 16px;
-
             border: none;
             border-radius: 11px;
-
-            background:
-                    linear-gradient(
-                            135deg,
-                            #8b63ed,
-                            #7658e9
-                    );
-
+            background: linear-gradient(
+                    135deg,
+                    #8b63ed,
+                    #7658e9
+            );
             color: #fff;
-
             font-size: 14px;
             font-weight: 500;
-
             cursor: pointer;
-
-            box-shadow:
-                    0 7px 18px rgba(124, 92, 246, 0.25);
-
-            transition:
-                    transform 0.15s ease,
-                    box-shadow 0.2s ease,
-                    filter 0.2s ease;
+            box-shadow: 0 7px 18px rgba(124, 92, 246, 0.25);
+            transition: transform 0.15s ease,
+            box-shadow 0.2s ease,
+            filter 0.2s ease;
         }
 
         .login-button:hover {
             filter: brightness(1.06);
-
-            box-shadow:
-                    0 9px 22px rgba(124, 92, 246, 0.32);
-
+            box-shadow: 0 9px 22px rgba(124, 92, 246, 0.32);
             transform: translateY(-1px);
         }
 
@@ -400,292 +363,279 @@
             transform: translateY(0);
         }
 
+        /*
+         * 注册页面按钮
+         */
+        .register-button {
+            margin-top: 16px;
+        }
 
         /*
-         * 注册
+         * ========================================
+         * 底部提示
+         * ========================================
          */
-
-        .register {
+        .form-footer {
             margin-top: 18px;
-
             text-align: center;
-
             color: rgba(50, 50, 50, 0.72);
-
             font-size: 13px;
         }
 
-        .register a {
+        .form-footer a {
             margin-left: 4px;
-
             color: #8067dc;
-
             text-decoration: none;
+            cursor: pointer;
         }
 
-        .register a:hover {
+        .form-footer a:hover {
             color: #6848d8;
         }
 
-
         /*
+         * ========================================
          * Toast
+         * ========================================
          */
-
         .toast {
             position: fixed;
-
             top: 30px;
             left: 50%;
-
             z-index: 9999;
-
             padding: 11px 22px;
-
-            transform:
-                    translateX(-50%)
-                    translateY(-20px);
-
+            transform: translateX(-50%) translateY(-20px);
             background: rgba(30, 30, 30, 0.78);
-
             backdrop-filter: blur(10px);
-
             color: #fff;
-
             border-radius: 9px;
-
             font-size: 14px;
-
             opacity: 0;
             visibility: hidden;
-
             transition: all 0.3s ease;
-
             white-space: nowrap;
         }
 
         .toast.show {
             opacity: 1;
             visibility: visible;
-
-            transform:
-                    translateX(-50%)
-                    translateY(0);
+            transform: translateX(-50%) translateY(0);
         }
 
 
         /*
-         * ================================
+         * ========================================
          * 移动端
-         * ================================
+         * ========================================
          */
-
         @media (max-width: 600px) {
-
             .login {
                 width: calc(100% - 32px);
-
                 max-width: 370px;
-
-                padding:
-                        28px 22px 25px;
-
+                padding: 28px 22px 25px;
                 border-radius: 16px;
             }
 
             .title {
                 font-size: 21px;
             }
-
         }
 
-
         /*
+         * ========================================
          * 高度较小时
+         * ========================================
          */
-
         @media (max-height: 650px) {
-
             .login {
                 padding-top: 22px;
                 padding-bottom: 20px;
             }
-
             .logo {
                 width: 45px;
                 height: 45px;
-
                 margin-bottom: 8px;
             }
-
-            .login-form {
-                margin-top: 18px;
+            .switch-tabs {
+                margin-top: 16px;
             }
-
+            .form-container {
+                margin-top: 14px;
+            }
         }
-
     </style>
 </head>
 
 
 <body>
 
-<div
-        class="login-page"
-        id="loginPage"
->
-
+<div class="login-page" id="loginPage">
     <div class="background-overlay"></div>
-
-
     <div class="login">
-
         <!-- Logo -->
         <div class="logo">
             B
         </div>
-
 
         <!-- 标题 -->
         <div class="title">
             我的博客
         </div>
 
-
         <!-- 副标题 -->
         <div class="subtitle">
             欢迎回来
         </div>
 
-
-        <!-- 登录表单 -->
-        <form
-                class="login-form"
-                method="post"
-                action="/auth/login"
-        >
-
-            <!-- 用户名 -->
-            <div class="input-wrapper">
-
-                <label class="input-label">
-                    用户名
-                </label>
-
-                <input
-                        type="text"
-                        name="username"
-                        autocomplete="username"
-                        required
-                >
-
-            </div>
-
-
-            <!-- 密码 -->
-            <div class="input-wrapper">
-
-                <label class="input-label">
-                    密码
-                </label>
-
-                <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        autocomplete="current-password"
-                        required
-                >
-
-                <button
-                        type="button"
-                        class="password-toggle"
-                        id="passwordToggle"
-                        aria-label="显示密码"
-                >
-                    ◉
-                </button>
-
-            </div>
-
-
-            <!-- 忘记密码 -->
-            <div class="forgot-password">
-
-                <a href="/auth/forgot-password">
-                    忘记密码？
-                </a>
-
-            </div>
-
-
-            <!-- 登录 -->
-            <button
-                    type="submit"
-                    class="login-button"
-            >
-                登录账号
+        <!-- ========================================
+             登录 / 注册切换
+             ======================================== -->
+        <div class="switch-tabs">
+            <div class="switch-slider" id="switchSlider"></div>
+            <button type="button" class="switch-tab active" id="loginTab">
+                登录
             </button>
-
-        </form>
-
-
-        <!-- 注册 -->
-        <div class="register">
-
-            还没有账号？
-
-            <a href="/auth/register">
-                注册一个
-            </a>
-
+            <button type="button" class="switch-tab" id="registerTab">
+                注册
+            </button>
         </div>
 
-    </div>
+        <!-- ========================================
+             表单区域
+             ======================================== -->
+        <div class="form-container">
+            <!-- ====================================
+                 登录
+                 ==================================== -->
+            <div class="form-panel active" id="loginPanel">
+                <form method="post" action="/auth/login">
+                    <!-- 用户名 -->
+                    <div class="input-wrapper">
+                        <label class="input-label">
+                            用户名
+                        </label>
+                        <label>
+                            <input type="text" name="username" autocomplete="username" required>
+                        </label>
+                    </div>
 
+                    <!-- 密码 -->
+                    <div class="input-wrapper">
+                        <label class="input-label">
+                            密码
+                        </label>
+                        <label for="loginPassword">
+                            <input id="loginPassword" type="password" name="password" autocomplete="current-password" required>
+                        </label>
+
+                        <button type="button" class="password-toggle" data-password="loginPassword" aria-label="显示密码">
+                            ◉
+                        </button>
+                    </div>
+
+                    <!-- 忘记密码 -->
+                    <div class="forgot-password">
+                        <a href="/auth/forgot-password">
+                            忘记密码？
+                        </a>
+                    </div>
+
+                    <!-- 登录 -->
+                    <button type="submit" class="login-button">
+                        登录账号
+                    </button>
+                </form>
+
+                <div class="form-footer">
+                    还没有账号？
+                    <a href="javascript:void(0)" id="goRegister">
+                        注册一个
+                    </a>
+                </div>
+            </div>
+
+            <!-- ====================================
+                 注册
+                 ==================================== -->
+            <div class="form-panel" id="registerPanel">
+                <form method="post" action="/auth/register">
+                    <!-- 用户名 -->
+                    <div class="input-wrapper">
+                        <label class="input-label">
+                            用户名
+                        </label>
+                        <label>
+                            <input type="text" name="username" autocomplete="username" required>
+                        </label>
+                    </div>
+
+                    <!-- 密码 -->
+                    <div class="input-wrapper">
+                        <label class="input-label">
+                            密码
+                        </label>
+                        <label for="registerPassword">
+                            <input id="registerPassword" type="password" name="password" autocomplete="new-password" required>
+                        </label>
+                        <button type="button" class="password-toggle" data-password="registerPassword" aria-label="显示密码">
+                            ◉
+                        </button>
+                    </div>
+
+                    <!-- 注册 -->
+                    <button type="submit" class="login-button register-button">
+                        创建账号
+                    </button>
+                </form>
+
+                <div class="form-footer">
+                    已有账号？
+                    <a href="javascript:void(0)" id="goLogin">
+                        返回登录
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-
 <!-- Toast -->
-<div
-        id="toast"
-        class="toast"
-></div>
-
+<div id="toast" class="toast"></div>
 
 <script>
 
     /*
      * ========================================
-     * 登录页面配置
+     * 页面配置
      * ========================================
      *
-     * 后续你只需要修改这里，
-     * 就可以更换登录页面壁纸。
-     *
-     * 例如：
+     * 后续修改这里即可。
      *
      * background:
-     *     "/auth/images/login-bg.jpg"
+     *
+     * "/auth/images/login-bg.jpg"
+     *
+     * 或者：
+     *
+     * "https://www.loliapi.com/acg/"
      *
      */
 
     const LOGIN_CONFIG = {
 
-        background:
-            "/auth/images/login-bg.jpg",
+        background: "https://www.loliapi.com/acg/",
 
-        title:
-            "我的博客",
+        title: "我的博客",
 
-        subtitle:
-            "欢迎回来"
+        subtitle: "欢迎回来"
 
     };
 
 
     /*
-     * 设置背景
+     * ========================================
+     * 初始化页面
+     * ========================================
      */
 
     document.documentElement.style.setProperty(
@@ -694,63 +644,144 @@
     );
 
 
-    /*
-     * 设置标题
-     */
-
     document.querySelector(".title").textContent =
         LOGIN_CONFIG.title;
 
-
-    /*
-     * 设置副标题
-     */
 
     document.querySelector(".subtitle").textContent =
         LOGIN_CONFIG.subtitle;
 
 
     /*
-     * 密码显示 / 隐藏
+     * ========================================
+     * 登录 / 注册切换
+     * ========================================
      */
 
-    const password =
-        document.getElementById("password");
+    const loginTab =
+        document.getElementById("loginTab");
 
-    const passwordToggle =
-        document.getElementById("passwordToggle");
+    const registerTab =
+        document.getElementById("registerTab");
+
+    const loginPanel =
+        document.getElementById("loginPanel");
+
+    const registerPanel =
+        document.getElementById("registerPanel");
+
+    const switchSlider =
+        document.getElementById("switchSlider");
 
 
-    passwordToggle.addEventListener(
+    function switchMode(mode) {
+
+        if (mode === "register") {
+
+            loginTab.classList.remove("active");
+
+            registerTab.classList.add("active");
+
+            loginPanel.classList.remove("active");
+
+            registerPanel.classList.add("active");
+
+            switchSlider.classList.add("register");
+
+            document.title =
+                "注册 - " + LOGIN_CONFIG.title;
+
+        } else {
+
+            registerTab.classList.remove("active");
+
+            loginTab.classList.add("active");
+
+            registerPanel.classList.remove("active");
+
+            loginPanel.classList.add("active");
+
+            switchSlider.classList.remove("register");
+
+            document.title =
+                "登录 - " + LOGIN_CONFIG.title;
+        }
+    }
+
+    loginTab.addEventListener(
         "click",
         function () {
-
-            if (password.type === "password") {
-
-                password.type = "text";
-
-                passwordToggle.textContent = "◎";
-
-                passwordToggle.setAttribute(
-                    "aria-label",
-                    "隐藏密码"
-                );
-
-            } else {
-
-                password.type = "password";
-
-                passwordToggle.textContent = "◉";
-
-                passwordToggle.setAttribute(
-                    "aria-label",
-                    "显示密码"
-                );
-
-            }
-
+            switchMode("login");
         }
     );
+
+
+    registerTab.addEventListener(
+        "click",
+        function () {
+            switchMode("register");
+        }
+    );
+
+
+    document.getElementById("goRegister")
+        .addEventListener(
+            "click",
+            function () {
+                switchMode("register");
+            }
+        );
+
+
+    document.getElementById("goLogin")
+        .addEventListener(
+            "click",
+            function () {
+                switchMode("login");
+            }
+        );
+
+
+    /*
+     * ========================================
+     * 密码显示 / 隐藏
+     * ========================================
+     */
+    document
+        .querySelectorAll(".password-toggle")
+        .forEach(function (button) {
+            button.addEventListener("click",
+                function () {
+
+                    const passwordId = button.dataset.password;
+
+                    const password = document.getElementById(passwordId);
+
+                    if (password.type === "password") {
+
+                        password.type = "text";
+
+                        button.textContent = "◎";
+
+                        button.setAttribute(
+                            "aria-label",
+                            "隐藏密码"
+                        );
+
+                    } else {
+
+                        password.type = "password";
+
+                        button.textContent = "◉";
+
+                        button.setAttribute(
+                            "aria-label",
+                            "显示密码"
+                        );
+                    }
+                }
+            );
+        });
 
 
     /*
@@ -758,41 +789,60 @@
      * Toast
      * ========================================
      */
-
     const params =
         new URLSearchParams(
             window.location.search
         );
 
-    const success =
-        params.get("success");
+    const success = params.get("success");
 
+    const error = params.get("error");
 
     function showToast(message) {
 
-        const toast =
-            document.getElementById("toast");
+        const toast = document.getElementById("toast");
 
         toast.textContent = message;
 
         toast.classList.add("show");
 
-        setTimeout(function () {
-
-            toast.classList.remove("show");
-
-        }, 2500);
-
+        setTimeout(
+            function () {
+                toast.classList.remove("show");
+            },
+            3000
+        );
     }
 
 
     /*
+     * ========================================
      * 注册成功
+     * ========================================
+     */
+    if (success === "register") {
+        showToast("注册成功，请登录");
+        switchMode("login");
+    }
+
+    /*
+     * ========================================
+     * 注册失败
+     * ========================================
+     */
+    if (error === "register_failed") {
+        switchMode("register");
+        showToast("注册失败，请检查用户名和密码");
+    }
+
+
+    /*
+     * 用户已存在
      */
 
-    if (success === "register") {
-
-        showToast("注册成功，请登录");
+    if (error === "user_exist") {
+        switchMode("register");
+        showToast("用户名已存在");
 
     }
 

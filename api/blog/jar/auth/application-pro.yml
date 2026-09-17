@@ -9,7 +9,7 @@ jasypt:
     password: gszero
 
 auth:
-  issuer: http://${devServiceIp}:60002/auth
+  issuer: http://${devServiceIp}:60001/auth
 
 #logging:
 #  level:

@@ -15,9 +15,7 @@ fi
 docker run -d \
   --name ${blogAuth} \
   --restart=always \
-  --network blog_network \
-  --ip 172.18.0.22 \
-  -p 60002:60002 \
+  --network host \
   -v /opt/docker/files/logs:/opt/logs \
   -v /opt/docker/files/:/opt/docker/files/ \
   ${blogAuth}:3.0

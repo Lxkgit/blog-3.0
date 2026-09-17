@@ -15,9 +15,7 @@ fi
 docker run -d \
   --name ${blogGateway} \
   --restart=always \
-  --network blog_network \
-  --ip 172.18.0.21 \
-  -p 60001:60001 \
+  --network host \
   -v /opt/docker/files/logs:/opt/logs \
   -v /opt/docker/files/:/opt/docker/files/ \
   ${blogGateway}:3.0

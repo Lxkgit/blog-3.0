@@ -12,7 +12,7 @@ spring:
     name: blog-file
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.18.0.3:3306/blog_file?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${devServiceIp}:3306/blog_file?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
     username: root
     password: ENC(CHAMoyE8XiIijQ7z2dhetMNMdeNXZhohLXw8mQ6KniCHgGtzfGHCyg==)
   servlet:
@@ -22,7 +22,7 @@ spring:
   data:
     redis:
       database: 0
-      host: 172.18.0.6
+      host: ${devServiceIp}
       port: 6379
       password: ENC(o8ZdpLA+3lVokD4Xd5801OYjaJCXdtKIUqPbz8+fU8s=)
   security:
@@ -30,10 +30,10 @@ spring:
       resourceserver:
         jwt:
           #访问授权服务器 在OIDC中是一个非常重要的标识符，有助于标识身份提供者和验证ID Token
-          issuer-uri: http://172.18.0.22:60002/auth
+          issuer-uri: http://${devServiceIp}:60002/auth
 
 rocketmq:
-  name-server: 172.18.0.8:9876 # 访问地址
+  name-server: ${devServiceIp}:9876 # 访问地址
   producer:
     group: blog-file # 必须指定group
     send-message-timeout: 3000 # 消息发送超时时长，默认3s
@@ -41,7 +41,7 @@ rocketmq:
     retry-times-when-send-async-failed: 3 # 异步发送消息失败重试次数，默认2
   consumer:
     groupName: blog-file
-    namesrvAddr: 172.18.0.8:9876 # mq的nameserver地址
+    namesrvAddr: ${devServiceIp}:9876 # mq的nameserver地址
     #该消费者订阅的主题和tags("*"号表示订阅该主题下所有的tags),格式：topic~tag1||tag2||tag3;topic2~*;
     topics: BLOG_USER_DATA~*;BLOG_SYSTEM_DATA~*;
     consumeThreadMin: 20
@@ -51,7 +51,7 @@ rocketmq:
 
 easy-es:
   enable: true
-  address : 172.18.0.10:9200
+  address : ${devServiceIp}:9200
   schema: http
   username: elastic
   password: ENC(j3dQw+Kb0iGoyP2facAeOOCbqisES4HLP9NMuKIj/s9fXTtoOzHHXw==)

@@ -15,9 +15,7 @@ fi
 docker run -d \
   --name ${blogContent} \
   --restart=always \
-  --network blog_network \
-  --ip 172.18.0.23 \
-  -p 60003:60003 \
+  --network host \
   -v /opt/docker/files/logs:/opt/logs \
   -v /opt/docker/files/:/opt/docker/files/ \
   ${blogContent}:3.0

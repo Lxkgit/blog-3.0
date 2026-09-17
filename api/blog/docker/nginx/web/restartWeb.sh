@@ -8,8 +8,7 @@ else
     docker run -d \
         --name nginx-web \
         --restart=always \
-        --network blog_network \
-        --ip 172.18.0.32 \
+        --network host \
         -v /opt/docker/nginx/web/conf/nginx.conf:/etc/nginx/nginx.conf:ro \
         -v /opt/docker/nginx/web/html:/usr/share/nginx/html:ro \
         -v /opt/docker/nginx/web/logs:/var/log/nginx \

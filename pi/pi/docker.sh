@@ -321,10 +321,7 @@ startPISci() {
   libjpeg-dev libpng-dev libtiff-dev libepoxy-dev libdrm-dev libwebp-dev libx11-dev libevent-dev libyaml-dev libudev-dev \
   libegl1-mesa-dev libgles2-mesa-dev ffmpeg v4l-utils
 
-  #################################################
   # 编译 libcamera
-  #################################################
-
   echo "开始安装 libcamera 0.7.0"
 
   # 删除 Ubuntu 自带版本，避免冲突
@@ -343,18 +340,14 @@ startPISci() {
   ninja -C build install
   ldconfig
 
-  #################################################
   # 设置 pkg-config
-  #################################################
   echo "配置 libcamera pkg-config"
   export PKG_CONFIG_PATH=/usr/local/lib/aarch64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
   echo "export PKG_CONFIG_PATH=/usr/local/lib/aarch64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:\$PKG_CONFIG_PATH" >> /etc/profile
   echo "检查 libcamera"
   pkg-config --modversion libcamera
 
-  #################################################
   # 编译 rpicam-apps
-  #################################################
   echo "开始编译 rpicam-apps"
   unzip /opt/package/csi/libcamera-apps.zip -d /root
   cd /root/libcamera-apps || exit 1
@@ -366,16 +359,12 @@ startPISci() {
   ninja -C build
   ninja -C build install
 
-  #################################################
   # 动态库配置
-  #################################################
   echo "/usr/local/lib" > /etc/ld.so.conf.d/rpicam.conf
   echo "/usr/local/lib/aarch64-linux-gnu" >> /etc/ld.so.conf.d/rpicam.conf
   ldconfig
 
-  #################################################
   # 验证
-  #################################################
   echo "安装完成"
   echo "libcamera版本:"
   pkg-config --modversion libcamera

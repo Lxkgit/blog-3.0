@@ -61,4 +61,4 @@ def setup_logger(
 
 
 # 全局单例
-logger = setup_logger(log_file='blog-python.log', max_size=20, backup_count=7, log_level=logging.INFO)
+logger = setup_logger(log_file='/opt/soft/socket/blog-python.log', max_size=20, backup_count=7, log_level=logging.INFO)

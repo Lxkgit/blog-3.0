@@ -34,8 +34,8 @@ public class CalendarController {
     /**
      * 根据ID查询
      */
-    @GetMapping("/select/{id}")
-    public Result getById(@PathVariable Long id) {
+    @GetMapping("/select/id")
+    public Result getById(@RequestParam("id") Integer id) {
         return ResultFactory.buildSuccessResult(calendarService.getById(id));
     }
 

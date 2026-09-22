@@ -20,7 +20,7 @@ public interface CalendarService {
     /**
      * 根据ID查询
      */
-    BlogCalendar getById(Long id);
+    BlogCalendar getById(Integer id);
 
     /**
      * 查询全部

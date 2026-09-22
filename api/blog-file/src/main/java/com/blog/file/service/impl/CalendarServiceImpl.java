@@ -40,7 +40,7 @@ public class CalendarServiceImpl implements CalendarService {
      * 根据ID查询
      */
     @Override
-    public BlogCalendar getById(Long id) {
+    public BlogCalendar getById(Integer id) {
         return blogCalendarMapper.selectById(id);
     }
 

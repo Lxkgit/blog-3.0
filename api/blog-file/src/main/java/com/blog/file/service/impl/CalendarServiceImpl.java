@@ -64,7 +64,7 @@ public class CalendarServiceImpl implements CalendarService {
      * 删除
      */
     @Override
-    public boolean removeById(Long id) {
+    public boolean removeById(Integer id) {
         return blogCalendarMapper.deleteById(id) > 0;
     }
 

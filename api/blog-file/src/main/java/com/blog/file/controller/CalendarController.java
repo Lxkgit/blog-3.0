@@ -60,8 +60,8 @@ public class CalendarController {
     /**
      * 删除日历记录
      */
-    @DeleteMapping("/delete/{id}")
-    public Result removeById(@PathVariable Long id) {
+    @DeleteMapping("/delete/id")
+    public Result removeById(@RequestParam("id") Integer id) {
         return ResultFactory.buildSuccessResult(calendarService.removeById(id));
     }
 }

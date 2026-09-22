@@ -35,7 +35,7 @@ public interface CalendarService {
     /**
      * 删除
      */
-    boolean removeById(Long id);
+    boolean removeById(Integer id);
 
     /**
      * 查询指定月份的全部日历记录

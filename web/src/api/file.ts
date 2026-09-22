@@ -347,7 +347,7 @@ export const updateCalendarApi = (params: any) => {
 
 // 删除日历记录
 export const deleteCalendarApi = (id: any) => {
-    const uri = "/file/calendar/delete/" + id
+    const uri = "/file/calendar/delete/id?id=" + id
     return api.delete(uri)
 }
 

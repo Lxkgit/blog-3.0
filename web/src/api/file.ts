@@ -317,6 +317,37 @@ export const getCameraTokenApi = (stream: any) => {
     return api.post(uri)
 }
 
+// --------------博客日历接口-------------
 
+// 新增日历记录
+export const saveCalendarApi = (params: any) => {
+    const uri = "/file/calendar/save"
+    return api.post(uri, params)
+}
 
+// 根据ID查询日历记录
+export const selectCalendarByIdApi = (id: any) => {
+    const uri = "/file/calendar/select/" + id
+    return api.get(uri)
+
+}
+
+// 查询指定月份的全部日历记录
+// params: { year: 2026, month: 9 }
+export const selectCalendarMonthApi = (params: any) => {
+    const uri = "/file/calendar/select/month"
+    return api.get(uri, params)
+}
+
+// 修改日历记录
+export const updateCalendarApi = (params: any) => {
+    const uri = "/file/calendar/update"
+    return api.put(uri, params)
+}
+
+// 删除日历记录
+export const deleteCalendarApi = (id: any) => {
+    const uri = "/file/calendar/delete/" + id
+    return api.delete(uri)
+}
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blog.file.mapper.BlogCalendarMapper">
+
+    <resultMap id="BaseResultMap" type="com.blog.core.domain.file.calendar.entity.BlogCalendar">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="source_type" property="sourceType"/>
+        <result column="record_type" property="recordType"/>
+        <result column="source_id" property="sourceId"/>
+        <result column="title" property="title"/>
+        <result column="event_date" property="eventDate"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="remind_time" property="remindTime"/>
+        <result column="completed" property="completed"/>
+        <result column="repeat_type" property="repeatType"/>
+        <result column="remark" property="remark"/>
+        <result column="sort" property="sort"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, source_type, record_type, source_id, title, event_date, start_time, end_time, remind_time,
+        completed, repeat_type, remark, sort, create_time, update_time
+    </sql>
+
+</mapper>

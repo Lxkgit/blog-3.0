@@ -16,8 +16,8 @@ declare -gA SERVICE_LOG
 
 # Python Socket
 SERVICE_NAME[socket]="web_socket"
-SERVICE_MATCH[socket]="/opt/soft/socket/code/web_socket.py --ip 172.18.0.5 --port 10201 --path /socket/python/localhost"
-SERVICE_CMD[socket]="$PYTHON_BIN /opt/soft/socket/code/web_socket.py --ip 172.18.0.5 --port 10201 --path /socket/python/localhost"
+SERVICE_MATCH[socket]="/opt/soft/socket/code/web_socket.py --ip 127.0.0.1 --port 10201 --path /socket/python/localhost"
+SERVICE_CMD[socket]="$PYTHON_BIN /opt/soft/socket/code/web_socket.py --ip 127.0.0.1 --port 10201 --path /socket/python/localhost"
 SERVICE_LOG[socket]="/opt/soft/socket/blog_socket.log"
 
 # frpc

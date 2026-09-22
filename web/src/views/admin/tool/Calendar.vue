@@ -493,7 +493,7 @@ const loadCalendar = async () => {
     } else {
       calendarEvents.value = []
 
-      ElMessage.error(res.message || '获取日历失败')
+      ElMessage.error('获取日历失败')
     }
   } catch (error) {
     calendarEvents.value = []
@@ -624,7 +624,7 @@ const openEditDialog = async (id: number) => {
     const res: any = await selectCalendarByIdApi(id)
 
     if (res.code !== 200) {
-      ElMessage.error(res.message || '获取日程失败')
+      ElMessage.error('获取日程失败')
 
       return
     }
@@ -721,7 +721,7 @@ const saveCalendar = async () => {
 
       await loadCalendar()
     } else {
-      ElMessage.error(res.message || (isEdit.value ? '修改失败' : '创建失败'))
+      ElMessage.error(res.result || (isEdit.value ? '修改失败' : '创建失败'))
     }
   } catch (error) {
     ElMessage.error(isEdit.value ? '修改失败' : '创建失败')
@@ -755,7 +755,7 @@ const deleteCalendar = async () => {
 
       await loadCalendar()
     } else {
-      ElMessage.error(res.message || '删除失败')
+      ElMessage.error('删除失败')
     }
   } catch (error) {
     // 用户取消删除

@@ -1,6 +1,8 @@
 package com.blog.file.controller;
 
 import com.blog.core.domain.file.calendar.entity.BlogCalendar;
+import com.blog.core.result.Result;
+import com.blog.core.result.ResultFactory;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.file.service.CalendarService;
 import jakarta.annotation.Resource;
@@ -25,16 +27,16 @@ public class CalendarController {
      * 新增日历记录
      */
     @PostMapping("/save")
-    public boolean save(@RequestBody BlogCalendar calendar) {
-        return calendarService.save(calendar);
+    public Result save(@RequestBody BlogCalendar calendar) {
+        return ResultFactory.buildSuccessResult(calendarService.save(calendar));
     }
 
     /**
      * 根据ID查询
      */
     @GetMapping("/select/{id}")
-    public BlogCalendar getById(@PathVariable Long id) {
-        return calendarService.getById(id);
+    public Result getById(@PathVariable Long id) {
+        return ResultFactory.buildSuccessResult(calendarService.getById(id));
     }
 
     /**
@@ -42,24 +44,24 @@ public class CalendarController {
      * 示例：GET /calendar/select/month?year=2026&month=9
      */
     @GetMapping("/select/month")
-    public List<BlogCalendar> listByMonth(@RequestParam("year") Integer year, @RequestParam("month") Integer month) {
+    public Result listByMonth(@RequestParam("year") Integer year, @RequestParam("month") Integer month) {
         Integer userId = SecurityUtil.getLoginUser().getId();
-        return calendarService.listByMonth(userId, year, month);
+        return ResultFactory.buildSuccessResult(calendarService.listByMonth(userId, year, month));
     }
 
     /**
      * 修改日历记录
      */
     @PutMapping("/update")
-    public boolean updateById(@RequestBody BlogCalendar calendar) {
-        return calendarService.updateById(calendar);
+    public Result updateById(@RequestBody BlogCalendar calendar) {
+        return ResultFactory.buildSuccessResult(calendarService.updateById(calendar));
     }
 
     /**
      * 删除日历记录
      */
     @DeleteMapping("/delete/{id}")
-    public boolean removeById(@PathVariable Long id) {
-        return calendarService.removeById(id);
+    public Result removeById(@PathVariable Long id) {
+        return ResultFactory.buildSuccessResult(calendarService.removeById(id));
     }
 }

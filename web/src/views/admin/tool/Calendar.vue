@@ -102,7 +102,11 @@
 
         <!-- 类型 -->
         <el-form-item label="类型">
-          <el-radio-group v-model="calendarForm.recordType" :disabled="isEdit">
+          <el-radio-group
+            :model-value="calendarForm.recordType"
+            :disabled="isEdit"
+            @update:model-value="(value) => (calendarForm.recordType = Number(value))"
+          >
             <el-radio :value="1"> 日程 </el-radio>
 
             <el-radio :value="2"> 闹钟 </el-radio>
@@ -173,7 +177,8 @@
         <!-- 完成状态 -->
         <el-form-item v-if="isEdit" label="完成">
           <el-switch
-            v-model="calendarForm.completed"
+            :model-value="calendarForm.completed === 1"
+            @update:model-value="(value) => (calendarForm.completed = value ? 1 : 0)"
             :active-value="1"
             :inactive-value="0"
             active-text="已完成"
@@ -286,9 +291,32 @@ interface CalendarEvent {
 }
 
 /**
+ * 日历表单类型
+ *
+ * 这里显式指定类型，避免 Element Plus
+ * el-radio-group / el-switch 出现
+ * string | number | boolean 类型冲突。
+ */
+interface CalendarForm {
+  id: number
+  sourceType: number
+  recordType: number
+  sourceId: number | null
+  title: string
+  eventDate: string
+  startTime: string
+  endTime: string
+  remindTime: string
+  completed: number
+  repeatType: number
+  remark: string
+  sort: number
+}
+
+/**
  * 日期格式化
  *
- * 不使用 padStart，避免项目 TS lib 版本过低导致报错
+ * 不使用 padStart，避免 TS lib 版本问题。
  */
 const formatDate = (date: Date) => {
   const year = date.getFullYear()
@@ -304,7 +332,7 @@ const formatDate = (date: Date) => {
 
 /* ==================== 日历状态 ==================== */
 
-const currentDate = ref(new Date())
+const currentDate = ref<Date>(new Date())
 
 const calendarEvents = ref<CalendarEvent[]>([])
 
@@ -340,29 +368,31 @@ const dayDialogTitle = computed(() => {
 
 /* ==================== 表单 ==================== */
 
-/**
- * 注意：
- *
- * startTime / endTime / remindTime
- * 使用 string，不再使用 string | null
- *
- * 空值使用 ''
- *
- * 这样可以直接兼容 Element Plus DatePicker
- */
-const calendarForm = ref({
+const calendarForm = ref<CalendarForm>({
   id: 0,
+
   sourceType: 2,
+
   recordType: 1,
-  sourceId: null as number | null,
+
+  sourceId: null,
+
   title: '',
+
   eventDate: '',
+
   startTime: '',
+
   endTime: '',
+
   remindTime: '',
+
   completed: 0,
+
   repeatType: 0,
+
   remark: '',
+
   sort: 0,
 })
 
@@ -405,6 +435,7 @@ const calendarDays = computed(() => {
 
     days.push({
       date,
+
       isCurrentMonth:
         date.getMonth() === currentDate.value.getMonth() &&
         date.getFullYear() === currentDate.value.getFullYear(),
@@ -492,7 +523,6 @@ const handleDayClick = (date: Date) => {
 
   /*
    * 点击其他月份日期
-   * 自动切换月份
    */
   if (
     date.getMonth() !== currentDate.value.getMonth() ||
@@ -529,7 +559,7 @@ const handleEventClick = async (event: CalendarEvent) => {
   }
 
   /*
-   * 用户自己的记录可以修改
+   * 用户记录可以修改
    */
   openEditDialog(event.id)
 }
@@ -612,18 +642,30 @@ const openEditDialog = async (id: number) => {
 
     calendarForm.value = {
       id: data.id,
+
       sourceType: data.sourceType,
-      recordType: data.recordType,
+
+      recordType: Number(data.recordType),
+
       sourceId: data.sourceId,
+
       title: data.title || '',
+
       eventDate: data.eventDate || '',
+
       startTime: data.startTime || '',
+
       endTime: data.endTime || '',
+
       remindTime: data.remindTime || '',
-      completed: data.completed || 0,
-      repeatType: data.repeatType || 0,
+
+      completed: Number(data.completed || 0),
+
+      repeatType: Number(data.repeatType || 0),
+
       remark: data.remark || '',
-      sort: data.sort || 0,
+
+      sort: Number(data.sort || 0),
     }
 
     isEdit.value = true
@@ -653,16 +695,10 @@ const saveCalendar = async () => {
     const params = {
       ...calendarForm.value,
 
-      /*
-       * 页面创建/修改的都是用户记录
-       */
       sourceType: 2,
 
       sourceId: null,
 
-      /*
-       * DatePicker 空值统一转换为 null
-       */
       startTime: calendarForm.value.startTime || null,
 
       endTime: calendarForm.value.endTime || null,
@@ -731,19 +767,29 @@ const deleteCalendar = async () => {
 const resetForm = () => {
   calendarForm.value = {
     id: 0,
+
     sourceType: 2,
+
     recordType: 1,
+
     sourceId: null,
+
     title: '',
+
     eventDate: formatDate(currentDate.value),
 
     startTime: '',
+
     endTime: '',
+
     remindTime: '',
 
     completed: 0,
+
     repeatType: 0,
+
     remark: '',
+
     sort: 0,
   }
 }

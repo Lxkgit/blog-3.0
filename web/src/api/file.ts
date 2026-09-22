@@ -327,7 +327,7 @@ export const saveCalendarApi = (params: any) => {
 
 // 根据ID查询日历记录
 export const selectCalendarByIdApi = (id: any) => {
-    const uri = "/file/calendar/select/" + id
+    const uri = "/file/calendar/select?id=" + id
     return api.get(uri)
 
 }

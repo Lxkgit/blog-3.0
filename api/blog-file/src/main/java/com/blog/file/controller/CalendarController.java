@@ -42,7 +42,7 @@ public class CalendarController {
      * 示例：GET /calendar/select/month?year=2026&month=9
      */
     @GetMapping("/select/month")
-    public List<BlogCalendar> listByMonth(@RequestParam Integer year, @RequestParam Integer month) {
+    public List<BlogCalendar> listByMonth(@RequestParam("year") Integer year, @RequestParam("month") Integer month) {
         Integer userId = SecurityUtil.getLoginUser().getId();
         return calendarService.listByMonth(userId, year, month);
     }

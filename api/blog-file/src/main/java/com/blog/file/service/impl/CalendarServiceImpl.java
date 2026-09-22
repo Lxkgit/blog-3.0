@@ -2,6 +2,7 @@ package com.blog.file.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.file.calendar.entity.BlogCalendar;
+import com.blog.core.utils.SecurityUtil;
 import com.blog.file.mapper.BlogCalendarMapper;
 import com.blog.file.service.CalendarService;
 import jakarta.annotation.Resource;
@@ -31,6 +32,7 @@ public class CalendarServiceImpl implements CalendarService {
      */
     @Override
     public boolean save(BlogCalendar calendar) {
+        calendar.setUserId(SecurityUtil.getLoginUser().getId());
         return blogCalendarMapper.insert(calendar) > 0;
     }
 

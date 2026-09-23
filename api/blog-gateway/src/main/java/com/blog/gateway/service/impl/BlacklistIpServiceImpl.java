@@ -1,12 +1,10 @@
 package com.blog.gateway.service.impl;
 
-import com.blog.gateway.dao.BlacklistIpDAO;
+import com.blog.gateway.mapper.BlacklistIpMapper;
 import com.blog.gateway.service.BlacklistIpService;
-//import com.blog.redis.service.RedisService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -19,16 +17,12 @@ import java.util.List;
 public class BlacklistIpServiceImpl implements BlacklistIpService {
 
     @Resource
-    private BlacklistIpDAO blacklistIpDAO;
+    private BlacklistIpMapper blacklistIpDAO;
 
-//    @Resource
-//    private RedisService redisService;
+
 
     @Override
     public List<String> selectBlacklistIpList() {
-
-//        redisService.setString("test", "aaa", 6000);
-
         return blacklistIpDAO.selectIpList();
     }
 }

@@ -1,11 +1,10 @@
 package com.blog.gateway.service.impl;
 
-import com.blog.common.entity.gateway.RequestLog;
-import com.blog.gateway.dao.RequestLogDAO;
+import com.blog.core.domain.gateway.RequestLog;
+import com.blog.gateway.mapper.RequestLogMapper;
 import com.blog.gateway.service.RequestLogService;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 
 /**
  * @Author: lxk
@@ -17,11 +16,11 @@ import javax.annotation.Resource;
 public class RequestLogServiceImpl implements RequestLogService {
 
     @Resource
-    private RequestLogDAO requestLogDAO;
+    private RequestLogMapper requestLogMapper;
 
     @Override
     public int saveRequestLog(RequestLog requestLog) {
-        return requestLogDAO.insert(requestLog);
+        return requestLogMapper.insert(requestLog);
 
     }
 

@@ -75,6 +75,8 @@
       <option name="customHeaders">
         <set>
           <option value="X-Video-Token" />
+          <option value="Proxy-Client-IP" />
+          <option value="WL-Proxy-Client-IP" />
         </set>
       </option>
     </inspection_tool>

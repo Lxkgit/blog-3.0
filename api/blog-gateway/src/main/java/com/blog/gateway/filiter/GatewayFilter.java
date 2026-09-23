@@ -20,6 +20,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -73,7 +74,17 @@ public class GatewayFilter implements GlobalFilter, Ordered {
         requestLog.setCreateTime(new Date());
         requestLog.setMethod(exchange.getRequest().getMethod().name());
         requestLog.setUrlPath(exchange.getRequest().getPath().toString());
-        requestLog.setParam(exchange.getRequest().getQueryParams().toString());
+
+        MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+        JSONObject json = new JSONObject();
+        queryParams.forEach((key, values) -> {
+            if (values.size() == 1) {
+                json.put(key, values.get(0));
+            } else {
+                json.put(key, values);
+            }
+        });
+        requestLog.setParam(json.toJSONString());
         requestLog.setRequestIp(ip);
 
         LoginUserBo loginUser = SecurityUtil.getLoginUser();

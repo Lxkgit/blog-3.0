@@ -1,7 +1,5 @@
 package com.blog.content.config.filter;
 
-import com.alibaba.fastjson2.JSONObject;
-import com.blog.core.utils.JwtUtil;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
@@ -9,8 +7,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -44,21 +40,8 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain)
             throws ServletException, IOException {
 
-
-        try {
-            String token = request.getHeader("Authorization");
-            if (StringUtils.isNotEmpty(token)) {
-                JSONObject jwt = JwtUtil.decodeJwt(token.substring(7));
-                SecurityUtil.setLoginUser(jwt);
-            }
-            //从请求头获取认证id
-            String rzId = request.getHeader("rzId");
-            if (StringUtils.isNotEmpty(rzId)) {
-                SecurityUtil.setRzId(rzId);
-            }
-        } catch (Exception e) {
-            logger.error("用户鉴权信息获取异常:{}", e.getMessage(), e);
-        }
+        String token = request.getHeader("Authorization");
+        SecurityUtil.getLoginUserByJwt(token);
 
         //放行
         filterChain.doFilter(request, response);

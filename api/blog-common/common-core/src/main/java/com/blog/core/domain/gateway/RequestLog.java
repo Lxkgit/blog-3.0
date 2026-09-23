@@ -21,6 +21,8 @@ public class RequestLog {
     private Integer id;
     private Integer userId;
     private String urlPath;
+    private String method;
+    private String param;
     private String requestIp;
     private Date createTime;
 

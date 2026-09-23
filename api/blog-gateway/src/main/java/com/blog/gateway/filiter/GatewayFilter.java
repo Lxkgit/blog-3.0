@@ -71,7 +71,9 @@ public class GatewayFilter implements GlobalFilter, Ordered {
         // 构建请求日志
         RequestLog requestLog = new RequestLog();
         requestLog.setCreateTime(new Date());
+        requestLog.setMethod(exchange.getRequest().getMethod().name());
         requestLog.setUrlPath(exchange.getRequest().getPath().toString());
+        requestLog.setParam(exchange.getRequest().getQueryParams().toString());
         requestLog.setRequestIp(ip);
 
         LoginUserBo loginUser = SecurityUtil.getLoginUser();

@@ -3,10 +3,10 @@
 <mapper namespace="com.blog.gateway.mapper.BlacklistIpMapper">
     <resultMap id="BaseResultMap" type="com.blog.core.domain.gateway.BlacklistIp">
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="user_id" property="userId" jdbcType="INTEGER"/>
-        <id column="ip" property="ip" jdbcType="VARCHAR"/>
-        <id column="msg" property="msg" jdbcType="VARCHAR"/>
-        <id column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="ip" property="ip" jdbcType="VARCHAR"/>
+        <result column="msg" property="msg" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

@@ -92,7 +92,7 @@ public class GatewayFilter implements GlobalFilter, Ordered {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("ip", requestLog.getRequestIp());
                 jsonObject.put("userId", requestLog.getUserId());
-                MqMessage mqMessage = new MqMessage(MqTopicEnum.BLOG_SYSTEM_DATA, MqMsgEnum.ADD.getType(), jsonObject.toJSONString());
+                MqMessage mqMessage = new MqMessage(MqTopicEnum.BLOG_SYSTEM_USER_IP, MqMsgEnum.ADD.getType(), jsonObject.toJSONString());
                 mqProducerService.sendSyncOrderly(mqMessage);
 
                 requestLogService.saveRequestLog(requestLog);

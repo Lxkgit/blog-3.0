@@ -3,14 +3,8 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import AMapLoader from '@amap/amap-jsapi-loader'
-
-/*
- * =========================================================
- * IP 定位数据
- * =========================================================
- */
 
 interface MapLocation {
   id: number
@@ -25,47 +19,20 @@ interface MapLocation {
   createTime: string | null
 }
 
-/*
- * =========================================================
- * Props
- * =========================================================
- */
-
 const props = defineProps<{
   locations?: MapLocation[]
 }>()
 
-/*
- * =========================================================
- * 地图 DOM
- * =========================================================
- */
+const emit = defineEmits<{
+  markerClick: [location: MapLocation]
+}>()
 
 const mapRef = ref<HTMLElement | null>(null)
 
-/*
- * =========================================================
- * 高德地图
- * =========================================================
- */
-
 let AMap: any = null
-
 let map: any = null
 
-/*
- * =========================================================
- * Marker
- * =========================================================
- */
-
 const markers: any[] = []
-
-/*
- * =========================================================
- * 初始化地图
- * =========================================================
- */
 
 async function initMap() {
   try {
@@ -81,21 +48,12 @@ async function initMap() {
       return
     }
 
-    /*
-     * 创建地图
-     */
-
     map = new AMap.Map(mapRef.value, {
       zoom: 5,
-
       center: [116.397428, 39.90923],
     })
 
     console.log('地图实例创建成功')
-
-    /*
-     * 绘制点位
-     */
 
     renderLocations()
   } catch (error) {
@@ -103,20 +61,10 @@ async function initMap() {
   }
 }
 
-/*
- * =========================================================
- * 绘制 IP 点位
- * =========================================================
- */
-
 function renderLocations() {
   if (!map || !AMap) {
     return
   }
-
-  /*
-   * 清除旧 Marker
-   */
 
   markers.forEach((marker) => {
     marker.setMap(null)
@@ -124,26 +72,16 @@ function renderLocations() {
 
   markers.length = 0
 
-  /*
-   * 没有数据
-   */
-
   if (!props.locations?.length) {
     console.log('没有 IP 定位数据')
     return
   }
 
-  /*
-   * 过滤有效坐标
-   */
-
   const locations = props.locations
     .map((item) => {
       return {
         item,
-
         longitude: Number(item.lon),
-
         latitude: Number(item.lat),
       }
     })
@@ -164,31 +102,21 @@ function renderLocations() {
     return
   }
 
-  /*
-   * =======================================================
-   * 创建 Marker
-   * =======================================================
-   */
-
   locations.forEach((location) => {
     console.log('创建 Marker:', location.longitude, location.latitude)
 
     const marker = new AMap.Marker({
       map: map,
-
       position: [location.longitude, location.latitude],
-
       title: location.item.ip,
+    })
+
+    marker.on('click', () => {
+      emit('markerClick', location.item)
     })
 
     markers.push(marker)
   })
-
-  /*
-   * =======================================================
-   * 设置地图中心
-   * =======================================================
-   */
 
   if (locations.length === 1) {
     map.setCenter([locations[0].longitude, locations[0].latitude])
@@ -198,50 +126,21 @@ function renderLocations() {
     return
   }
 
-  /*
-   * =======================================================
-   * 多个点
-   *
-   * 不使用 Bounds
-   * 直接计算中心点
-   * =======================================================
-   */
-
   let longitude = 0
-
   let latitude = 0
 
   locations.forEach((location) => {
     longitude += location.longitude
-
     latitude += location.latitude
   })
 
   longitude /= locations.length
-
   latitude /= locations.length
-
-  console.log('地图中心:', longitude, latitude)
-
-  /*
-   * 直接设置中心
-   */
 
   map.setCenter([longitude, latitude])
 
-  /*
-   * 上海 + 杭州
-   * 直接使用合适的缩放级别
-   */
-
   map.setZoom(8)
 }
-
-/*
- * =========================================================
- * 监听数据
- * =========================================================
- */
 
 watch(
   () => props.locations,
@@ -255,16 +154,22 @@ watch(
   },
 )
 
-/*
- * =========================================================
- * 初始化
- * =========================================================
- */
-
 onMounted(async () => {
   await nextTick()
-
   await initMap()
+})
+
+onBeforeUnmount(() => {
+  markers.forEach((marker) => {
+    marker.setMap(null)
+  })
+
+  markers.length = 0
+
+  if (map) {
+    map.destroy()
+    map = null
+  }
 })
 </script>
 

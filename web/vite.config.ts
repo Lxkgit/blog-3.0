@@ -32,7 +32,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:60001',
-        // target: 'http://192.168.200.128:60001',
+        // target: 'http://124.221.195.130:60001',
         changeOrigin: true,
         secure: false,
         // protocolRewrite: "https",

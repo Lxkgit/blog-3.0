@@ -135,13 +135,14 @@ const fences = ref<MapFence[]>([])
 
 async function loadLocations() {
   try {
-    const response = await selectIpLocationList()
-
-    if (response?.data?.success) {
-      locations.value = (response.data.result || []).filter(
+    const res: any = await selectIpLocationList()
+    if (res.code === 200) {
+      locations.value = (res.result || []).filter(
         (item: MapLocation) =>
           item.lat !== null &&
-          item.lon !== null,
+          item.lon !== null &&
+          Number.isFinite(Number(item.lat)) &&
+          Number.isFinite(Number(item.lon)),
       )
     }
   } catch (error) {

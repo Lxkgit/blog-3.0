@@ -237,16 +237,6 @@ export const startTaskApi = (params: any) => {
     return api.get(uri, params)
 }
 
-// export const selectTaskLogListApi = (params: any) => {
-//     const uri = "/file/task/log/select/list"
-//     return api.get(uri, params)
-// }
-
-// export const selectTaskLogByTaskUUIDApi = (params: any) => {
-//     const uri = "/file/task/log/select/id"
-//     return api.get(uri, params)
-// }
-
 
 // 保存任务
 export const insertTaskApi = (params: any) => {
@@ -329,7 +319,6 @@ export const saveCalendarApi = (params: any) => {
 export const selectCalendarByIdApi = (id: any) => {
     const uri = "/file/calendar/select/id?id=" + id
     return api.get(uri)
-
 }
 
 // 查询指定月份的全部日历记录
@@ -351,3 +340,10 @@ export const deleteCalendarApi = (id: any) => {
     return api.delete(uri)
 }
 
+// --------------博客地图接口-------------
+
+// 查询服务器ip地址定位列表
+export const selectIpLocationList = () => {
+    const uri = "/file/point/ip"
+    return api.get(uri)
+}

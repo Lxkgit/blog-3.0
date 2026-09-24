@@ -7,7 +7,6 @@
 
     <resultMap id="IpLocationResultMap" type="com.blog.core.domain.file.ip.entity.IpLocation">
         <id column="id" property="id"/>
-        <result column="user_id" property="userId"/>
         <result column="ip" property="ip"/>
         <result column="country" property="country"/>
         <result column="country_code" property="countryCode"/>

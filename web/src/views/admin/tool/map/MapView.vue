@@ -16,52 +16,63 @@
 
           <div class="location-info">
             <div class="info-item">
-              <span class="info-label"> 定位方式 </span>
-
-              <span class="info-value"> IP定位 </span>
+              <span class="info-label">定位方式</span>
+              <span class="info-value">
+                {{ location?.type || '-' }}
+              </span>
             </div>
 
             <div class="info-item">
-              <span class="info-label"> IP地址 </span>
-
-              <span class="info-value"> - </span>
+              <span class="info-label">IP地址</span>
+              <span class="info-value">
+                {{ location?.ip || '-' }}
+              </span>
             </div>
 
             <div class="info-item">
-              <span class="info-label"> 国家 </span>
-
-              <span class="info-value"> - </span>
+              <span class="info-label">国家</span>
+              <span class="info-value">
+                {{ location?.country || '-' }}
+              </span>
             </div>
 
             <div class="info-item">
-              <span class="info-label"> 省份 </span>
-
-              <span class="info-value"> - </span>
+              <span class="info-label">省份</span>
+              <span class="info-value">
+                {{ location?.province || '-' }}
+              </span>
             </div>
 
             <div class="info-item">
-              <span class="info-label"> 城市 </span>
-
-              <span class="info-value"> - </span>
+              <span class="info-label">城市</span>
+              <span class="info-value">
+                {{ location?.city || '-' }}
+              </span>
             </div>
 
             <div class="info-item">
-              <span class="info-label"> 经度 </span>
-
-              <span class="info-value"> - </span>
+              <span class="info-label">经度</span>
+              <span class="info-value">
+                {{ location?.longitude ?? '-' }}
+              </span>
             </div>
 
             <div class="info-item">
-              <span class="info-label"> 纬度 </span>
-
-              <span class="info-value"> - </span>
+              <span class="info-label">纬度</span>
+              <span class="info-value">
+                {{ location?.latitude ?? '-' }}
+              </span>
             </div>
           </div>
         </aside>
 
         <!-- 右侧地图 -->
         <main class="map-wrapper">
-          <MapComponents class="map-component" />
+          <MapComponents
+            class="map-component"
+            :location="location"
+            :fences="fences"
+          />
         </main>
       </div>
     </el-card>
@@ -69,7 +80,106 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import MapComponents from '@/components/admin/util/map/MapComponents.vue'
+
+/*
+ * =========================================================
+ * IP 定位数据
+ * =========================================================
+ */
+
+interface MapLocation {
+  type: string
+  ip: string
+  country: string
+  province: string
+  city: string
+  longitude: number
+  latitude: number
+}
+
+/*
+ * =========================================================
+ * 地图围栏
+ * =========================================================
+ */
+
+interface MapFence {
+  id: number
+  name: string
+
+  /*
+   * POLYGON：多边形
+   * CIRCLE：圆形
+   */
+  type: 'POLYGON' | 'CIRCLE'
+
+  /*
+   * 多边形坐标
+   */
+  path?: [number, number][]
+
+  /*
+   * 圆形中心
+   */
+  center?: [number, number]
+
+  /*
+   * 圆形半径，单位：米
+   */
+  radius?: number
+}
+
+/*
+ * =========================================================
+ * 页面数据
+ * =========================================================
+ */
+
+const location = ref<MapLocation | null>(null)
+
+const fences = ref<MapFence[]>([])
+
+/*
+ * =========================================================
+ * 获取地图数据
+ * =========================================================
+ */
+
+async function loadMapData() {
+  try {
+    /*
+     * IP 定位接口
+     */
+    const locationResponse = await fetch('/api/map/location')
+
+    if (locationResponse.ok) {
+      location.value = await locationResponse.json()
+    }
+
+    /*
+     * 围栏接口
+     */
+    const fenceResponse = await fetch('/api/map/fence/list')
+
+    if (fenceResponse.ok) {
+      fences.value = await fenceResponse.json()
+    }
+  } catch (error) {
+    console.error('获取地图数据失败:', error)
+  }
+}
+
+/*
+ * =========================================================
+ * 页面初始化
+ * =========================================================
+ */
+
+onMounted(() => {
+  loadMapData()
+})
 </script>
 
 <style scoped>
@@ -122,7 +232,7 @@ import MapComponents from '@/components/admin/util/map/MapComponents.vue'
 }
 
 /* =========================================================
-   去除 Card 默认内容区域影响
+   Card 内容
    ========================================================= */
 
 .map-card :deep(.el-card__body) {
@@ -201,7 +311,9 @@ import MapComponents from '@/components/admin/util/map/MapComponents.vue'
   padding-top: 8px;
 }
 
-/* 信息项 */
+/* =========================================================
+   信息项
+   ========================================================= */
 
 .info-item {
   min-height: 42px;
@@ -219,7 +331,9 @@ import MapComponents from '@/components/admin/util/map/MapComponents.vue'
   font-size: 13px;
 }
 
-/* 信息名称 */
+/* =========================================================
+   信息名称
+   ========================================================= */
 
 .info-label {
   flex-shrink: 0;
@@ -227,7 +341,9 @@ import MapComponents from '@/components/admin/util/map/MapComponents.vue'
   color: var(--el-text-color-secondary);
 }
 
-/* 信息内容 */
+/* =========================================================
+   信息内容
+   ========================================================= */
 
 .info-value {
   min-width: 0;

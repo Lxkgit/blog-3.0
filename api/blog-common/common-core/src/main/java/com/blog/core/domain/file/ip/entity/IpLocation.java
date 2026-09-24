@@ -24,11 +24,6 @@ public class IpLocation {
     private Long id;
 
     /**
-     * 接口请求用户id
-     */
-    private Integer userId;
-
-    /**
      * IP地址
      */
     private String ip;

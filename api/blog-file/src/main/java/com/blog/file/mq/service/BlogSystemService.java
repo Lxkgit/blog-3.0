@@ -1,12 +1,10 @@
 package com.blog.file.mq.service;
 
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.file.ip.entity.IpLocation;
 import com.blog.core.utils.IpUtil;
 import com.blog.file.mapper.IpLocationMapper;
-import com.blog.file.mq.MqMessageHandlerService;
 import com.blog.mq.entity.MqMessage;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -14,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,7 +52,6 @@ public class BlogSystemService {
 
         IpLocation ipLocation = new IpLocation();
         ipLocation.setIp(ip);
-        ipLocation.setUserId(message.getInteger("userId"));
 
         ipLocation.setCountry(result.getString("country"));
         ipLocation.setCountryCode(result.getString("countryCode"));
@@ -62,6 +60,7 @@ public class BlogSystemService {
         ipLocation.setLat(result.getBigDecimal("lat"));
         ipLocation.setLon(result.getBigDecimal("lon"));
         ipLocation.setIsp(result.getString("isp"));
+        ipLocation.setCreateTime(new Date());
         ipLocationMapper.insert(ipLocation);
     }
 

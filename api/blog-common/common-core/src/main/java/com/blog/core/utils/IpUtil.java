@@ -27,6 +27,7 @@ public class IpUtil {
     private static final String IP_LOCAL = "127.0.0.1";
     private static final String IPV6_LOCAL = "0:0:0:0:0:0:0:1";
     private static final int IP_LEN = 15;
+
     /**
      * 获取用户真实IP地址，不直接使用request.getRemoteAddr();的原因是有可能用户使用了代理软件方式避免真实IP地址,
      * 可是，如果通过了多级反向代理的话，X-Forwarded-For的值并不止一个，而是一串IP值，究竟哪个才是真正的用户端的真实IP呢？
@@ -51,7 +52,7 @@ public class IpUtil {
             ipAddress = Optional.ofNullable(request.getRemoteAddress())
                     .map(address -> address.getAddress().getHostAddress())
                     .orElse("");
-            if (IP_LOCAL.equals(ipAddress)|| IPV6_LOCAL.equals(ipAddress)) {
+            if (IP_LOCAL.equals(ipAddress) || IPV6_LOCAL.equals(ipAddress)) {
                 // 根据网卡取本机配置的IP
                 try {
                     InetAddress inet = InetAddress.getLocalHost();
@@ -73,6 +74,12 @@ public class IpUtil {
     }
 
 
+    /**
+     * 接口地址定位
+     * 注意接口限制最大请求速率限制：This endpoint is limited to 45 requests per minute from an IP address.
+     * @param ip ipv4地址
+     * @return
+     */
     public static JSONObject getIpLocation(String ip) {
         JSONObject result = new JSONObject();
         try {

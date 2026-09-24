@@ -3,12 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  nextTick,
-  onMounted,
-  ref,
-  watch,
-} from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import AMapLoader from '@amap/amap-jsapi-loader'
 
 /*
@@ -66,7 +61,7 @@ const mapRef = ref<HTMLElement | null>(null)
 
 /*
  * =========================================================
- * 高德地图实例
+ * 地图实例
  * =========================================================
  */
 
@@ -84,7 +79,7 @@ const locationMarkers: any[] = []
 
 /*
  * =========================================================
- * 围栏图层
+ * 围栏
  * =========================================================
  */
 
@@ -140,59 +135,132 @@ function renderMap() {
 
 /*
  * =========================================================
- * 绘制 IP 定位
+ * 绘制 IP 点位
  * =========================================================
  */
 
 function renderLocations() {
   if (!props.locations?.length) {
+    console.log('没有 IP 定位数据')
     return
   }
 
-  const validLocations = props.locations.filter(
-    (location) =>
-      typeof location.lon === 'number' &&
-      typeof location.lat === 'number',
-  )
+  const validLocations = props.locations.filter((location) => {
+    return (
+      location.lon !== null &&
+      location.lat !== null &&
+      Number.isFinite(Number(location.lon)) &&
+      Number.isFinite(Number(location.lat))
+    )
+  })
+
+  console.log('IP 定位数据:', props.locations)
+
+  console.log('有效定位点:', validLocations)
 
   if (!validLocations.length) {
     return
   }
 
   /*
-   * 创建所有 Marker
+   * =======================================================
+   * 创建 Marker
+   * =======================================================
    */
 
   validLocations.forEach((location) => {
-    const position = [
-      location.lon,
-      location.lat,
-    ]
+    const longitude = Number(location.lon)
+    const latitude = Number(location.lat)
 
     const marker = new AMap.Marker({
-      position,
+      position: [longitude, latitude],
+
+      /*
+       * Marker 锚点
+       *
+       * bottom-center 表示图标底部中心对应经纬度
+       */
+
+      anchor: 'bottom-center',
+
       title: location.ip,
+
+      /*
+       * 使用高德自带的蓝色定位点图标
+       */
+
+      icon: new AMap.Icon({
+        size: new AMap.Size(32, 40),
+
+        image: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
+
+        imageSize: new AMap.Size(32, 40),
+      }),
+
+      offset: new AMap.Pixel(-16, -40),
+
+      zIndex: 200,
+
       map,
     })
 
+    /*
+     * =====================================================
+     * 信息窗口
+     * =====================================================
+     */
+
     marker.on('click', () => {
-      console.log('点击 IP 定位:', location)
+      const address = [location.country, location.region, location.city].filter(Boolean).join(' ')
+
+      const infoWindow = new AMap.InfoWindow({
+        content: `
+          <div style="
+            padding: 10px;
+            min-width: 180px;
+            color: #333;
+            font-size: 13px;
+          ">
+            <div style="
+              font-size: 15px;
+              font-weight: 600;
+              margin-bottom: 8px;
+            ">
+              ${location.city || '未知位置'}
+            </div>
+
+            <div style="line-height: 24px;">
+              <div>IP：${location.ip || '-'}</div>
+              <div>位置：${address || '-'}</div>
+              <div>ISP：${location.isp || '-'}</div>
+              <div>
+                坐标：
+                ${longitude.toFixed(6)},
+                ${latitude.toFixed(6)}
+              </div>
+            </div>
+          </div>
+        `,
+
+        offset: new AMap.Pixel(0, -40),
+      })
+
+      infoWindow.open(map, [longitude, latitude])
     })
 
     locationMarkers.push(marker)
   })
 
   /*
-   * 只有一个定位点时直接定位
+   * =======================================================
+   * 调整地图视野
+   * =======================================================
    */
 
   if (validLocations.length === 1) {
     const location = validLocations[0]
 
-    map.setCenter([
-      location.lon,
-      location.lat,
-    ])
+    map.setCenter([Number(location.lon), Number(location.lat)])
 
     map.setZoom(12)
 
@@ -200,19 +268,24 @@ function renderLocations() {
   }
 
   /*
-   * 多个定位点自动调整地图范围
+   * 多个点自动调整视野
    */
 
   const bounds = new AMap.Bounds()
 
   validLocations.forEach((location) => {
-    bounds.extend([
-      location.lon,
-      location.lat,
-    ])
+    bounds.extend([Number(location.lon), Number(location.lat)])
   })
 
   map.setBounds(bounds)
+
+  /*
+   * 防止多个点距离太近导致缩放过大
+   */
+
+  if (map.getZoom() > 15) {
+    map.setZoom(12)
+  }
 }
 
 /*
@@ -233,18 +306,20 @@ function renderFences() {
      * =====================================================
      */
 
-    if (
-      fence.type === 'POLYGON' &&
-      fence.path &&
-      fence.path.length >= 3
-    ) {
+    if (fence.type === 'POLYGON' && fence.path && fence.path.length >= 3) {
       const polygon = new AMap.Polygon({
         path: fence.path,
+
         strokeWeight: 2,
+
         strokeColor: '#409EFF',
+
         strokeOpacity: 0.9,
+
         fillColor: '#409EFF',
+
         fillOpacity: 0.15,
+
         map,
       })
 
@@ -263,19 +338,22 @@ function renderFences() {
      * =====================================================
      */
 
-    if (
-      fence.type === 'CIRCLE' &&
-      fence.center &&
-      typeof fence.radius === 'number'
-    ) {
+    if (fence.type === 'CIRCLE' && fence.center && typeof fence.radius === 'number') {
       const circle = new AMap.Circle({
         center: fence.center,
+
         radius: fence.radius,
+
         strokeWeight: 2,
+
         strokeColor: '#409EFF',
+
         strokeOpacity: 0.9,
+
         fillColor: '#409EFF',
+
         fillOpacity: 0.15,
+
         map,
       })
 
@@ -290,7 +368,7 @@ function renderFences() {
 
 /*
  * =========================================================
- * 清除 IP Marker
+ * 清除 Marker
  * =========================================================
  */
 
@@ -318,7 +396,7 @@ function clearFenceOverlays() {
 
 /*
  * =========================================================
- * 监听 IP 定位变化
+ * 监听 IP 数据
  * =========================================================
  */
 
@@ -336,7 +414,7 @@ watch(
 
 /*
  * =========================================================
- * 监听围栏变化
+ * 监听围栏
  * =========================================================
  */
 
@@ -368,7 +446,6 @@ onMounted(async () => {
 <style scoped>
 .map-container {
   width: 100%;
-
   height: 100%;
 }
 </style>

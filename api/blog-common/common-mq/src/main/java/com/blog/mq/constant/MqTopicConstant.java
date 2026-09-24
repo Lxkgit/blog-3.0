@@ -14,4 +14,5 @@ public class MqTopicConstant {
 
     public static final String BLOG_SYSTEM_DATA = "BLOG_SYSTEM_DATA";
     public static final String REGISTER = "REGISTER";
+    public static final String USER_IP = "USER_IP";
 }

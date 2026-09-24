@@ -1,11 +1,16 @@
 package com.blog.gateway.filiter;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.domain.auth.bo.LoginUserBo;
 import com.blog.core.domain.gateway.RequestLog;
 import com.blog.core.utils.IpUtil;
 import com.blog.core.utils.SecurityUtil;
 import com.blog.gateway.service.RequestLogService;
+import com.blog.mq.entity.MqMessage;
+import com.blog.mq.enums.MqMsgEnum;
+import com.blog.mq.enums.MqTopicEnum;
+import com.blog.mq.service.MQProducerService;
 import com.blog.redis.service.RedisService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -40,6 +45,9 @@ public class GatewayFilter implements GlobalFilter, Ordered {
 
     @Resource
     private RedisService redisService;
+
+    @Resource
+    private MQProducerService mqProducerService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -81,6 +89,12 @@ public class GatewayFilter implements GlobalFilter, Ordered {
         // 异步保存日志
         Mono.fromRunnable(() -> {
             try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("ip", requestLog.getRequestIp());
+                jsonObject.put("userId", requestLog.getUserId());
+                MqMessage mqMessage = new MqMessage(MqTopicEnum.BLOG_SYSTEM_DATA, MqMsgEnum.ADD.getType(), jsonObject.toJSONString());
+                mqProducerService.sendSyncOrderly(mqMessage);
+
                 requestLogService.saveRequestLog(requestLog);
             } catch (Exception e) {
                 logger.error("保存请求日志失败", e);

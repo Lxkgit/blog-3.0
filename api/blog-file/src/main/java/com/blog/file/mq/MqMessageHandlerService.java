@@ -1,5 +1,6 @@
 package com.blog.file.mq;
 
+import com.blog.file.mq.service.BlogSystemService;
 import com.blog.file.mq.service.UserRegisterService;
 import com.blog.mq.constant.MqTopicConstant;
 import com.blog.mq.entity.MqMessage;
@@ -27,6 +28,9 @@ public class MqMessageHandlerService implements MqMessageHandler {
     @Resource
     private UserRegisterService userRegisterService;
 
+    @Resource
+    private BlogSystemService blogSystemService;
+
     @Override
     public boolean handleMessage(MqMessage mqMessage) {
         String topic = mqMessage.getTopic();
@@ -39,6 +43,11 @@ public class MqMessageHandlerService implements MqMessageHandler {
             if (MqTopicConstant.REGISTER.equals(tag)) {
                 logger.info("===== 用户注册 =====");
                 userRegisterService.createDir(mqMessage);
+            }
+            if (MqTopicConstant.USER_IP.equals(tag)) {
+                logger.info("===== IP定位 =====");
+
+                blogSystemService.getIpLocation(mqMessage);
             }
         }
 

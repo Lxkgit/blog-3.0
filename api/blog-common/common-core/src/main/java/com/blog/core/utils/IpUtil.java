@@ -1,6 +1,10 @@
 package com.blog.core.utils;
 
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
@@ -16,6 +20,8 @@ import java.util.Optional;
 
 @Slf4j
 public class IpUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(IpUtil.class);
 
     private static final String IP_UNKNOWN = "unknown";
     private static final String IP_LOCAL = "127.0.0.1";
@@ -64,5 +70,28 @@ public class IpUtil {
             }
         }
         return ipAddress;
+    }
+
+
+    public static JSONObject getIpLocation(String ip) {
+        JSONObject result = new JSONObject();
+        try {
+            String url = "http://ip-api.com/json/" + ip + "?lang=zh-CN&fields=status,message,country,countryCode,regionName,city,lat,lon,isp";
+            String response = HttpUtil.get(url);
+            JSONObject json = JSONObject.parseObject(response);
+            if ("success".equals(json.getString("status"))) {
+                result.put("ip", ip);
+                result.put("country", json.getString("country"));
+                result.put("countryCode", json.getString("countryCode"));
+                result.put("region", json.getString("regionName"));
+                result.put("city", json.getString("city"));
+                result.put("lat", json.getBigDecimal("lat"));
+                result.put("lon", json.getBigDecimal("lon"));
+                result.put("isp", json.getString("isp"));
+            }
+        } catch (Exception e) {
+            logger.error("IP定位失败，ip={}", ip, e);
+        }
+        return result;
     }
 }

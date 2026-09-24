@@ -15,6 +15,7 @@ public enum MqTopicEnum {
     BLOG_SYSTEM_DATA(MqTopicConstant.BLOG_SYSTEM_DATA, MqTopicConstant.CONTENT, "博客系统内容消息"),
     BLOG_SYSTEM_DATA_REGISTER(MqTopicConstant.BLOG_SYSTEM_DATA, MqTopicConstant.REGISTER, "用户注册消息"),
 
+    BLOG_SYSTEM_USER_IP(MqTopicConstant.BLOG_SYSTEM_DATA, MqTopicConstant.USER_IP, "博客系统用户请求ip"),
     ;
 
     /**

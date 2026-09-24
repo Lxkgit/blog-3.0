@@ -36,7 +36,7 @@ public class BlogSystemService {
         String ip = message.getString("ip");
 
         if (ERROR_IP_LIST.contains(ip)) {
-            logger.error("定位ip异常： {}", ip);
+            logger.info("定位ip异常： {}", ip);
             return;
         }
 
@@ -44,7 +44,7 @@ public class BlogSystemService {
         queryWrapper.eq(IpLocation::getIp, ip);
         List<IpLocation> ipLocationList = ipLocationMapper.selectList(queryWrapper);
         if (!ipLocationList.isEmpty()) {
-            logger.error("ip 已有定位数据： {}", ip);
+            logger.info("ip 已有定位数据： {}", ip);
             return;
         }
 

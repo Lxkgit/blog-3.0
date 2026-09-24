@@ -3,7 +3,12 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import {
+  nextTick,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
 import AMapLoader from '@amap/amap-jsapi-loader'
 
 /*
@@ -13,13 +18,16 @@ import AMapLoader from '@amap/amap-jsapi-loader'
  */
 
 interface MapLocation {
-  type: string
+  id: number
   ip: string
-  country: string
-  province: string
-  city: string
-  longitude: number
-  latitude: number
+  country: string | null
+  countryCode: string | null
+  region: string | null
+  city: string | null
+  lat: number | null
+  lon: number | null
+  isp: string | null
+  createTime: string | null
 }
 
 /*
@@ -31,26 +39,9 @@ interface MapLocation {
 interface MapFence {
   id: number
   name: string
-
-  /*
-   * POLYGON：多边形
-   * CIRCLE：圆形
-   */
   type: 'POLYGON' | 'CIRCLE'
-
-  /*
-   * 多边形坐标
-   */
   path?: [number, number][]
-
-  /*
-   * 圆形中心
-   */
   center?: [number, number]
-
-  /*
-   * 圆形半径，单位：米
-   */
   radius?: number
 }
 
@@ -61,7 +52,7 @@ interface MapFence {
  */
 
 const props = defineProps<{
-  location?: MapLocation | null
+  locations?: MapLocation[]
   fences?: MapFence[]
 }>()
 
@@ -89,7 +80,7 @@ let AMap: any = null
  * =========================================================
  */
 
-let locationMarker: any = null
+const locationMarkers: any[] = []
 
 /*
  * =========================================================
@@ -109,7 +100,6 @@ async function initMap() {
   try {
     AMap = await AMapLoader.load({
       key: '490e7c7313a93b0eae7d9159945c407b',
-
       version: '2.0',
     })
 
@@ -119,13 +109,8 @@ async function initMap() {
 
     map = new AMap.Map(mapRef.value, {
       zoom: 5,
-
       center: [116.397428, 39.90923],
     })
-
-    /*
-     * 第一次绘制
-     */
 
     renderMap()
   } catch (error) {
@@ -144,29 +129,13 @@ function renderMap() {
     return
   }
 
-  /*
-   * 清除旧 Marker
-   */
-
-  clearLocationMarker()
-
-  /*
-   * 清除旧围栏
-   */
+  clearLocationMarkers()
 
   clearFenceOverlays()
 
-  /*
-   * 绘制围栏
-   */
-
   renderFences()
 
-  /*
-   * 绘制 IP 定位
-   */
-
-  renderLocation()
+  renderLocations()
 }
 
 /*
@@ -175,42 +144,75 @@ function renderMap() {
  * =========================================================
  */
 
-function renderLocation() {
-  if (!props.location) {
+function renderLocations() {
+  if (!props.locations?.length) {
     return
   }
 
-  const { longitude, latitude } = props.location
+  const validLocations = props.locations.filter(
+    (location) =>
+      typeof location.lon === 'number' &&
+      typeof location.lat === 'number',
+  )
 
-  /*
-   * 检查坐标
-   */
-
-  if (typeof longitude !== 'number' || typeof latitude !== 'number') {
+  if (!validLocations.length) {
     return
   }
 
-  const position = [longitude, latitude]
-
   /*
-   * 创建 Marker
+   * 创建所有 Marker
    */
 
-  locationMarker = new AMap.Marker({
-    position,
+  validLocations.forEach((location) => {
+    const position = [
+      location.lon,
+      location.lat,
+    ]
 
-    title: `${props.location.city || ''} ${props.location.ip || ''}`,
+    const marker = new AMap.Marker({
+      position,
+      title: location.ip,
+      map,
+    })
 
-    map,
+    marker.on('click', () => {
+      console.log('点击 IP 定位:', location)
+    })
+
+    locationMarkers.push(marker)
   })
 
   /*
-   * 地图移动到 IP 定位位置
+   * 只有一个定位点时直接定位
    */
 
-  map.setCenter(position)
+  if (validLocations.length === 1) {
+    const location = validLocations[0]
 
-  map.setZoom(12)
+    map.setCenter([
+      location.lon,
+      location.lat,
+    ])
+
+    map.setZoom(12)
+
+    return
+  }
+
+  /*
+   * 多个定位点自动调整地图范围
+   */
+
+  const bounds = new AMap.Bounds()
+
+  validLocations.forEach((location) => {
+    bounds.extend([
+      location.lon,
+      location.lat,
+    ])
+  })
+
+  map.setBounds(bounds)
 }
 
 /*
@@ -231,20 +233,18 @@ function renderFences() {
      * =====================================================
      */
 
-    if (fence.type === 'POLYGON' && fence.path && fence.path.length >= 3) {
+    if (
+      fence.type === 'POLYGON' &&
+      fence.path &&
+      fence.path.length >= 3
+    ) {
       const polygon = new AMap.Polygon({
         path: fence.path,
-
         strokeWeight: 2,
-
         strokeColor: '#409EFF',
-
         strokeOpacity: 0.9,
-
         fillColor: '#409EFF',
-
         fillOpacity: 0.15,
-
         map,
       })
 
@@ -263,22 +263,19 @@ function renderFences() {
      * =====================================================
      */
 
-    if (fence.type === 'CIRCLE' && fence.center && typeof fence.radius === 'number') {
+    if (
+      fence.type === 'CIRCLE' &&
+      fence.center &&
+      typeof fence.radius === 'number'
+    ) {
       const circle = new AMap.Circle({
         center: fence.center,
-
         radius: fence.radius,
-
         strokeWeight: 2,
-
         strokeColor: '#409EFF',
-
         strokeOpacity: 0.9,
-
         fillColor: '#409EFF',
-
         fillOpacity: 0.15,
-
         map,
       })
 
@@ -297,14 +294,12 @@ function renderFences() {
  * =========================================================
  */
 
-function clearLocationMarker() {
-  if (!locationMarker) {
-    return
-  }
+function clearLocationMarkers() {
+  locationMarkers.forEach((marker) => {
+    marker.setMap(null)
+  })
 
-  locationMarker.setMap(null)
-
-  locationMarker = null
+  locationMarkers.length = 0
 }
 
 /*
@@ -328,7 +323,7 @@ function clearFenceOverlays() {
  */
 
 watch(
-  () => props.location,
+  () => props.locations,
   () => {
     if (map) {
       renderMap()

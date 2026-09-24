@@ -11,57 +11,56 @@
         <!-- 左侧信息 -->
         <aside class="map-sidebar">
           <div class="sidebar-title">
-            <span>位置信息</span>
+            <span>IP 位置信息</span>
           </div>
 
-          <div class="location-info">
-            <div class="info-item">
-              <span class="info-label">定位方式</span>
-              <span class="info-value">
-                {{ location?.type || '-' }}
-              </span>
+          <div class="location-list">
+            <div
+              v-for="location in locations"
+              :key="location.id"
+              class="location-item"
+            >
+              <div class="info-item">
+                <span class="info-label">IP地址</span>
+                <span class="info-value">
+                  {{ location.ip || '-' }}
+                </span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">国家</span>
+                <span class="info-value">
+                  {{ location.country || '-' }}
+                </span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">地区</span>
+                <span class="info-value">
+                  {{ location.region || '-' }}
+                </span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">城市</span>
+                <span class="info-value">
+                  {{ location.city || '-' }}
+                </span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">ISP</span>
+                <span class="info-value">
+                  {{ location.isp || '-' }}
+                </span>
+              </div>
             </div>
 
-            <div class="info-item">
-              <span class="info-label">IP地址</span>
-              <span class="info-value">
-                {{ location?.ip || '-' }}
-              </span>
-            </div>
-
-            <div class="info-item">
-              <span class="info-label">国家</span>
-              <span class="info-value">
-                {{ location?.country || '-' }}
-              </span>
-            </div>
-
-            <div class="info-item">
-              <span class="info-label">省份</span>
-              <span class="info-value">
-                {{ location?.province || '-' }}
-              </span>
-            </div>
-
-            <div class="info-item">
-              <span class="info-label">城市</span>
-              <span class="info-value">
-                {{ location?.city || '-' }}
-              </span>
-            </div>
-
-            <div class="info-item">
-              <span class="info-label">经度</span>
-              <span class="info-value">
-                {{ location?.longitude ?? '-' }}
-              </span>
-            </div>
-
-            <div class="info-item">
-              <span class="info-label">纬度</span>
-              <span class="info-value">
-                {{ location?.latitude ?? '-' }}
-              </span>
+            <div
+              v-if="locations.length === 0"
+              class="empty-location"
+            >
+              暂无位置信息
             </div>
           </div>
         </aside>
@@ -70,7 +69,7 @@
         <main class="map-wrapper">
           <MapComponents
             class="map-component"
-            :location="location"
+            :locations="locations"
             :fences="fences"
           />
         </main>
@@ -82,6 +81,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import MapComponents from '@/components/admin/util/map/MapComponents.vue'
+import { selectIpLocationList } from '@/api/file'
 
 /*
  * =========================================================
@@ -90,13 +90,16 @@ import MapComponents from '@/components/admin/util/map/MapComponents.vue'
  */
 
 interface MapLocation {
-  type: string
+  id: number
   ip: string
-  country: string
-  province: string
-  city: string
-  longitude: number
-  latitude: number
+  country: string | null
+  countryCode: string | null
+  region: string | null
+  city: string | null
+  lat: number | null
+  lon: number | null
+  isp: string | null
+  createTime: string | null
 }
 
 /*
@@ -108,26 +111,9 @@ interface MapLocation {
 interface MapFence {
   id: number
   name: string
-
-  /*
-   * POLYGON：多边形
-   * CIRCLE：圆形
-   */
   type: 'POLYGON' | 'CIRCLE'
-
-  /*
-   * 多边形坐标
-   */
   path?: [number, number][]
-
-  /*
-   * 圆形中心
-   */
   center?: [number, number]
-
-  /*
-   * 圆形半径，单位：米
-   */
   radius?: number
 }
 
@@ -137,9 +123,31 @@ interface MapFence {
  * =========================================================
  */
 
-const location = ref<MapLocation | null>(null)
+const locations = ref<MapLocation[]>([])
 
 const fences = ref<MapFence[]>([])
+
+/*
+ * =========================================================
+ * 获取 IP 定位
+ * =========================================================
+ */
+
+async function loadLocations() {
+  try {
+    const response = await selectIpLocationList()
+
+    if (response?.data?.success) {
+      locations.value = (response.data.result || []).filter(
+        (item: MapLocation) =>
+          item.lat !== null &&
+          item.lon !== null,
+      )
+    }
+  } catch (error) {
+    console.error('获取 IP 位置信息失败:', error)
+  }
+}
 
 /*
  * =========================================================
@@ -148,27 +156,13 @@ const fences = ref<MapFence[]>([])
  */
 
 async function loadMapData() {
-  try {
-    /*
-     * IP 定位接口
-     */
-    const locationResponse = await fetch('/api/map/location')
+  await loadLocations()
 
-    if (locationResponse.ok) {
-      location.value = await locationResponse.json()
-    }
-
-    /*
-     * 围栏接口
-     */
-    const fenceResponse = await fetch('/api/map/fence/list')
-
-    if (fenceResponse.ok) {
-      fences.value = await fenceResponse.json()
-    }
-  } catch (error) {
-    console.error('获取地图数据失败:', error)
-  }
+  /*
+   * 围栏接口后续接入
+   */
+  // const response = await selectFenceList()
+  // fences.value = response.data.result || []
 }
 
 /*
@@ -304,11 +298,23 @@ onMounted(() => {
 }
 
 /* =========================================================
-   位置信息
+   IP 列表
    ========================================================= */
 
-.location-info {
+.location-list {
   padding-top: 8px;
+}
+
+/* =========================================================
+   单个 IP
+   ========================================================= */
+
+.location-item {
+  margin-bottom: 12px;
+
+  padding-bottom: 8px;
+
+  border-bottom: 1px solid var(--el-border-color);
 }
 
 /* =========================================================
@@ -316,7 +322,7 @@ onMounted(() => {
    ========================================================= */
 
 .info-item {
-  min-height: 42px;
+  min-height: 36px;
 
   display: flex;
 
@@ -357,6 +363,20 @@ onMounted(() => {
   text-overflow: ellipsis;
 
   white-space: nowrap;
+}
+
+/* =========================================================
+   空数据
+   ========================================================= */
+
+.empty-location {
+  padding: 30px 0;
+
+  color: var(--el-text-color-secondary);
+
+  font-size: 13px;
+
+  text-align: center;
 }
 
 /* =========================================================
@@ -470,7 +490,7 @@ onMounted(() => {
     padding-bottom: 10px;
   }
 
-  .location-info {
+  .location-list {
     display: grid;
 
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -478,8 +498,8 @@ onMounted(() => {
     column-gap: 20px;
   }
 
-  .info-item {
-    min-height: 36px;
+  .location-item {
+    margin-bottom: 0;
   }
 
   .map-wrapper {
@@ -512,7 +532,7 @@ onMounted(() => {
     margin-right: 6px;
   }
 
-  .location-info {
+  .location-list {
     grid-template-columns: 1fr;
   }
 

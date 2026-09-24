@@ -71,7 +71,7 @@ let AMap: any = null
 
 /*
  * =========================================================
- * IP 定位 Marker
+ * IP Marker
  * =========================================================
  */
 
@@ -135,26 +135,30 @@ function renderMap() {
 
 /*
  * =========================================================
- * 绘制 IP 点位
+ * 绘制 IP 定位
  * =========================================================
  */
 
 function renderLocations() {
   if (!props.locations?.length) {
     console.log('没有 IP 定位数据')
+
     return
   }
 
   const validLocations = props.locations.filter((location) => {
+    const longitude = Number(location.lon)
+    const latitude = Number(location.lat)
+
     return (
-      location.lon !== null &&
-      location.lat !== null &&
-      Number.isFinite(Number(location.lon)) &&
-      Number.isFinite(Number(location.lat))
+      Number.isFinite(longitude) &&
+      Number.isFinite(latitude) &&
+      longitude >= -180 &&
+      longitude <= 180 &&
+      latitude >= -90 &&
+      latitude <= 90
     )
   })
-
-  console.log('IP 定位数据:', props.locations)
 
   console.log('有效定位点:', validLocations)
 
@@ -172,42 +176,26 @@ function renderLocations() {
     const longitude = Number(location.lon)
     const latitude = Number(location.lat)
 
+    /*
+     * 直接使用高德默认 Marker
+     *
+     * 不使用 Icon
+     * 不使用 Pixel
+     * 不使用 offset
+     */
+
     const marker = new AMap.Marker({
       position: [longitude, latitude],
 
-      /*
-       * Marker 锚点
-       *
-       * bottom-center 表示图标底部中心对应经纬度
-       */
-
-      anchor: 'bottom-center',
-
       title: location.ip,
 
-      /*
-       * 使用高德自带的蓝色定位点图标
-       */
+      map: map,
 
-      icon: new AMap.Icon({
-        size: new AMap.Size(32, 40),
-
-        image: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
-
-        imageSize: new AMap.Size(32, 40),
-      }),
-
-      offset: new AMap.Pixel(-16, -40),
-
-      zIndex: 200,
-
-      map,
+      zIndex: 100,
     })
 
     /*
-     * =====================================================
-     * 信息窗口
-     * =====================================================
+     * 点击 Marker
      */
 
     marker.on('click', () => {
@@ -241,8 +229,6 @@ function renderLocations() {
             </div>
           </div>
         `,
-
-        offset: new AMap.Pixel(0, -40),
       })
 
       infoWindow.open(map, [longitude, latitude])
@@ -253,7 +239,7 @@ function renderLocations() {
 
   /*
    * =======================================================
-   * 调整地图视野
+   * 自动调整地图视野
    * =======================================================
    */
 
@@ -268,7 +254,7 @@ function renderLocations() {
   }
 
   /*
-   * 多个点自动调整视野
+   * 多个点自动适应
    */
 
   const bounds = new AMap.Bounds()
@@ -280,7 +266,7 @@ function renderLocations() {
   map.setBounds(bounds)
 
   /*
-   * 防止多个点距离太近导致缩放过大
+   * 防止因为两个点距离太近导致地图放得过大
    */
 
   if (map.getZoom() > 15) {
@@ -320,7 +306,7 @@ function renderFences() {
 
         fillOpacity: 0.15,
 
-        map,
+        map: map,
       })
 
       polygon.on('click', () => {
@@ -354,7 +340,7 @@ function renderFences() {
 
         fillOpacity: 0.15,
 
-        map,
+        map: map,
       })
 
       circle.on('click', () => {
@@ -446,6 +432,7 @@ onMounted(async () => {
 <style scoped>
 .map-container {
   width: 100%;
+
   height: 100%;
 }
 </style>

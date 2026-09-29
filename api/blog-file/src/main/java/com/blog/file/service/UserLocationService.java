@@ -1,5 +1,6 @@
 package com.blog.file.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.blog.core.domain.file.ip.entity.IpLocation;
 
 import java.util.List;
@@ -13,4 +14,6 @@ import java.util.List;
 public interface UserLocationService {
 
     List<IpLocation> selectIpLocationList();
+
+    JSONObject getCenterPoint(String ip);
 }

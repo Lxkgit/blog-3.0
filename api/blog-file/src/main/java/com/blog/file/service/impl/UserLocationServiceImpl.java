@@ -1,10 +1,13 @@
 package com.blog.file.service.impl;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.core.domain.file.ip.entity.IpLocation;
+import com.blog.core.utils.IpUtil;
 import com.blog.file.mapper.IpLocationMapper;
 import com.blog.file.service.UserLocationService;
 import jakarta.annotation.Resource;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,5 +30,10 @@ public class UserLocationServiceImpl implements UserLocationService {
         wrapper.orderByDesc(IpLocation::getId);
         wrapper.last("limit 100");
         return ipLocationMapper.selectList(wrapper);
+    }
+
+    @Override
+    public JSONObject getCenterPoint(String ip) {
+        return IpUtil.getIpLocation(ip);
     }
 }

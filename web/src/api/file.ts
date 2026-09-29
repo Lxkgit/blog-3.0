@@ -343,7 +343,13 @@ export const deleteCalendarApi = (id: any) => {
 // --------------博客地图接口-------------
 
 // 查询服务器ip地址定位列表
-export const selectIpLocationList = () => {
+export const selectIpLocationListApi = () => {
     const uri = "/file/point/ip"
+    return api.get(uri)
+}
+
+// 查询地图展示中心点坐标
+export const getCenterApi = () => {
+    const uri = "/file/point/center"
     return api.get(uri)
 }

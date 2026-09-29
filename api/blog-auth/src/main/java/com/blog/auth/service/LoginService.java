@@ -12,8 +12,6 @@ public interface LoginService {
 
     String register(LoginVo vo);
 
-    void tuiChu(String rzId);
-
     JSONObject getToken(Oauth2Vo vo) throws ServiceException;
 
 }

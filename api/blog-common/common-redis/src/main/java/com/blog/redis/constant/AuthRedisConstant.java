@@ -9,11 +9,6 @@ package com.blog.redis.constant;
 public class AuthRedisConstant {
 
     /**
-     * 认证id
-     */
-    public final static String RZ_ID = "AUTH:RZ_ID";
-
-    /**
      * 公钥
      */
     public static final String PUBLIC_KEY = "AUTH:PUBLIC_KEY";
@@ -23,5 +18,4 @@ public class AuthRedisConstant {
      */
     public static final String PRIVATE_KEY = "AUTH:PRIVATE_KEY";
 
-    public static final String LOGOUT_TOKEN = "AUTH:LOGOUT";
 }

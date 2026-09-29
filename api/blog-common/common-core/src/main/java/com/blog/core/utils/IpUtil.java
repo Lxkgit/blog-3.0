@@ -2,6 +2,7 @@ package com.blog.core.utils;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONObject;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,10 +74,51 @@ public class IpUtil {
         return ipAddress;
     }
 
+    /**
+     * 接口获取ip地址
+     *
+     * @param request
+     * @return
+     */
+    public static String getIpAddress(HttpServletRequest request) {
+        String ipAddress = request.getHeader("x-forwarded-for");
+
+        if (ipAddress == null || ipAddress.isEmpty() || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+
+        if (ipAddress == null || ipAddress.isEmpty() || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+
+        if (ipAddress == null || ipAddress.isEmpty() || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+
+            if (IP_LOCAL.equals(ipAddress) || IPV6_LOCAL.equals(ipAddress)) {
+                try {
+                    InetAddress inet = InetAddress.getLocalHost();
+                    ipAddress = inet.getHostAddress();
+                } catch (UnknownHostException e) {
+                    log.error(e.getMessage());
+                }
+            }
+        }
+
+        if (ipAddress != null && ipAddress.length() > IP_LEN) {
+            int index = ipAddress.indexOf(",");
+            if (index > 0) {
+                ipAddress = ipAddress.substring(0, index);
+            }
+        }
+
+        return ipAddress;
+    }
+
 
     /**
      * 接口地址定位
      * 注意接口限制最大请求速率限制：This endpoint is limited to 45 requests per minute from an IP address.
+     *
      * @param ip ipv4地址
      * @return
      */

@@ -67,20 +67,6 @@ public class LoginController {
     }
 
     /**
-     * 退出登陆
-     */
-    @PostMapping("/tuiChu")
-    public Result tuiChu(HttpServletRequest request) {
-        // 获取当前的会话对象
-        String rzId = request.getHeader("rzId");
-        if (StringUtils.isEmpty(rzId)) {
-            return ResultFactory.buildFailResult("rzId不能为空");
-        }
-        loginService.tuiChu(rzId);
-        return ResultFactory.buildSuccessResult("退出成功");
-    }
-
-    /**
      * 获取公钥
      *
      * @return

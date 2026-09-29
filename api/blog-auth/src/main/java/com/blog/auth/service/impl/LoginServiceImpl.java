@@ -98,20 +98,6 @@ public class LoginServiceImpl implements LoginService {
         return "redirect:/login?success=register";
     }
 
-    /**
-     * 退出
-     *
-     * @param rzId
-     */
-    @Override
-    public void tuiChu(String rzId) {
-        String key = AuthRedisConstant.RZ_ID + ":" + rzId;
-        //清空上下文
-        SecurityContextHolder.clearContext();
-        //删除缓存
-        redisService.delKey(key);
-    }
-
     @Override
     public JSONObject getToken(Oauth2Vo vo) throws ServiceException {
         logger.info("获取 OAuth2 token，grantType={}", vo.getGrantType());

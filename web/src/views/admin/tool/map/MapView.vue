@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import MapComponents from '@/components/admin/util/map/MapComponents.vue'
-import { selectIpLocationList } from '@/api/file'
+import { selectIpLocationListApi, getCenterApi } from '@/api/file'
 
 interface MapLocation {
   id: number
@@ -84,7 +84,7 @@ const locations = ref<MapLocation[]>([])
 const selectedLocation = ref<MapLocation | null>(null)
 
 async function getLocations() {
-  const res: any = await selectIpLocationList()
+  const res: any = await selectIpLocationListApi()
 
   if (res.code === 200) {
     locations.value = (res.result || []).filter(

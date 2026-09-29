@@ -267,15 +267,21 @@ mountDisk() {
   # 处理硬盘挂载配置文件
   cp /opt/docker/ci/code/blog-3.0/pi/pi/conf/automount@.service /etc/systemd/system/
   cp /opt/docker/ci/code/blog-3.0/pi/pi/conf/99-automount.rules /etc/udev/rules.d/
+  cp /opt/docker/ci/code/blog-3.0/pi/pi/conf/ntfs-automount-scan.service /etc/systemd/system/
+
   sudo sed -i 's/\r$//' /etc/systemd/system/automount@.service
+  sudo sed -i 's/\r$//' /etc/systemd/system/ntfs-automount-scan.service
   sudo sed -i 's/\r$//' /etc/udev/rules.d/99-automount.rules
 
   sudo systemctl daemon-reload
 
+  # 启用开机自动扫描 NTFS 硬盘
+  sudo systemctl enable ntfs-automount-scan.service
+
   sudo udevadm control --reload-rules
   sudo udevadm trigger
 
-  echo "NTFS 热插拔安装完成"
+  echo "NTFS 热插拔及开机自动挂载安装完成"
 }
 
 # 配置 NAS 服务

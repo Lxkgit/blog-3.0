@@ -1,0 +1,24 @@
+[Unit]
+Description=Scan and Auto Mount Existing NTFS Drives
+After=systemd-udev-settle.service local-fs.target
+Wants=systemd-udev-settle.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/usr/bin/bash -c '\
+for dev in /dev/disk/by-uuid/*; do \
+    [ -e "$dev" ] || continue; \
+    UUID=$(basename "$dev"); \
+    FSTYPE=$(blkid -o value -s TYPE "$dev" 2>/dev/null); \
+    \
+    if [ "$FSTYPE" = "ntfs" ]; then \
+        echo "Found NTFS device: $dev"; \
+        systemctl start "automount@${UUID}.service"; \
+    fi; \
+done \
+'
+
+[Install]
+WantedBy=multi-user.target

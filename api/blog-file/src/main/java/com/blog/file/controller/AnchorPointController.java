@@ -2,8 +2,10 @@ package com.blog.file.controller;
 
 import com.blog.core.result.Result;
 import com.blog.core.result.ResultFactory;
+import com.blog.core.utils.IpUtil;
 import com.blog.file.service.UserLocationService;
 import jakarta.annotation.Resource;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +32,16 @@ public class AnchorPointController {
     @GetMapping("/ip")
     public Result selectIpLocationList() {
         return ResultFactory.buildSuccessResult(userLocationService.selectIpLocationList());
+    }
+
+    /**
+     * 获取地图展示中心点
+     *
+     * @return
+     */
+    @GetMapping("/center")
+    public Result getCenterPoint(ServerHttpRequest request) {
+        return ResultFactory.buildSuccessResult(userLocationService.getCenterPoint(IpUtil.getIpAddress(request)));
     }
 
 }

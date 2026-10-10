@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
  * @Author lxk
  * @CreateTime 2025-08-28
  */
-
 @Component
 @ServerEndpoint("/socket/{type}/{id}")
 public class SocketController {
@@ -38,7 +37,7 @@ public class SocketController {
 
         Integer count = socketService.socketOpen(session, type, id);
 
-        logger.info("===== socket连接 ===== type:{} id:{} 加入，当前{}连接数: {}", type, id, type, count);
+        logger.info("===== socket连接 ===== type:{} id:{} sessionId:{} 加入，当前连接数:{}", type, id, session.getId(), count);
     }
 
     /**
@@ -46,7 +45,8 @@ public class SocketController {
      */
     @OnClose
     public void onClose(Session session) {
-        socketService.socketClose(connectionType, connectionId);
+        logger.info("===== socket连接关闭 ===== type:{} id:{} sessionId:{}", connectionType, connectionId, session.getId());
+        socketService.socketClose(connectionType, connectionId, session);
     }
 
     /**
@@ -54,6 +54,8 @@ public class SocketController {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
+        logger.debug("===== socket收到消息 ===== type:{} id:{} sessionId:{}", connectionType, connectionId, session.getId());
+
         socketService.receiveMessage(connectionType, connectionId, message, session);
     }
 
@@ -61,6 +63,4 @@ public class SocketController {
     public void onError(Throwable error) {
         logger.error("{}连接[ID:{}]发生错误: {}", connectionType, connectionId, error.getMessage(), error);
     }
-
-
 }

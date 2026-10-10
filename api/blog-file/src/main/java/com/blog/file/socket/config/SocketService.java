@@ -6,7 +6,7 @@ import com.alibaba.fastjson2.TypeReference;
 import com.blog.core.exception.ServiceException;
 import com.blog.core.domain.socket.SocketPacket;
 import com.blog.core.domain.socket.SocketPacketEvent;
-import jakarta.websocket.*;
+import jakarta.websocket.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,108 +22,187 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @description: 通用WebSocket处理器
  * @Author: lxk
  */
-
 @Service
 public class SocketService {
 
     private static final Logger logger = LoggerFactory.getLogger(SocketService.class);
 
     // 存储所有连接（按类型分组）
-    private static final Map<String, Map<String, Session>> connections = new ConcurrentHashMap<>();
+    private static final Map<String, Map<String, Session>> CONNECTIONS = new ConcurrentHashMap<>();
+
     // 存储连接类型与对应数量
-    private static final Map<String, AtomicInteger> connectionCounts = new ConcurrentHashMap<>();
+    private static final Map<String, AtomicInteger> CONNECTION_COUNTS = new ConcurrentHashMap<>();
 
-
-    // 会话管理器（通过SpringUtils获取）
+    // 事件发布器
     private static ApplicationEventPublisher eventPublisher;
 
-    // 静态注入 ApplicationEventPublisher
     @Autowired
     public void setEventPublisher(ApplicationEventPublisher eventPublisher) {
         SocketService.eventPublisher = eventPublisher;
     }
 
     public Integer socketOpen(Session session, String type, String id) {
-        // 初始化该类型的连接组
-        connections.computeIfAbsent(type, k -> new ConcurrentHashMap<>());
-        connectionCounts.computeIfAbsent(type, k -> new AtomicInteger(0));
+        Map<String, Session> typeConnections = CONNECTIONS.computeIfAbsent(type, key -> new ConcurrentHashMap<>());
 
-        // 添加到连接池
-        connections.get(type).put(id, session);
-        return connectionCounts.get(type).incrementAndGet();
-    }
+        AtomicInteger count = CONNECTION_COUNTS.computeIfAbsent(type, key -> new AtomicInteger(0));
 
-    public void socketClose(String connectionType, String connectionId) {
-        if (connectionType != null && connectionId != null) {
-            Map<String, Session> typeConnections = connections.get(connectionType);
-            if (typeConnections != null) {
-                typeConnections.remove(connectionId);
-                int count = connectionCounts.get(connectionType).decrementAndGet();
-                logger.info("socket连接类型 type:{} id:{} 退出，当前{}连接数: {}", connectionType, connectionId, connectionType, count);
-            }
-        }
-    }
+        // 注册新会话，获取同 ID 的旧会话
+        Session oldSession = typeConnections.put(id, session);
 
-    /**
-     * 发送消息给指定客户端
-     * @param type 客户端类型
-     * @param id 客户端连接id
-     * @param message 消息内容
-     * @param <T>
-     */
-    public <T> boolean sendMessage(String type, String id, SocketPacket<T> message) throws ServiceException {
-        if (connections.containsKey(type)) {
-            Map<String, Session> sessionTypeMap = connections.get(type);
-            if (sessionTypeMap.containsKey(id)) {
-                Session session = connections.get(type).get(id);
-                if (session != null && session.isOpen()) {
-                    String jsonMessage = JSON.toJSONString(message);
-                    logger.debug("socket 发送消息: 向{}/{}发送消息: requestId: {} message: {}", type, id, message.getRequestId(), jsonMessage);
-                    return sendMessageToSession(session, jsonMessage);
-                } else {
-                    throw new ServiceException("目标会话已关闭: " + type + "/" + id);
+        if (oldSession == null) {
+            // 新增一个连接
+            count.incrementAndGet();
+        } else if (oldSession != session) {
+            // 同一个 ID 被新会话替换，不增加连接数
+            logger.info("socket连接替换 type:{} id:{} oldSessionId:{} newSessionId:{}", type, id, oldSession.getId(), session.getId());
+
+            // 关闭旧会话，其关闭回调不会删除新会话
+            if (oldSession.isOpen()) {
+                try {
+                    oldSession.close();
+                } catch (IOException e) {
+                    logger.warn("关闭旧 socket 会话失败 type:{} id:{} sessionId:{}", type, id, oldSession.getId(), e);
                 }
             }
         }
-        throw new ServiceException("目标会话不存在: " + type + "/" + id);
+
+        int currentCount = typeConnections.size();
+
+        logger.info("socket连接注册 type:{} id:{} sessionId:{} 当前连接数:{}", type, id, session.getId(), currentCount);
+
+        return currentCount;
+    }
+
+
+    /**
+     * WebSocket 连接关闭
+     *
+     * @param connectionType 客户端类型
+     * @param connectionId   客户端连接 ID
+     * @param session        实际关闭的 WebSocket 会话
+     */
+    public void socketClose(String connectionType, String connectionId, Session session) {
+        if (connectionType == null || connectionId == null || session == null) {
+            return;
+        }
+
+        Map<String, Session> typeConnections = CONNECTIONS.get(connectionType);
+
+        if (typeConnections == null) {
+            logger.debug("socket连接组不存在，无需清理 type:{} id:{} sessionId:{}", connectionType, connectionId, session.getId());
+            return;
+        }
+
+        // 只删除 ID 对应的实际会话，防止旧连接关闭时误删新连接
+        boolean removed = typeConnections.remove(connectionId, session);
+
+        if (!removed) {
+            logger.debug("socket连接未删除，当前连接可能已被替换 type:{} id:{} sessionId:{}", connectionType, connectionId, session.getId());
+            return;
+        }
+
+        // 仅成功删除连接时才递减计数
+        AtomicInteger count = CONNECTION_COUNTS.get(connectionType);
+        int currentCount;
+
+        if (count != null) {
+            currentCount = count.updateAndGet(value -> Math.max(0, value - 1));
+        } else {
+            currentCount = typeConnections.size();
+        }
+
+        logger.info("socket连接关闭 type:{} id:{} sessionId:{} 当前连接数:{}", connectionType, connectionId, session.getId(), currentCount);
+
+        // 清理空连接组，使用条件删除，避免并发情况下误删新建的连接组
+        if (typeConnections.isEmpty()) {
+            CONNECTIONS.remove(connectionType, typeConnections);
+            CONNECTION_COUNTS.remove(connectionType, count);
+        }
+    }
+
+
+    /**
+     * 发送消息给指定客户端
+     *
+     * @param type    客户端类型
+     * @param id      客户端连接id
+     * @param message 消息内容
+     */
+    public <T> boolean sendMessage(String type, String id, SocketPacket<T> message) throws ServiceException {
+
+        Map<String, Session> typeConnections = CONNECTIONS.get(type);
+
+        if (typeConnections == null) {
+            logger.error("socket连接类型不存在 type:{} id:{} 当前所有类型:{}", type, id, CONNECTIONS.keySet());
+
+            throw new ServiceException("目标会话不存在: " + type + "/" + id);
+        }
+
+        Session session = typeConnections.get(id);
+
+        if (session == null) {
+            logger.error("socket目标会话不存在 type:{} id:{} 当前该类型的连接ID:{}", type, id, typeConnections.keySet());
+
+            throw new ServiceException("目标会话不存在: " + type + "/" + id);
+        }
+
+        if (!session.isOpen()) {
+            logger.warn("socket目标会话已关闭 type:{} id:{} sessionId:{}", type, id, session.getId());
+
+            // 只清理当前已经关闭的会话
+            typeConnections.remove(id, session);
+
+            AtomicInteger count = CONNECTION_COUNTS.get(type);
+
+            if (count != null) {
+                count.updateAndGet(value -> Math.max(0, value - 1));
+            }
+
+            if (typeConnections.isEmpty()) {
+                CONNECTIONS.remove(type, typeConnections);
+                CONNECTION_COUNTS.remove(type);
+            }
+
+            throw new ServiceException("目标会话已关闭: " + type + "/" + id);
+        }
+
+        String jsonMessage = JSON.toJSONString(message);
+
+        logger.debug("socket发送消息 type:{} id:{} sessionId:{} requestId:{} message:{}", type, id, session.getId(), message.getRequestId(), jsonMessage);
+
+        return sendMessageToSession(session, jsonMessage);
     }
 
     /**
      * 接收socket消息
-     *
-     * @param connectionType socket客户端类型
-     * @param connectionId 客户端id
-     * @param message 消息内容
-     * @param session 连接会话
      */
     public void receiveMessage(String connectionType, String connectionId, String message, Session session) {
-        // 报文解析处理
-        // 处理泛型：new TypeReference<SocketPacket<Object>>() {}.getType()
-        // TypeReference：解决Java泛型类型擦除问题，保留SocketPacket<Object>的类型信息，确保反序列化时能正确识别泛型类型
-        // SocketPacket：自定义的泛型类，可能用于封装网络传输的数据包，Object表示其携带的数据类型可以是任意对象
         SocketPacket<Object> socketPacket = JSONObject.parseObject(message, new TypeReference<SocketPacket<Object>>() {
         }.getType());
-        // 发布自定义 socket 数据包处理事件
+
+        // 发布自定义socket数据包处理事件
         eventPublisher.publishEvent(new SocketPacketEvent(connectionType, connectionId, session, socketPacket));
     }
 
     /**
-     * socket 消息发送方法
-     *
-     * @param session
-     * @param message
+     * socket消息发送方法
      */
     private boolean sendMessageToSession(Session session, String message) {
         if (session != null && session.isOpen()) {
             synchronized (session) {
                 try {
+                    if (!session.isOpen()) {
+                        return false;
+                    }
+
                     session.getBasicRemote().sendText(message);
                     return true;
                 } catch (IOException e) {
-                    logger.error("消息发送失败: {}", e.getMessage(), e);
+                    logger.error("socket消息发送失败 sessionId:{} error:{}", session.getId(), e.getMessage(), e);
                 }
             }
         }
+
         return false;
     }
 
@@ -131,9 +210,7 @@ public class SocketService {
      * 获取当前类型的连接数
      */
     public static int getConnectionCount(String type) {
-        AtomicInteger count = connectionCounts.get(type);
+        AtomicInteger count = CONNECTION_COUNTS.get(type);
         return count != null ? count.get() : 0;
     }
-
-
 }

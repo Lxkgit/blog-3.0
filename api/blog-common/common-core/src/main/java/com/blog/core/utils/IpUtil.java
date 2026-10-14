@@ -50,9 +50,7 @@ public class IpUtil {
             ipAddress = headers.getFirst("WL-Proxy-Client-IP");
         }
         if (ipAddress == null || ipAddress.isEmpty() || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
-            ipAddress = Optional.ofNullable(request.getRemoteAddress())
-                    .map(address -> address.getAddress().getHostAddress())
-                    .orElse("");
+            ipAddress = Optional.ofNullable(request.getRemoteAddress()).map(address -> address.getAddress().getHostAddress()).orElse("");
             if (IP_LOCAL.equals(ipAddress) || IPV6_LOCAL.equals(ipAddress)) {
                 // 根据网卡取本机配置的IP
                 try {
@@ -116,31 +114,53 @@ public class IpUtil {
 
 
     /**
-     * 接口地址定位
-     * 注意接口限制最大请求速率限制：This endpoint is limited to 45 requests per minute from an IP address.
+     * 腾讯地图 IP 定位
      *
-     * @param ip ipv4地址
-     * @return
+     * @param ip 待查询的 IP 地址
+     * @return IP 定位信息
      */
     public static JSONObject getIpLocation(String ip) {
         JSONObject result = new JSONObject();
         try {
-            String url = "http://ip-api.com/json/" + ip + "?lang=zh-CN&fields=status,message,country,countryCode,regionName,city,lat,lon,isp";
-            String response = HttpUtil.get(url);
+            // 腾讯地图 WebService API Key
+            String key = "TOLBZ-5ZLLI-4VPGS-UIBPB-SPJCJ-BXFKM";
+            String url = "https://apis.map.qq.com/ws/location/v1/ip" + "?ip=" + ip + "&key=" + key;
+
+            // 请求腾讯地图 IP 定位接口
+            String response = HttpUtil.get(url, 5000);
             JSONObject json = JSONObject.parseObject(response);
-            if ("success".equals(json.getString("status"))) {
+
+            // 腾讯地图 status = 0 表示请求成功
+            if (json != null && json.getIntValue("status") == 0) {
+                JSONObject data = json.getJSONObject("result");
+                if (data == null) {
+                    return result;
+                }
+                JSONObject location = data.getJSONObject("location");
+                JSONObject adInfo = data.getJSONObject("ad_info");
                 result.put("ip", ip);
-                result.put("country", json.getString("country"));
-                result.put("countryCode", json.getString("countryCode"));
-                result.put("region", json.getString("regionName"));
-                result.put("city", json.getString("city"));
-                result.put("lat", json.getBigDecimal("lat"));
-                result.put("lon", json.getBigDecimal("lon"));
-                result.put("isp", json.getString("isp"));
+                if (adInfo != null) {
+                    result.put("country", adInfo.getString("nation"));
+                    result.put("region", adInfo.getString("province"));
+                    result.put("city", adInfo.getString("city"));
+
+                    // 腾讯地图该接口不一定提供国家代码和运营商信息
+                    result.put("countryCode", null);
+                    result.put("isp", null);
+                }
+
+                if (location != null) {
+                    result.put("lat", location.getBigDecimal("lat"));
+                    result.put("lon", location.getBigDecimal("lng"));
+                }
+
+            } else {
+                logger.warn("腾讯地图 IP 定位失败，ip={}，响应={}", ip, response);
             }
         } catch (Exception e) {
-            logger.error("IP定位失败，ip={}", ip, e);
+            logger.error("IP 定位失败，ip={}", ip, e);
         }
+
         return result;
     }
 }
